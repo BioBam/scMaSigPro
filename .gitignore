@@ -1,0 +1,7 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+test/testthat/sce.test.RDS
+data/
+extdata/

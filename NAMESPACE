@@ -1,0 +1,28 @@
+exportPattern("^[[:alpha:]]+")
+
+# Single Function Imports
+importFrom("SingleCellExperiment", "colData")
+importFrom("reshape2", "melt")
+importFrom("methods", "new")
+importFrom("assertthat", "assert_that")
+importFrom("MASS", "negative.binomial")
+
+# Import Entire Libraries
+import("ggplot2")
+import("stats")
+import("glmmTMB")
+import("pscl")
+
+# Exports
+export("plot_loess_fit")
+export("glm_inspection")
+export("sc_makeDesign")
+export("sc_pVector")
+export("sc_tFit")
+export("showEstimates")
+export("showTscores")
+export("showSol")
+export("sc.sel.features")
+
+# Export Classes
+exportClasses("scMaSigProClass")
