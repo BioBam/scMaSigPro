@@ -6,6 +6,7 @@ importFrom("reshape2", "melt")
 importFrom("methods", "new")
 importFrom("assertthat", "assert_that")
 importFrom("MASS", "negative.binomial")
+importFrom("DESeq2", "estimateSizeFactorsForMatrix")
 
 # Import Entire Libraries
 import("ggplot2")

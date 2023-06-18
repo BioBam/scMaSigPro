@@ -8,7 +8,7 @@ Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 License: MIT + file LICENSE
 Imports: reshape2, ggplot2, SingleCellExperiment, methods, tidyverse, glmmTMB, MASS, assertthat,
-    pscl
+    pscl, DESeq2
 Encoding: UTF-8
 LazyData: false
 RoxygenNote: 7.2.3
