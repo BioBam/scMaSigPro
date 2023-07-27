@@ -29,10 +29,10 @@ plot_loess_fit <- function(sce_obj, gene_name, log = F,
   # Extract the colData
   cell.data <- as.data.frame(colData(sce_obj))[, c(time_col, path_col), drop = F]
   cell.data$cell_id <- rownames(cell.data)
-  
+
   # Extract the matrix depending upon the class of the matrix
   t.counts.mtx <- sce_obj@assays@data[[assay_name]]
-  
+
   # Long format
   suppressWarnings(t.counts.tab <- melt(as.matrix(t.counts.mtx)))
   colnames(t.counts.tab) <- c("gene_name", "cell_id", "counts_value")
@@ -49,7 +49,7 @@ plot_loess_fit <- function(sce_obj, gene_name, log = F,
 
   # return(plt.tab)
   plt.tab <- plt.tab[plt.tab$counts_value >= min_exp, ]
-  
+
   # Base Plot
   loess_plot <- ggplot() +
     theme_classic() +

@@ -34,9 +34,11 @@ The function operates by iterating over each row of the pseudo_bulk_profile. For
 }
 \examples{
 \dontrun{
-make.pseudobulk.counts(counts = sc_counts, 
-                 pseudo_bulk_profile = pb_profile,
-                 cluster.count.by = "mean")
+make.pseudobulk.counts(
+  counts = sc_counts,
+  pseudo_bulk_profile = pb_profile,
+  cluster.count.by = "mean"
+)
 }
 
 }

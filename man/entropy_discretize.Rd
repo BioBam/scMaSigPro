@@ -7,6 +7,7 @@
 entropy_discretize(
   design_table,
   time_col,
+  path_col,
   method = "Sturges",
   drop.fac = 0.5,
   verbose = TRUE
@@ -16,6 +17,8 @@ entropy_discretize(
 \item{design_table}{A data.frame. The dataset containing the time series column to be discretized.}
 
 \item{time_col}{A character string. The name of the column in design_table that contains the time series data to be discretized.}
+
+\item{path_col}{A character string. The name of the column in design_table that contains the Lineage information.}
 
 \item{method}{A character string (default = "Sturges"). The method to be used to estimate the optimal number of bins. Currently, this function supports "Sturges" method.}
 
@@ -47,8 +50,10 @@ This function performs the following steps:
 }
 \examples{
 \dontrun{
-entropy_discretize(design_table = data.frame, time_col = "time",
-method = "Sturges", drop.fac = 0.5, verbose = TRUE)
+entropy_discretize(
+  design_table = data.frame, time_col = "time",
+  method = "Sturges", drop.fac = 0.5, verbose = TRUE
+)
 }
 
 }

@@ -31,54 +31,52 @@
 #' }
 #'
 #' @seealso \code{\link{calc_bin_size}}
-#' 
+#'
 #' @export
 
 make.pseudobulk.design <- function(design.file, pathCol,
                                    binnedCol = "binnedTime") {
-    
-    # Get the avaible paths
-    avail.paths <- as.vector(unique(design.file[[pathCol]]))
-    
-    # Apply transformations on data
-    pB.list = lapply(avail.paths, function(path, design.frame = design.file,
-                                 binned.col = binnedCol,path.col = pathCol){
-        
-        # Get the cells belonging to path
-        path.frame = design.frame[design.frame[[path.col]] == path,, drop = F]
-        
-        # Order along the temporal vector
-        path.time.cell <- path.frame[order(path.frame[, binned.col]), c(binned.col, "Cell")]
-        
-        # Group by time
-        path.time.cell <- path.time.cell %>%
-            group_by_at(binned.col) %>%
-            summarise(cluster.members = paste0(Cell, collapse = "|"))
-        
-        # Add Cluster Label
-        path.time.cell$bin <- paste0(path, "_bin_", seq(1, nrow(path.time.cell)))
-        
-        # Set the Path Information
-        path.time.cell$path <- path
-        
-        # Add Cluster Size
-        path.time.cell$bin.size <- apply(path.time.cell, 1, calc_bin_size)
-        
-        # Return frame
-        return(path.time.cell)
-    })
-    
-    # Bind rows
-    pB.frame <- bind_rows(pB.list) %>% as.data.frame()
-    
-    # Add Dummy Variables
-    for (i in avail.paths) {
-        pB.frame[[i]] <- ifelse(pB.frame$path %in% i, 1, 0)
-    }
-    
-    # Add rownames
-    rownames(pB.frame) <- pB.frame$bin
-    
-    # Pathway infor
-    return(pB.frame)
+  # Get the avaible paths
+  avail.paths <- as.vector(unique(design.file[[pathCol]]))
+
+  # Apply transformations on data
+  pB.list <- lapply(avail.paths, function(path, design.frame = design.file,
+                                          binned.col = binnedCol, path.col = pathCol) {
+    # Get the cells belonging to path
+    path.frame <- design.frame[design.frame[[path.col]] == path, , drop = F]
+
+    # Order along the temporal vector
+    path.time.cell <- path.frame[order(path.frame[, binned.col]), c(binned.col, "Cell")]
+
+    # Group by time
+    path.time.cell <- path.time.cell %>%
+      group_by_at(binned.col) %>%
+      summarise(cluster.members = paste0(Cell, collapse = "|"))
+
+    # Add Cluster Label
+    path.time.cell$bin <- paste0(path, "_bin_", seq(1, nrow(path.time.cell)))
+
+    # Set the Path Information
+    path.time.cell$path <- path
+
+    # Add Cluster Size
+    path.time.cell$bin.size <- apply(path.time.cell, 1, calc_bin_size)
+
+    # Return frame
+    return(path.time.cell)
+  })
+
+  # Bind rows
+  pB.frame <- bind_rows(pB.list) %>% as.data.frame()
+
+  # Add Dummy Variables
+  for (i in avail.paths) {
+    pB.frame[[i]] <- ifelse(pB.frame$path %in% i, 1, 0)
+  }
+
+  # Add rownames
+  rownames(pB.frame) <- pB.frame$bin
+
+  # Pathway infor
+  return(pB.frame)
 }

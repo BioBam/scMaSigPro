@@ -24,10 +24,12 @@ load()
 sce.test <- readRDS("../data/sce.test.RDS")
 cell.metadata <- as.data.frame(colData(sce.test))
 
-x <- entropy_discretize(cell.metadata, time_col = "Step", method = "Sturges")
+x <- entropy_discretize(cell.metadata, time_col = "Step", path_col = "Group")
 y <- make.pseudobulk.design(design.file = x, pathCol = "Group", binnedCol = "binnedTime")
-z <- make.pseudobulk.counts(counts = sce.test@assays@data@listData$counts,
-                            pseudo_bulk_profile = y, cluster.count.by = "mean")
+z <- make.pseudobulk.counts(
+  counts = sce.test@assays@data@listData$counts,
+  pseudo_bulk_profile = y, cluster.count.by = "sum"
+)
 
 scmp.obj <- sc_makeDesign(sce.object = sce.test)
 scmp.obj <- sc_pVector(scmp.obj, p.vector.sig = 0.4)
@@ -41,8 +43,9 @@ scmp.obj <- sc_tFit(scmp.obj)
 # Selection of Siginificant Models
 ```{r, eval=FALSE, message=F, echo=FALSE, warning=FALSE}
 scmp.obj <- sc.sel.features(scmp.obj,
-                            filter = "rsq",
-                            Q =  0.05)
+  filter = "rsq",
+  Q = 0.05
+)
 ```
 
 # Show Models
@@ -63,20 +66,19 @@ load <- function() {
   suppressPackageStartupMessages(library(scMaSigPro))
   suppressPackageStartupMessages(library(utils))
   suppressPackageStartupMessages(library(profmem))
-  
 }
 load()
 
 # Load object from the /data
 sce.test <- readRDS("../data/sce.test.RDS")
-  
+
 # Create a simple design file
 design.file <- as.data.frame(colData(sce.test))
 design.file$Path1 <- ifelse(design.file$Group == "Path1", 1, 0)
 design.file$Path2 <- ifelse(design.file$Group == "Path2", 1, 0)
 design.file$Rep <- c(1:nrow(design.file))
 design.file <- design.file[, c(5, 8, 6, 7), ]
-  
+
 # Extract the counts
 gCounts <- as.matrix(sce.test@assays@data$counts)
 all(colnames(gCounts) == rownames(design.file$edesign))
@@ -85,45 +87,40 @@ all(colnames(gCounts) == rownames(design.file$edesign))
 ```{r}
 require(microbenchmark)
 time_result <- microbenchmark(
-    
-"scMaSigPro_Pvector" = {
-scmp.obj <- sc_tFit(scmp.obj, p.vector.sig = 0.4)
-    }
-,
-"maSigPro_Pvector" ={
+  "scMaSigPro_Pvector" = {
+    scmp.obj <- sc_tFit(scmp.obj, p.vector.sig = 0.4)
+  },
+  "maSigPro_Pvector" = {
     x <- capture.output(p.ob <- p.vector(
-  data = as.matrix(gCounts), Q = 0.4,
-  design = new.design.file,
-  counts = T, family = negative.binomial(10)
-))
-}
-,
-
-times = 10)
+      data = as.matrix(gCounts), Q = 0.4,
+      design = new.design.file,
+      counts = T, family = negative.binomial(10)
+    ))
+  },
+  times = 10
+)
 
 # Calculate the elapsed time
-sum(time_result$time)/1e9
+sum(time_result$time) / 1e9
 autoplot(time_result)
 ```
 
 ```{r}
 require(microbenchmark)
 time_result <- microbenchmark(
-    
-"scMaSigPro_Tfit" = {
-scmp.obj <- sc_tFit(scmp.obj)
-    }
-,
-"maSigPro_tfit" ={
+  "scMaSigPro_Tfit" = {
+    scmp.obj <- sc_tFit(scmp.obj)
+  },
+  "maSigPro_tfit" = {
     x <- capture.output(
-        tob <- T.fit(data = p.ob)
-)}
-,
-
-times = 10)
+      tob <- T.fit(data = p.ob)
+    )
+  },
+  times = 10
+)
 
 # Calculate the elapsed time
-sum(time_result$time)/1e9
+sum(time_result$time) / 1e9
 autoplot(time_result)
 ```
 

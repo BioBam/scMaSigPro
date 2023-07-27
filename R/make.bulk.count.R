@@ -17,53 +17,53 @@
 #'
 #' @examples
 #' \dontrun{
-#' make.pseudobulk.counts(counts = sc_counts, 
-#'                  pseudo_bulk_profile = pb_profile,
-#'                  cluster.count.by = "mean")
+#' make.pseudobulk.counts(
+#'   counts = sc_counts,
+#'   pseudo_bulk_profile = pb_profile,
+#'   cluster.count.by = "mean"
+#' )
 #' }
 #'
 #' @export
 
 make.pseudobulk.counts <- function(counts, cluster_member_col = "cluster.members",
-                                            bin_col = "bin", pseudo_bulk_profile, 
-                                            cluster.count.by = "sum") {
-    
-    # Get the meta-information for pseudobulking
-    meta.info <- pseudo_bulk_profile[, c(cluster_member_col, bin_col)]
-    
-    # Define the function to be used in mclapply
-    compress <- function(bin, count.table = counts, cluster.count.by) {
-        
-        cell.vector = c(str_split(bin[1], "\\|"))[[1]]
-        
-        # Find column indices that match cell.vector
-        col_indices <- which(colnames(count.table) %in% cell.vector)
-        
-        # Subset the matrix using these indices
-        bin_matrix <- count.table[, col_indices]
-        
-        # Get Pseudobulked-counts
-        pb.vector <- switch(cluster.count.by,
-                            "mean" = as.matrix(rowMeans(bin_matrix)),
-                            "sum"  = as.matrix(rowSums(bin_matrix)),
-                            stop("Invalid cluster.count.by value. Please choose either 'mean' or 'sum'.")
-        )
-        return(pb.vector)
-    }
-    
-    # Determine the number of cores to use for parallel processing.
-    # Here, I've used one less than the total number of cores available on the machine, 
-    # but you can adjust this based on your specific hardware.
-    num_cores <- detectCores() - 1
-    
-    # Run mclapply
-    pb.counts <- mclapply(1:nrow(meta.info), function(i) compress(meta.info[i, , drop = FALSE], count.table = counts, cluster.count.by = cluster.count.by), mc.cores = num_cores)
-    
-    # Convert the list output of mclapply to a matrix and set the row names
-    pb.counts <- do.call(cbind, pb.counts)
-    rownames(pb.counts) <- rownames(counts)
-    colnames(pb.counts) <- meta.info[[bin_col]]
-    
-    # return
-    return(pb.counts)
+                                   bin_col = "bin", pseudo_bulk_profile,
+                                   cluster.count.by = "sum") {
+  # Get the meta-information for pseudobulking
+  meta.info <- pseudo_bulk_profile[, c(cluster_member_col, bin_col)]
+
+  # Define the function to be used in mclapply
+  compress <- function(bin, count.table = counts, cluster.count.by) {
+    cell.vector <- c(str_split(bin[1], "\\|"))[[1]]
+
+    # Find column indices that match cell.vector
+    col_indices <- which(colnames(count.table) %in% cell.vector)
+
+    # Subset the matrix using these indices
+    bin_matrix <- count.table[, col_indices]
+
+    # Get Pseudobulked-counts
+    pb.vector <- switch(cluster.count.by,
+      "mean" = as.matrix(rowMeans(bin_matrix)),
+      "sum"  = as.matrix(rowSums(bin_matrix)),
+      stop("Invalid cluster.count.by value. Please choose either 'mean' or 'sum'.")
+    )
+    return(pb.vector)
+  }
+
+  # Determine the number of cores to use for parallel processing.
+  # Here, I've used one less than the total number of cores available on the machine,
+  # but you can adjust this based on your specific hardware.
+  num_cores <- detectCores() - 1
+
+  # Run mclapply
+  pb.counts <- mclapply(1:nrow(meta.info), function(i) compress(meta.info[i, , drop = FALSE], count.table = counts, cluster.count.by = cluster.count.by), mc.cores = num_cores)
+
+  # Convert the list output of mclapply to a matrix and set the row names
+  pb.counts <- do.call(cbind, pb.counts)
+  rownames(pb.counts) <- rownames(counts)
+  colnames(pb.counts) <- meta.info[[bin_col]]
+
+  # return
+  return(pb.counts)
 }

@@ -1,5 +1,5 @@
 #' estBinSize
-#' 
+#'
 #' @description
 #' This function calculates the optimal bin size for discretizing a continuous variable. It uses various methods for bin size estimation such as "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal".
 #'
@@ -19,14 +19,14 @@
 #' - "Rice": bin size is proportional to twice the cube root of the number of data points.
 #' - "Doane": bin size accounts for data skewness in the calculation.
 #' - "Scott.Normal": bin size is proportional to the standard deviation and inversely proportional to the cube root of the number of data points, assuming the data is nearly normal in distribution.
-#' 
+#'
 #' After estimating the bin size, it is scaled down by a factor specified by 'drop_fac'.
 #'
 #' @examples
 #' \dontrun{
 #' estBinSize(time_vector = c(1, 2, 3, 4, 5), nPoints = 5, drop_fac = 0.5, method = "Sturges")
 #' }
-#' 
+#'
 #' @export
 
 estBinSize <- function(time_vector, nPoints, drop_fac, method) {
@@ -58,8 +58,10 @@ estBinSize <- function(time_vector, nPoints, drop_fac, method) {
       # Scott's normal reference rule: assumes the data is nearly normal in distribution.
       # Bin size is proportional to the standard deviation and inversely proportional to the cube root of the number of data points.
       3.49 * abs(sd(time_vector)) / nPoints^(1 / 3)
-    }
+    },
+    stop(paste("Invalid method: ", method, ". Please choose one of the following: 'Freedman.Diaconis', 'Sqrt', 'Sturges', 'Rice', 'Doane', 'Scott.Normal'"))
   )
+
 
   # Scale the estimated bin size by the drop factor.
   estBins <- round(drop_fac * estBins, 4)
