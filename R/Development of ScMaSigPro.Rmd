@@ -29,7 +29,6 @@ y <- make.pseudobulk.design(design.file = x, pathCol = "Group", binnedCol = "bin
 z <- make.pseudobulk.counts(counts = sce.test@assays@data@listData$counts,
                             pseudo_bulk_profile = y, cluster.count.by = "mean")
 
-
 scmp.obj <- sc_makeDesign(sce.object = sce.test)
 scmp.obj <- sc_pVector(scmp.obj, p.vector.sig = 0.4)
 ```
