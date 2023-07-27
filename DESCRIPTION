@@ -7,8 +7,7 @@ Maintainer: Priyansh Srivastava <spriyansh29@gmail.com>
 Description: More about what it does (maybe more than one line)
     Use four spaces when indenting paragraphs within the Description.
 License: MIT + file LICENSE
-Imports: reshape2, ggplot2, SingleCellExperiment, methods, tidyverse, glmmTMB, MASS, assertthat,
-    pscl
+Imports: reshape2, ggplot2, SingleCellExperiment, methods, tidyverse, glmmTMB, MASS, assertthat, moments, pscl, DESeq2, entropy, parallel
 Encoding: UTF-8
 LazyData: false
 RoxygenNote: 7.2.3

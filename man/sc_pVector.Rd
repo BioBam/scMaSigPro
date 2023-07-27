@@ -11,7 +11,8 @@ sc_pVector(
   m.t.c.method = "BH",
   min.counts = 6,
   model.type = "nb",
-  model.control = list(ep = 1e-05, nb.k = 10, link = "log")
+  model.control = list(ep = 1e-05, nb.k = 10, link = "log"),
+  use.offset = FALSE
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ sc_pVector(
      \item{\code{ep}}{The epsilon value for model convergence. Default is 0.00001.}
      \item{\code{nb.k}}{The size parameter for the negative binomial distribution. Default is 10.}
   }}
+
+\item{use.offset}{If set to true then log(Size factors) will be used as offsets}
 }
 \description{
 sc_pVector

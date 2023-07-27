@@ -17,6 +17,7 @@
 #'      \item{\code{ep}}{The epsilon value for model convergence. Default is 0.00001.}
 #'      \item{\code{nb.k}}{The size parameter for the negative binomial distribution. Default is 10.}
 #'   }
+#' @param use.offset If set to true then log(Size factors) will be used as offsets
 #'
 
 #sc_pVector_test <- function(scMaSigPro.obj,
@@ -26,7 +27,8 @@ sc_pVector <- function(scMaSigPro.obj,
                        m.t.c.method = "BH",
                             min.counts = 6,
                             model.type = "nb",
-                            model.control = list(ep = 0.00001, nb.k = 10, link = "log")
+                            model.control = list(ep = 0.00001, nb.k = 10, link = "log"),
+                       use.offset = FALSE
                             ) {
 
     # Check Model.Type and Model.Control Consistancy
@@ -58,6 +60,12 @@ sc_pVector <- function(scMaSigPro.obj,
     p.counts.0 <- which(sum.tot == 0)
     if (length(p.counts.0) > 0) {
         p.counts <- p.counts[-p.counts.0, ]
+    }
+    if (use.offset == TRUE){
+        size_factors <- estimateSizeFactorsForMatrix(p.counts+1)
+        offset.data <- log(size_factors)
+        print(sum(is.infinite(offset.data)))
+        offset.data <- use.offset
     }
 
     # Start Parallel Compute
@@ -226,19 +234,40 @@ sc_pVector <- function(scMaSigPro.obj,
             ))
         }
         else if(model.type %in% stat.models){
-        # Compute full model
-        full.model <- glm(gene.i.count ~ .,
-                          data = covariate,
-                          family = model.parameters$family,
-                          epsilon = model.parameters$espsilon
-        )
+            
+            if (use.offset == TRUE){
+                full.model <- glm(gene.i.count ~ .,
+                                  data = covariate,
+                                  family = model.parameters$family,
+                                  epsilon = model.parameters$espsilon,
+                                  offset = offset.data
+                )
+                
+            }else if (use.offset == FALSE){
+                # Compute full model
+                full.model <- glm(gene.i.count ~ .,
+                                  data = covariate,
+                                  family = model.parameters$family,
+                                  epsilon = model.parameters$espsilon
+                )
+            }
 
         # Compute intercept model
-        intercept.model <- glm(gene.i.count ~ 1,
-                               data = covariate,
-                               family = model.parameters$family,
-                               epsilon = model.parameters$espsilon
-        )
+            if (use.offset == TRUE){
+                intercept.model <- glm(gene.i.count ~ 1,
+                                       data = covariate,
+                                       family = model.parameters$family,
+                                       epsilon = model.parameters$espsilon,
+                                       offset = offset.data
+                )
+                
+            }else if (use.offset == FALSE){
+                intercept.model <- glm(gene.i.count ~ 1,
+                                       data = covariate,
+                                       family = model.parameters$family,
+                                       epsilon = model.parameters$espsilon
+                )
+            }
 
         # MaSigPro, Pvector Evaluation
         test.res <- anova(intercept.model,

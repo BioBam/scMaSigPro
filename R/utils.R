@@ -30,3 +30,20 @@ getLowestAICModel <- function(model_list) {
     # Return the model with the lowest AIC
     return(lowest_aic_name)
 }
+
+create_range <- function(x) {
+    # Convert the factor into Character
+    y <- as.character(x[["bin"]])
+    y <- y %>% str_remove_all(pattern = "\\[|\\]|\\(|\\)")
+    y1 <- as.numeric(sapply(strsplit(y, ","), "[", 1))
+    y2 <- as.numeric(sapply(strsplit(y, ","), "[", 2))
+    rangeVec <- c(y1, y2, x[["bin_size"]], x[["binned_time"]])
+    return(as.numeric(rangeVec))
+}
+
+calc_bin_size <- function(x) {
+    size <- length(
+        c(stringr::str_split(x[["cluster.members"]], "\\|"))[[1]]
+    )
+    return(as.numeric(size))
+}
