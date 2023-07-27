@@ -4,8 +4,12 @@ exportPattern("^[[:alpha:]]+")
 importFrom("SingleCellExperiment", "colData")
 importFrom("reshape2", "melt")
 importFrom("methods", "new")
+importFrom("moments", "skewness")
+importFrom("entropy", "discretize")
 importFrom("assertthat", "assert_that")
 importFrom("MASS", "negative.binomial")
+importFrom("parallel", "mclapply")
+importFrom("parallel", "detectCores")
 importFrom("DESeq2", "estimateSizeFactorsForMatrix")
 
 # Import Entire Libraries
@@ -24,6 +28,9 @@ export("showEstimates")
 export("showTscores")
 export("showSol")
 export("sc.sel.features")
+export("entropy_discretize")
+export("make.pseudobulk.design")
+export("make.pseudobulk.counts")
 
 # Export Classes
 exportClasses("scMaSigProClass")
