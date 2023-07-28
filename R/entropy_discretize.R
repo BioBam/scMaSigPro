@@ -63,6 +63,11 @@ entropy_discretize <- function(design_table, time_col,
   # Get the avaible paths
   avail.paths <- as.vector(unique(design_table[[path_col]]))
 
+  # Check for path
+  assert_that(length(avail.paths) >= 2,
+    msg = "Invalid number of paths detected. Please make sure that dataset has atleast two paths"
+  )
+
   # Determine the number of cores
   num_cores <- detectCores() - 1
 
@@ -77,19 +82,32 @@ entropy_discretize <- function(design_table, time_col,
     time_vector <- path.frame[, time.col]
     length_n <- length(time_vector)
 
-    # Calculate Optimal Number of Bins
-    estBins <- estBinSize(
-      time_vector = time_vector, nPoints = length_n,
-      drop_fac = drop.fac, method = method.bin
+    # Validation
+    warningCondition(
+      length_n <= 7,
+      paste("Time points are already less than 7 in", path)
     )
 
-    # Client-Verbose
-    if (verbose) {
-      message(paste(
-        "Estimated Bin Sizes =", estBins, "with",
-        method, "binning for", length_n, "time points for", path
-      ))
-    }
+    # Calculate Optimal Number of Bins
+    tryCatch(
+      expr = {
+        estBins <- estBinSize(
+          time_vector = time_vector, nPoints = length_n,
+          drop_fac = drop.fac, method = method.bin
+        )
+
+        if (verbose) {
+          message(paste(
+            "Estimated Bin Sizes =", estBins, "with",
+            method, "binning for", length_n, "time points for", path
+          ))
+        }
+      },
+      error = function(e) {
+        message("Error message: ", e$message)
+        stop("Unable to estimate bin size")
+      }
+    )
 
     # Calculate Bin intervals with entropy
     bin_intervals <- as.data.frame(discretize(time_vector, numBins = estBins, r = range(time_vector)))

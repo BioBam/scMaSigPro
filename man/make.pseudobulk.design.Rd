@@ -9,9 +9,9 @@ make.pseudobulk.design(design.file, pathCol, binnedCol = "binnedTime")
 \arguments{
 \item{design.file}{A data.frame. The design file containing the binned data.}
 
-\item{binnedCol}{A character string (default = "binnedTime"). The name of the column in the design file that contains the binned data.}
+\item{pathCol}{A character string. The name of the column in the design file that contains the path data.}
 
-\item{paths.vector}{A character vector. The paths for which to create the pseudobulk profile.}
+\item{binnedCol}{A character string (default = "binnedTime"). The name of the column in the design file that contains the binned data.}
 }
 \value{
 A data.frame containing the pseudobulk profile. The data frame includes the following columns:
@@ -36,7 +36,7 @@ After processing all paths, the function adds binary columns for each path to th
 }
 \examples{
 \dontrun{
-make_pseudobulk_design(design.file = df, paths.vector = c("path1", "path2"), binnedCol = "binnedTime")
+make.pseudobulk.design(design.file = df, pathCol = "path1", binnedCol = "binnedTime")
 }
 
 }

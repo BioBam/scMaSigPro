@@ -47,3 +47,9 @@ calc_bin_size <- function(x) {
   )
   return(as.numeric(size))
 }
+
+warningCondition <- function(condition, message) {
+  if (condition) {
+    warning(message, call. = FALSE)
+  }
+}

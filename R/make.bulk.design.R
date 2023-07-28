@@ -4,7 +4,7 @@
 #' This function creates a pseudobulk profile data frame from the design file. It groups cells into bins for each path from a given set of paths and calculates the bin size.
 #'
 #' @param design.file A data.frame. The design file containing the binned data.
-#' @param paths.vector A character vector. The paths for which to create the pseudobulk profile.
+#' @param pathCol A character string. The name of the column in the design file that contains the path data.
 #' @param binnedCol A character string (default = "binnedTime"). The name of the column in the design file that contains the binned data.
 #'
 #' @return
@@ -27,7 +27,7 @@
 #'
 #' @examples
 #' \dontrun{
-#' make_pseudobulk_design(design.file = df, paths.vector = c("path1", "path2"), binnedCol = "binnedTime")
+#' make.pseudobulk.design(design.file = df, pathCol = "path1", binnedCol = "binnedTime")
 #' }
 #'
 #' @seealso \code{\link{calc_bin_size}}
@@ -36,17 +36,37 @@
 
 make.pseudobulk.design <- function(design.file, pathCol,
                                    binnedCol = "binnedTime") {
+  assert_that(binnedCol %in% colnames(design.file),
+    msg = paste0("'", binnedCol, "' does not exist in design.file")
+  )
+  assert_that(pathCol %in% colnames(design.file),
+    msg = paste0("'", pathCol, "' does not exist in design.file")
+  )
+
   # Get the avaible paths
   avail.paths <- as.vector(unique(design.file[[pathCol]]))
 
+  # Check for path
+  assert_that(length(avail.paths) >= 2,
+    msg = "Invalid number of paths detected. Please make sure that dataset has atleast two paths"
+  )
+
+  # Determine the number of cores
+  num_cores <- detectCores() - 1 # leave one core free for other tasks
+
   # Apply transformations on data
-  pB.list <- lapply(avail.paths, function(path, design.frame = design.file,
-                                          binned.col = binnedCol, path.col = pathCol) {
+  pB.list <- mclapply(avail.paths, function(path, design.frame = design.file,
+                                            binned.col = binnedCol, path.col = pathCol) {
     # Get the cells belonging to path
     path.frame <- design.frame[design.frame[[path.col]] == path, , drop = F]
 
     # Order along the temporal vector
     path.time.cell <- path.frame[order(path.frame[, binned.col]), c(binned.col, "Cell")]
+
+    # Validation
+    assert_that(nrow(path.time.cell) >= 2,
+      msg = paste("Time points are already less/equal than/to two in", path)
+    )
 
     # Group by time
     path.time.cell <- path.time.cell %>%
@@ -62,9 +82,18 @@ make.pseudobulk.design <- function(design.file, pathCol,
     # Add Cluster Size
     path.time.cell$bin.size <- apply(path.time.cell, 1, calc_bin_size)
 
+    # Claculate bin_range
+    bin_range <- range(path.time.cell$bin.size, na.rm = TRUE)
+
+    # throw warning
+    warningCondition(
+      diff(bin_range) >= 100,
+      paste("Differences among bin sizes are greater than 100 units for", path)
+    )
+
     # Return frame
     return(path.time.cell)
-  })
+  }, mc.cores = num_cores)
 
   # Bind rows
   pB.frame <- bind_rows(pB.list) %>% as.data.frame()
