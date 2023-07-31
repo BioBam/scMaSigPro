@@ -24,9 +24,9 @@ A numeric vector containing four elements:
   }
 }
 \description{
-This function converts a factor column "bin" into a character vector, extracts 
-numeric range values from the character vector, and combines them with 
-additional columns "bin_size" and "binned_time" to return a numeric vector 
+This function converts a factor column "bin" into a character vector, extracts
+numeric range values from the character vector, and combines them with
+additional columns "bin_size" and "binned_time" to return a numeric vector
 representing the range information.
 }
 \examples{

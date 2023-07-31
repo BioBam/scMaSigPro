@@ -10,11 +10,11 @@ calc_bin_size(x)
 \item{x}{A data frame containing the "cluster.members" column.}
 }
 \value{
-A numeric value representing the size of the bin (number of elements 
+A numeric value representing the size of the bin (number of elements
 in the "cluster.members" column).
 }
 \description{
-This function calculates the size of a bin based on the number of elements in 
+This function calculates the size of a bin based on the number of elements in
 the "cluster.members" column of the input data frame.
 }
 \examples{

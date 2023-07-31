@@ -39,3 +39,26 @@ export("make.pseudobulk.counts")
 
 # Export Classes
 exportClasses("scMaSigProClass", "covariateClass", "parameterClass", "pVectorClass", "sigGeneClass", "tFitClass")
+
+# maSigPro Namespace
+
+importFrom(Biobase, addVigs2WinMenu, readExpressionSet)
+
+importFrom(graphics, abline, axis, curve, lines, par, plot, legend, plot.new)
+
+importFrom(grDevices, dev.off, X11, heat.colors)
+
+importFrom(venn, venn)
+
+importFrom(mclust, Mclust)
+
+importFrom(stats, as.dist, cor, cutree, dist, hclust, influence.measures, 
+	   kmeans, lm, median, p.adjust, pf, sd, anova, gaussian, glm, heatmap, as.formula)
+
+importFrom(MASS, negative.binomial)
+
+export(average.rows, get.siggenes, i.rank, make.design.matrix, maSigProUsersGuide,
+       p.vector, PlotGroups, PlotProfiles, position, reg.coeffs, see.genes,
+       stepback, stepfor, suma2Venn, T.fit, two.ways.stepback, two.ways.stepfor,IsoModel, getDS, seeDS, tableDS, PodiumChange, IsoPlot, getDSPatterns)
+
+

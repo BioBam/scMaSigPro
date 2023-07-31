@@ -17,14 +17,14 @@ getLowestAICModel(model_list)
 
 Arguments:
   \describe{
-    \item{model_list}{A list of fitted models for which you want to find the 
-                     one with the lowest AIC. Each element of the list should be 
+    \item{model_list}{A list of fitted models for which you want to find the
+                     one with the lowest AIC. Each element of the list should be
                      a fitted model object that supports the AIC function.}
   }
 
 Details:
-The function computes the AIC values for all the models in the input list 
-using the `AIC` function. It then finds the index of the model with the 
+The function computes the AIC values for all the models in the input list
+using the `AIC` function. It then finds the index of the model with the
 lowest AIC value and retrieves its name.
 
 Value:
