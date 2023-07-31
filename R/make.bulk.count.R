@@ -29,6 +29,13 @@
 make.pseudobulk.counts <- function(counts, cluster_member_col = "cluster.members",
                                    bin_col = "bin", pseudo_bulk_profile,
                                    cluster.count.by = "sum") {
+  assert_that(cluster_member_col %in% colnames(pseudo_bulk_profile),
+    msg = paste0("'", cluster_member_col, "' does not exist in pseudo-bulk-profile")
+  )
+  assert_that(bin_col %in% colnames(pseudo_bulk_profile),
+    msg = paste0("'", bin_col, "' does not exist in pseudo-bulk-profile")
+  )
+
   # Get the meta-information for pseudobulking
   meta.info <- pseudo_bulk_profile[, c(cluster_member_col, bin_col)]
 

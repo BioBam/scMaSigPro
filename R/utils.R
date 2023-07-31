@@ -43,7 +43,7 @@ create_range <- function(x) {
 
 calc_bin_size <- function(x) {
   size <- length(
-    c(stringr::str_split(x[["cluster.members"]], "\\|"))[[1]]
+    c(str_split(x[["cluster.members"]], "\\|"))[[1]]
   )
   return(as.numeric(size))
 }
