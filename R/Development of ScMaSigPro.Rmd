@@ -26,9 +26,9 @@ load_2 <- function() {
   suppressPackageStartupMessages(library(glmmTMB))
   suppressPackageStartupMessages(library(scran))
   suppressPackageStartupMessages(library(assertthat))
-   suppressPackageStartupMessages(library(entropy))
-   suppressPackageStartupMessages(source("estBinSize.R"))
-   suppressPackageStartupMessages(source("utils.R"))
+  suppressPackageStartupMessages(library(entropy))
+  suppressPackageStartupMessages(source("estBinSize.R"))
+  suppressPackageStartupMessages(source("utils.R"))
 }
 ```
 

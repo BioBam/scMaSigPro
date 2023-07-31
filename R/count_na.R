@@ -22,13 +22,12 @@
 #' @examples
 #' # Sample vector
 #' x <- c(1, 2, NA, 4, NA, 6, 7, NA)
-#' 
+#'
 #' # Count non-missing elements in the vector
 #' result <- count.na(x)
 #' print(result)
 #'
 #' @keywords internal
-#' @export
 count.na <- function(x) {
-    return(length(x) - length(x[is.na(x)]))
+  return(length(x) - length(x[is.na(x)]))
 }

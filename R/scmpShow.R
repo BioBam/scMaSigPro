@@ -1,4 +1,15 @@
+#' Show ScMaSigPro Object Information
+#'
+#' This method displays basic information about the ScMaSigPro object when the object
+#' is printed in the console. The method is automatically called when the user writes
+#' the name of the object in the console.
+#'
+#' @param object An object of class \code{scMaSigProClass}.
+#'
 #' @importFrom S4Vectors coolcat
+#'
+#' @keywords internal
+#' @export
 .smsp_show <- function(object) {
   # Show Basic information
   cat("Class: ScMaSigPro\n")
@@ -24,6 +35,3 @@
     cat("Sig. Models (P-vector): Not computed\n")
   }
 }
-
-#' @export
-setMethod("show", "scMaSigProClass", .smsp_show)

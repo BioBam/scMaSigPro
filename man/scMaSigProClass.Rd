@@ -5,13 +5,20 @@
 \alias{scMaSigProClass}
 \title{scMaSigProClass}
 \description{
-scMaSigProClass
+A class to represent the ScMaSigPro analysis results and associated data.
+Inherits from \code{SingleCellExperiment}.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{covariate}}{Description of Slot.}
+\item{\code{covariate}}{A \code{covariateClass} object containing covariate information.}
 
-\item{\code{parameters}}{Description of Slot.}
+\item{\code{parameters}}{A \code{parameterClass} object containing analysis parameters.}
+
+\item{\code{pVector}}{A \code{pVectorClass} object containing p-vector information.}
+
+\item{\code{tFit}}{A \code{tFitClass} object containing model fitting information.}
+
+\item{\code{sigGenes}}{A \code{sigGeneClass} object containing significant genes information.}
 }}
 

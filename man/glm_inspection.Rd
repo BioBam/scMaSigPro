@@ -17,25 +17,31 @@ glm_inspection(
 )
 }
 \arguments{
-\item{glm.model}{model from the output of \link[stats]{glm}.}
+\item{glm.model}{A model from the output of \link[stats]{glm}.}
 
-\item{plot.type}{Plot-type. Currentry supported options are
-_fitted_vs_pearson_, _pearson_vs_obs_, _fitted_vs_obs_}
+\item{plot.type}{Plot type. Currently supported options are:
+- "fitted_vs_pearson": Fitted values vs Pearson residuals plot.
+- "cooks_vs_obs": Cook's distance vs observations bar plot.
+- "pearson_vs_obs": Pearson residuals vs observed values plot.
+- "fitted_vs_obs": Fitted values vs observed values plot.
+- "std_vs_fitted": Standard residuals vs fitted values plot.}
 
-\item{point.color}{Point colour.}
+\item{point.color}{Point colour for the plots.}
 
-\item{point.shape}{Point shape.}
+\item{point.shape}{Point shape for the plots.}
 
-\item{bar_width}{bar width of the cook's distance plot}
+\item{bar_width}{Bar width for the Cook's distance plot.}
 
-\item{point.alpha}{Point alpha.}
+\item{point.alpha}{Point alpha for the plots.}
 
-\item{ref.line.y.intercept}{Y intercept of the reference line.}
+\item{ref.line.y.intercept}{Y intercept of the reference line in some plots.}
 
-\item{func}{Which function is used}
+\item{func}{Which function is used (options: "glm" or "zeroinfl").}
 
-\item{input.data}{No information}
+\item{input.data}{No information.}
 }
 \description{
-Visually Inspect Model Fit
+This function is used to visually inspect the model fit of a generalized linear
+model (GLM) and provides different types of plots for validation purposes.
 }
+\keyword{internal}

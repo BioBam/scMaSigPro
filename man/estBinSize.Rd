@@ -38,3 +38,4 @@ estBinSize(time_vector = c(1, 2, 3, 4, 5), nPoints = 5, drop_fac = 0.5, method =
 }
 
 }
+\keyword{internal}

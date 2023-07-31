@@ -38,4 +38,4 @@ export("make.pseudobulk.design")
 export("make.pseudobulk.counts")
 
 # Export Classes
-exportClasses("scMaSigProClass")
+exportClasses("scMaSigProClass", "covariateClass", "parameterClass", "pVectorClass", "sigGeneClass", "tFitClass")

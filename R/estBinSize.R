@@ -27,8 +27,7 @@
 #' estBinSize(time_vector = c(1, 2, 3, 4, 5), nPoints = 5, drop_fac = 0.5, method = "Sturges")
 #' }
 #'
-#' @export
-
+#' @keywords internal
 estBinSize <- function(time_vector, nPoints, drop_fac, method) {
   estBins <- switch(method,
     "Freedman.Diaconis" = {
