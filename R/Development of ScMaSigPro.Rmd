@@ -16,11 +16,25 @@ load <- function() {
   suppressPackageStartupMessages(library(scran))
   suppressPackageStartupMessages(library(scMaSigPro))
 }
+
+
+load_2 <- function() {
+  suppressPackageStartupMessages(library(maSigPro))
+  suppressPackageStartupMessages(library(MASS))
+  suppressPackageStartupMessages(library(tidyverse))
+  suppressPackageStartupMessages(library(DHARMa))
+  suppressPackageStartupMessages(library(glmmTMB))
+  suppressPackageStartupMessages(library(scran))
+  suppressPackageStartupMessages(library(assertthat))
+   suppressPackageStartupMessages(library(entropy))
+   suppressPackageStartupMessages(source("estBinSize.R"))
+   suppressPackageStartupMessages(source("utils.R"))
+}
 ```
 
 ## Load Data
 ```{r}
-load()
+load_2()
 sce.test <- readRDS("../data/sce.test.RDS")
 cell.metadata <- as.data.frame(colData(sce.test))
 
