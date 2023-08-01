@@ -1,32 +1,22 @@
-#' Average rows by match and index
+#' Average Rows by Match and Index
 #'
-#' \code{average.rows} matches rownames of a matrix to a \code{match} vector and performs
-#' averaging of the rows by the index provided by an \code{index} vector.
+#' The `average.rows` function matches row names of a matrix with a `match` vector, and then
+#' calculates the average of rows based on the `index` vector.
 #'
-#' @title Average rows by match and index
+#' @title Average Rows by Match and Index
 #'
-#' @description
-#' \code{average.rows} matches rownames of a matrix to a \code{match} vector and performs
-#' averaging of the rows by the index provided by an \code{index} vector.
-#'
-#' @usage
-#' average.rows(x, index, match, r = 0.7)
-#'
-#' @arguments
-#' \item{x}{A matrix.}
-#' \item{index}{Index vector indicating how rows must be averaged.}
-#' \item{match}{Match vector for indexing rows.}
-#' \item{r}{Minimal correlation value between rows to compute average.}
+#' @param x A matrix.
+#' @param index Index vector indicating how rows must be averaged.
+#' @param match Match vector for indexing rows.
+#' @param r The minimal correlation value between rows to compute the average. Default is 0.7.
 #'
 #' @details
-#' Rows will be averaged only if the Pearson correlation coefficient between all rows of each given
+#' The rows are averaged only if the Pearson correlation coefficient between all rows of each given
 #' index is greater than 'r'. If not, that group of rows is discarded in the result matrix.
 #'
-#' @value
-#' A matrix of averaged rows.
+#' @return A matrix of averaged rows.
 #'
 #' @author Ana Conesa and Maria Jose Nueda
-#' @email mj.nueda@ua.es
 #'
 #' @examples
 #' # Create data matrix for row averaging
@@ -35,8 +25,6 @@
 #' i <- paste("g", rep(c(1:10), each = 2), sep = "") # index vector
 #' m <- paste("ID", c(1:20), sep = "") # match vector
 #' average.rows(x, i, m, r = 0)
-#'
-#' @keyword arith
 #'
 #' @export
 

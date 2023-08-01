@@ -1,4 +1,5 @@
 #' Extract significant genes for sets of variables in time series gene expression experiments
+#'
 #' This function creates lists of significant genes for a set of variables whose significance
 #' value has been computed with the \code{T.fit} function.
 #'
@@ -12,56 +13,27 @@
 #'   \item \code{"groups"}: generates a significant genes extraction for each experimental group.
 #' }
 #'
-#' The difference between \code{"each"} and \code{"groups"} is that in the first case the variables of the same group
-#' (e.g., \code{"TreatmentA"} and \code{"time*TreatmentA"}) will be extracted separately, and in the second case, they will be extracted jointly.
+#' @param tstep A \code{T.fit} object.
+#' @param rsq Cut-off level at the R-squared value for the stepwise regression fit. Only genes with R-squared more than 'rsq' are selected.
+#' @param add.IDs Logical indicating whether to include additional gene id's in the result.
+#' @param IDs Matrix containing additional gene id information (required when \code{add.IDs = TRUE}).
+#' @param matchID.col Number of the matching column in the matrix \code{IDs} for adding gene ids.
+#' @param only.names Logical. If \code{TRUE}, expression values are omitted in the results.
+#' @param vars Variables for which to extract significant genes.
+#' @param significant.intercept Experimental groups for which significant intercept coefficients are considered.
+#' @param groups.vector Required when \code{vars = "groups"}.
+#' @param trat.repl.spots Treatment given to replicate spots. Possible values are \code{"none"} and \code{"average"}.
+#' @param index Argument of the \code{\link{average.rows}} function to use when \code{trat.repl.spots = "average"}.
+#' @param match Argument of the \code{\link{average.rows}} function to use when \code{trat.repl.spots = "average"}.
+#' @param r Minimum Pearson correlation coefficient for replicated spots profiles to be averaged.
 #'
-#' When \code{add.IDs} is \code{TRUE}, a matrix of gene ids must be provided as an argument of \code{IDs}, the \code{matchID.col}
-#' column of which having the same levels as in the row names of \code{sig.profiles}. The option \code{only.names = TRUE}
-#' will generate a vector of significant genes, or a matrix when \code{add.IDs = TRUE}.
+#' @details
+#' Refer to the function description for details on the arguments and their usage.
 #'
-#' When \code{trat.repl.spots = "average"}, \code{match} and \code{index} vectors are required for the \code{\link{average.rows}} function.
-#' In gene expression data context, the \code{index} vector would contain geneIDs and indicate which spots are replicates.
-#' The \code{match} vector is used to match these geneIDs to rows in the significant genes matrix and must have the same levels as the row names of \code{sig.profiles}.
-#'
-#' The argument \code{significant.intercept} modulates the treatment for intercept coefficients to apply for selecting significant genes
-#' when \code{vars} equals \code{"groups"}. There are three possible values: \code{"none"}, no significant intercept (differences) are
-#' considered for significant gene selection; \code{"dummy"}, includes genes with significant intercept differences between control and experimental
-#' groups; and \code{"all"}, which considers both significant intercept coefficient for the control group and significant intercept
-#' differences for selecting significant genes.
-#'
-#' \code{add.IDs = TRUE} and \code{trat.repl.spots = "average"} are not compatible argument values.
-#' \code{add.IDs = TRUE} and \code{only.names = TRUE} are compatible argument values.
-#'
-#' @usage
-#' get.siggenes(tstep, rsq = 0.7, add.IDs = FALSE, IDs = NULL, matchID.col = 1,
-#'              only.names = FALSE, vars = c("all", "each", "groups"),
-#'              significant.intercept = "dummy",
-#'              groups.vector = NULL, trat.repl.spots = "none",
-#'              index = IDs[, (matchID.col + 1)], match = IDs[, matchID.col],
-#'              r = 0.7)
-#'
-#' @arguments
-#' \item{tstep}{A \code{T.fit} object.}  # Input: A 'T.fit' object containing the results of previous analysis.
-#' \item{rsq}{Cut-off level at the R-squared value for the stepwise regression fit. Only genes with R-squared more than 'rsq' are selected.}
-#' \item{add.IDs}{Logical indicating whether to include additional gene id's in the result.}
-#' \item{IDs}{Matrix containing additional gene id information (required when \code{add.IDs = TRUE}).}
-#' \item{matchID.col}{Number of the matching column in the matrix \code{IDs} for adding gene ids.}
-#' \item{only.names}{Logical. If \code{TRUE}, expression values are omitted in the results.}
-#' \item{vars}{Variables for which to extract significant genes (see details).}
-#' \item{significant.intercept}{Experimental groups for which significant intercept coefficients are considered (see details).}
-#' \item{groups.vector}{Required when \code{vars = "groups"}.}  # Experimental groups vector.
-#' \item{trat.repl.spots}{Treatment given to replicate spots. Possible values are \code{"none"} and \code{"average"}.}
-#' \item{index}{Argument of the \code{\link{average.rows}} function to use when \code{trat.repl.spots = "average"}.}
-#' \item{match}{Argument of the \code{\link{average.rows}} function to use when \code{trat.repl.spots = "average"}.}
-#' \item{r}{Minimum Pearson correlation coefficient for replicated spots profiles to be averaged.}
-#'
-#' @details{
-#'     Refer to the function description for details on the arguments and their usage.
-#' }
-#'
-#' @value{
-#'   \item{summary}{A vector or matrix listing significant genes for the variables given by the function parameters.}
-#'   \item{sig.genes}{A list with detailed information on the significant genes found for the variables given by the function parameters.
+#' @return A list with two elements:
+#' \itemize{
+#'   \item \code{summary}: A vector or matrix listing significant genes for the variables given by the function parameters.
+#'   \item \code{sig.genes}: A list with detailed information on the significant genes found for the variables given by the function parameters.
 #'   Each element of the list is also a list containing:
 #'     \describe{
 #'       \item{\code{sig.profiles}:}{Expression values of significant genes.}
@@ -72,19 +44,16 @@
 #'       \item{\code{...}:}{Arguments passed by previous functions.}
 #'     }
 #'   }
-#' }
 #'
-#' @references{
-#'   Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. (2006).
-#'   maSigPro: a Method to Identify Significant Differential Expression Profiles in Time-Course Microarray Experiments.
-#'   Bioinformatics, 22(9), 1096-1102. \url{https://doi.org/10.1093/bioinformatics/btl056}
-#' }
+#' @references
+#' Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. (2006).
+#' maSigPro: a Method to Identify Significant Differential Expression Profiles in Time-Course Microarray Experiments.
+#' Bioinformatics, 22(9), 1096-1102. \url{https://doi.org/10.1093/bioinformatics/btl056}
 #'
-#' @author{Ana Conesa and Maria Jose Nueda, \email{mj.nueda@ua.es}}
+#' @author Ana Conesa and Maria Jose Nueda (mj.nueda@ua.es)
 #'
-#' @examples{
-#'   # Example usage of the function can be placed here.
-#' }
+#' @examples
+#' # Example usage of the function can be placed here.
 #'
 #' @keywords manip
 #'

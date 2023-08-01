@@ -1,7 +1,5 @@
-exportPattern("^[[:alpha:]]+")
-
 # Single Function Imports
-importFrom("SingleCellExperiment", "colData")
+importFrom("SingleCellExperiment", "colData", "reducedDims", "rowData")
 importFrom("reshape2", "melt")
 importFrom("stringr", "str_split", "str_remove_all")
 importFrom("magrittr", "%>%")
@@ -14,8 +12,9 @@ importFrom("parallel", "mclapply","detectCores")
 importFrom("DESeq2", "estimateSizeFactorsForMatrix")
 importFrom("utils", "View")
 importFrom("rlang",".data")
+importFrom("slingshot","slingCurves", "slingPseudotime")
 importFrom("tibble","rownames_to_column","column_to_rownames")
-importFrom("dplyr", "left_join", "join_by", "mutate", "select", "bind_rows", "group_by_at", "summarise")
+importFrom("dplyr", "left_join", "join_by", "mutate", "select", "bind_rows", "group_by_at", "summarise", "rename_with")
 
 # Import Entire Libraries
 import("ggplot2")
@@ -41,7 +40,6 @@ export("make.pseudobulk.counts")
 exportClasses("scMaSigProClass", "covariateClass", "parameterClass", "pVectorClass", "sigGeneClass", "tFitClass")
 
 # maSigPro Namespace
-
 importFrom(Biobase, addVigs2WinMenu, readExpressionSet)
 
 importFrom(graphics, abline, axis, curve, lines, par, plot, legend, plot.new)
@@ -60,5 +58,3 @@ importFrom(MASS, negative.binomial)
 export(average.rows, get.siggenes, i.rank, make.design.matrix, maSigProUsersGuide,
        p.vector, PlotGroups, PlotProfiles, position, reg.coeffs, see.genes,
        stepback, stepfor, suma2Venn, T.fit, two.ways.stepback, two.ways.stepfor,IsoModel, getDS, seeDS, tableDS, PodiumChange, IsoPlot, getDSPatterns)
-
-

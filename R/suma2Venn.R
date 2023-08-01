@@ -7,24 +7,19 @@
 #' @description
 #' \code{suma2Venn} transforms a matrix or a data frame with characters into a list to draw and display a Venn diagram with up to 7 sets.
 #'
-#' @usage
-#' suma2Venn(x, size = 30, cexil = 0.9, cexsn = 1, zcolor = heat.colors(ncol(x)), ...)
-#'
-#' @arguments
-#' \item{x}{matrix or data frame of character values}
-#' \item{size}{Plot size, in centimeters}
-#' \item{cexil}{Character expansion for the intersection labels}
-#' \item{cexsn}{Character expansion for the set names}
-#' \item{zcolor}{A vector of colors for the custom zones}
-#' \item{\dots}{Additional plotting arguments for the venn function}
+#' @param x A matrix or data frame of character values
+#' @param size Plot size, in centimeters
+#' @param cexil Character expansion for the intersection labels
+#' @param cexsn Character expansion for the set names
+#' @param zcolor A vector of colors for the custom zones
+#' @param ... Additional plotting arguments for the venn function
 #'
 #' @details
 #' \code{suma2Venn} creates a list with the columns of a matrix or a data frame of characters which can be taken by the \code{\link[venn:venn]{venn}} function to generate a Venn Diagram.
 #'
-#' @value
-#' \code{suma2Venn} returns a Venn Plot such as that created by the \code{\link[venn:venn]{venn}} function.
+#' @return A Venn Plot such as that created by the \code{\link[venn:venn]{venn}} function.
 #'
-#' @author Ana Conesa and Maria Jose Nueda, \email{mj.nueda@ua.es}
+#' @author Ana Conesa and Maria Jose Nueda (mj.nueda@ua.es)
 #'
 #' @seealso \code{\link[venn:venn]{venn}}
 #'
@@ -34,9 +29,6 @@
 #' C <- c("a", "b", "e", "f", "h", "i", "j", "k")
 #' x <- cbind(A, B, C)
 #' suma2Venn(x)
-#'
-#' @keyword aplot
-
 # Define the function "suma2Venn" with arguments x, size, cexil, cexsn, zcolor, and ...
 "suma2Venn" <- function(x, size = 30, cexil = 0.9, cexsn = 1, zcolor = heat.colors(ncol(x)), ...) {
   # Get the number of columns in the input matrix or data frame
