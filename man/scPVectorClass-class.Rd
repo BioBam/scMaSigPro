@@ -7,7 +7,7 @@
 \description{
 The scPVectorClass is designed to hold the results of a regression fit for each gene in a time series gene expression experiment.
 It contains slots to store various results, such as expression values for significant genes, computed p-values, adjusted p-values,
-number of input genes, number of genes taken in the regression fit, and more. This class is useful for analyzing time course 
+number of input genes, number of genes taken in the regression fit, and more. This class is useful for analyzing time course
 microarray experiments and identifying significant differential expression profiles.
 }
 \section{Slots}{

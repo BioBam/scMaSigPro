@@ -117,9 +117,11 @@
 #'
 #' @keywords regression
 #' @keywords models
-T.fit <- function(
-    data, design = data$dis, step.method = "backward",
-    min.obs = data$min.obs, alfa = data$Q, nvar.correction = FALSE, family = gaussian(), epsilon = 0.00001, item = "gene") {
+sc.T.fit <- function(data, 
+                     design = data$dis,
+                     step.method = "forward",
+                     min.obs = data$min.obs,
+                     alfa = data$Q, nvar.correction = FALSE, family = gaussian(), epsilon = 0.00001, item = "gene") {
   if (is.list(data)) {
     dat <- as.matrix(data$SELEC)
     dat <- rbind(c(rep(1, ncol(dat))), dat)
@@ -138,6 +140,7 @@ T.fit <- function(
     groups.vector <- NULL
     edesign <- NULL
   }
+
   dis <- as.data.frame(design)
   dat <- dat[, as.character(rownames(dis))]
   g <- (dim(dat)[1] - 1)
@@ -147,9 +150,12 @@ T.fit <- function(
   sol <- coefficients <- group.coeffs <- t.score <- sig.profiles <- NULL
   influ.info <- matrix(NA, nrow = nrow(dis), ncol = 1)
   rownames(influ.info) <- rownames(dis)
+
+
   if (nvar.correction) {
     alfa <- alfa / ncol(dis)
   }
+
   for (i in 2:(g + 1)) {
     y <- as.numeric(dat[i, ])
     name <- rownames(dat)[i]
@@ -164,6 +170,7 @@ T.fit <- function(
     } else {
       stop("stepwise method must be one of backward, forward, two.ways.backward, two.ways.forward")
     }
+
     div <- c(1:round(g / 100)) * 100
     if (is.element(i, div)) {
       print(paste(c("fitting ", item, i, "out of", g), collapse = " "))
@@ -174,6 +181,7 @@ T.fit <- function(
       ,
       4
     ]))]
+
     influ <- influence.measures(reg)$is.inf
     influ <- influ[, c(ncol(influ) - 3, ncol(influ) - 1)]
     influ1 <- which(apply(influ, 1, all))
@@ -252,6 +260,7 @@ T.fit <- function(
       }
     }
   }
+
   if (!is.null(sol)) {
     sol <- as.data.frame(sol)
     coefficients <- as.data.frame(coefficients)
@@ -296,15 +305,36 @@ T.fit <- function(
     print(paste("Influence:", ncol(influ.info) - 1, "genes with influential data at slot influ.info. Model validation for these genes is recommended"))
   }
   influ.info <- influ.info[, -1]
-  output <- list(
-    sol, sig.profiles, coefficients, as.data.frame(group.coeffs),
-    t.score, vars.in, G, g, dat, dis, step.method, groups.vector,
-    edesign, influ.info
+
+  
+  #options(error = recover)
+
+  # Create a constructor for the class
+  
+  #tryCatch(
+  #expr = {
+      t.fit.object <- new("scTFitClass",
+    sol = sol,
+    sig.profiles = sig.profiles,
+    coefficients = coefficients,
+    group.coeffs = group.coeffs,
+    t.score = t.score,
+    variables = "not_selected",
+    G = G,
+    g = integer(g),
+    dat = dat,
+    dis = dis,
+    step.method = step.method,
+    groups.vector = groups.vector,
+    edesign = edesign,
+    influ.info = influ.info
   )
-  names(output) <- c(
-    "sol", "sig.profiles", "coefficients",
-    "group.coeffs", "t.score", "variables", "G", "g", "dat",
-    "dis", "step.method", "groups.vector", "edesign", "influ.info"
-  )
-  output
+  #     },
+  # e = function(e){
+  #     print(e$message)
+  # }
+  # 
+  # )
+
+  return(t.fit.object)
 }

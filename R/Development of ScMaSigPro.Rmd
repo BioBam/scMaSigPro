@@ -174,3 +174,28 @@ sce <- readRDS("../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle
 
 x.sling <- extract_slingshot_components(sce)
 ```
+
+
+# MasigPro
+
+```{r}
+# library(maSigPro)
+library(scMaSigPro)
+
+# data(data.abiotic)
+# data(edesign.abiotic)
+# 
+
+# 
+# design <- make.design.matrix(edesign.abiotic, degree = 2)
+# fit <- p.vector(data.abiotic, design = design, min.obs = 20)
+
+#saveRDS(fit, "../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/fit.RDS")
+#tstep <- T.fit(fit, step.method = "backward")
+fit <- readRDS("../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/fit.RDS")
+
+
+
+tstep <- sc.T.fit(fit, step.method = "backward")
+
+```
