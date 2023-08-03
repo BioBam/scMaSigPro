@@ -1,14 +1,13 @@
 "PlotGroups" <-
-  function(
-      data, edesign = NULL, time = edesign[, 1], groups = edesign[
-        ,
-        c(3:ncol(edesign))
-      ], repvect = edesign[, 2], show.lines = TRUE, show.fit = FALSE,
-      dis = NULL, step.method = "backward", min.obs = 2, alfa = 0.05, nvar.correction = FALSE,
-      summary.mode = "median", groups.vector = NULL, main = NULL, sub = NULL,
-      xlab = "Time", ylab = "Expression value", item = NULL, ylim = NULL, pch = 21,
-      col = NULL, legend = TRUE, cex.legend = 1,
-      lty.legend = NULL, ...) {
+  function(data, edesign = NULL, time = edesign[, 1], groups = edesign[
+             ,
+             c(3:ncol(edesign))
+           ], repvect = edesign[, 2], show.lines = TRUE, show.fit = FALSE,
+           dis = NULL, step.method = "backward", min.obs = 2, alfa = 0.05, nvar.correction = FALSE,
+           summary.mode = "median", groups.vector = NULL, main = NULL, sub = NULL,
+           xlab = "Time", ylab = "Expression value", item = NULL, ylim = NULL, pch = 21,
+           col = NULL, legend = TRUE, cex.legend = 1,
+           lty.legend = NULL, ...) {
     if (!is.vector(data)) {
       if (summary.mode == "representative") {
         distances <- apply(as.matrix(dist(data,

@@ -1,7 +1,6 @@
 "PlotProfiles" <-
-  function(
-      data, cond, cex.axis = 0.5, ylim = NULL,
-      repvect, main = NULL, sub = NULL, color.mode = "rainbow", item = NULL) {
+  function(data, cond, cex.axis = 0.5, ylim = NULL,
+           repvect, main = NULL, sub = NULL, color.mode = "rainbow", item = NULL) {
     pos.vline <- repvect[1:length(repvect)] - c(0, repvect[1:(length(repvect) -
       1)])
     for (i in 1:length(pos.vline)) {

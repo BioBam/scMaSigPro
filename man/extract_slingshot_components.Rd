@@ -27,5 +27,4 @@ processed by the Slingshot package. The function also allows choosing the dimens
 \examples{
 # Assuming 'sce' is a SingleCellExperiment object processed by Slingshot
 result <- extract_slingshot_components(sce)
-
 }

@@ -1,13 +1,12 @@
 "see.genes" <-
-  function(
-      data, edesign = data$edesign, time.col = 1, repl.col = 2,
-      group.cols = c(3:ncol(edesign)), names.groups = colnames(edesign)[3:ncol(edesign)],
-      cluster.data = 1, groups.vector = data$groups.vector, k = 9, k.mclust = FALSE,
-      cluster.method = "hclust", distance = "cor", agglo.method = "ward.D",
-      show.lines = TRUE, show.fit = FALSE, dis = NULL, step.method = "backward",
-      min.obs = 3, alfa = 0.05, nvar.correction = FALSE, iter.max = 500,
-      summary.mode = "median", color.mode = "rainbow", ylim = NULL, item = "genes",
-      legend = TRUE, cex.legend = 1, lty.legend = NULL, ...) {
+  function(data, edesign = data$edesign, time.col = 1, repl.col = 2,
+           group.cols = c(3:ncol(edesign)), names.groups = colnames(edesign)[3:ncol(edesign)],
+           cluster.data = 1, groups.vector = data$groups.vector, k = 9, k.mclust = FALSE,
+           cluster.method = "hclust", distance = "cor", agglo.method = "ward.D",
+           show.lines = TRUE, show.fit = FALSE, dis = NULL, step.method = "backward",
+           min.obs = 3, alfa = 0.05, nvar.correction = FALSE, iter.max = 500,
+           summary.mode = "median", color.mode = "rainbow", ylim = NULL, item = "genes",
+           legend = TRUE, cex.legend = 1, lty.legend = NULL, ...) {
     #--------------------------------- DATA PREPARATION ---------------------------------
 
     time <- edesign[, time.col]

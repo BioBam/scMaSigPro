@@ -12,6 +12,7 @@
 #' @examples
 #' # Assuming 'sce' is a SingleCellExperiment object processed by Slingshot
 #' result <- extract_slingshot_components(sce)
+#' @export
 #'
 extract_slingshot_components <- function(sling.sce, reduction_method = "umap", verbose = TRUE) {
   # Convert the reduction method to upper case

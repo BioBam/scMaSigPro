@@ -1,7 +1,6 @@
 "reg.coeffs" <-
-  function(
-      coefficients, indepen = groups.vector[nchar(groups.vector) == min(nchar(groups.vector))][1], groups.vector,
-      group) {
+  function(coefficients, indepen = groups.vector[nchar(groups.vector) == min(nchar(groups.vector))][1], groups.vector,
+           group) {
     coefficients <- as.numeric(coefficients)
     c0 <- coefficients[1]
     if (length(coefficients) == length(groups.vector)) groups.vector <- groups.vector[-1]

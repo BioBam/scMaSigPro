@@ -19,7 +19,6 @@ load <- function() {
 
 
 load_2 <- function() {
-  suppressPackageStartupMessages(library(maSigPro))
   suppressPackageStartupMessages(library(MASS))
   suppressPackageStartupMessages(library(tidyverse))
   suppressPackageStartupMessages(library(DHARMa))
@@ -148,51 +147,30 @@ library(igraph)
 cds <- readRDS("../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/rep1_m3_UMAP_OB.RDS")
 
 # View
-plot_cells(cds, show_trajectory_graph = T, color_cells_by = "pseudotime",
-           cell_size = 2, label_roots = T, label_principal_points = T,
-           trajectory_graph_segment_size = 3, trajectory_graph_color = "black")
-           cell_size = 2, label_roots = T, label_principal_points = T)
-
+plot_cells(cds,
+  show_trajectory_graph = T, color_cells_by = "pseudotime",
+  cell_size = 2, label_roots = T, label_principal_points = T,
+  trajectory_graph_segment_size = 3, trajectory_graph_color = "black"
+)
 ```
 
 ## Extraction 
 ```{r}
-
+library(scMaSigPro)
 source("extract_monocle3.R")
 x <- extract_monocle3_components(cds = cds)
 
-plot_cells(x$cds, show_trajectory_graph = T, color_cells_by = "Path",
-           cell_size = 2, label_roots = T, label_principal_points = T) + theme(legend.position = "bottom")
-plot_cells(x, show_trajectory_graph = T, color_cells_by = "Pseudotime",
-           cell_size = 2, label_roots = T, label_principal_points = T)
+plot_cells(x$cds,
+  show_trajectory_graph = T, color_cells_by = "Path",
+  cell_size = 2, label_roots = T, label_principal_points = T
+) + theme(legend.position = "bottom")
+plot_cells(x,
+  show_trajectory_graph = T, color_cells_by = "Pseudotime",
+  cell_size = 2, label_roots = T, label_principal_points = T
+)
 
-# Identification of root cells
-cell.meta.new <- as.data.frame(colData(x$cds))
-unique(cell.meta.new$Path)
 
+sce <- readRDS("../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/rep1_m3_UMAP_OB_Sling.RDS")
 
-library(slingshot)
-
-sce <- SingleCellExperiment(assays = List(counts = assay(cds, "counts")))
-colData(sce) <- colData(x$cds)
-rowData(sce) <- rowData(x$cds)
-reducedDims(sce) <- reducedDims(x$cds)
-sce <- slingshot(sce, clusterLabels = 'Path', reducedDim = 'UMAP', 
-                 start.clus = "root", 
-                 #end.clus = x$endpoints
-                 )
-
-sling.curves <- slingCurves(sce, as.df = T)
-sling.time <-  slingPseudotime(sce)
-
-# Extact Sling Data
-sling.rd <- reducedDims(sce)[["UMAP"]] %>% 
-            as.data.frame() %>%
-            rename_with(~ c("DIM_1", "DIM_2"))
-
-# Extract Lineage Info
-ggplot(data = sling.rd, aes(x = DIM_1, y = DIM_2)) +
-    geom_point(color  = "yellow")+ theme_classic()+
-geom_path(inherit.aes = F, data = sling.curves %>% arrange(Order), aes(x = Dim.1, y = Dim.2,
-                                                                       group = Lineage)) 
+x.sling <- extract_slingshot_components(sce)
 ```

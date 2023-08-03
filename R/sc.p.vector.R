@@ -1,6 +1,6 @@
 #' Make regression fit for time series gene expression experiments
 #'
-#' \code{p.vector} performs a regression fit for each gene taking all variables present in the model given by a regression matrix
+#' \code{sc.p.vector} performs a regression fit for each gene taking all variables present in the model given by a regression matrix
 #' and returns a list of FDR corrected significant genes.
 #'
 #' @param data matrix containing normalized gene expression data. Genes must be in rows and arrays in columns.
@@ -15,7 +15,7 @@
 #'   If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = TRUE} or \code{gaussian()} when \code{counts = FALSE}.
 #' @param theta theta parameter for negative.binomial family.
 #' @param epsilon argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.
-#' @param item Name of the analyzed item to show on the screen while \code{p.vector} is in process.
+#' @param item Name of the analyzed item to show on the screen while \code{sc.p.vector} is in process.
 #'
 #' @details \code{rownames(design)} and \code{colnames(data)} must be identical vectors
 #'   and indicate array naming. \code{rownames(data)} should contain unique gene IDs.
@@ -23,7 +23,7 @@
 #'
 #' @return A list containing:
 #' \item{SELEC}{matrix containing the expression values for significant genes}
-#' \item{p.vector}{vector containing the computed p-values}
+#' \item{sc.p.vector}{vector containing the computed p-values}
 #' \item{G}{total number of input genes}
 #' \item{g}{number of genes taken in the regression fit}
 #' \item{FDR}{p-value at FDR \code{Q} control when Benjamini & Hochberg (BH) correction is used}
@@ -51,7 +51,7 @@
 #'
 #' @export
 #'
-p.vector <- function(data, design, Q = 0.05, MT.adjust = "BH", min.obs = 6, counts = FALSE, family = NULL, theta = 10, epsilon = 0.00001, item = "gene") {
+sc.p.vector <- function(data, design, Q = 0.05, MT.adjust = "BH", min.obs = 6, counts = FALSE, family = NULL, theta = 10, epsilon = 0.00001, item = "gene") {
   # Check the type of the 'design' parameter and set the corresponding variables
   if (is.data.frame(design) || is.matrix(design)) {
     dis <- design
@@ -93,10 +93,10 @@ p.vector <- function(data, design, Q = 0.05, MT.adjust = "BH", min.obs = 6, coun
   g <- dim(dat)[1]
   n <- dim(dat)[2]
   p <- dim(dis)[2]
-  p.vector <- vector(mode = "numeric", length = g)
+  sc.p.vector <- vector(mode = "numeric", length = g)
 
   # Iterate through each gene and perform the regression fit
-  # Store the p-values in 'p.vector'
+  # Store the p-values in 'sc.p.vector'
   for (i in 1:g) {
     y <- as.numeric(dat[i, ])
 
@@ -108,7 +108,7 @@ p.vector <- function(data, design, Q = 0.05, MT.adjust = "BH", min.obs = 6, coun
 
     model.glm <- glm(y ~ ., data = dis, family = family, epsilon = epsilon)
     if (model.glm$null.deviance == 0) {
-      p.vector[i] <- 1
+      sc.p.vector[i] <- 1
     } else {
       model.glm.0 <- glm(y ~ 1, family = family, epsilon = epsilon)
 
@@ -116,16 +116,16 @@ p.vector <- function(data, design, Q = 0.05, MT.adjust = "BH", min.obs = 6, coun
       if (family$family == "gaussian") {
         test <- anova(model.glm.0, model.glm, test = "F")
         if (is.na(test[6][2, 1])) {
-          p.vector[i] <- 1
+          sc.p.vector[i] <- 1
         } else {
-          p.vector[i] <- test[6][2, 1]
+          sc.p.vector[i] <- test[6][2, 1]
         }
       } else {
         test <- anova(model.glm.0, model.glm, test = "Chisq")
         if (is.na(test[5][2, 1])) {
-          p.vector[i] <- 1
+          sc.p.vector[i] <- 1
         } else {
-          p.vector[i] <- test[5][2, 1]
+          sc.p.vector[i] <- test[5][2, 1]
         }
       }
     }
@@ -133,9 +133,9 @@ p.vector <- function(data, design, Q = 0.05, MT.adjust = "BH", min.obs = 6, coun
 
   #----------------------------------------------------------------------
   # Correct p-values using FDR correction and select significant genes
-  p.adjusted <- p.adjust(p.vector, method = MT.adjust, n = length(p.vector))
+  p.adjusted <- p.adjust(sc.p.vector, method = MT.adjust, n = length(sc.p.vector))
   genes.selected <- rownames(dat)[which(p.adjusted <= Q)]
-  FDR <- sort(p.vector)[length(genes.selected)]
+  FDR <- sort(sc.p.vector)[length(genes.selected)]
 
   # Subset the expression values of significant genes
   SELEC <- as.matrix(as.data.frame(dat)[genes.selected, ])
@@ -143,22 +143,28 @@ p.vector <- function(data, design, Q = 0.05, MT.adjust = "BH", min.obs = 6, coun
     print("no significant genes")
   }
 
-  # Prepare 'p.vector' for output
-  p.vector <- as.matrix(p.vector)
-  rownames(p.vector) <- rownames(dat)
-  colnames(p.vector) <- c("p.value")
+  # Prepare 'sc.p.vector' for output
+  sc.p.vector <- as.matrix(sc.p.vector)
+  rownames(sc.p.vector) <- rownames(dat)
+  colnames(sc.p.vector) <- c("p.value")
 
-  #-------------------------------------------------------------------------
+  # Add Data to the class
+  scPVector.obj <- new("scPVectorClass",
+    SELEC = SELEC,
+    sc.p.vector = sc.p.vector,
+    p.adjusted = p.adjusted,
+    G = G,
+    g = g,
+    FDR = FDR,
+    i = i,
+    dis = dis,
+    dat = dat,
+    min.obs = integer(min.obs),
+    Q = Q,
+    groups.vector = groups.vector,
+    edesign = edesign,
+    family = family
+  )
 
-  # Prepare and return the output list
-  output <- list(
-    SELEC, p.vector, p.adjusted, G, g, FDR,
-    nrow(SELEC), dis, dat, min.obs, Q, groups.vector, edesign, family
-  )
-  names(output) <- c(
-    "SELEC", "p.vector", "p.adjusted", "G",
-    "g", "FDR", "i", "dis", "dat", "min.obs", "Q", "groups.vector",
-    "edesign", "family"
-  )
-  output
+  return(scPVector.obj)
 }
