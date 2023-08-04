@@ -7,34 +7,16 @@ output: html_document
 
 ## Required library
 ```{r, message=FALSE}
-load <- function() {
-  suppressPackageStartupMessages(library(maSigPro))
-  suppressPackageStartupMessages(library(MASS))
-  suppressPackageStartupMessages(library(tidyverse))
-  suppressPackageStartupMessages(library(DHARMa))
-  suppressPackageStartupMessages(library(glmmTMB))
-  suppressPackageStartupMessages(library(scran))
-  suppressPackageStartupMessages(library(scMaSigPro))
-}
-
-
-load_2 <- function() {
-  suppressPackageStartupMessages(library(MASS))
-  suppressPackageStartupMessages(library(tidyverse))
-  suppressPackageStartupMessages(library(DHARMa))
-  suppressPackageStartupMessages(library(scran))
-  suppressPackageStartupMessages(library(assertthat))
-  suppressPackageStartupMessages(library(entropy))
-  suppressPackageStartupMessages(source("estBinSize.R"))
-  suppressPackageStartupMessages(source("utils.R"))
-}
+library(scMaSigPro)
 ```
 
 ## Load Data
 ```{r}
-load_2()
-sce.test <- readRDS("../scMaSigPro_Supp/benchMarking_Normalization/data/output/SimObjectsSCE/length_strEnd_100.RDS")
-cell.metadata <- as.data.frame(colData(sce.test))
+# Load Simulated Data as SCE
+sim.sce <- readRDS("../scMaSigPro_Supp/benchMarking_Normalization/data/output/SimObjectsSCE/skew_density_0.5.RDS")
+
+# Convert to scmp object
+scmp.obj.test <- as_scmp(sim.sce, from = "sce")
 
 x <- entropy_discretize(cell.metadata, time_col = "Step", path_col = "Group")
 y <- make.pseudobulk.design(design.file = x, pathCol = "Group", binnedCol = "binnedTime")

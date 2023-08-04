@@ -145,7 +145,7 @@ entropy_discretize <- function(design_table, time_col,
   # Bind rows and convert to data frame, then drop 'cell' column
   processed_design_table <- bind_rows(discrete.list) %>% 
       as.data.frame() %>%
-      select(-cell)
+      select(-discrete.list$cell)
 
   return(processed_design_table)
 }

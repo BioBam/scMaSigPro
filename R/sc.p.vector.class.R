@@ -119,11 +119,10 @@ setClass("scPVectorClass",
       stop("Slot 'edesign' must be a data frame.")
     }
 
-    # Check for slot family
-    if (!inherits(object@family, "family")) {
-      stop("Slot 'family' must inherit from class 'family'.")
-    }
-
+    # # Check for slot family
+    # if (!inherits(object@family, "ANY")) {
+    #   stop("Slot 'family' must inherit from class 'family'.")
+    # }
     # Return TRUE if all checks pass
     TRUE
   },
@@ -138,9 +137,22 @@ setClass("scPVectorClass",
     dis = data.frame(), # Empty data frame for dis
     dat = matrix(NA, nrow = 0, ncol = 0), # Empty matrix for dat
     min.obs = integer(6), # Default min.obs value is 0
-    Q = 0, # Default Q value is 0
+    Q = 0.05, # Default Q value is 0
     groups.vector = character(), # Empty list for groups.vector
     edesign = matrix(NA, nrow = 0, ncol = 0), # Empty data frame for edesign
-    family = NULL # Default family value is NULL
+    family = gaussian() # Default family value is NULL
   )
 )
+
+setGeneric("family", function(object) standardGeneric("family"))
+
+setMethod("family", "scPVectorClass", function(object) {
+    if (isS4(object)) {
+        return(object@family)
+    } else if (is(object, "list")) {
+        return(object$family)
+    } else {
+        stop("Object must be of class 'scPVectorClass' (S4) or list (S3).")
+    }
+})
+

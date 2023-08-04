@@ -1,5 +1,6 @@
 # Single Function Imports
 importFrom("SingleCellExperiment", "colData", "reducedDims", "rowData")
+importFrom("SummarizedExperiment", "colData<-")
 importFrom("monocle3", "principal_graph", "principal_graph_aux", "pseudotime")
 importFrom("reshape2", "melt")
 importFrom("stringr", "str_split", "str_remove_all")
@@ -34,6 +35,7 @@ export("make.pseudobulk.design")
 export("make.pseudobulk.counts")
 export("extract_slingshot_components")
 export("extract_monocle3_components")
+export("as_scmp")
 
 # Export Classes
 #exportClasses("scMaSigProClass", "covariateClass", "parameterClass", "pVectorClass", "sigGeneClass", "tFitClass")

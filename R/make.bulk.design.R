@@ -71,7 +71,7 @@ make.pseudobulk.design <- function(design.file, pathCol,
     # Group by time
     path.time.cell <- path.time.cell %>%
       group_by_at(binned.col) %>%
-      summarise(cluster.members = paste0(Cell, collapse = "|"))
+      summarise(cluster.members = paste0(path.time.cell$Cell, collapse = "|"))
 
     # Add Cluster Label
     path.time.cell$bin <- paste0(path, "_bin_", seq(1, nrow(path.time.cell)))

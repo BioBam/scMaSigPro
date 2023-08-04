@@ -41,11 +41,13 @@ extract_monocle3_components <- function(cds, reduction_method = "umap", verbose 
   reduction_method <- toupper(reduction_method)
 
   # Extract principal points and convert to a data frame
-  y_to_cells <- principal_graph_aux(cds)[[reduction_method]][["pr_graph_cell_proj_closest_vertex"]] %>%
-    as.data.frame() %>%
-    # Add a new column 'barcode' with the row names and a new column 'Y' with V1 values prefixed with 'Y_'
-    mutate(barcode = rownames(.), Y = paste0("Y_", V1)) %>%
-    select(-V1)
+  y_to_cells.df <- principal_graph_aux(cds)[[reduction_method]][["pr_graph_cell_proj_closest_vertex"]] %>%
+    as.data.frame()
+  
+  # Add a new column 'barcode' with the row names and a new column 'Y' with V1 values prefixed with 'Y_'
+  y_to_cells <- y_to_cells.df %>%
+    mutate(barcode = rownames(y_to_cells.df), Y = paste0("Y_", y_to_cells.df$V1)) %>%
+    select(-y_to_cells.df$V1)
 
   # Extract the root cells
   root <- cds@principal_graph_aux[[reduction_method]][["root_pr_nodes"]]
@@ -79,7 +81,7 @@ extract_monocle3_components <- function(cds, reduction_method = "umap", verbose 
     colnames(path.frame) <- endpoint
     return(path.frame)
   }) %>%
-    do.call(what = "cbind", args = .) %>%
+    do.call(what = "cbind") %>%
     as.matrix()
   rownames(cellWeights) <- colnames(cds)
 
@@ -103,7 +105,6 @@ extract_monocle3_components <- function(cds, reduction_method = "umap", verbose 
     message(paste("Longest path is", maxPath[2], "with", maxPath[1], "cells"))
     message(paste("Shortest path is", minPath[2], "with", minPath[1], "cells"))
   }
-
 
   # Update the cell dataset with the endpoint data
   endpoints <- colnames(cellWeights)
