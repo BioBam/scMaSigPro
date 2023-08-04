@@ -22,7 +22,6 @@ load_2 <- function() {
   suppressPackageStartupMessages(library(MASS))
   suppressPackageStartupMessages(library(tidyverse))
   suppressPackageStartupMessages(library(DHARMa))
-  suppressPackageStartupMessages(library(glmmTMB))
   suppressPackageStartupMessages(library(scran))
   suppressPackageStartupMessages(library(assertthat))
   suppressPackageStartupMessages(library(entropy))
@@ -34,7 +33,7 @@ load_2 <- function() {
 ## Load Data
 ```{r}
 load_2()
-sce.test <- readRDS("../data/sce.test.RDS")
+sce.test <- readRDS("../scMaSigPro_Supp/benchMarking_Normalization/data/output/SimObjectsSCE/length_strEnd_100.RDS")
 cell.metadata <- as.data.frame(colData(sce.test))
 
 x <- entropy_discretize(cell.metadata, time_col = "Step", path_col = "Group")
@@ -169,7 +168,6 @@ plot_cells(x,
   cell_size = 2, label_roots = T, label_principal_points = T
 )
 
-
 sce <- readRDS("../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/rep1_m3_UMAP_OB_Sling.RDS")
 
 x.sling <- extract_slingshot_components(sce)
@@ -179,23 +177,25 @@ x.sling <- extract_slingshot_components(sce)
 # MasigPro
 
 ```{r}
-# library(maSigPro)
+library(maSigPro)
 library(scMaSigPro)
 
-# data(data.abiotic)
-# data(edesign.abiotic)
-# 
+data(data.abiotic)
+data(edesign.abiotic)
+#
 
-# 
-# design <- make.design.matrix(edesign.abiotic, degree = 2)
-# fit <- p.vector(data.abiotic, design = design, min.obs = 20)
+#
+design <- make.design.matrix(edesign.abiotic, degree = 2)
+fit.s4 <- sc.p.vector(data.abiotic, design = design, min.obs = 20)
 
-#saveRDS(fit, "../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/fit.RDS")
-#tstep <- T.fit(fit, step.method = "backward")
+# saveRDS(fit, "../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/fit.RDS")
+# tstep <- T.fit(fit, step.method = "backward")
 fit <- readRDS("../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/fit.RDS")
 
 
 
-tstep <- sc.T.fit(fit, step.method = "backward")
+tstep <- scMaSigPro::sc.T.fit(fit)
 
+
+tstep.s4 <- sc.T.fit(fit.s4)
 ```

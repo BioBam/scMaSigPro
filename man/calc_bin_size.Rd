@@ -17,15 +17,7 @@ in the "cluster.members" column).
 This function calculates the size of a bin based on the number of elements in
 the "cluster.members" column of the input data frame.
 }
-\examples{
-# Sample data frame
-data <- data.frame(
-  cluster.members = c("A|B|C", "D|E", "F|G|H|I")
-)
-
-# Calculate the bin size using the calc_bin_size function
-result <- calc_bin_size(data)
-print(result)
-
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
 \keyword{internal}

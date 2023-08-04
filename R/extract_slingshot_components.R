@@ -10,8 +10,9 @@
 #' @return A list containing the extracted sling curves, sling time, and sling dimensions, each as a dataframe.
 #'
 #' @examples
-#' # Assuming 'sce' is a SingleCellExperiment object processed by Slingshot
+#' \dontrun{
 #' result <- extract_slingshot_components(sce)
+#' }
 #' @export
 #'
 extract_slingshot_components <- function(sling.sce, reduction_method = "umap", verbose = TRUE) {

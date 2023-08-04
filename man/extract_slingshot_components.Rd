@@ -25,6 +25,7 @@ This function extracts the sling curves, sling time, and sling dimensions from a
 processed by the Slingshot package. The function also allows choosing the dimensionality reduction method to use.
 }
 \examples{
-# Assuming 'sce' is a SingleCellExperiment object processed by Slingshot
+\dontrun{
 result <- extract_slingshot_components(sce)
+}
 }

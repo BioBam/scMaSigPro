@@ -42,5 +42,8 @@ result <- extract_monocle3_components(cds, reduction_method = "umap", verbose = 
 
 }
 \seealso{
-\code{\link[monocle]{principal_graph_aux}}, \code{\link[monocle]{principal_graph}}, \code{\link[igraph]{shortest_paths}}, \code{\link[monocle]{pseudotime}}
+\code{\link[monocle3]{principal_graph_aux}}, \code{\link[monocle3]{principal_graph}}, \code{\link[igraph]{shortest_paths}}, \code{\link[monocle3]{pseudotime}}
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

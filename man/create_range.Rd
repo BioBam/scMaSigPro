@@ -29,17 +29,7 @@ numeric range values from the character vector, and combines them with
 additional columns "bin_size" and "binned_time" to return a numeric vector
 representing the range information.
 }
-\examples{
-# Sample data frame
-data <- data.frame(
-  bin = factor(c("[1, 5]", "[6, 10]", "[11, 15]")),
-  bin_size = c(5, 5, 5),
-  binned_time = c(10, 15, 20)
-)
-
-# Calculate the range using the create_range function
-result <- create_range(data)
-print(result)
-
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
 \keyword{internal}

@@ -14,7 +14,7 @@ test_that("Check the Values for model pvalues; match dimension and value", {
   scmp.obj <- readRDS(data_file)
 
   # Step-5: Extract the path vectors
-  sol_frame_scMaSigPro <-  as.data.frame(showSol(scmp.obj, view = F))
+  sol_frame_scMaSigPro <- as.data.frame(showSol(scmp.obj, view = F))
 
   ######################################################
   # Transfer column and row names for testing

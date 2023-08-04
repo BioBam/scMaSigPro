@@ -116,22 +116,9 @@ tableDS <- function(seeDS) {
   out
 }
 
-
 #---------------------------------------------------------------------------------------------------
 # Auxiliar internal functions: f3, MayorIso
 #---------------------------------------------------------------------------------------------------
-
-#' Merge multiple cluster numbers into a single string with '&'
-#'
-#' This function takes a vector of cluster numbers and merges them into a single string
-#' by separating the numbers with '&'.
-#'
-#' @param x A numeric vector of cluster numbers
-#' @return A string with cluster numbers separated by '&'
-#'
-#' @examples
-#' x <- c(1, 2, 4, NA, NA)
-#' f3(x)
 f3 <- function(x) {
   x <- x[!is.na(x)]
   y <- x[1]
@@ -140,20 +127,11 @@ f3 <- function(x) {
   }
   y
 }
+# ejemplo:
+# x<-c(1,2,4,NA,NA)
+# f3(x)
 
 #-------------------------------------------------------
-
-#' Identify the major isoform for a gene
-#'
-#' This function takes a gene profile and identifies the major isoform based on the highest sum
-#' of expression values across all clusters.
-#'
-#' @param zz A data frame containing gene expression values across clusters
-#' @return A numeric vector indicating the major isoform (1) and minor isoforms (0)
-#'
-#' @examples
-#' data.clust <- data.frame(Cluster1 = c(1, 0, 3), Cluster2 = c(2, 5, 1))
-#' MayorIso(data.clust)
 MayorIso <- function(zz) {
   if (is.null(nrow(zz))) {
     sol <- 1

@@ -60,3 +60,6 @@ entropy_discretize(
 \seealso{
 \code{\link{estBinSize}}, \code{\link{discretize}}, \code{\link{create_range}}
 }
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
+}

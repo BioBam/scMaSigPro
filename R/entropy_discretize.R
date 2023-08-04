@@ -1,4 +1,4 @@
-#' entropy_discretize
+#' @title entropy_discretize
 #'
 #' @description
 #' This function discretizes a continuous time series column into bins of equal size using entropy-based binning method. It automatically calculates the optimal number of bins using one of the supported methods.
@@ -36,6 +36,14 @@
 #'   method = "Sturges", drop.fac = 0.5, verbose = TRUE
 #' )
 #' }
+#' 
+#' @importFrom assertthat assert_that
+#' @importFrom parallel mclapply detectCores
+#' @importFrom entropy discretize
+#' @importFrom dplyr left_join join_by mutate select bind_rows group_by_at summarise rename_with
+#' @importFrom magrittr %>%
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @seealso \code{\link{estBinSize}}, \code{\link{discretize}}, \code{\link{create_range}}
 #'
@@ -126,31 +134,18 @@ entropy_discretize <- function(design_table, time_col,
     # Create the bin table
     bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range))))
     colnames(bin_table) <- c("from", "to", "bin_size", "binnedTime")
-
-    # Merge with design table
-    processed_design_table <- as.data.frame(left_join(path.frame, bin_table,
-      by = join_by(closest(!!time.col >= from), closest(!!time.col <= to))
-    ))
-
+    
+    # Combine Tables
+    processed_design_table <- combine_pseudotime_bin(path.frame, bin_table)
+    
     return(processed_design_table)
     # }, mc.cores = num_cores)
   })
 
-  # Bind rows
-  discrete.frame <- bind_rows(discrete.list)
-
-  # Remove cell column and set rows
-  processed_design_table <- discrete.frame %>%
-    rownames_to_column(var = "row_id") %>%
-    mutate(row_id = design_table$cell) %>%
-    column_to_rownames(var = "row_id") %>%
-    as.data.frame()
-
-  # Drop cell
-  processed_design_table <- processed_design_table[, colnames(processed_design_table) != "cell"]
-
-  # Convert the resulting tibble to a dataframe
-  processed_design_table <- as.data.frame(processed_design_table)
+  # Bind rows and convert to data frame, then drop 'cell' column
+  processed_design_table <- bind_rows(discrete.list) %>% 
+      as.data.frame() %>%
+      select(-cell)
 
   return(processed_design_table)
 }

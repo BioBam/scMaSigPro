@@ -22,13 +22,18 @@
 #'  \item{num_cells_per_path}{A dataframe containing the number of cells for each path.}
 #' }
 #'
-#' @seealso \code{\link[monocle]{principal_graph_aux}}, \code{\link[monocle]{principal_graph}}, \code{\link[igraph]{shortest_paths}}, \code{\link[monocle]{pseudotime}}
+#' @seealso \code{\link[monocle3]{principal_graph_aux}}, \code{\link[monocle3]{principal_graph}}, \code{\link[igraph]{shortest_paths}}, \code{\link[monocle3]{pseudotime}}
 #'
 #' @examples
 #' \dontrun{
 #' # Assuming 'cds' is a Monocle3 CellDataSet (CDS)
 #' result <- extract_monocle3_components(cds, reduction_method = "umap", verbose = TRUE)
 #' }
+#' 
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#' 
+#' @importFrom monocle3 principal_graph principal_graph_aux pseudotime
+#' @importFrom igraph degree
 #'
 #' @export
 extract_monocle3_components <- function(cds, reduction_method = "umap", verbose = TRUE) {
@@ -125,7 +130,7 @@ extract_monocle3_components <- function(cds, reduction_method = "umap", verbose 
       message("Universal Pseudotime Detected, using monocel3")
     }
   } else {
-    Stop("Pseudotime is different for different paths, this is not a normal for monocle3. Consider using 'extract_slingshot_components()'")
+    stop("Pseudotime is different for different paths, this is not a normal for monocle3. Consider using 'extract_slingshot_components()'")
   }
 
   # Update cell dataset with the updated cell metadata

@@ -1,26 +1,27 @@
 # Single Function Imports
 importFrom("SingleCellExperiment", "colData", "reducedDims", "rowData")
+importFrom("monocle3", "principal_graph", "principal_graph_aux", "pseudotime")
 importFrom("reshape2", "melt")
 importFrom("stringr", "str_split", "str_remove_all")
 importFrom("magrittr", "%>%")
-importFrom("methods", "new")
+importFrom("methods", "new", "is")
 importFrom("moments", "skewness")
 importFrom("entropy", "discretize")
 importFrom("MASS", "negative.binomial")
 importFrom("assertthat", "assert_that")
 importFrom("parallel", "mclapply","detectCores")
 importFrom("DESeq2", "estimateSizeFactorsForMatrix")
-importFrom("utils", "View")
+importFrom("utils", "View", "setTxtProgressBar", "txtProgressBar")
 importFrom("rlang",".data")
+importFrom("igraph","degree", "shortest_paths")
 importFrom("slingshot","slingCurves", "slingPseudotime")
 importFrom("tibble","rownames_to_column","column_to_rownames")
-importFrom("dplyr", "left_join", "join_by", "mutate", "select", "bind_rows", "group_by_at", "summarise", "rename_with")
+importFrom("dplyr", "left_join", "join_by", "mutate", "select", "bind_rows", "group_by_at", "summarise", "rename_with", "between")
+importFrom("S4Vectors", "DataFrame")
 
 # Import Entire Libraries
 import("ggplot2")
 import("stats")
-import("glmmTMB")
-import("pscl")
 
 # Exports
 export("plot_loess_fit")
@@ -28,7 +29,6 @@ export("glm_inspection")
 export("sc_makeDesign")
 export("sc.p.vector")
 export("sc.T.fit")
-export("sc.sel.features")
 export("entropy_discretize")
 export("make.pseudobulk.design")
 export("make.pseudobulk.counts")
@@ -36,7 +36,7 @@ export("extract_slingshot_components")
 export("extract_monocle3_components")
 
 # Export Classes
-exportClasses("scMaSigProClass", "covariateClass", "parameterClass", "pVectorClass", "sigGeneClass", "tFitClass")
+#exportClasses("scMaSigProClass", "covariateClass", "parameterClass", "pVectorClass", "sigGeneClass", "tFitClass")
 
 # maSigPro Namespace
 importFrom(Biobase, addVigs2WinMenu, readExpressionSet)

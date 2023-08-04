@@ -43,19 +43,19 @@ setClass(
   ),
   validity = function(object) {
     if (!is.data.frame(object@sol)) {
-      stop("sol slot must be a matrix.")
+      stop("sol slot must be a data.frame")
     }
     if (!is.data.frame(object@sig.profiles)) {
-      stop("sig.profiles slot must be a matrix.")
+      stop("sig.profiles slot must be a data.frame")
     }
     if (!is.data.frame(object@coefficients)) {
-      stop("coefficients slot must be a matrix.")
+      stop("coefficients slot must be a data.frame")
     }
-    # if (!is.data.frame(object@group.coeffs)) {
-    #   stop("group.coeffs slot must be a matrix.")
-    # }
+    if (!is.matrix(object@group.coeffs)) {
+      stop("group.coeffs slot must be a matrix.")
+    }
     if (!is.data.frame(object@t.score)) {
-      stop("t.score slot must be a matrix.")
+      stop("t.score slot must be a data.frame")
     }
     if (!is.character(object@variables)) {
       stop("variables slot must be a character vector.")
@@ -70,7 +70,7 @@ setClass(
       stop("dat slot must be a matrix.")
     }
     if (!is.data.frame(object@dis)) {
-      stop("dis slot must be a matrix.")
+      stop("dis slot must be a data.frame")
     }
     if (!is.character(object@step.method)) {
       stop("step.method slot must be a character.")
@@ -82,7 +82,7 @@ setClass(
       stop("edesign slot must be a matrix.")
     }
     if (!is.matrix(object@influ.info)) {
-      stop("influ.info slot must be a data frame.")
+      stop("influ.info slot must be a matrix.")
     }
   },
   prototype = list(

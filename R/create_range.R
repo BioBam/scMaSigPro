@@ -1,5 +1,6 @@
-#' Create Range Function
+#' @title Create Range Function
 #'
+#' @description
 #' This function converts a factor column "bin" into a character vector, extracts
 #' numeric range values from the character vector, and combines them with
 #' additional columns "bin_size" and "binned_time" to return a numeric vector
@@ -20,25 +21,27 @@
 #'     \item{binned_time}{The binned time.}
 #'   }
 #'
-#' @examples
-#' # Sample data frame
-#' data <- data.frame(
-#'   bin = factor(c("[1, 5]", "[6, 10]", "[11, 15]")),
-#'   bin_size = c(5, 5, 5),
-#'   binned_time = c(10, 15, 20)
-#' )
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' # Calculate the range using the create_range function
-#' result <- create_range(data)
-#' print(result)
+#' @importFrom stringr str_remove_all
 #'
 #' @keywords internal
 create_range <- function(x) {
-  # Convert the factor into Character
+  # Convert the factor column "bin" to character
   y <- as.character(x[["bin"]])
+
+  # Remove square and round brackets from the character string
   y <- y %>% str_remove_all(pattern = "\\[|\\]|\\(|\\)")
+
+  # Split the character string by comma and extract the first element (lower bound of the range)
   y1 <- as.numeric(sapply(strsplit(y, ","), "[", 1))
+
+  # Split the character string by comma and extract the second element (upper bound of the range)
   y2 <- as.numeric(sapply(strsplit(y, ","), "[", 2))
+
+  # Combine the lower bound, upper bound, bin size, and binned time into a numeric vector
   rangeVec <- c(y1, y2, x[["bin_size"]], x[["binned_time"]])
+
+  # Return the numeric vector
   return(as.numeric(rangeVec))
 }

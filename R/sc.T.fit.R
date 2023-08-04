@@ -117,28 +117,51 @@
 #'
 #' @keywords regression
 #' @keywords models
-sc.T.fit <- function(data, 
-                     design = data$dis,
+sc.T.fit <- function(data,
+                     design = NULL,
                      step.method = "forward",
-                     min.obs = data$min.obs,
-                     alfa = data$Q, nvar.correction = FALSE, family = gaussian(), epsilon = 0.00001, item = "gene") {
-  if (is.list(data)) {
-    dat <- as.matrix(data$SELEC)
+                     min.obs = NULL,
+                     alfa = NULL,
+                     nvar.correction = FALSE,
+                     family = gaussian(),
+                     epsilon = 0.00001,
+                     item = "gene") {
+  if (isS4(data)) {
+    assert_that(is(data, "scPVectorClass"),
+      msg = "Please provide object of class 'scPVectorClass'"
+    )
+    design <- data@dis
+    min.obs <- data@min.obs
+    alfa <- data@Q
+    dat <- as.matrix(data@SELEC)
     dat <- rbind(c(rep(1, ncol(dat))), dat)
-    groups.vector <- data$groups.vector
-    groups.vector <- c(groups.vector[nchar(groups.vector) ==
-      min(nchar(groups.vector))][1], groups.vector)
-    edesign <- data$edesign
-    G <- data$g
-    family <- data$family
+    groups.vector <- data@groups.vector
+    groups.vector <- c(groups.vector[nchar(groups.vector) == min(nchar(groups.vector))][1], groups.vector)
+    edesign <- data@edesign
+    G <- data@g
+    family <- data@family
   } else {
-    G <- nrow(data)
-    data <- rbind(c(rep(1, ncol(data))), data)
-    dat <- as.matrix(data)
-    count.na <- function(x) (length(x) - length(x[is.na(x)]))
-    dat <- dat[apply(dat, 1, count.na) >= min.obs, ]
-    groups.vector <- NULL
-    edesign <- NULL
+    if (is.list(data)) {
+      design <- data$dis
+      min.obs <- data$min.obs
+      alfa <- data$Q
+      dat <- as.matrix(data$SELEC)
+      dat <- rbind(c(rep(1, ncol(dat))), dat)
+      groups.vector <- data$groups.vector
+      groups.vector <- c(groups.vector[nchar(groups.vector) ==
+        min(nchar(groups.vector))][1], groups.vector)
+      edesign <- data$edesign
+      G <- data$g
+      family <- data$family
+    } else {
+      G <- nrow(data)
+      data <- rbind(c(rep(1, ncol(data))), data)
+      dat <- as.matrix(data)
+      count.na <- function(x) (length(x) - length(x[is.na(x)]))
+      dat <- dat[apply(dat, 1, count.na) >= min.obs, ]
+      groups.vector <- NULL
+      edesign <- NULL
+    }
   }
 
   dis <- as.data.frame(design)
@@ -151,10 +174,12 @@ sc.T.fit <- function(data,
   influ.info <- matrix(NA, nrow = nrow(dis), ncol = 1)
   rownames(influ.info) <- rownames(dis)
 
-
   if (nvar.correction) {
     alfa <- alfa / ncol(dis)
   }
+
+  # Added Progress Bar
+  pb <- txtProgressBar(min = 0, max = g, style = 3)
 
   for (i in 2:(g + 1)) {
     y <- as.numeric(dat[i, ])
@@ -173,7 +198,8 @@ sc.T.fit <- function(data,
 
     div <- c(1:round(g / 100)) * 100
     if (is.element(i, div)) {
-      print(paste(c("fitting ", item, i, "out of", g), collapse = " "))
+      setTxtProgressBar(pb, i)
+      # print(paste(c("fitting ", item, i, "out of", g), collapse = " "))
     }
     lmf <- glm(y ~ ., data = as.data.frame(dis), family = family, epsilon = epsilon)
     result <- summary(lmf)
@@ -199,7 +225,6 @@ sc.T.fit <- function(data,
       k <- i
 
       # Computing p-values
-
       model.glm.0 <- glm(y ~ 1, family = family, epsilon = epsilon)
 
       if (family$family == "gaussian") {
@@ -302,18 +327,12 @@ sc.T.fit <- function(data,
     }
   }
   if (ncol(influ.info) > 2) {
-    print(paste("Influence:", ncol(influ.info) - 1, "genes with influential data at slot influ.info. Model validation for these genes is recommended"))
+    message(paste("\nInfluence:", ncol(influ.info) - 1, "genes with influential data at slot influ.info. Model validation for these genes is recommended"))
   }
   influ.info <- influ.info[, -1]
 
-  
-  #options(error = recover)
-
   # Create a constructor for the class
-  
-  #tryCatch(
-  #expr = {
-      t.fit.object <- new("scTFitClass",
+  t.fit.object <- new("scTFitClass",
     sol = sol,
     sig.profiles = sig.profiles,
     coefficients = coefficients,
@@ -329,12 +348,6 @@ sc.T.fit <- function(data,
     edesign = edesign,
     influ.info = influ.info
   )
-  #     },
-  # e = function(e){
-  #     print(e$message)
-  # }
-  # 
-  # )
 
   return(t.fit.object)
 }

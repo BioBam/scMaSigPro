@@ -6,10 +6,10 @@
 \usage{
 sc.T.fit(
   data,
-  design = data$dis,
+  design = NULL,
   step.method = "forward",
-  min.obs = data$min.obs,
-  alfa = data$Q,
+  min.obs = NULL,
+  alfa = NULL,
   nvar.correction = FALSE,
   family = gaussian(),
   epsilon = 1e-05,
