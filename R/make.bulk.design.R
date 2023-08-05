@@ -98,11 +98,6 @@ make.pseudobulk.design <- function(design.file, pathCol,
   # Bind rows
   pB.frame <- bind_rows(pB.list) %>% as.data.frame()
 
-  # Add Dummy Variables
-  for (i in avail.paths) {
-    pB.frame[[i]] <- ifelse(pB.frame$path %in% i, 1, 0)
-  }
-
   # Add rownames
   rownames(pB.frame) <- pB.frame$bin
 

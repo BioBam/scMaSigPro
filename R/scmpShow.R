@@ -13,16 +13,16 @@
 .smsp_show <- function(object) {
   # Show Basic information
   cat("Class: ScMaSigPro\n")
-  cat(paste0("nCells: ", ncol(object@SingleCellExperiment), "\n"))
-  cat(paste0("nGenes: ", nrow(object@SingleCellExperiment), "\n"))
+  cat(paste0("nCells: ", ncol(object@sce), "\n"))
+  cat(paste0("nGenes: ", nrow(object@sce), "\n"))
   cat("Continuum: Toti ")
   cat("\n")
 
   # Calculate Dynamic Information
-  if (length(object@scPVectorClass@p.adjusted) > 0) {
-    sig.level <- object@scPVectorClass@Q
-    nSigs <- length(object@scPVectorClass@p.adjusted[object@scPVectorClass@p.adjusted <= sig.level])
-    if (all(object@scPVectorClass@p.adjusted > sig.level)) {
+  if (length(object@scPVector@p.adjusted) > 0) {
+    sig.level <- object@scPVector@Q
+    nSigs <- length(object@scPVector@p.adjusted[object@scPVector@p.adjusted <= sig.level])
+    if (all(object@scPVector@p.adjusted > sig.level)) {
       cat("Sig. Profiles (P-vector): None found")
     } else {
       cat(paste("Sig. Models (sc.p.vector):", nSigs, sep = " "))

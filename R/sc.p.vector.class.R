@@ -147,12 +147,11 @@ setClass("scPVectorClass",
 setGeneric("family", function(object) standardGeneric("family"))
 
 setMethod("family", "scPVectorClass", function(object) {
-    if (isS4(object)) {
-        return(object@family)
-    } else if (is(object, "list")) {
-        return(object$family)
-    } else {
-        stop("Object must be of class 'scPVectorClass' (S4) or list (S3).")
-    }
+  if (isS4(object)) {
+    return(object@family)
+  } else if (is(object, "list")) {
+    return(object$family)
+  } else {
+    stop("Object must be of class 'scPVectorClass' (S4) or list (S3).")
+  }
 })
-

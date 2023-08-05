@@ -126,43 +126,22 @@ sc.T.fit <- function(data,
                      family = gaussian(),
                      epsilon = 0.00001,
                      item = "gene") {
-  if (isS4(data)) {
-    assert_that(is(data, "scPVectorClass"),
-      msg = "Please provide object of class 'scPVectorClass'"
-    )
-    design <- data@dis
-    min.obs <- data@min.obs
-    alfa <- data@Q
-    dat <- as.matrix(data@SELEC)
-    dat <- rbind(c(rep(1, ncol(dat))), dat)
-    groups.vector <- data@groups.vector
-    groups.vector <- c(groups.vector[nchar(groups.vector) == min(nchar(groups.vector))][1], groups.vector)
-    edesign <- data@edesign
-    G <- data@g
-    family <- data@family
-  } else {
-    if (is.list(data)) {
-      design <- data$dis
-      min.obs <- data$min.obs
-      alfa <- data$Q
-      dat <- as.matrix(data$SELEC)
-      dat <- rbind(c(rep(1, ncol(dat))), dat)
-      groups.vector <- data$groups.vector
-      groups.vector <- c(groups.vector[nchar(groups.vector) ==
-        min(nchar(groups.vector))][1], groups.vector)
-      edesign <- data$edesign
-      G <- data$g
-      family <- data$family
-    } else {
-      G <- nrow(data)
-      data <- rbind(c(rep(1, ncol(data))), data)
-      dat <- as.matrix(data)
-      count.na <- function(x) (length(x) - length(x[is.na(x)]))
-      dat <- dat[apply(dat, 1, count.na) >= min.obs, ]
-      groups.vector <- NULL
-      edesign <- NULL
-    }
-  }
+  assert_that(is(data, "scMaSigProClass"),
+    msg = "Please provide object of class 'scMaSigProClass'"
+  )
+pvectorObj <- data@scPVector
+
+  design <- pvectorObj@dis
+  min.obs <- pvectorObj@min.obs
+  alfa <- pvectorObj@Q
+  dat <- as.matrix(pvectorObj@SELEC)
+  dat <- rbind(c(rep(1, ncol(dat))), dat)
+  groups.vector <- pvectorObj@groups.vector
+  groups.vector <- c(groups.vector[nchar(groups.vector) == min(nchar(groups.vector))][1], groups.vector)
+  edesign <- pvectorObj@edesign
+  G <- pvectorObj@g
+  family <- pvectorObj@family
+
 
   dis <- as.data.frame(design)
   dat <- dat[, as.character(rownames(dis))]
@@ -348,6 +327,9 @@ sc.T.fit <- function(data,
     edesign = edesign,
     influ.info = influ.info
   )
+  
+  # Added Tfit
+  data@scTFit <- t.fit.object
 
-  return(t.fit.object)
+  return(data)
 }

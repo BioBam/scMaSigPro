@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ## Required library
-```{r, message=FALSE}
+```{r}
 library(scMaSigPro)
 ```
 
@@ -14,32 +14,43 @@ library(scMaSigPro)
 ```{r}
 # Load Simulated Data as SCE
 sim.sce <- readRDS("../scMaSigPro_Supp/benchMarking_Normalization/data/output/SimObjectsSCE/skew_density_0.5.RDS")
+```
 
-# Convert to scmp object
-scmp.obj.test <- as_scmp(sim.sce, from = "sce")
+## Convert to scmp object
+```{r}
+scmp.obj <- as_scmp(sim.sce, from = "sce")
+```
 
-x <- entropy_discretize(cell.metadata, time_col = "Step", path_col = "Group")
-y <- make.pseudobulk.design(design.file = x, pathCol = "Group", binnedCol = "binnedTime")
-z <- make.pseudobulk.counts(
-  counts = sce.test@assays@data@listData$counts,
-  pseudo_bulk_profile = y, cluster.count.by = "sum"
+## Apply Compression
+```{r}
+scmp.obj <- squeeze(
+  scmp.ob = scmp.obj,
+  time.col = "Step",
+  path.col = "Group",
+  method = "Sturges",
+  drop.fac = 0.5,
+  verbose = F,
+  cluster.count.by = "sum"
 )
+```
 
-scmp.obj <- sc_makeDesign(sce.object = sce.test)
-scmp.obj <- sc_pVector(scmp.obj, p.vector.sig = 0.4)
+## Make Design 
+```{r}
+scmp.obj <- sc.make.design.matrix(scmp.obj,
+  degree = 2,
+  time.col = "binnedTime",
+  path.col = "path"
+)
+```
+
+## Run-Pvector
+```{r}
+scmp.obj <- sc.p.vector(scmpObj = scmp.obj)
 ```
 
 # Running T-fit
-```{r, eval=FALSE, message=F, echo=FALSE, warning=FALSE}
-scmp.obj <- sc_tFit(scmp.obj)
-```
-
-# Selection of Siginificant Models
-```{r, eval=FALSE, message=F, echo=FALSE, warning=FALSE}
-scmp.obj <- sc.sel.features(scmp.obj,
-  filter = "rsq",
-  Q = 0.05
-)
+```{r}
+scmp.obj <- sc.T.fit(scmp.obj)
 ```
 
 # Show Models
@@ -50,35 +61,7 @@ showSol(scmp.obj)
 ---
 
 ### Evaluation with R-prof
-
-```{r}
-load <- function() {
-  suppressPackageStartupMessages(library(maSigPro))
-  suppressPackageStartupMessages(library(MASS))
-  suppressPackageStartupMessages(library(scran))
-  suppressPackageStartupMessages(library(tidyverse))
-  suppressPackageStartupMessages(library(scMaSigPro))
-  suppressPackageStartupMessages(library(utils))
-  suppressPackageStartupMessages(library(profmem))
-}
-load()
-
-# Load object from the /data
-sce.test <- readRDS("../data/sce.test.RDS")
-
-# Create a simple design file
-design.file <- as.data.frame(colData(sce.test))
-design.file$Path1 <- ifelse(design.file$Group == "Path1", 1, 0)
-design.file$Path2 <- ifelse(design.file$Group == "Path2", 1, 0)
-design.file$Rep <- c(1:nrow(design.file))
-design.file <- design.file[, c(5, 8, 6, 7), ]
-
-# Extract the counts
-gCounts <- as.matrix(sce.test@assays@data$counts)
-all(colnames(gCounts) == rownames(design.file$edesign))
-```
-
-```{r}
+```{r, eval=FALSE}
 require(microbenchmark)
 time_result <- microbenchmark(
   "scMaSigPro_Pvector" = {
@@ -99,85 +82,17 @@ sum(time_result$time) / 1e9
 autoplot(time_result)
 ```
 
-```{r}
-require(microbenchmark)
-time_result <- microbenchmark(
-  "scMaSigPro_Tfit" = {
-    scmp.obj <- sc_tFit(scmp.obj)
-  },
-  "maSigPro_tfit" = {
-    x <- capture.output(
-      tob <- T.fit(data = p.ob)
-    )
-  },
-  times = 10
-)
+---
 
-# Calculate the elapsed time
-sum(time_result$time) / 1e9
-autoplot(time_result)
+## Extraction from Monocle3 and Slingshot
+```{r, eval=FALSE}
+# Load Sample datasets
+sce <- readRDS("../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/rep1_m3_UMAP_OB_Sling.RDS")
+cds <- readRDS("../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/rep1_m3_UMAP_OB.RDS")
+
+# Use functions
+monocle3Data <- extract_monocle3_components(cds = cds)
+slingData <- extract_slingshot_components(sce)
 ```
 
 ---
-
-# MaSigPro to Monocle3
-```{r}
-library(tidyverse)
-library(igraph)
-# Load cds
-cds <- readRDS("../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/rep1_m3_UMAP_OB.RDS")
-
-# View
-plot_cells(cds,
-  show_trajectory_graph = T, color_cells_by = "pseudotime",
-  cell_size = 2, label_roots = T, label_principal_points = T,
-  trajectory_graph_segment_size = 3, trajectory_graph_color = "black"
-)
-```
-
-## Extraction 
-```{r}
-library(scMaSigPro)
-source("extract_monocle3.R")
-x <- extract_monocle3_components(cds = cds)
-
-plot_cells(x$cds,
-  show_trajectory_graph = T, color_cells_by = "Path",
-  cell_size = 2, label_roots = T, label_principal_points = T
-) + theme(legend.position = "bottom")
-plot_cells(x,
-  show_trajectory_graph = T, color_cells_by = "Pseudotime",
-  cell_size = 2, label_roots = T, label_principal_points = T
-)
-
-sce <- readRDS("../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/rep1_m3_UMAP_OB_Sling.RDS")
-
-x.sling <- extract_slingshot_components(sce)
-```
-
-
-# MasigPro
-
-```{r}
-library(maSigPro)
-library(scMaSigPro)
-
-data(data.abiotic)
-data(edesign.abiotic)
-#
-
-#
-design <- make.design.matrix(edesign.abiotic, degree = 2)
-fit.s4 <- sc.p.vector(data.abiotic, design = design, min.obs = 20)
-
-# saveRDS(fit, "../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/fit.RDS")
-# tstep <- T.fit(fit, step.method = "backward")
-fit <- readRDS("../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/fit.RDS")
-
-
-
-tstep <- scMaSigPro::sc.T.fit(fit)
-
-
-tstep.s4 <- sc.T.fit(fit.s4)
-```

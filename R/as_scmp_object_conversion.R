@@ -1,6 +1,6 @@
 #' Convert cell_data_set or SingleCellExperiment to scMaSigProClass
 #'
-#' This function converts a cell_data_set object from Monocle or a SingleCellExperiment object to an instance of 
+#' This function converts a cell_data_set object from Monocle or a SingleCellExperiment object to an instance of
 #' the scMaSigProClass. Currently, only Monocle's cell_data_set and SingleCellExperiment are supported.
 #'
 #' @param object An S4 object of class 'cell_data_set' or 'SingleCellExperiment'.
@@ -16,30 +16,31 @@
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @importFrom assertthat assert_that
 #' @export
-as_scmp <- function(object, from = "cell_data_set"){
-    
-    # Check Conversion Type
-    assert_that(from %in% c("cell_data_set", "sce"),
-                msg = ("Currently, accepted formats are S4 cell_data_set and sce"))
-    
-    # Validate S4
-    assert_that(
-        all(isS4(object) & all(is(object, "cell_data_set") | is(object, "SingleCellExperiment"))),
-        msg = "Please provide object from one of the class 'Monocle3/cell_data_set', 'SingleCellExperiment/SCE'")
-    
-    # FLow control
-    if(is(object, "SingleCellExperiment")){
-        message("SingleCellExperiment/SCE")
-        
-        # Create Object
-        scmpObj <- new("scMaSigProClass",
-                       SingleCellExperiment = object)
-        
-        # Return Object
-        return(scmpObj)
-        
-    }else if(is(object, "cell_data_set")){
-        message("Monocle3/cell_data_set Detected")
-    }
-    
+as_scmp <- function(object, from = "cell_data_set") {
+  # Check Conversion Type
+  assert_that(from %in% c("cell_data_set", "sce"),
+    msg = ("Currently, accepted formats are S4 cell_data_set and sce")
+  )
+
+  # Validate S4
+  assert_that(
+    all(isS4(object) & all(is(object, "cell_data_set") | is(object, "SingleCellExperiment"))),
+    msg = "Please provide object from one of the class 'Monocle3/cell_data_set', 'SingleCellExperiment/SCE'"
+  )
+
+  # FLow control
+  if (is(object, "SingleCellExperiment")) {
+    message("SingleCellExperiment/SCE")
+
+    # Create Object
+    scmpObj <- new("scMaSigProClass",
+      sce = object,
+      compress.sce = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
+    )
+
+    # Return Object
+    return(scmpObj)
+  } else if (is(object, "cell_data_set")) {
+    message("Monocle3/cell_data_set Detected")
+  }
 }

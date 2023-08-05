@@ -7,47 +7,62 @@
 #' @aliases scMaSigProClass
 #' @exportClass scMaSigProClass
 setClass(
-    "scMaSigProClass",
-    representation(
-        SingleCellExperiment = "SingleCellExperiment",
-        scPVectorClass = "scPVectorClass",
-        scTFitClass = "scTFitClass"
-    ),
-    validity = function(object) {
-        # Check SingleCellExperiment slot
-        if (!validObject(object@SingleCellExperiment)) {
-            stop("SingleCellExperiment slot is not a valid SingleCellExperiment object.")
-        }
-        
-        # Check scPVectorClass slot
-        if (!validObject(object@scPVectorClass)) {
-            stop("scPVectorClass slot is not a valid scPVectorClass object.")
-        }
-        
-        # Check scTFitClass slot
-        if (!validObject(object@scTFitClass)) {
-            stop("scTFitClass slot is not a valid scTFitClass object.")
-        }
-    },
-    prototype = list(
-        scPVectorClass = new("scPVectorClass"),  # Assuming you've defined scPVectorClass with its prototype
-        scTFitClass = new("scTFitClass")  # Assuming you've defined scTFitClass with its prototype
-    )
+  "scMaSigProClass",
+  representation(
+    sce = "SingleCellExperiment",
+    scPVector = "scPVectorClass",
+    scTFit = "scTFitClass",
+    compress.sce = "SingleCellExperiment",
+    edesign = "edesignClass"
+  ),
+  validity = function(object) {
+    # Check sce slot
+    if (!validObject(object@sce)) {
+      stop("sce slot is not a valid SingleCellExperiment object.")
+    }
+
+    # Check scPVectorClass slot
+    if (!validObject(object@scPVector)) {
+      stop("scPVector slot is not a valid scPVectorClass object.")
+    }
+
+    # Check scTFitClass slot
+    if (!validObject(object@scTFit)) {
+      stop("scTFitClass slot is not a valid scTFitClass object.")
+    }
+
+    # Check scTFitClass slot
+    if (!validObject(object@compress.sce)) {
+      stop("compress.sce slot is not a valid SingleCellExperiment object.")
+    }
+    if (!validObject(object@edesign)) {
+      stop("edesign slot is not a valid edesignClass object.")
+    }
+  },
+  prototype = list(
+    scPVector = new("scPVectorClass"), # Assuming you've defined scPVectorClass with its prototype
+    scTFit = new("scTFitClass") # Assuming you've defined scTFitClass with its prototype
+  )
 )
 
-scMaSigProClass <- function(SingleCellExperiment,  # Remove default SingleCellExperiment
-                            scPVectorClass = new("scPVectorClass"), 
-                            scTFitClass = new("scTFitClass")) {
-    new("scMaSigProClass", 
-        SingleCellExperiment = SingleCellExperiment, 
-        scPVectorClass = scPVectorClass, 
-        scTFitClass = scTFitClass)
+scMaSigProClass <- function(sce = new("SingleCellExperiment"), # Remove default sce
+                            scPVector = new("scPVectorClass"),
+                            scTFit = new("scTFitClass"),
+                            compress.sce = new("SingleCellExperiment"),
+                            edesign = new("edesignClass")) {
+  new("scMaSigProClass",
+    sce = sce,
+    scPVector = scPVector,
+    scTFit = scTFit,
+    compress.sce = compress.sce,
+    edesign = edesign
+  )
 }
 
 setMethod(
-    "show",
-    "scMaSigProClass",
-    function(object) {
-        .smsp_show(object)
-    }
+  "show",
+  "scMaSigProClass",
+  function(object) {
+    .smsp_show(object)
+  }
 )

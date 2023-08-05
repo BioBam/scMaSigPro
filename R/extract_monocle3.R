@@ -29,9 +29,9 @@
 #' # Assuming 'cds' is a Monocle3 CellDataSet (CDS)
 #' result <- extract_monocle3_components(cds, reduction_method = "umap", verbose = TRUE)
 #' }
-#' 
+#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#' 
+#'
 #' @importFrom monocle3 principal_graph principal_graph_aux pseudotime
 #' @importFrom igraph degree
 #'
@@ -43,7 +43,7 @@ extract_monocle3_components <- function(cds, reduction_method = "umap", verbose 
   # Extract principal points and convert to a data frame
   y_to_cells.df <- principal_graph_aux(cds)[[reduction_method]][["pr_graph_cell_proj_closest_vertex"]] %>%
     as.data.frame()
-  
+
   # Add a new column 'barcode' with the row names and a new column 'Y' with V1 values prefixed with 'Y_'
   y_to_cells <- y_to_cells.df %>%
     mutate(barcode = rownames(y_to_cells.df), Y = paste0("Y_", y_to_cells.df$V1)) %>%

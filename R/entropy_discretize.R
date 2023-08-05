@@ -36,7 +36,7 @@
 #'   method = "Sturges", drop.fac = 0.5, verbose = TRUE
 #' )
 #' }
-#' 
+#'
 #' @importFrom assertthat assert_that
 #' @importFrom parallel mclapply detectCores
 #' @importFrom entropy discretize
@@ -134,18 +134,18 @@ entropy_discretize <- function(design_table, time_col,
     # Create the bin table
     bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range))))
     colnames(bin_table) <- c("from", "to", "bin_size", "binnedTime")
-    
+
     # Combine Tables
     processed_design_table <- combine_pseudotime_bin(path.frame, bin_table)
-    
+
     return(processed_design_table)
     # }, mc.cores = num_cores)
   })
 
   # Bind rows and convert to data frame, then drop 'cell' column
-  processed_design_table <- bind_rows(discrete.list) %>% 
-      as.data.frame() %>%
-      select(-discrete.list$cell)
+  processed_design_table <- bind_rows(discrete.list) %>%
+    as.data.frame() %>%
+    select(-discrete.list$cell)
 
   return(processed_design_table)
 }

@@ -16,7 +16,7 @@ A data frame which is a combined version of path.frame and bin_table.
 }
 \description{
 This function takes a pseudotime data frame (path.frame) and a bin data frame (bin_table) and combines them.
-It subsets path.frame based on the bin_table 'from' and 'to' values and adds this bin_table information to path.frame. 
+It subsets path.frame based on the bin_table 'from' and 'to' values and adds this bin_table information to path.frame.
 The function is parallelized to speed up the process.
 }
 \examples{
