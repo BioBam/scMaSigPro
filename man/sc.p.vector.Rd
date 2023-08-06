@@ -38,6 +38,8 @@ If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = 
 \item{epsilon}{argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.}
 
 \item{item}{Name of the analyzed item to show on the screen while \code{sc.p.vector} is in process.}
+
+\item{verbose}{Name of the analyzed item to show on the screen while \code{T.fit} is in process.}
 }
 \value{
 A list containing:

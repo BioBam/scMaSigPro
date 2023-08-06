@@ -77,7 +77,7 @@ entropy_discretize <- function(design_table, time_col,
   )
 
   # Determine the number of cores
-  num_cores <- detectCores() - 1
+  #num_cores <- detectCores() - 1
 
   # Apply transformations on data
   # discrete.list <- mclapply(avail.paths, function(path, design.frame = design_table,

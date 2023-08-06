@@ -38,6 +38,7 @@ export("extract_monocle3_components")
 export("as_scmp")
 export("squeeze")
 export("sc.make.design.matrix")
+export("showSol")
 
 # Export Classes
 #exportClasses("scMaSigProClass", "covariateClass", "parameterClass", "pVectorClass", "sigGeneClass", "tFitClass")

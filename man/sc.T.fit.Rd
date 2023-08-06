@@ -37,6 +37,8 @@ a \code{\link{p.vector}} object, the same design matrix is used by default.}
 \item{epsilon}{Argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.}
 
 \item{item}{Name of the analyzed item to show on the screen while \code{T.fit} is in process.}
+
+\item{verbose}{Name of the analyzed item to show on the screen while \code{T.fit} is in process.}
 }
 \value{
 A list containing the following elements:
