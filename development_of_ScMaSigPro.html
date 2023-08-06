@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Development of Single-Cell MaSigPro</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Priyansh Srivastava" />
+    <meta name="date" content="2023-08-06" />
+    <script src="libs/header-attrs-2.23/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="custom.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Development of Single-Cell MaSigPro
+]
+.subtitle[
+## Old wine in a new Bottle!
+]
+.author[
+### Priyansh Srivastava
+]
+.institute[
+### BioBam &amp; GGE
+]
+.date[
+### 2023-08-06
+]
+
+---
+
+
+class: left
+
+## Outline
+&lt;div style="line-height:2;"&gt;
+&lt;ul&gt;
+  &lt;li&gt;Landscape of Single-Cell Analysis in R&lt;/li&gt;
+  &lt;ul&gt;
+    &lt;li&gt;Storing Sparse Data&lt;/li&gt;
+    &lt;li&gt;S4 Object System&lt;/li&gt;
+    &lt;li&gt;Interactivity&lt;/li&gt;
+    &lt;li&gt;Computation&lt;/li&gt;
+    &lt;li&gt;Visualization&lt;/li&gt;
+  &lt;/ul&gt;
+  &lt;li&gt;Current limitations of maSigPro for Single-Cell Analysis&lt;/li&gt;
+  &lt;li&gt;ScMaSigPro Object&lt;/li&gt;
+  &lt;ul&gt;
+    &lt;li&gt;Slots&lt;/li&gt;
+    &lt;li&gt;Methods&lt;/li&gt;
+    &lt;li&gt;Interactivity&lt;/li&gt;
+    &lt;li&gt;Backward compatibility&lt;/li&gt;
+    &lt;li&gt;Object compatibility&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/ul&gt;
+&lt;/div&gt;
+
+---
+
+## Outline Contd.
+
+* Showcase
+
+---
+
+class: left
+
+## Landscape of Single-Cell Analysis in R
+
+--
+
+### Single-Cell Data is different!
+
+--
+
+1. Zero-Inflation: We have discussed a million times!
+    - Storage
+--
+
+2. Single-Cell Data Analysis is Cyclic in nature.
+    - No one-size fits all
+
+--
+3. Weekly new tools and objects
+    - [scRNA-tools db](https://www.scrna-tools.org/)
+    
+--
+4. Paradigm shift to python
+    - [ScVerse](https://scverse.org/)
+    
+--
+5. Interactive Data Analysis 
+    - [Shiny](https://shiny.posit.co/), [Streamlit](https://streamlit.io/), [Plotly-Dash](https://plotly.com/dash/)
+
+---
+
+class:center
+
+# Storing Sparse Data in R
+
+.pull-left[
+
+## Matrix
+
+
+```
+##      col1 col2 col3
+## row1    1    4    7
+## row2    2    5    8
+## row3    3    6    9
+```
+]
+
+.pull-right[
+
+## dgCMatrix
+(Column-oriented format)
+
+```
+## 3 x 3 sparse Matrix of class "dgCMatrix"
+##      col1 col2 col3
+## row1    .    .    .
+## row2    6    .   -1
+## row3    .    4    3
+```
+
+
+
+.pull-left[
+(Object Structure and Storage)
+
+```
+## Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+##   ..@ i       : int [1:4] 1 2 1 2
+##   ..@ p       : int [1:4] 0 1 2 4
+##   ..@ Dim     : int [1:2] 3 3
+##   ..@ Dimnames:List of 2
+##   .. ..$ : chr [1:3] "row1" "row2" "row3"
+##   .. ..$ : chr [1:3] "col1" "col2" "col3"
+##   ..@ x       : num [1:4] 6 4 -1 3
+##   ..@ factors : list()
+```
+
+]
+]
+
+---
+
+
+1. Zero-Inflation: Lots of zeros in the count table.
+    - Solution: Store counts in **[dgCMatrix](https://www.r-bloggers.com/2020/03/what-is-a-dgcmatrix-object-made-of-sparse-matrix-format-in-r/)** format.
+
+2. Single Cell R-community uses **[S4 classes](http://adv-r.had.co.nz/S4.html)** for handling single cell data. 
+    - e.g. [SummarizedExperiment](https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html), [SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html), [CellDataSet](https://rdrr.io/bioc/monocle/man/CellDataSet.html) or [Seurat](https://mojaveazure.github.io/seurat-object/reference/Seurat-class.html) etc.
+
+---
+
+## Required library
+
+```r
+library(scMaSigPro)
+```
+
+---
+
+## Load Data
+
+```r
+# Load Simulated Data as SCE
+sim.sce &lt;- readRDS("../scMaSigPro_Supp/benchMarking_Normalization/data/output/SimObjectsSCE/skew_density_0.5.RDS")
+```
+
+---
+
+## Convert to scmp object
+
+```r
+scmp.obj &lt;- as_scmp(sim.sce, from = "sce")
+```
+
+---
+
+## Apply Compression
+
+```r
+scmp.obj &lt;- squeeze(
+  scmp.ob = scmp.obj,
+  time.col = "Step",
+  path.col = "Group",
+  method = "Sturges",
+  drop.fac = 0.5,
+  verbose = F,
+  cluster.count.by = "sum"
+)
+```
+
+---
+
+## Make Design 
+
+```r
+scmp.obj &lt;- sc.make.design.matrix(scmp.obj,
+  degree = 2,
+  time.col = "binnedTime",
+  path.col = "path"
+)
+```
+
+---
+
+## Run-Pvector
+
+```r
+scmp.obj &lt;- sc.p.vector(scmpObj = scmp.obj, verbose = F)
+```
+
+
+---
+
+
+# Running T-fit
+
+```r
+scmp.obj &lt;- sc.T.fit(scmp.obj, verbose = F)
+```
+
+---
+
+# Show Models
+
+
+---
+
+### Evaluation with R-prof
+
+```r
+require(microbenchmark)
+time_result &lt;- microbenchmark(
+  "scMaSigPro_Pvector" = {
+    scmp.obj &lt;- sc_tFit(scmp.obj, p.vector.sig = 0.4)
+  },
+  "maSigPro_Pvector" = {
+    x &lt;- capture.output(p.ob &lt;- p.vector(
+      data = as.matrix(gCounts), Q = 0.4,
+      design = new.design.file,
+      counts = T, family = negative.binomial(10)
+    ))
+  },
+  times = 10
+)
+
+# Calculate the elapsed time
+sum(time_result$time) / 1e9
+autoplot(time_result)
+```
+
+---
+
+## Extraction from Monocle3 and Slingshot
+
+```r
+# Load Sample datasets
+sce &lt;- readRDS("../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/rep1_m3_UMAP_OB_Sling.RDS")
+cds &lt;- readRDS("../../re_analysis_scRNA/setty_et_al/data/output/monocle3/Monocle3UMAPOB/rep1_m3_UMAP_OB.RDS")
+
+# Use functions
+monocle3Data &lt;- extract_monocle3_components(cds = cds)
+slingData &lt;- extract_slingshot_components(sce)
+```
+
+---
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"countIncrementalSlides": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

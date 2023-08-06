@@ -13,7 +13,8 @@ sc.T.fit(
   nvar.correction = FALSE,
   family = gaussian(),
   epsilon = 1e-05,
-  item = "gene"
+  item = "gene",
+  verbose = TRUE
 )
 }
 \arguments{

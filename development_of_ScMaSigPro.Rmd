@@ -1,28 +1,159 @@
 ---
-title: "Development of ScMaSig Pro"
+title: "Development of Single-Cell MaSigPro"
+subtitle: "Old wine in a new Bottle!"
 author: "Priyansh Srivastava"
+institute: "BioBam & GGE" 
 date: "`r Sys.Date()`"
-output: html_document
+output: 
+  xaringan::moon_reader: 
+    css: ["default", "custom.css"]
+    lib_dir: libs
+    nature: 
+      ratio: "16:9"
+      countIncrementalSlides: true
+---
+
+class: left
+
+## Outline
+<div style="line-height:2;">
+<ul>
+  <li>Landscape of Single-Cell Analysis in R</li>
+  <ul>
+    <li>Storing Sparse Data</li>
+    <li>S4 Object System</li>
+    <li>Interactivity</li>
+    <li>Computation</li>
+    <li>Visualization</li>
+  </ul>
+  <li>Current limitations of maSigPro for Single-Cell Analysis</li>
+  <li>ScMaSigPro Object</li>
+  <ul>
+    <li>Slots</li>
+    <li>Methods</li>
+    <li>Interactivity</li>
+    <li>Backward compatibility</li>
+    <li>Object compatibility</li>
+  </ul>
+</ul>
+</div>
+
+---
+
+## Outline Contd.
+
+* Showcase
+
+---
+
+class: left
+
+## Landscape of Single-Cell Analysis in R
+
+--
+
+### Single-Cell Data is different!
+
+--
+
+1. Zero-Inflation: We have discussed a million times!
+    - Storage
+--
+
+2. Single-Cell Data Analysis is Cyclic in nature.
+    - No one-size fits all
+
+--
+3. Weekly new tools and objects
+    - [scRNA-tools db](https://www.scrna-tools.org/)
+    
+--
+4. Paradigm shift to python
+    - [ScVerse](https://scverse.org/)
+    
+--
+5. Interactive Data Analysis 
+    - [Shiny](https://shiny.posit.co/), [Streamlit](https://streamlit.io/), [Plotly-Dash](https://plotly.com/dash/)
+
+---
+
+class:center
+
+# Storing Sparse Data in R
+
+.pull-left[
+
+## Matrix
+
+```{r, echo=FALSE, warning=FALSE}
+trad.matrix <- matrix(c(1:9), ncol =3, nrow = 3, 
+                      dimnames = list(c("row1", "row2","row3"),
+                                      c("col1", "col2","col3")))
+trad.matrix
+```
+]
+
+.pull-right[
+
+## dgCMatrix
+(Column-oriented format)
+```{r, echo=FALSE, warning=FALSE}
+suppressPackageStartupMessages(library(Matrix))
+M <- Matrix(c(0, 0,  0,
+              6, 0, -1,
+              0, 4,  3),
+            byrow = TRUE, nrow = 3, sparse = TRUE)
+rownames(M) <- paste0("row", 1:3)
+colnames(M) <- paste0("col", 1:3)
+print(M)
+```
+
+
+
+.pull-left[
+(Object Structure and Storage)
+```{r, echo=FALSE, warning=FALSE}
+str(M)
+```
+
+]
+]
+
+---
+
+
+1. Zero-Inflation: Lots of zeros in the count table.
+    - Solution: Store counts in **[dgCMatrix](https://www.r-bloggers.com/2020/03/what-is-a-dgcmatrix-object-made-of-sparse-matrix-format-in-r/)** format.
+
+2. Single Cell R-community uses **[S4 classes](http://adv-r.had.co.nz/S4.html)** for handling single cell data. 
+    - e.g. [SummarizedExperiment](https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html), [SingleCellExperiment](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html), [CellDataSet](https://rdrr.io/bioc/monocle/man/CellDataSet.html) or [Seurat](https://mojaveazure.github.io/seurat-object/reference/Seurat-class.html) etc.
+
 ---
 
 ## Required library
-```{r}
+```{r,  eval=FALSE}
 library(scMaSigPro)
 ```
 
+---
+
 ## Load Data
-```{r}
+```{r, eval=FALSE}
 # Load Simulated Data as SCE
 sim.sce <- readRDS("../scMaSigPro_Supp/benchMarking_Normalization/data/output/SimObjectsSCE/skew_density_0.5.RDS")
 ```
 
+---
+
 ## Convert to scmp object
-```{r}
+```{r,  eval=FALSE}
 scmp.obj <- as_scmp(sim.sce, from = "sce")
 ```
 
+---
+
 ## Apply Compression
-```{r}
+```{r,  eval=FALSE}
 scmp.obj <- squeeze(
   scmp.ob = scmp.obj,
   time.col = "Step",
@@ -34,8 +165,10 @@ scmp.obj <- squeeze(
 )
 ```
 
+---
+
 ## Make Design 
-```{r}
+```{r,  eval=FALSE}
 scmp.obj <- sc.make.design.matrix(scmp.obj,
   degree = 2,
   time.col = "binnedTime",
@@ -43,19 +176,27 @@ scmp.obj <- sc.make.design.matrix(scmp.obj,
 )
 ```
 
+---
+
 ## Run-Pvector
-```{r}
-scmp.obj <- sc.p.vector(scmpObj = scmp.obj)
+```{r,  eval=FALSE}
+scmp.obj <- sc.p.vector(scmpObj = scmp.obj, verbose = F)
 ```
 
+
+---
+
+
 # Running T-fit
-```{r}
-scmp.obj <- sc.T.fit(scmp.obj)
+```{r,  eval=FALSE}
+scmp.obj <- sc.T.fit(scmp.obj, verbose = F)
 ```
+
+---
 
 # Show Models
 ```{r, eval=FALSE, message=F, echo=FALSE, warning=FALSE}
-showSol(scmp.obj)
+sigs <- sc.get.siggenes(scmp.obj, vars = "groups")
 ```
 
 ---

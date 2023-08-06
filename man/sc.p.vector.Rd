@@ -13,7 +13,8 @@ sc.p.vector(
   family = NULL,
   theta = 10,
   epsilon = 1e-05,
-  item = "gene"
+  item = "gene",
+  verbose = TRUE
 )
 }
 \arguments{

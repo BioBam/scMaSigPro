@@ -13,6 +13,7 @@
 #' @param family The distribution function to be used in the glm model. It must be the same used in \code{p.vector}.
 #' @param epsilon Argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.
 #' @param item Name of the analyzed item to show on the screen while \code{T.fit} is in process.
+#' @param verbose Name of the analyzed item to show on the screen while \code{T.fit} is in process.
 #'
 #' @details
 #' In the maSigPro approach, \code{\link{p.vector}} and \code{\link{T.fit}} are subsequent steps, meaning that significant genes are
@@ -125,7 +126,7 @@ sc.T.fit <- function(data,
                      nvar.correction = FALSE,
                      family = gaussian(),
                      epsilon = 0.00001,
-                     item = "gene") {
+                     item = "gene", verbose = TRUE) {
   assert_that(is(data, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
   )
@@ -158,7 +159,9 @@ pvectorObj <- data@scPVector
   }
 
   # Added Progress Bar
-  pb <- txtProgressBar(min = 0, max = g, style = 3)
+  if(verbose){
+      pb <- txtProgressBar(min = 0, max = g, style = 3)
+      }
 
   for (i in 2:(g + 1)) {
     y <- as.numeric(dat[i, ])
@@ -177,7 +180,9 @@ pvectorObj <- data@scPVector
 
     div <- c(1:round(g / 100)) * 100
     if (is.element(i, div)) {
-      setTxtProgressBar(pb, i)
+        if(verbose){
+            setTxtProgressBar(pb, i)
+            }
       # print(paste(c("fitting ", item, i, "out of", g), collapse = " "))
     }
     lmf <- glm(y ~ ., data = as.data.frame(dis), family = family, epsilon = epsilon)

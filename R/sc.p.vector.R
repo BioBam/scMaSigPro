@@ -15,6 +15,7 @@
 #' @param theta theta parameter for negative.binomial family.
 #' @param epsilon argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.
 #' @param item Name of the analyzed item to show on the screen while \code{sc.p.vector} is in process.
+#' @param verbose Name of the analyzed item to show on the screen while \code{T.fit} is in process.
 #'
 #' @details \code{rownames(design)} and \code{colnames(data)} must be identical vectors
 #'   and indicate array naming. \code{rownames(data)} should contain unique gene IDs.
@@ -50,7 +51,9 @@
 #'
 #' @export
 #'
-sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6, counts = FALSE, family = NULL, theta = 10, epsilon = 0.00001, item = "gene") {
+sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
+                        counts = FALSE, family = NULL, theta = 10, epsilon = 0.00001,
+                        item = "gene", verbose = TRUE) {
   # Check the type of the 'design' parameter and set the corresponding variables
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
@@ -92,9 +95,10 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6, counts
   n <- dim(dat)[2]
   p <- dim(dis)[2]
   sc.p.vector <- vector(mode = "numeric", length = g)
-
-  pb <- txtProgressBar(min = 0, max = g, style = 3)
-
+  
+  if(verbose){
+      pb <- txtProgressBar(min = 0, max = g, style = 3)
+  }
 
   # Iterate through each gene and perform the regression fit
   # Store the p-values in 'sc.p.vector'
@@ -104,7 +108,9 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6, counts
     # Print progress every 100 genes
     div <- c(1:round(g / 100)) * 100
     if (is.element(i, div)) {
+        if(verbose){
       setTxtProgressBar(pb, i)
+        }
       # print(paste(c("fitting ", item, i, "out of", g), collapse = " "))
     }
 
