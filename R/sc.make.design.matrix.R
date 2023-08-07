@@ -45,8 +45,9 @@ sc.make.design.matrix <- function(scmpObj,
 
   # Add Replicate Column
   com.cell.meta <- com.cell.meta %>%
-  mutate(Replicate = data.table::rleid(Reduce(paste, com.cell.meta))) %>% as.data.frame()
-  
+    mutate(Replicate = data.table::rleid(Reduce(paste, com.cell.meta))) %>%
+    as.data.frame()
+
   # Order
   ord <- c(c(1, ncol(com.cell.meta)), c(2:c(ncol(com.cell.meta) - 1)))
 
