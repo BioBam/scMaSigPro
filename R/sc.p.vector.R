@@ -95,9 +95,9 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   n <- dim(dat)[2]
   p <- dim(dis)[2]
   sc.p.vector <- vector(mode = "numeric", length = g)
-  
-  if(verbose){
-      pb <- txtProgressBar(min = 0, max = g, style = 3)
+
+  if (verbose) {
+    pb <- txtProgressBar(min = 0, max = g, style = 3)
   }
 
   # Iterate through each gene and perform the regression fit
@@ -108,9 +108,9 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     # Print progress every 100 genes
     div <- c(1:round(g / 100)) * 100
     if (is.element(i, div)) {
-        if(verbose){
-      setTxtProgressBar(pb, i)
-        }
+      if (verbose) {
+        setTxtProgressBar(pb, i)
+      }
       # print(paste(c("fitting ", item, i, "out of", g), collapse = " "))
     }
 

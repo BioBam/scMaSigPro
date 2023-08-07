@@ -1,6 +1,6 @@
 #' Create design matrix for 'scMaSigProClass' object
 #'
-#' This function creates a design matrix using the 'compress.sce' slot of a 'scMaSigProClass' object. 
+#' This function creates a design matrix using the 'compress.sce' slot of a 'scMaSigProClass' object.
 #' It generates an 'edesignClass' object which is then stored in the 'edesign' slot of the 'scMaSigProClass' object.
 #'
 #' @param scmpObj A 'scMaSigProClass' object.

@@ -19,7 +19,7 @@ sc.make.design.matrix(scmpObj, degree = 2, time.col, path.col)
 Returns the 'scmpObj' with an updated 'edesign' slot.
 }
 \description{
-This function creates a design matrix using the 'compress.sce' slot of a 'scMaSigProClass' object. 
+This function creates a design matrix using the 'compress.sce' slot of a 'scMaSigProClass' object.
 It generates an 'edesignClass' object which is then stored in the 'edesign' slot of the 'scMaSigProClass' object.
 }
 \examples{

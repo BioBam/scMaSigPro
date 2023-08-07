@@ -6,6 +6,7 @@
 #'
 #' @param path.frame A data frame containing pseudotime data. It must include a 'Step' column.
 #' @param bin_table A data frame containing bin data. It must include 'from', 'to', 'bin_size', and 'binnedTime' columns.
+#' @param time.col A data frame containing bin data. It must include 'from', 'to', 'bin_size', and 'binnedTime' columns.
 #'
 #' @return A data frame which is a combined version of path.frame and bin_table.
 #'
@@ -21,14 +22,14 @@
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @keywords internal
-combine_pseudotime_bin <- function(path.frame, bin_table) {
+combine_pseudotime_bin <- function(path.frame, bin_table, time.col) {
   # Get the number of cores
   num_cores <- detectCores()
 
-  # Define a function to apply to each bin_table row
-  func <- function(i) {
+  # Use mclapply to apply an anonymous function in parallel
+  processed_design_table <- mclapply(seq_len(nrow(bin_table)), function(i, time_col = time.col) {
     # Subset path.frame where Step is within the current bin_table from and to
-    subset_df <- path.frame[path.frame$Step >= bin_table$from[i] & path.frame$Step <= bin_table$to[i], ]
+    subset_df <- path.frame[path.frame[[time_col]] >= bin_table$from[i] & path.frame[[time_col]] <= bin_table$to[i], ]
 
     # If the subset is not empty, add bin_table information
     if (nrow(subset_df) > 0) {
@@ -39,11 +40,10 @@ combine_pseudotime_bin <- function(path.frame, bin_table) {
 
       return(subset_df)
     }
-    return(data.frame()) # Return an empty data.frame if no rows match
-  }
 
-  # Use mclapply to apply the function in parallel
-  processed_design_table <- mclapply(seq_len(nrow(bin_table)), func, mc.cores = num_cores)
+    return(data.frame()) # Return an empty data.frame if no rows match
+  }, mc.cores = num_cores)
+
 
   # Combine all list elements into a single data frame
   processed_design_table <- do.call(rbind, processed_design_table)

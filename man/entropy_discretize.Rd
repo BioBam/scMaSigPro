@@ -10,7 +10,8 @@ entropy_discretize(
   path_col,
   method = "Sturges",
   drop.fac = 0.5,
-  verbose = TRUE
+  verbose = TRUE,
+  binning = "universal"
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ entropy_discretize(
 \item{drop.fac}{A numeric value (default = 0.5). The factor by which to decrease the number of bins if the initial binning results in too many empty bins. The optimal number of bins is recalculated until this criteria is met.}
 
 \item{verbose}{A boolean (default = TRUE). If TRUE, detailed messages about the process (e.g. number of bins calculated) will be printed.}
+
+\item{binning}{Universal or Individual}
 }
 \value{
 A data.frame that contains the original data plus additional columns:

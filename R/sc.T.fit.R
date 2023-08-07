@@ -130,7 +130,7 @@ sc.T.fit <- function(data,
   assert_that(is(data, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
   )
-pvectorObj <- data@scPVector
+  pvectorObj <- data@scPVector
 
   design <- pvectorObj@dis
   min.obs <- pvectorObj@min.obs
@@ -159,9 +159,9 @@ pvectorObj <- data@scPVector
   }
 
   # Added Progress Bar
-  if(verbose){
-      pb <- txtProgressBar(min = 0, max = g, style = 3)
-      }
+  if (verbose) {
+    pb <- txtProgressBar(min = 0, max = g, style = 3)
+  }
 
   for (i in 2:(g + 1)) {
     y <- as.numeric(dat[i, ])
@@ -180,9 +180,9 @@ pvectorObj <- data@scPVector
 
     div <- c(1:round(g / 100)) * 100
     if (is.element(i, div)) {
-        if(verbose){
-            setTxtProgressBar(pb, i)
-            }
+      if (verbose) {
+        setTxtProgressBar(pb, i)
+      }
       # print(paste(c("fitting ", item, i, "out of", g), collapse = " "))
     }
     lmf <- glm(y ~ ., data = as.data.frame(dis), family = family, epsilon = epsilon)
@@ -332,7 +332,7 @@ pvectorObj <- data@scPVector
     edesign = edesign,
     influ.info = influ.info
   )
-  
+
   # Added Tfit
   data@scTFit <- t.fit.object
 

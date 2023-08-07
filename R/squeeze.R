@@ -1,6 +1,6 @@
 #' The 'squeeze' function
 #'
-#' This function performs a series of operations including data compression, creating pseudo-bulk-design, and creating pseudo-bulk counts. 
+#' This function performs a series of operations including data compression, creating pseudo-bulk-design, and creating pseudo-bulk counts.
 #' It then generates a SingleCellExperiment object with updated slots.
 #'
 #' @param scmp.ob An object.

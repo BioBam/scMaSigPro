@@ -8,7 +8,7 @@
 #'
 #' @return The computed solution as a data.frame if return is set to TRUE.
 #' If return is FALSE, the function does not return anything.
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' # Assuming 'scmpObj' is an object of class 'scMaSigProClass'
@@ -17,27 +17,26 @@
 #' }
 #' @export
 showSol <- function(scmpObj, view = TRUE, return = FALSE) {
-    
-    # Check Object Validity
-    assert_that(is(scmpObj, "scMaSigProClass"),
-                msg = "Please provide object of class 'scMaSigPro'"
-    )
-    
-    # Check if the sol exist
-    assert_that(!all(dim(scmpObj@scTFit@sol) == c(0,0)),
-                msg = "Sol is not computed yet"
-    )
-    
-    # Extract
-    sol <- scmpObj@scTFit@sol %>% as.data.frame()
-    
-    # If viewing is requested
-    if (view) {
-        View(sol)
-    }
-    
-    # If requested
-    if(return){
+  # Check Object Validity
+  assert_that(is(scmpObj, "scMaSigProClass"),
+    msg = "Please provide object of class 'scMaSigPro'"
+  )
+
+  # Check if the sol exist
+  assert_that(!all(dim(scmpObj@scTFit@sol) == c(0, 0)),
+    msg = "Sol is not computed yet"
+  )
+
+  # Extract
+  sol <- scmpObj@scTFit@sol %>% as.data.frame()
+
+  # If viewing is requested
+  if (view) {
+    View(sol)
+  }
+
+  # If requested
+  if (return) {
     return(sol)
-        }
+  }
 }

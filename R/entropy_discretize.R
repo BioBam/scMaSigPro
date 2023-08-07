@@ -10,6 +10,7 @@
 #' @param method A character string (default = "Sturges"). The method to be used to estimate the optimal number of bins. Currently, this function supports "Sturges" method.
 #' @param drop.fac A numeric value (default = 0.5). The factor by which to decrease the number of bins if the initial binning results in too many empty bins. The optimal number of bins is recalculated until this criteria is met.
 #' @param verbose A boolean (default = TRUE). If TRUE, detailed messages about the process (e.g. number of bins calculated) will be printed.
+#' @param binning Universal or Individual
 #'
 #' @return
 #' A data.frame that contains the original data plus additional columns:
@@ -49,11 +50,13 @@
 #'
 #' @export
 
+# entropy_discretize <- function(design_table, time_col,
 entropy_discretize <- function(design_table, time_col,
                                path_col,
                                method = "Sturges",
                                drop.fac = 0.5,
-                               verbose = TRUE) {
+                               verbose = TRUE,
+                               binning = "universal") {
   # Checks
   assert_that(time_col %in% colnames(design_table),
     msg = paste0("'", time_col, "' does not exist in design_table")
@@ -63,6 +66,9 @@ entropy_discretize <- function(design_table, time_col,
   )
   assert_that(drop.fac >= 0.3 & drop.fac <= 1,
     msg = "Invalid value for 'drop.fac'. It should be between 0.3 and 1."
+  )
+  assert_that(all(binning %in% c("universal", "individual")),
+    msg = "Allowed options for binning are 'Universal' and 'Individual'"
   )
 
   # Add a column
@@ -76,76 +82,132 @@ entropy_discretize <- function(design_table, time_col,
     msg = "Invalid number of paths detected. Please make sure that dataset has atleast two paths"
   )
 
-  # Determine the number of cores
-  #num_cores <- detectCores() - 1
+  # Switch
+  result <- switch(binning,
+    universal = {
+      # Extract the time information as a vector
+      time_vector <- design_table[, time_col]
+      length_n <- length(time_vector)
 
-  # Apply transformations on data
-  # discrete.list <- mclapply(avail.paths, function(path, design.frame = design_table,
-  discrete.list <- lapply(avail.paths, function(path, design.frame = design_table,
-                                                drop_fac = drop.fac, path.col = path_col,
-                                                time.col = time_col, method.bin = method) {
-    # Get the cells belonging to path
-    path.frame <- design.frame[design.frame[[path.col]] == path, , drop = F]
+      # Calculate Optimal Number of Bins
+      tryCatch(
+        expr = {
+          estBins <- estBinSize(
+            time_vector = time_vector, nPoints = length_n,
+            drop_fac = drop.fac, method = method
+          )
+        },
+        error = function(e) {
+          message(paste("Error message: ", e$message))
+          stop("Unable to estimate bin size")
+        }
+      )
 
-    # Extract the time information as a vector
-    time_vector <- path.frame[, time.col]
-    length_n <- length(time_vector)
+      # Calculate Bin intervals with entropy
+      bin_intervals <- as.data.frame(discretize(time_vector, numBins = estBins, r = range(time_vector)))
 
-    # Validation
-    if (length_n <= 7) {
-      message(paste("Time points are already less than 7 in", path))
-    }
+      # Clean the table before merge
+      colnames(bin_intervals) <- c("bin", "bin_size")
+      bin_intervals$binned_time <- rownames(bin_intervals)
 
-    # Calculate Optimal Number of Bins
-    tryCatch(
-      expr = {
-        estBins <- estBinSize(
-          time_vector = time_vector, nPoints = length_n,
-          drop_fac = drop.fac, method = method.bin
+      # Create the bin table
+      bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range))))
+      colnames(bin_table) <- c("from", "to", "bin_size", "binnedTime")
+
+      # Combine Tables
+      processed_design_table <- as.data.frame(
+        left_join(design_table, bin_table,
+          by = join_by(
+            closest(!!time_col >= from),
+            closest(!!time_col <= to)
+          )
+        )
+      )
+
+      # Set the 'cell' column as rownames
+      rownames(processed_design_table) <- processed_design_table$cell
+    },
+    individual = {
+      # Apply transformations on data
+      discrete.list <- lapply(avail.paths, function(path, design.frame = design_table,
+                                                    drop_fac = drop.fac, path.col = path_col,
+                                                    time.col = time_col, method.bin = method) {
+        # Get the cells belonging to path
+        path.frame <- design.frame[design.frame[[path.col]] == path, , drop = F]
+
+        # Extract the time information as a vector
+        time_vector <- path.frame[, time.col]
+        length_n <- length(time_vector)
+
+        # Validation
+        if (length_n <= 7) {
+          message(paste("Time points are already less than 7 in", path))
+        }
+
+        # Calculate Optimal Number of Bins
+        tryCatch(
+          expr = {
+            estBins <- estBinSize(
+              time_vector = time_vector, nPoints = length_n,
+              drop_fac = drop.fac, method = method.bin
+            )
+
+            if (verbose) {
+              message(paste(
+                "Estimated Bin Sizes =", estBins, "with",
+                method, "binning for", length_n, "time points for", path
+              ))
+            }
+          },
+          error = function(e) {
+            message(paste("Error message: ", e$message))
+            stop("Unable to estimate bin size")
+          }
         )
 
+        # Calculate Bin intervals with entropy
+        bin_intervals <- as.data.frame(discretize(time_vector, numBins = estBins, r = range(time_vector)))
+
+        # Client-Verbose
         if (verbose) {
           message(paste(
-            "Estimated Bin Sizes =", estBins, "with",
-            method, "binning for", length_n, "time points for", path
+            "For", path, ",", length_n, "time points has been compressed to", nrow(bin_intervals), "bins"
           ))
         }
-      },
-      error = function(e) {
-        message(paste("Error message: ", e$message))
-        stop("Unable to estimate bin size")
-      }
-    )
 
-    # Calculate Bin intervals with entropy
-    bin_intervals <- as.data.frame(discretize(time_vector, numBins = estBins, r = range(time_vector)))
+        # Clean the table before merge
+        colnames(bin_intervals) <- c("bin", "bin_size")
+        bin_intervals$binned_time <- rownames(bin_intervals)
 
-    # Client-Verbose
-    if (verbose) {
-      message(paste(
-        "For", path, ",", length_n, "time points has been compressed to", nrow(bin_intervals), "bins"
-      ))
-    }
+        # Create the bin table
+        bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range))))
+        colnames(bin_table) <- c("from", "to", "bin_size", "binnedTime")
 
-    # Clean the table before merge
-    colnames(bin_intervals) <- c("bin", "bin_size")
-    bin_intervals$binned_time <- rownames(bin_intervals)
+        # Combine Tables
+        processed_design_table <- as.data.frame(
+          left_join(path.frame, bin_table,
+            by = join_by(
+              closest(!!time.col >= from),
+              closest(!!time.col <= to)
+            )
+          )
+        )
 
-    # Create the bin table
-    bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range))))
-    colnames(bin_table) <- c("from", "to", "bin_size", "binnedTime")
+        return(processed_design_table)
+      })
 
-    # Combine Tables
-    processed_design_table <- combine_pseudotime_bin(path.frame, bin_table)
+      # Bind rows and convert to data frame, then drop 'cell' column
+      processed_design_table <- bind_rows(discrete.list) %>%
+        as.data.frame()
 
-    return(processed_design_table)
-    # }, mc.cores = num_cores)
-  })
+      # Set the 'cell' column as rownames
+      rownames(processed_design_table) <- processed_design_table$cell
+    },
+    stop("Invalid option")
+  )
 
-  # Bind rows and convert to data frame, then drop 'cell' column
-  processed_design_table <- bind_rows(discrete.list) %>%
-    as.data.frame() %>%
-    select(-discrete.list$cell)
+  # Now, you can remove the 'cell' column
+  processed_design_table <- processed_design_table %>% select(-"cell")
 
   return(processed_design_table)
 }

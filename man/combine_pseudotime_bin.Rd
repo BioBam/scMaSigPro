@@ -4,12 +4,14 @@
 \alias{combine_pseudotime_bin}
 \title{Combine pseudotime and bin data}
 \usage{
-combine_pseudotime_bin(path.frame, bin_table)
+combine_pseudotime_bin(path.frame, bin_table, time.col)
 }
 \arguments{
 \item{path.frame}{A data frame containing pseudotime data. It must include a 'Step' column.}
 
 \item{bin_table}{A data frame containing bin data. It must include 'from', 'to', 'bin_size', and 'binnedTime' columns.}
+
+\item{time.col}{A data frame containing bin data. It must include 'from', 'to', 'bin_size', and 'binnedTime' columns.}
 }
 \value{
 A data frame which is a combined version of path.frame and bin_table.

@@ -46,6 +46,9 @@ make.pseudobulk.design <- function(design.file, pathCol,
   # Get the avaible paths
   avail.paths <- as.vector(unique(design.file[[pathCol]]))
 
+  # Add helper-col
+  design.file$scmp_bar <- rownames(design.file)
+
   # Check for path
   assert_that(length(avail.paths) >= 2,
     msg = "Invalid number of paths detected. Please make sure that dataset has atleast two paths"
@@ -56,12 +59,13 @@ make.pseudobulk.design <- function(design.file, pathCol,
 
   # Apply transformations on data
   pB.list <- mclapply(avail.paths, function(path, design.frame = design.file,
+                                            # pB.list <- lapply(avail.paths, function(path, design.frame = design.file,
                                             binned.col = binnedCol, path.col = pathCol) {
     # Get the cells belonging to path
     path.frame <- design.frame[design.frame[[path.col]] == path, , drop = F]
 
     # Order along the temporal vector
-    path.time.cell <- path.frame[order(path.frame[, binned.col]), c(binned.col, "Cell")]
+    path.time.cell <- path.frame[order(path.frame[, binned.col]), c(binned.col, "scmp_bar")]
 
     # Validation
     assert_that(nrow(path.time.cell) >= 2,
@@ -71,7 +75,7 @@ make.pseudobulk.design <- function(design.file, pathCol,
     # Group by time
     path.time.cell <- path.time.cell %>%
       group_by_at(binned.col) %>%
-      summarise(cluster.members = paste0(path.time.cell$Cell, collapse = "|"))
+      summarise(cluster.members = paste0(scmp_bar, collapse = "|"))
 
     # Add Cluster Label
     path.time.cell$bin <- paste0(path, "_bin_", seq(1, nrow(path.time.cell)))
@@ -94,12 +98,16 @@ make.pseudobulk.design <- function(design.file, pathCol,
     # Return frame
     return(path.time.cell)
   }, mc.cores = num_cores)
+  # })
 
   # Bind rows
   pB.frame <- bind_rows(pB.list) %>% as.data.frame()
 
   # Add rownames
   rownames(pB.frame) <- pB.frame$bin
+
+  # Remove extra column
+  # pB.frame <- pB.frame %>% select(-"scmp_bar")
 
   # Pathway infor
   return(pB.frame)
