@@ -47,7 +47,7 @@ setClass("scPVectorClass",
     i = "integer", # Number of significant genes
     dis = "data.frame", # Design matrix used in the regression fit
     dat = "matrix", # Matrix of expression value data used in the regression fit
-    min.obs = "integer", # Minimum value to estimate the model (degree+1) x Groups + 1
+    min.obs = "numeric", # Minimum value to estimate the model (degree+1) x Groups + 1
     Q = "numeric", # Significance level (default is 0.05)
     groups.vector = "character", # List containing groups information
     edesign = "matrix", # Experimental design data frame
@@ -100,7 +100,7 @@ setClass("scPVectorClass",
     }
 
     # Check for slot min.obs
-    if (!is.integer(object@min.obs)) {
+    if (!is.numeric(object@min.obs)) {
       stop("Slot 'min.obs' must be an integer.")
     }
 
@@ -136,7 +136,7 @@ setClass("scPVectorClass",
     i = 0L, # Default i value is 0
     dis = data.frame(), # Empty data frame for dis
     dat = matrix(NA, nrow = 0, ncol = 0), # Empty matrix for dat
-    min.obs = integer(6), # Default min.obs value is 0
+    min.obs = 6, # Default min.obs value is 0
     Q = 0.05, # Default Q value is 0
     groups.vector = character(), # Empty list for groups.vector
     edesign = matrix(NA, nrow = 0, ncol = 0), # Empty data frame for edesign

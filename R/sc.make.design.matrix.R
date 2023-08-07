@@ -44,8 +44,9 @@ sc.make.design.matrix <- function(scmpObj,
   col.vec <- colnames(com.cell.meta)[colnames(com.cell.meta) != time.col]
 
   # Add Replicate Column
-  com.cell.meta <- add_replicate_column(com.cell.meta, col.vec)
-
+  com.cell.meta <- com.cell.meta %>%
+  mutate(Replicate = data.table::rleid(Reduce(paste, com.cell.meta))) %>% as.data.frame()
+  
   # Order
   ord <- c(c(1, ncol(com.cell.meta)), c(2:c(ncol(com.cell.meta) - 1)))
 
@@ -71,13 +72,4 @@ sc.make.design.matrix <- function(scmpObj,
   scmpObj@edesign <- edesignObj
 
   return(scmpObj)
-}
-
-add_replicate_column <- function(df, columns) {
-  df <- df %>%
-    mutate(Replicate = with(
-      rle(paste0(.[, columns], collapse = "")),
-      rep(seq_along(lengths), lengths)
-    ))
-  return(df)
 }

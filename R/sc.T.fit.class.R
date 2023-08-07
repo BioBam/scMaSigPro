@@ -33,7 +33,7 @@ setClass(
     t.score = "data.frame",
     variables = "character",
     G = "integer",
-    g = "integer",
+    g = "numeric",
     dat = "matrix",
     dis = "data.frame",
     step.method = "character",
@@ -63,7 +63,7 @@ setClass(
     if (!is.integer(object@G)) {
       stop("G slot must be an integer.")
     }
-    if (!is.integer(object@g)) {
+    if (!is.numeric(object@g)) {
       stop("g slot must be an integer.")
     }
     if (!is.matrix(object@dat)) {
@@ -93,7 +93,7 @@ setClass(
     t.score = data.frame(),
     variables = "not_selected",
     G = integer(0),
-    g = integer(0),
+    g = 0,
     dat = matrix(0, nrow = 1, ncol = 1),
     dis = data.frame(),
     step.method = "backward",
