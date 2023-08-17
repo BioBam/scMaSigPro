@@ -40,6 +40,8 @@ microarray experiments and identifying significant differential expression profi
 \item{\code{edesign}}{Experimental design data frame}
 
 \item{\code{family}}{Distribution function to be used in the glm model. If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = TRUE} or \code{gaussian()} when \code{counts = FALSE}.}
+
+\item{\code{offset}}{Whether ro use offset for normalization}
 }}
 
 \examples{

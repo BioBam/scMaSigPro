@@ -14,7 +14,8 @@ sc.p.vector(
   theta = 10,
   epsilon = 1e-05,
   item = "gene",
-  verbose = TRUE
+  verbose = TRUE,
+  offset = T
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = 
 \item{item}{Name of the analyzed item to show on the screen while \code{sc.p.vector} is in process.}
 
 \item{verbose}{Name of the analyzed item to show on the screen while \code{T.fit} is in process.}
+
+\item{offset}{Whether ro use offset for normalization}
 }
 \value{
 A list containing:

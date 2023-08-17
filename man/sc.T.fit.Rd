@@ -13,6 +13,7 @@ sc.T.fit(
   nvar.correction = FALSE,
   family = gaussian(),
   epsilon = 1e-05,
+  offset = T,
   item = "gene",
   verbose = TRUE
 )
@@ -35,6 +36,8 @@ a \code{\link{p.vector}} object, the same design matrix is used by default.}
 \item{family}{The distribution function to be used in the glm model. It must be the same used in \code{p.vector}.}
 
 \item{epsilon}{Argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.}
+
+\item{offset}{Whether ro use offset for normalization}
 
 \item{item}{Name of the analyzed item to show on the screen while \code{T.fit} is in process.}
 

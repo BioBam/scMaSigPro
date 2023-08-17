@@ -16,6 +16,7 @@
 #' @slot groups.vector A character vector representing ...
 #' @slot edesign A matrix representing ...
 #' @slot influ.info A matrix representing ...
+#' @slot offset Whether ro use offset for normalization ...
 #'
 #' @name scTFitClass
 #' @aliases scTFitClass-class
@@ -39,7 +40,8 @@ setClass(
     step.method = "character",
     groups.vector = "character",
     edesign = "matrix",
-    influ.info = "matrix"
+    influ.info = "matrix",
+    offset = "ANY"
   ),
   validity = function(object) {
     if (!is.data.frame(object@sol)) {
@@ -99,6 +101,7 @@ setClass(
     step.method = "backward",
     groups.vector = character(),
     edesign = matrix(0, nrow = 1, ncol = 1),
-    influ.info = matrix(NA, nrow = 0, ncol = 0)
+    influ.info = matrix(NA, nrow = 0, ncol = 0),
+    offset = TRUE
   )
 )
