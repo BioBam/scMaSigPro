@@ -129,8 +129,10 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     if (model.glm$null.deviance == 0) {
       sc.p.vector[i] <- 1
     } else {
-      model.glm.0 <- glm(y ~ 1, family = family, epsilon = epsilon,
-                         offset = offsetData)
+      model.glm.0 <- glm(y ~ 1,
+        family = family, epsilon = epsilon,
+        offset = offsetData
+      )
 
       # Perform ANOVA or Chi-square test based on the distribution
       if (family$family == "gaussian") {
@@ -183,8 +185,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     Q = Q,
     groups.vector = groups.vector,
     edesign = as.matrix(edesign),
-    family = family,
-    offset = offset,
+    family = family
   )
 
   # Update Slot

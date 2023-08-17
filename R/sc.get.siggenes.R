@@ -269,7 +269,7 @@ sc.get.siggenes <- function(scmpObj, rsq = 0.7, add.IDs = FALSE, IDs = NULL, mat
   } else {
     sig.genes <- NULL
     summary <- c("no significant genes")
-    print("no significant genes")
+    message("no significant genes")
   }
 
   # Create the output list

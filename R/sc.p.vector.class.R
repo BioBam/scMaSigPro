@@ -19,7 +19,6 @@
 #' @slot groups.vector List containing groups information
 #' @slot edesign Experimental design data frame
 #' @slot family Distribution function to be used in the glm model. If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = TRUE} or \code{gaussian()} when \code{counts = FALSE}.
-#' @slot offset Whether ro use offset for normalization
 #'
 #' @export
 #' @keywords regression
@@ -52,8 +51,8 @@ setClass("scPVectorClass",
     Q = "numeric", # Significance level (default is 0.05)
     groups.vector = "character", # List containing groups information
     edesign = "matrix", # Experimental design data frame
-    family = "ANY", # Distribution function to be used in the glm model
-    offset = "ANY"),
+    family = "ANY" # Distribution function to be used in the glm model
+  ),
   validity = function(object) {
     # Check for slot SELEC
     if (!is.matrix(object@SELEC)) {
@@ -141,8 +140,7 @@ setClass("scPVectorClass",
     Q = 0.05, # Default Q value is 0
     groups.vector = character(), # Empty list for groups.vector
     edesign = matrix(NA, nrow = 0, ncol = 0), # Empty data frame for edesign
-    family = gaussian(), # Default family value is NULL
-    offset = TRUE
+    family = gaussian() # Default family value is NULL
   )
 )
 
