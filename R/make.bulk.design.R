@@ -58,8 +58,8 @@ make.pseudobulk.design <- function(design.file, pathCol,
   num_cores <- detectCores() - 1 # leave one core free for other tasks
 
   # Apply transformations on data
-  pB.list <- mclapply(avail.paths, function(path, design.frame = design.file,
-                                            # pB.list <- lapply(avail.paths, function(path, design.frame = design.file,
+  #pB.list <- mclapply(avail.paths, function(path, design.frame = design.file,
+  pB.list <- lapply(avail.paths, function(path, design.frame = design.file,
                                             binned.col = binnedCol, path.col = pathCol) {
     # Get the cells belonging to path
     path.frame <- design.frame[design.frame[[path.col]] == path, , drop = F]
@@ -97,8 +97,8 @@ make.pseudobulk.design <- function(design.file, pathCol,
 
     # Return frame
     return(path.time.cell)
-  }, mc.cores = num_cores)
-  # })
+  #}, mc.cores = num_cores)
+   })
 
   # Bind rows
   pB.frame <- bind_rows(pB.list) %>% as.data.frame()

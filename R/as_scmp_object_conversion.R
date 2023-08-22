@@ -30,7 +30,6 @@ as_scmp <- function(object, from = "cell_data_set") {
 
   # FLow control
   if (is(object, "SingleCellExperiment")) {
-    message("SingleCellExperiment/SCE")
 
     # Create Object
     scmpObj <- new("scMaSigProClass",

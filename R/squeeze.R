@@ -37,7 +37,8 @@ squeeze <- function(scmp.ob,
         path_col = path.col,
         method = method,
         drop.fac = drop.fac,
-        verbose = verbose
+        verbose = verbose,
+        binning = "universal" 
       )
     },
     error = function(e) {
@@ -45,7 +46,7 @@ squeeze <- function(scmp.ob,
       stop("Unable to compress data")
     }
   )
-
+  
   # Make New cell metaData
   tryCatch(
     expr = {
@@ -60,21 +61,21 @@ squeeze <- function(scmp.ob,
       stop("Unable to create pseudo-bulk-design")
     }
   )
-
+  
   # Create Compressed Data
   tryCatch(
     expr = {
       compressed.counts <- make.pseudobulk.counts(
-        counts = scmp.ob@sce@assays@data@listData[[assay.name]],
+        counts = as.matrix(scmp.ob@sce@assays@data@listData[[assay.name]]),
         cluster_member_col = "cluster.members",
         bin_col = "bin",
         pseudo_bulk_profile = compressed.cell.metadata,
-        cluster.count.by = "sum"
+        cluster.count.by = cluster.count.by
       )
     },
     error = function(e) {
       message(paste("Error message: ", e$message))
-      stop("Unable to create pseudo-bulk-design")
+      stop("Unable to create pseudo-bulk-counts")
     }
   )
 

@@ -102,18 +102,18 @@ entropy_discretize <- function(design_table, time_col,
           stop("Unable to estimate bin size")
         }
       )
-
+      
       # Calculate Bin intervals with entropy
       bin_intervals <- as.data.frame(discretize(time_vector, numBins = estBins, r = range(time_vector)))
-
+      
       # Clean the table before merge
       colnames(bin_intervals) <- c("bin", "bin_size")
       bin_intervals$binned_time <- rownames(bin_intervals)
-
+      
       # Create the bin table
       bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range))))
       colnames(bin_table) <- c("from", "to", "bin_size", "binnedTime")
-
+      
       # Combine Tables
       processed_design_table <- as.data.frame(
         left_join(design_table, bin_table,
@@ -123,9 +123,10 @@ entropy_discretize <- function(design_table, time_col,
           )
         )
       )
-
+      
       # Set the 'cell' column as rownames
       rownames(processed_design_table) <- processed_design_table$cell
+      
     },
     individual = {
       # Apply transformations on data
@@ -208,6 +209,6 @@ entropy_discretize <- function(design_table, time_col,
 
   # Now, you can remove the 'cell' column
   processed_design_table <- processed_design_table %>% select(-"cell")
-
+  
   return(processed_design_table)
 }

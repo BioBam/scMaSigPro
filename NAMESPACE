@@ -41,6 +41,7 @@ export("as_scmp")
 export("squeeze")
 export("sc.make.design.matrix")
 export("showSol")
+export("sc.get.siggenes")
 
 # Export Classes
 #exportClasses("scMaSigProClass", "covariateClass", "parameterClass", "pVectorClass", "sigGeneClass", "tFitClass")
