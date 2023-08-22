@@ -45,30 +45,29 @@ make.pseudobulk.counts <- function(counts, cluster_member_col = "cluster.members
   num_cores <- detectCores() - 1
 
   # Run mclapply
-  pb.counts <- lapply(1:nrow(meta.info), function(i){
-      
-      # Get the bin.info
-      bin <- meta.info[i, , drop = FALSE]
-      
-      # Split the row
-      cell.vector <- c(str_split(bin[1], "\\|"))[[1]]
-      
-      # Get col cells
-      col_indices <- which(colnames(counts) %in% cell.vector)
-      
-      # Subset the matrix using these indices
-      bin_matrix <- as.matrix(counts[, col_indices, drop = F])
-      
-      # Get Pseudobulked-counts
-      pb.vector <- switch(cluster.count.by,
-                          "mean" = as.matrix(rowMeans(bin_matrix)),
-                          "sum"  = as.matrix(rowSums(bin_matrix)),
-                          stop("Invalid cluster.count.by value. Please choose either 'mean' or 'sum'.")
-      )
-      
-      
-      # Return
-      return(pb.vector)
+  pb.counts <- lapply(1:nrow(meta.info), function(i) {
+    # Get the bin.info
+    bin <- meta.info[i, , drop = FALSE]
+
+    # Split the row
+    cell.vector <- c(str_split(bin[1], "\\|"))[[1]]
+
+    # Get col cells
+    col_indices <- which(colnames(counts) %in% cell.vector)
+
+    # Subset the matrix using these indices
+    bin_matrix <- as.matrix(counts[, col_indices, drop = F])
+
+    # Get Pseudobulked-counts
+    pb.vector <- switch(cluster.count.by,
+      "mean" = as.matrix(rowMeans(bin_matrix)),
+      "sum"  = as.matrix(rowSums(bin_matrix)),
+      stop("Invalid cluster.count.by value. Please choose either 'mean' or 'sum'.")
+    )
+
+
+    # Return
+    return(pb.vector)
   })
 
   # Convert the list output of mclapply to a matrix and set the row names

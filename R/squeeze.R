@@ -38,7 +38,7 @@ squeeze <- function(scmp.ob,
         method = method,
         drop.fac = drop.fac,
         verbose = verbose,
-        binning = "universal" 
+        binning = "universal"
       )
     },
     error = function(e) {
@@ -46,7 +46,7 @@ squeeze <- function(scmp.ob,
       stop("Unable to compress data")
     }
   )
-  
+
   # Make New cell metaData
   tryCatch(
     expr = {
@@ -61,7 +61,7 @@ squeeze <- function(scmp.ob,
       stop("Unable to create pseudo-bulk-design")
     }
   )
-  
+
   # Create Compressed Data
   tryCatch(
     expr = {
