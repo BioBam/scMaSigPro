@@ -14,20 +14,32 @@
   # Show Basic information
   cat("Class: ScMaSigPro\n")
   cat(paste0("nCells: ", ncol(object@sce), "\n"))
-  cat(paste0("nGenes: ", nrow(object@sce), "\n"))
-  cat("Continuum: Toti ")
-  cat("\n")
+  cat(paste0("nFeatures: ", nrow(object@sce), "\n"))
+  cat("Continuum:")
+  
+  # Calculate the Compression
+  compressed.cell.metadata <- as.data.frame(colData(object@compress.sce))
+  if (length(compressed.cell.metadata) > 0){
+      cat(paste("\nPaths:", paste(levels(as.factor(compressed.cell.metadata$path)), collapse = ", ")))
+      cat(paste0("\nBinned Pseudotime: ", paste(range(compressed.cell.metadata$binnedTime), collapse = "-"), "(Range), ",
+          mean(compressed.cell.metadata$bin.size), "(Mean), ",
+          median(compressed.cell.metadata$bin.size), "(Median)"))
+  }
 
   # Calculate Dynamic Information
   if (length(object@scPVector@p.adjusted) > 0) {
     sig.level <- object@scPVector@Q
     nSigs <- length(object@scPVector@p.adjusted[object@scPVector@p.adjusted <= sig.level])
     if (all(object@scPVector@p.adjusted > sig.level)) {
-      cat("Sig. Profiles (P-vector): None found")
+      cat("\nSig. Profiles (P-vector): None found")
     } else {
-      cat(paste("Sig. Models (sc.p.vector):", nSigs, sep = " "))
+      cat(paste("\nSig. Models (sc.p.vector):", nSigs, sep = " "))
     }
-  } else {
-    cat("Sig. Models (P-vector): Not computed\n")
   }
+  
+  # Influential Genes if any
+  if (ncol(object@scTFit@influ.info) > 0) {
+      cat(paste("\nNo. of Influential Features:", ncol(object@scTFit@influ.info)))
+  }
+  
 }
