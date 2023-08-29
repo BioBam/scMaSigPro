@@ -21,12 +21,13 @@
 #'
 #' @export
 selectPath <- function(obj, sel.path, balance_paths = T,
-                       pathCol = "Path", plot_paths = T,
-                       pTimeCol = "Pseudotime", verbose = T) {
+                            pathCol = "Path", plot_paths = T,
+                            pTimeCol = "Pseudotime", verbose = T) {
     # Check
     assert_that(is(obj)[1] == "scMaSigProClass",
                 msg = "Please supply object from scMaSigPro Class"
     )
+    
     
     # Extract the sce class
     sceObj <- obj@sce
@@ -52,35 +53,82 @@ selectPath <- function(obj, sel.path, balance_paths = T,
     
     # Balance
     if (balance_paths) {
-        cell.meta.sub <- slice_by_smallest_range(
-            data = cell.meta.sub, path_col = pathCol, pseudotime_col = pTimeCol
-        )
+        # Get the avaibale paths
+        avail_paths <- unique(cell.meta.sub[[pathCol]])
         
-        if (plot_paths) {
-            after.plt <- ggplot(cell.meta.sub, aes(x = .data[[pathCol]], y = .data[[pTimeCol]])) +
-                geom_boxplot(color = "#e84258") + # This creates the boxplots for each category
-                stat_summary(fun = median, geom = "line", aes(group = 1), color = "#f58a53") +
-                stat_summary(fun = median, geom = "point", color = "#159287") +
-                labs(
-                    title = "B. After Balance",
-                    x = "Available Paths", y = "Inferred Pseudotime"
-                ) +
-                theme_minimal(base_size = 15)
+        # Store original ranges
+        original_ranges <- lapply(avail_paths, function(path) {
+            return(
+                range(cell.meta.sub[cell.meta.sub[[pathCol]] == path, pTimeCol], na.rm = TRUE)
+            )
+        })
+        names(original_ranges) <- avail_paths
+        
+        # Get the span of the ranges
+        range_spans <- sapply(original_ranges, diff)
+        
+        # Order the ranges
+        sorted_paths <- names(range_spans[order(range_spans)])
+        
+        # First path is the smallest
+        smallest_path <- sorted_paths[1]
+        
+        if (!is.na(smallest_path)) {
+            # Get the range of the smallest path
+            smallest_range <- original_ranges[[smallest_path]]
+            
+            # Set rownames to columns
+            cell.meta.sub$row_id <- rownames(cell.meta.sub)
+            
+            # Get the cells that have to be removed
+            drop_cells <- cell.meta.sub[(
+                cell.meta.sub[[pTimeCol]] >= smallest_range[1] &
+                    cell.meta.sub[[pTimeCol]] <= smallest_range[2]
+                ), row_id]
+            
+            
+            # Subset
+            cell.meta.sub.sliced <- cell.meta.sub[!(cell.meta.sub$row_id %in% drop_cells),,drop = F]
+            
+            rownames(cell.meta.sub.sliced) <- cell.meta.sub.sliced$row_id
+            cell.meta.sub.sliced$row_id <- NULL
+            
+            if (verbose) {
+                removed_count <- nrow(cell.meta.sub) - nrow(cell.meta.sub.sliced)
+                message(paste(removed_count, "cells were removed to match the pseudotime range of", smallest_path))
+            }
+            
+            if (plot_paths) {
+                after.plt <- ggplot(cell.meta.sub.sliced, aes(x = .data[[pathCol]], y = .data[[pTimeCol]])) +
+                    geom_boxplot(color = "#e84258") + # This creates the boxplots for each category
+                    stat_summary(fun = median, geom = "line", aes(group = 1), color = "#f58a53") +
+                    stat_summary(fun = median, geom = "point", color = "#159287") +
+                    labs(
+                        title = "B. After Balance",
+                        x = "Available Paths", y = "Inferred Pseudotime"
+                    ) +
+                    theme_minimal(base_size = 15)
+            }
+            
+            
+            # Select Cells
+            sceObj_sub <- sceObj[, rownames(colData(sceObj)) %in% rownames(cell.meta.sub.sliced)]
+            
+            # Add the Object Back
+            obj@sce <- sceObj_sub
+            
+            # Plot
+            if (plot_paths) {
+                comb.plt <- ggarrange(before.plt, after.plt)
+                print(comb.plt)
+            }
+            
+            # return
+            return(obj)
+            
+        } else {
+            message("Nothing to remove, paths correspond")
+            return(obj)
         }
     }
-    
-    # Plot
-    if (plot_paths) {
-        comb.plt <- ggarrange(before.plt, after.plt)
-        print(comb.plt)
-    }
-    
-    # Select Cells
-    sceObj_sub <- sceObj[, rownames(colData(sceObj)) %in% rownames(cell.meta.sub)]
-    
-    # Add the Object Back
-    obj@sce <- sceObj_sub
-    
-    # return
-    return(obj)
 }
