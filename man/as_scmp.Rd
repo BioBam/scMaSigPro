@@ -4,7 +4,7 @@
 \alias{as_scmp}
 \title{Convert cell_data_set or SingleCellExperiment to scMaSigProClass}
 \usage{
-as_scmp(object, from = "cell_data_set")
+as_scmp(object, from = "cell_data_set", verbose = T)
 }
 \arguments{
 \item{object}{An S4 object of class 'cell_data_set' or 'SingleCellExperiment'.}

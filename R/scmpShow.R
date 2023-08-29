@@ -16,14 +16,16 @@
   cat(paste0("nCells: ", ncol(object@sce), "\n"))
   cat(paste0("nFeatures: ", nrow(object@sce), "\n"))
   cat("Continuum:")
-  
+
   # Calculate the Compression
   compressed.cell.metadata <- as.data.frame(colData(object@compress.sce))
-  if (length(compressed.cell.metadata) > 0){
-      cat(paste("\nPaths:", paste(levels(as.factor(compressed.cell.metadata$path)), collapse = ", ")))
-      cat(paste0("\nBinned Pseudotime: ", paste(range(compressed.cell.metadata$binnedTime), collapse = "-"), "(Range), ",
-          mean(compressed.cell.metadata$bin.size), "(Mean), ",
-          median(compressed.cell.metadata$bin.size), "(Median)"))
+  if (length(compressed.cell.metadata) > 0) {
+    cat(paste("\nPaths:", paste(levels(as.factor(compressed.cell.metadata$path)), collapse = ", ")))
+    cat(paste0(
+      "\nBinned Pseudotime: ", paste(range(compressed.cell.metadata$binnedTime), collapse = "-"), "(Range), ",
+      mean(compressed.cell.metadata$bin.size), "(Mean), ",
+      median(compressed.cell.metadata$bin.size), "(Median)"
+    ))
   }
 
   # Calculate Dynamic Information
@@ -36,10 +38,9 @@
       cat(paste("\nSig. Models (sc.p.vector):", nSigs, sep = " "))
     }
   }
-  
+
   # Influential Genes if any
   if (ncol(object@scTFit@influ.info) > 0) {
-      cat(paste("\nNo. of Influential Features:", ncol(object@scTFit@influ.info)))
+    cat(paste("\nNo. of Influential Features:", ncol(object@scTFit@influ.info)))
   }
-  
 }

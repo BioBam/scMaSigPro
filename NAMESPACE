@@ -17,10 +17,11 @@ importFrom("rlang",".data")
 importFrom("igraph","degree", "shortest_paths")
 importFrom("slingshot","slingCurves", "slingPseudotime")
 importFrom("tibble","rownames_to_column","column_to_rownames")
-importFrom("dplyr", "left_join", "join_by", "mutate", "select", "bind_rows", "group_by_at", "summarise", "rename_with", "between")
+importFrom("dplyr", "left_join", "join_by", "mutate", "select", "bind_rows", "group_by_at", "summarise", "rename_with", "between", "group_by")
 importFrom("S4Vectors", "DataFrame")
 importFrom("data.table", "rleid")
 importFrom("DESeq2", "estimateSizeFactorsForMatrix")
+importFrom("ggpubr", "ggarrange")
 
 # Import Entire Libraries
 import("ggplot2")
@@ -43,6 +44,7 @@ export("sc.make.design.matrix")
 export("showSol")
 export("sc.get.siggenes")
 export("selectPath")
+export("slice_by_smallest_range")
 
 # Export Classes
 #exportClasses("scMaSigProClass", "covariateClass", "parameterClass", "pVectorClass", "sigGeneClass", "tFitClass")
