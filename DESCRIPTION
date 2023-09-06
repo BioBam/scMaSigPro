@@ -1,7 +1,7 @@
 Package: scMaSigPro
 Type: Package
 Title: Application fof MaSigPro Bioconductor Package for scRNA-Data
-Version: 1.0.0
+Version: 1.0.1
 Author: Ana Conesa, Maria Jose Nueda and Priyansh Srivastava
 Maintainer: Priyansh Srivastava <spriyansh29@gmail.com>
 Description: maSigPro is a regression based approach to find genes for which
