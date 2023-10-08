@@ -23,6 +23,7 @@ importFrom("S4Vectors", "DataFrame")
 importFrom("data.table", "rleid")
 importFrom("DESeq2", "estimateSizeFactorsForMatrix")
 importFrom("ggpubr", "ggarrange")
+importFrom("RColorConesa", "getConesaColors")
 
 # Import Entire Libraries
 import("ggplot2")
@@ -45,6 +46,7 @@ export("sc.make.design.matrix")
 export("showSol")
 export("sc.get.siggenes")
 export("selectPath")
+export("sc.PlotGroups")
 
 # Export Classes
 #exportClasses("scMaSigProClass", "covariateClass", "parameterClass", "pVectorClass", "sigGeneClass", "tFitClass")

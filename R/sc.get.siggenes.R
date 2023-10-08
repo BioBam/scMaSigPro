@@ -266,14 +266,20 @@ sc.get.siggenes <- function(scmpObj, rsq = 0.7, add.IDs = FALSE, IDs = NULL, mat
         }
       }
     }
-  } else {
-    sig.genes <- NULL
-    summary <- c("no significant genes")
-    message("no significant genes")
-  }
 
-  # Create the output list
-  output <- list(sig.genes, summary)
-  names(output) <- c("sig.genes", "summary")
-  output
+    # Create Object
+    siggenes.object <- new("sigClass",
+      summary = summary,
+      sig.genes = sig.genes
+    )
+
+    # Update the slot
+    scmpObj@siggenes <- siggenes.object
+
+    # Return
+    return(scmpObj)
+  } else {
+    warning("No significant genes found, please relax threshold")
+    return(scmpObj)
+  }
 }

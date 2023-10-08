@@ -13,7 +13,8 @@ setClass(
     scPVector = "scPVectorClass",
     scTFit = "scTFitClass",
     compress.sce = "SingleCellExperiment",
-    edesign = "edesignClass"
+    edesign = "edesignClass",
+    siggenes = "sigClass"
   ),
   validity = function(object) {
     # Check sce slot
@@ -38,10 +39,14 @@ setClass(
     if (!validObject(object@edesign)) {
       stop("edesign slot is not a valid edesignClass object.")
     }
+    if (!validObject(object@siggenes)) {
+          stop("siggenes slot is not a valid sigClass object.")
+      }
   },
   prototype = list(
     scPVector = new("scPVectorClass"), # Assuming you've defined scPVectorClass with its prototype
-    scTFit = new("scTFitClass") # Assuming you've defined scTFitClass with its prototype
+    scTFit = new("scTFitClass"), # Assuming you've defined scTFitClass with its prototype
+    siggenes = new("sigClass") # Assuming you've defined scTFitClass with its prototype
   )
 )
 
@@ -49,13 +54,15 @@ scMaSigProClass <- function(sce = new("SingleCellExperiment"), # Remove default 
                             scPVector = new("scPVectorClass"),
                             scTFit = new("scTFitClass"),
                             compress.sce = new("SingleCellExperiment"),
-                            edesign = new("edesignClass")) {
+                            edesign = new("edesignClass"),
+                            siggenes = new("sigClass")) {
   new("scMaSigProClass",
     sce = sce,
     scPVector = scPVector,
     scTFit = scTFit,
     compress.sce = compress.sce,
-    edesign = edesign
+    edesign = edesign,
+    siggenes = siggenes
   )
 }
 

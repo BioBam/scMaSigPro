@@ -1,7 +1,7 @@
 Package: scMaSigPro
 Type: Package
 Title: Application fof MaSigPro Bioconductor Package for scRNA-Data
-Version: 1.0.1
+Version: 1.0.2
 Author: Ana Conesa, Maria Jose Nueda and Priyansh Srivastava
 Maintainer: Priyansh Srivastava <spriyansh29@gmail.com>
 Description: maSigPro is a regression based approach to find genes for which
@@ -11,7 +11,7 @@ License: MIT + file LICENSE
 Imports: reshape2, ggplot2, SingleCellExperiment, methods, MASS, assertthat,
     moments, entropy, parallel, dplyr, magrittr, stringr, rlang, tibble,
     Biobase, graphics, grDevices, venn, mclust, stats, slingshot, S4Vectors,
-    monocle3, DESeq2, igraph, SummarizedExperiment, data.table, ggpubr
+    monocle3, DESeq2, igraph, SummarizedExperiment, data.table, ggpubr, RColorConesa
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
