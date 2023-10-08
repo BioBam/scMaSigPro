@@ -58,15 +58,12 @@ scmp.obj <- sc.T.fit(
 # Extract the genes
 scmp.obj <- sc.get.siggenes(scmpObj = scmp.obj, rsq = 0.7, vars = "groups")
 
-# Bulk Counts
-blk.counts <- scmp.obj@scTFit@dat
-
 # Plot the data
 sc.PlotGroups(scmpObj = scmp.obj,feature_id = "Gene45", dis = scmp.obj@scTFit@dis,
                        edesign =  scmp.obj@scTFit@edesign,
                        groups.vector = scmp.obj@scTFit@groups.vector)
 
+sc.plot.bins(scmpObj = scmp.obj)
+
 saveRDS(scmp.obj, "../scMaSigPro_Supp/Testing_And_Development/scmp.obj.latest.RDS")
-
-
 

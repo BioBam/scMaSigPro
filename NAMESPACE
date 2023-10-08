@@ -47,6 +47,7 @@ export("showSol")
 export("sc.get.siggenes")
 export("selectPath")
 export("sc.PlotGroups")
+export("sc.plot.bins")
 
 # Export Classes
 #exportClasses("scMaSigProClass", "covariateClass", "parameterClass", "pVectorClass", "sigGeneClass", "tFitClass")
