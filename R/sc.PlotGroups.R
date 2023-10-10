@@ -25,6 +25,7 @@
 #' @param legend Logical, should legend be displayed? Default is TRUE.
 #' @param cex.legend Size of legend text. Default is 1.
 #' @param lty.legend Line type for the legend.
+#' @param plot.bins Additionally Plot bins
 #' @param ... Additional plotting parameters.
 #'
 #' @return Generates a plot.
@@ -36,21 +37,19 @@ sc.PlotGroups <-
            summary.mode = "median", groups.vector = NULL, main = NULL, sub = NULL,
            xlab = "Pooled Pseudotime", ylab = "Pseudobulk Expression", item = NULL, ylim = NULL, pch = 21,
            col = NULL, legend = TRUE, cex.legend = 1, show.umap = T,
-           lty.legend = NULL, ...) {
-      
-      
-      data <- scmpObj@scTFit@dat
-      assert_that(all(feature_id %in% rownames(data)),
-                    msg = "Feature Id doesn't exist please select another one")
-      data <- data[rownames(data) %in% feature_id, , drop = F]
-      
-      sol <- showSol(scmpObj, view = F, return = T)
-      data.sol <- sol[rownames(sol) %in% feature_id, , drop = F]
-      # Get the R2 and Pvalues
-      
-      
-      #View(data)
-      
+           lty.legend = NULL, plot.bins = FALSE) {
+    data <- scmpObj@scTFit@dat
+    assert_that(all(feature_id %in% rownames(data)),
+      msg = "Feature Id doesn't exist please select another one"
+    )
+    data <- data[rownames(data) %in% feature_id, , drop = F]
+
+    sol <- showSol(scmpObj, view = F, return = T)
+    data.sol <- sol[rownames(sol) %in% feature_id, , drop = F]
+    # Get the R2 and Pvalues
+
+    # View(data)
+
     # Check if data is a vector
     if (!is.vector(data)) {
       if (summary.mode == "representative") {
@@ -180,7 +179,7 @@ sc.PlotGroups <-
       ord <- order(lx)
       lxo <- lx[ord]
       lyo <- ly[ord]
-      lines(lxo, lyo, col = color1[i], ...)
+      #lines(lxo, lyo, col = color1[i], ...)
 
       line_df_tmp <- data.frame(
         x = lxo, y = lyo,
@@ -201,26 +200,90 @@ sc.PlotGroups <-
 
     conesa_colors <- getConesaColors()[c(T, F)][c(1:length(unique(paths)))]
     names(conesa_colors) <- unique(paths)
-    
+
     p <- ggplot() +
       geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.5, size = 2, stroke = 1, shape = 21) +
       geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "solid", linewidth = 1.5) +
       geom_line(data = line.df, aes(x = x, y = y, color = path), linetype = "dotted", linewidth = 1) +
       ggtitle(paste("Feature Id:", feature_id),
-              subtitle = paste("R2:", round(data.sol[,2], 3), "| p-Value:", round(data.sol[,1], 3))) +
+        subtitle = paste("R2:", round(data.sol[, 2], 3), "| p-Value:", round(data.sol[, 1], 3))
+      ) +
       xlab(xlab) +
       ylab(ylab) +
       theme_classic(base_size = 12) +
-      theme(legend.position = "bottom",
-            panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
-            panel.grid.minor = element_blank()) +
-        scale_x_continuous(breaks = seq(min(xlim), max(xlim), by = round(log10(length(time)))))+
+      theme(
+        legend.position = "bottom",
+        panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
+        panel.grid.minor = element_blank()
+      ) +
+      scale_x_continuous(breaks = seq(min(xlim), max(xlim), by = round(log10(length(time))))) +
       labs(color = "Paths") +
-        coord_cartesian(xlim = xlim, ylim = ylim)+
-    
+      coord_cartesian(xlim = xlim, ylim = ylim) +
       scale_color_manual(values = conesa_colors)
 
 
+    # if(plot.bins){
+    #
+    #     raw.data <- scmp.obj@sce@assays@data@listData$counts
+    #     raw.data.gene <- raw.data[rownames(raw.data) %in% feature_id,,drop = F]
+    #     raw.data.gene <- as.data.frame(t(raw.data.gene))
+    #     colnames(raw.data.gene) <- "raw_count"
+    #     raw.data.gene$cell <- rownames(raw.data.gene)
+    #
+    #
+    #     # Get bins
+    #     compressed.df <- as.data.frame(SingleCellExperiment::colData(scmp.obj@compress.sce))
+    #
+    #     # Select the columns
+    #     compressed.df <- compressed.df %>%
+    #         separate_rows(cluster.members, sep = "\\|") %>%
+    #         as.data.frame()
+    #
+    #     expand.df <- as.data.frame(SingleCellExperiment::colData(scmp.obj@sce))
+    #
+    #
+    #     # Merge
+    #     plt.df <- merge(compressed.df, raw.data.gene, by.x = "cluster.members", by.y = "cell")
+    #     plt.df$sd <- sd(raw.data.gene$raw_count)
+    #     plt.df$mean <- mean(raw.data.gene$raw_count)
+    #     plt.df$sum <- sum(raw.data.gene$raw_count)
+    #     plt.df <- merge(plt.df, expand.df, by.x = "cluster.members", by.y = "Cell")
+    #
+    #
+    #     agg_data <- df %>%
+    #         group_by(binnedTime, path, bin, bin.size) %>%
+    #         summarise(
+    #             sum_raw_count = mean(raw_count),
+    #             sd_raw_count = sd(raw_count)
+    #         )
+    #
+    #     # Make sure to remove NA (if any) before plotting
+    #     agg_data <- na.omit(agg_data)
+    #
+    #     # Plotting
+    #     ggplot(agg_data, aes(x = factor(binnedTime), y = sum_raw_count, color = path)) +
+    #         geom_point(size = 3) +
+    #         geom_errorbar(aes(ymin = sum_raw_count - sd_raw_count, ymax = sum_raw_count + sd_raw_count), width = 0.2) +
+    #         facet_wrap(~path, scales = "free") +
+    #         labs(
+    #             title = "Aggregated Raw Counts Along the Step",
+    #             x = "Step",
+    #             y = "Aggregated Raw Counts"
+    #         ) +
+    #         theme_minimal() +
+    #         theme(legend.position = "bottom")
+    #
+    #
+    #     ggplot(data = df,
+    #            aes(axis1 = Step, axis2 = binnedTime, y = raw_count)) +
+    #         geom_alluvium(aes(fill = binnedTime)) +
+    #         geom_stratum() +
+    #         facet_wrap(~path, scales = "free") +
+    #         geom_text(stat = "stratum", aes(label = after_stat(stratum))) +
+    #         labs(title = "Sankey Diagram of Step and Binned Time") +
+    #         theme_minimal()
+    #
+    #
+    # }
     print(p)
-
   }

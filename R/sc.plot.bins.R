@@ -6,6 +6,8 @@
 #'
 #' @param scmpObj A SingleCellExperiment object with an additional slot '@compress.sce' that contains compression information.
 #' @param add_tile A logical flag indicating whether to add a tile (heatmap) plot alongside the bar plot. Default is TRUE.
+#' @param bar.title A title of the barplot
+#' @param tile.title A title of the heatmap
 #' 
 #' @return A bar plot and, optionally, a tile (heatmap) plot, visualizing the bin sizes across different binned time and paths.
 #' If add_tile is TRUE, returns a combined ggplot object with both plots; otherwise, only the bar plot is printed.
@@ -16,7 +18,8 @@
 #' sc.plot.bins(sce, add_tile = FALSE)
 #'
 #' @export
-sc.plot.bins <- function(scmpObj, add_tile = T){
+sc.plot.bins <- function(scmpObj, add_tile = T, bar.title = "Bin size across binned pseudotime",
+                         tile.title = "Bin size across paths along binned pseudotime"){
     
     # Extract the compressed data
     compression.info <- as.data.frame(colData(scmpObj@compress.sce)) 
@@ -29,7 +32,7 @@ sc.plot.bins <- function(scmpObj, add_tile = T){
         geom_bar(stat="identity", aes(fill=path), position = "dodge") +
         geom_line(aes(group=path, color=path), position = position_dodge(0.9)) +
         geom_point(aes(color=path), position = position_dodge(0.9)) +
-        ggtitle("") +
+        ggtitle(bar.title) +
         scale_fill_manual(values = conesa_colors) +
         xlab("Binned Time") +
         ylab("Bin Size") +
@@ -41,7 +44,7 @@ sc.plot.bins <- function(scmpObj, add_tile = T){
         geom_tile(aes(fill=bin.size)) +
         scale_fill_gradient(low = "#FDA3D1", high = "#FDC659") +
         geom_text(aes(label=sprintf("%d", round(bin.size, 1))), vjust=1) +
-        ggtitle("Heatmap of Bin Sizes Across Binned Time and Paths") +
+        ggtitle(tile.title) +
         xlab("Binned Time") +
         ylab("Path") +
         theme_minimal()

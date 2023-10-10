@@ -19,18 +19,18 @@ load(paste0(prefixIn, "sparsity_30.RData"))
 # Monocl3 3 object
 sim.sce
 
-# Convert the ScMaSigPro Object
+# Convert single-cell experiment object
 scmp.obj <- as_scmp(sim.sce, from = "sce")
 
-# Compress
+# All binning in one go
 scmp.obj <- squeeze(
     scmp.ob = scmp.obj,
     time.col = "Step",
     path.col = "Group",
     method = "Sturges",
-    drop.fac = 0.6,
+    drop.fac = 1,
     verbose = T,
-    cluster.count.by = "sum"
+    cluster.count.by = "mean"
 )
 
 # Make Design
@@ -42,7 +42,7 @@ scmp.obj <- sc.make.design.matrix(scmp.obj,
 
 # Run p-vector
 scmp.obj <- sc.p.vector(
-        scmpObj = scmp.obj, verbose = F, min.obs = 6,
+        scmpObj = scmp.obj, verbose = T, min.obs = 6,
         counts = T, theta = 1,
         offset = T, epsilon = 0.00001
         )
@@ -65,5 +65,11 @@ sc.PlotGroups(scmpObj = scmp.obj,feature_id = "Gene45", dis = scmp.obj@scTFit@di
 
 sc.plot.bins(scmpObj = scmp.obj)
 
+
+sc.path.intersection(scmpObj = scmp.obj)
+
+
+
 saveRDS(scmp.obj, "../scMaSigPro_Supp/Testing_And_Development/scmp.obj.latest.RDS")
+scmp.obj <- readRDS("../scMaSigPro_Supp/Testing_And_Development/scmp.obj.latest.RDS")
 

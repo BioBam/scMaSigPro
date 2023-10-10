@@ -24,6 +24,7 @@ importFrom("data.table", "rleid")
 importFrom("DESeq2", "estimateSizeFactorsForMatrix")
 importFrom("ggpubr", "ggarrange")
 importFrom("RColorConesa", "getConesaColors")
+importFrom("UpSetR", "fromList", "upset")
 
 # Import Entire Libraries
 import("ggplot2")
@@ -48,6 +49,7 @@ export("sc.get.siggenes")
 export("selectPath")
 export("sc.PlotGroups")
 export("sc.plot.bins")
+export("sc.path.intersection")
 
 # Export Classes
 #exportClasses("scMaSigProClass", "covariateClass", "parameterClass", "pVectorClass", "sigGeneClass", "tFitClass")
