@@ -4,11 +4,13 @@
 \alias{convert_to_path}
 \title{Convert Vector Elements to Path Names (Internal)}
 \usage{
-convert_to_path(vec)
+convert_to_path(vec, path_prefix, root_label)
 }
 \arguments{
 \item{vec}{A character vector where elements may be repeated and
 might contain the value "root".}
+
+\item{path_prefix}{Prefix used to annoate the paths, default is "Path".}
 }
 \value{
 A character vector with the same length as the input where

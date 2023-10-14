@@ -4,23 +4,56 @@
 \alias{as_scmp}
 \title{Convert cell_data_set or SingleCellExperiment to scMaSigProClass}
 \usage{
-as_scmp(object, from = "cell_data_set", verbose = T)
+as_scmp(
+  object,
+  from = "cds",
+  path_prefix = "Path",
+  root_label = "root",
+  pseudotime_colname = "Pseudotime",
+  path_colname = path_prefix,
+  verbose = TRUE,
+  additional_params = list(overwrite_labels = TRUE)
+)
 }
 \arguments{
 \item{object}{An S4 object of class 'cell_data_set' or 'SingleCellExperiment'.}
 
-\item{from}{Character string specifying the class of 'object'. Can be either "cell_data_set" or "sce".}
+\item{from}{Character string specifying the class of 'object'. Can be either
+"cds" for "cell_data_set" or "sce" for "SingleCellExperiment".}
+
+\item{path_prefix}{Prefix used to annoate the paths, default is "Path".}
+
+\item{root_label}{Label used to describe root cells,  default is "root".}
+
+\item{pseudotime_colname}{Name of the column in cell.metadata storing
+information for Pseudotime.}
+
+\item{path_colname}{Name of the column in cell.metadata storing information
+about annoated paths.}
+
+\item{additional_params}{A list of additional parameters, see details.}
 }
 \value{
 An instance of the 'scMaSigProClass'.
 }
 \description{
-This function converts a cell_data_set object from Monocle or a SingleCellExperiment object to an instance of
-the scMaSigProClass. Currently, only Monocle's cell_data_set and SingleCellExperiment are supported.
+This function converts a cell_data_set object from Monocle or a
+SingleCellExperiment object from slingshot to an instance of the
+scMaSigProClass.
+}
+\details{
+Additional parameters
 }
 \examples{
 \dontrun{
-scmpObj <- as_scmp(object, from = "sce")
+scmpObj <- as_scmp(object,
+  from = "cds", path_prefix = "Path",
+  root_label = "root", path_colname = path_prefix,
+  verbose = TRUE
+)
 }
 
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
