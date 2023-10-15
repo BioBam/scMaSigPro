@@ -2,32 +2,36 @@
 % Please edit documentation in R/make.bulk.count.R
 \name{make.pseudobulk.counts}
 \alias{make.pseudobulk.counts}
-\title{make.pseudobulk.counts}
+\title{Create Pseduo-bulk Counts}
 \usage{
 make.pseudobulk.counts(
   counts,
-  cluster_member_col = "cluster.members",
-  bin_col = "bin",
+  bin_members_colname = "scmp_bin_members",
+  bin_colname = "scmp_bin",
   pseudo_bulk_profile,
-  cluster.count.by = "sum"
+  cluster_count_by = "sum"
 )
 }
 \arguments{
-\item{counts}{A data.frame. The count data from single cell RNA-seq experiment.}
+\item{counts}{Raw count data from single cell RNA-seq experiment.}
 
-\item{cluster_member_col}{A character string (default = "cluster.members"). The name of the column in the pseudo_bulk_profile that contains the cluster members.}
+\item{bin_members_colname}{Name of the column in the 'compressed_cell_metadata', 
+storing information about the members of the bins. (Default is 'scmp_bin_members')}
 
-\item{bin_col}{A character string (default = "bin"). The name of the column in the pseudo_bulk_profile that contains the bin identifiers.}
+\item{bin_colname}{Name of the column in the 'compressed_cell_metadata', 
+storing information about the bin labels. (Default is 'scmp_bin')}
 
-\item{pseudo_bulk_profile}{A data.frame. The pseudo bulk profile created by make_pseudobulk_design function.}
+\item{pseudo_bulk_profile}{A data.frame generated using
+\code{\link{make.pseudobulk.design}}.}
 
-\item{cluster.count.by}{A character string (default = "sum"). The method to use to aggregate counts within each cluster. Possible values are "mean" or "sum".}
+\item{cluster_count_by}{A character string (default = "sum"). The method to
+use to aggregate counts within each cluster.}
 }
 \value{
 A data.frame. The data frame includes pseudo bulk counts with each row being a gene and each column being a bin.
 }
 \description{
-This function creates a dataframe of pseudo bulk counts from single cell counts. It does this by either taking the mean or sum of counts across clusters in each bin, depending on the specified method.
+`make.pseudobulk.counts()` creates a dataframe of pseudo bulk counts from single cell counts. It does this by either taking the mean or sum of counts across clusters in each bin, depending on the specified method.
 }
 \details{
 The function operates by iterating over each row of the pseudo_bulk_profile. For each bin, it identifies the cells that belong to the bin and selects their counts from the counts data frame. It then calculates the mean or sum of these counts (depending on the specified method), and adds these to a new data frame of pseudo bulk counts. The result is a pseudo bulk counts data frame where each row is a gene and each column is a bin.
@@ -37,8 +41,11 @@ The function operates by iterating over each row of the pseudo_bulk_profile. For
 make.pseudobulk.counts(
   counts = sc_counts,
   pseudo_bulk_profile = pb_profile,
-  cluster.count.by = "mean"
+  cluster_count_by = "mean"
 )
 }
 
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

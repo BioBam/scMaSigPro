@@ -26,7 +26,7 @@
 #' @importFrom stringr str_remove_all
 #'
 #' @keywords internal
-create_range <- function(x) {
+create_range <- function(x, bin_pseudotime_colname = "scmp_binned_pseudotime") {
   # Convert the factor column "bin" to character
   y <- as.character(x[["bin"]])
 
@@ -40,7 +40,7 @@ create_range <- function(x) {
   y2 <- as.numeric(sapply(strsplit(y, ","), "[", 2))
 
   # Combine the lower bound, upper bound, bin size, and binned time into a numeric vector
-  rangeVec <- c(y1, y2, x[["bin_size"]], x[["binned_time"]])
+  rangeVec <- c(y1, y2, x[["bin_size"]], x[[bin_pseudotime_colname]])
 
   # Return the numeric vector
   return(as.numeric(rangeVec))

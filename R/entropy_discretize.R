@@ -1,23 +1,35 @@
-#' @title entropy_discretize
+#' @title Find optimal number of pseudotime bins
 #'
 #' @description
-#' This function discretizes a continuous time series column into bins of equal size using entropy-based binning method. It automatically calculates the optimal number of bins using one of the supported methods.
-#' The bin sizes are also calculated and merged with the input design_table.
+#' `entropy_discretize()` discretizes a continuous time series column into bins
+#' of equal size using entropy-based binning method. It automatically calculates
+#' the optimal number of bins using one of the supported methods. The bin sizes
+#' are also calculated and merged with the input cell_metadata.
 #'
-#' @param design_table A data.frame. The dataset containing the time series column to be discretized.
-#' @param time_col A character string. The name of the column in design_table that contains the time series data to be discretized.
-#' @param path_col A character string. The name of the column in design_table that contains the Lineage information.
-#' @param method A character string (default = "Sturges"). The method to be used to estimate the optimal number of bins. Currently, this function supports "Sturges" method.
-#' @param drop.fac A numeric value (default = 0.5). The factor by which to decrease the number of bins if the initial binning results in too many empty bins. The optimal number of bins is recalculated until this criteria is met.
-#' @param verbose A boolean (default = TRUE). If TRUE, detailed messages about the process (e.g. number of bins calculated) will be printed.
-#' @param binning Universal or Individual
+#' @param cell_metadata `cell.metadata` in data.frame. It can be exported using
+#' the \code{\link[SingleCellExperiment]{colData}}. It should contain the column
+#' with temporal to be discretized.
+#' @param pseudotime_colname Name of the column in `cell.metadata` generated using
+#' \code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
+#' (Default is "Pseudotime")
+#' @param path_colname Name of the column in `cell.metadata` generated using
+#' \code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+#' (Default is `path_prefix`)
+#' @param bin_method A character string (default = "Sturges"). The method to be
+#' used to estimate the optimal number of bins.
+#' @param drop.fac A numeric value (default = 0.5). The factor by which to
+#' decrease the number of bins if the initial binning results in too many bins.
+#' @param verbose Print detailed output in the console. (Default is TRUE)
+#' @param binning A character string (deafult = "universal"). When set to
+#' "individual", the bins are calculated per path iteratively.
 #'
 #' @return
 #' A data.frame that contains the original data plus additional columns:
-#' - 'bin' : the bin number
-#' - 'bin_size' : the size of the bin
-#' - 'binned_time' : the interval range of each bin
-#' This function returns the merged data.frame with new discretized time_col, preserving the original rownames.
+#' - 'bin' : Name of the bin
+#' - 'bin_size' : Size of the bin
+#' - 'binned_time' : Interval range of each bin
+#' This function returns the merged data.frame with new discretized 
+#' pseudotime_colname, preserving the original rownames.
 #'
 #' @details
 #' This function performs the following steps:
@@ -33,8 +45,8 @@
 #' @examples
 #' \dontrun{
 #' entropy_discretize(
-#'   design_table = data.frame, time_col = "time",
-#'   method = "Sturges", drop.fac = 0.5, verbose = TRUE
+#'   cell_metadata = data.frame, pseudotime_colname = "time",
+#'   bin_method = "Sturges", drop.fac = 0.5, verbose = TRUE
 #' )
 #' }
 #'
@@ -50,32 +62,39 @@
 #'
 #' @export
 
-# entropy_discretize <- function(design_table, time_col,
-entropy_discretize <- function(design_table, time_col,
-                               path_col,
-                               method = "Sturges",
+entropy_discretize <- function(cell_metadata,
+                               pseudotime_colname = "Pseudotime",
+                               path_colname = "Path",
+                               bin_method = "Sturges",
                                drop.fac = 0.5,
                                verbose = TRUE,
-                               binning = "universal") {
+                               binning = "universal",
+                               bin_pseudotime_colname = "scmp_binned_pseudotime") {
   # Checks
-  assert_that(time_col %in% colnames(design_table),
-    msg = paste0("'", time_col, "' does not exist in design_table")
+  assert_that(pseudotime_colname %in% colnames(cell_metadata),
+    msg = paste0("'", pseudotime_colname, "' does not exist in cell_metadata")
   )
-  assert_that(path_col %in% colnames(design_table),
-    msg = paste0("'", path_col, "' does not exist in design_table")
+  assert_that(path_colname %in% colnames(cell_metadata),
+    msg = paste0("'", path_colname, "' does not exist in cell_metadata")
   )
-  assert_that(drop.fac >= 0.3 & drop.fac <= 1,
+  assert_that(drop.fac >= 0.3,
     msg = "Invalid value for 'drop.fac'. It should be between 0.3 and 1."
   )
   assert_that(all(binning %in% c("universal", "individual")),
-    msg = "Allowed options for binning are 'Universal' and 'Individual'"
+    msg = "Allowed options for binning are 'universal' and 'individual'"
+  )
+  assert_that(
+    all(
+      bin_method %in% c("Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", "Scott.Normal")
+    ),
+    msg = "Available binning methods are 'Freedman.Diaconis', 'Sqrt', 'Sturges', 'Rice', 'Doane', and 'Scott.Normal'"
   )
 
   # Add a column
-  design_table$cell <- rownames(design_table)
+  cell_metadata$cell <- rownames(cell_metadata)
 
   # Get the avaible paths
-  avail.paths <- as.vector(unique(design_table[[path_col]]))
+  avail.paths <- as.vector(unique(cell_metadata[[path_colname]]))
 
   # Check for path
   assert_that(length(avail.paths) >= 2,
@@ -86,7 +105,7 @@ entropy_discretize <- function(design_table, time_col,
   result <- switch(binning,
     universal = {
       # Extract the time information as a vector
-      time_vector <- design_table[, time_col]
+      time_vector <- cell_metadata[, pseudotime_colname]
       length_n <- length(time_vector)
 
       # Calculate Optimal Number of Bins
@@ -94,7 +113,7 @@ entropy_discretize <- function(design_table, time_col,
         expr = {
           estBins <- estBinSize(
             time_vector = time_vector, nPoints = length_n,
-            drop_fac = drop.fac, method = method
+            drop_fac = drop.fac, bin_method = bin_method
           )
         },
         error = function(e) {
@@ -108,30 +127,30 @@ entropy_discretize <- function(design_table, time_col,
 
       # Clean the table before merge
       colnames(bin_intervals) <- c("bin", "bin_size")
-      bin_intervals$binned_time <- rownames(bin_intervals)
+      bin_intervals[[bin_pseudotime_colname]] <- rownames(bin_intervals)
 
       # Create the bin table
-      bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range))))
-      colnames(bin_table) <- c("from", "to", "bin_size", "binnedTime")
+      bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range, bin_pseudotime_colname = bin_pseudotime_colname))))
+      colnames(bin_table) <- c("from", "to", "bin_size", bin_pseudotime_colname)
 
       # Combine Tables
-      processed_design_table <- as.data.frame(
-        left_join(design_table, bin_table,
+      processed_cell_metadata <- as.data.frame(
+        left_join(cell_metadata, bin_table,
           by = join_by(
-            closest(!!time_col >= from),
-            closest(!!time_col <= to)
+            closest(!!pseudotime_colname >= from),
+            closest(!!pseudotime_colname <= to)
           )
         )
       )
 
       # Set the 'cell' column as rownames
-      rownames(processed_design_table) <- processed_design_table$cell
+      rownames(processed_cell_metadata) <- processed_cell_metadata$cell
     },
     individual = {
       # Apply transformations on data
-      discrete.list <- lapply(avail.paths, function(path, design.frame = design_table,
-                                                    drop_fac = drop.fac, path.col = path_col,
-                                                    time.col = time_col, method.bin = method) {
+      discrete.list <- lapply(avail.paths, function(path, design.frame = cell_metadata,
+                                                    drop_fac = drop.fac, path.col = path_colname,
+                                                    time.col = pseudotime_colname, method.bin = bin_method) {
         # Get the cells belonging to path
         path.frame <- design.frame[design.frame[[path.col]] == path, , drop = F]
 
@@ -149,13 +168,13 @@ entropy_discretize <- function(design_table, time_col,
           expr = {
             estBins <- estBinSize(
               time_vector = time_vector, nPoints = length_n,
-              drop_fac = drop.fac, method = method.bin
+              drop_fac = drop.fac, bin_method = method.bin
             )
 
             if (verbose) {
               message(paste(
                 "Estimated Bin Sizes =", estBins, "with",
-                method, "binning for", length_n, "time points for", path
+                bin_method, "binning for", length_n, "time points for", path
               ))
             }
           },
@@ -177,14 +196,14 @@ entropy_discretize <- function(design_table, time_col,
 
         # Clean the table before merge
         colnames(bin_intervals) <- c("bin", "bin_size")
-        bin_intervals$binned_time <- rownames(bin_intervals)
+        bin_intervals$binned_Pseudotime <- rownames(bin_intervals)
 
         # Create the bin table
         bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range))))
-        colnames(bin_table) <- c("from", "to", "bin_size", "binnedTime")
+        colnames(bin_table) <- c("from", "to", "bin_size", "binned_Pseudotime")
 
         # Combine Tables
-        processed_design_table <- as.data.frame(
+        processed_cell_metadata <- as.data.frame(
           left_join(path.frame, bin_table,
             by = join_by(
               closest(!!time.col >= from),
@@ -193,21 +212,21 @@ entropy_discretize <- function(design_table, time_col,
           )
         )
 
-        return(processed_design_table)
+        return(processed_cell_metadata)
       })
 
       # Bind rows and convert to data frame, then drop 'cell' column
-      processed_design_table <- bind_rows(discrete.list) %>%
+      processed_cell_metadata <- bind_rows(discrete.list) %>%
         as.data.frame()
 
       # Set the 'cell' column as rownames
-      rownames(processed_design_table) <- processed_design_table$cell
+      rownames(processed_cell_metadata) <- processed_cell_metadata$cell
     },
     stop("Invalid option")
   )
 
   # Now, you can remove the 'cell' column
-  processed_design_table <- processed_design_table %>% select(-"cell")
+  processed_cell_metadata <- processed_cell_metadata %>% select(-"cell")
 
-  return(processed_design_table)
+  return(processed_cell_metadata)
 }

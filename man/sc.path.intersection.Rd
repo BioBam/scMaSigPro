@@ -14,7 +14,7 @@ filled with the summary of significant genes for each pathway.}
 An UpSet plot visualizing the intersections of significant genes across pathways.
 }
 \description{
-This function takes a Single Cell MultiPathway (SCMP) object, extracts the list of 
+This function takes a Single Cell MultiPathway (SCMP) object, extracts the list of
 significant genes for each pathway, and performs an UpSet plot to visualize their intersections.
 }
 \examples{

@@ -4,19 +4,24 @@
 \alias{sc.make.design.matrix}
 \title{Create design matrix for 'scMaSigProClass' object}
 \usage{
-sc.make.design.matrix(scmpObj, degree = 2, time.col, path.col)
+sc.make.design.matrix(
+  scmpObject,
+  poly_degree = 2,
+  bin_pseudotime_colname = "scmp_binned_pseudotime",
+  path_colname = "Path"
+)
 }
 \arguments{
-\item{scmpObj}{A 'scMaSigProClass' object.}
+\item{scmpObject}{A 'scMaSigProClass' object.}
+
+\item{bin_pseudotime_colname}{Name of the time column.}
+
+\item{path_colname}{Name of the path column.}
 
 \item{degree}{Degree of the design matrix (default: 2).}
-
-\item{time.col}{Name of the time column.}
-
-\item{path.col}{Name of the path column.}
 }
 \value{
-Returns the 'scmpObj' with an updated 'edesign' slot.
+Returns the 'scmpObject' with an updated 'edesign' slot.
 }
 \description{
 This function creates a design matrix using the 'compress.sce' slot of a 'scMaSigProClass' object.

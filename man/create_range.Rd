@@ -4,7 +4,7 @@
 \alias{create_range}
 \title{Create Range Function}
 \usage{
-create_range(x)
+create_range(x, bin_pseudotime_colname = "scmp_binned_pseudotime")
 }
 \arguments{
 \item{x}{A data frame that should contain the following columns:

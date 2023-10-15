@@ -1,11 +1,22 @@
-#' make.pseudobulk.design
+#' @title Create Pseduo-bulk metadata
 #'
 #' @description
-#' This function creates a pseudobulk profile data frame from the design file. It groups cells into bins for each path from a given set of paths and calculates the bin size.
+#' `make.pseudobulk.design()` creates a pseudobulk profile data frame from the design file.
+#' It groups cells into bins for each path from a given set of paths and
+#' calculates the bin size.
 #'
-#' @param design.file A data.frame. The design file containing the binned data.
-#' @param pathCol A character string. The name of the column in the design file that contains the path data.
-#' @param binnedCol A character string (default = "binnedTime"). The name of the column in the design file that contains the binned data.
+#' @param compressed_cell_metadata A data.frame. The design file containing the binned data.
+#' @param path_colname Name of the column in `cell.metadata` generated using
+#' \code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+#' (Default is `path_prefix`)
+#' @param bin_colname Name of the column in the 'compressed_cell_metadata', 
+#' storing information about the bin labels. (Default is 'scmp_bin')
+#' @param bin_size_colname Name of the column in the 'compressed_cell_metadata', 
+#' storing information about the size of the bins bin. (Default is 'scmp_bin_size')
+#' @param bin_members_colname Name of the column in the 'compressed_cell_metadata', 
+#' storing information about the members of the bins. (Default is 'scmp_bin_members')
+#' @param bin_pseudotime_colname Name of the column in the 'compressed_cell_metadata', 
+#' storing information about the binned pseudotime. (Default is 'scmp_binned_pseudotime')
 #'
 #' @return
 #' A data.frame containing the pseudobulk profile. The data frame includes the following columns:
@@ -27,27 +38,32 @@
 #'
 #' @examples
 #' \dontrun{
-#' make.pseudobulk.design(design.file = df, pathCol = "path1", binnedCol = "binnedTime")
+#' make.pseudobulk.design(compressed_cell_metadata = df, path_colname = "path1", binned_pseudotime_column = "binnedTime")
 #' }
 #'
 #' @seealso \code{\link{calc_bin_size}}
 #'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
-
-make.pseudobulk.design <- function(design.file, pathCol,
-                                   binnedCol = "binnedTime") {
-  assert_that(binnedCol %in% colnames(design.file),
-    msg = paste0("'", binnedCol, "' does not exist in design.file")
+make.pseudobulk.design <- function(compressed_cell_metadata,
+                                   path_colname = "Path",
+                                   bin_colname = "scmp_bin",
+                                   bin_size_colname = "scmp_bin_size",
+                                   bin_members_colname = "scmp_bin_members",
+                                   bin_pseudotime_colname = "scmp_binned_pseudotime") {
+  assert_that(bin_pseudotime_colname %in% colnames(compressed_cell_metadata),
+    msg = paste0("'", bin_pseudotime_colname, "' does not exist in compressed_cell_metadata, please run entropy_discretize()")
   )
-  assert_that(pathCol %in% colnames(design.file),
-    msg = paste0("'", pathCol, "' does not exist in design.file")
+  assert_that(path_colname %in% colnames(compressed_cell_metadata),
+    msg = paste0("'", path_colname, "' does not exist in compressed_cell_metadata")
   )
 
   # Get the avaible paths
-  avail.paths <- as.vector(unique(design.file[[pathCol]]))
+  avail.paths <- as.vector(unique(compressed_cell_metadata[[path_colname]]))
 
   # Add helper-col
-  design.file$scmp_bar <- rownames(design.file)
+  compressed_cell_metadata$scmp_bar <- rownames(compressed_cell_metadata)
 
   # Check for path
   assert_that(length(avail.paths) >= 2,
@@ -55,12 +71,12 @@ make.pseudobulk.design <- function(design.file, pathCol,
   )
 
   # Determine the number of cores
-  num_cores <- detectCores() - 1 # leave one core free for other tasks
+  # num_cores <- detectCores() - 1 # leave one core free for other tasks
 
   # Apply transformations on data
-  # pB.list <- mclapply(avail.paths, function(path, design.frame = design.file,
-  pB.list <- lapply(avail.paths, function(path, design.frame = design.file,
-                                          binned.col = binnedCol, path.col = pathCol) {
+  # pB.list <- mclapply(avail.paths, function(path, design.frame = compressed_cell_metadata,
+  pB.list <- lapply(avail.paths, function(path, design.frame = compressed_cell_metadata,
+                                          binned.col = bin_pseudotime_colname, path.col = path_colname) {
     # Get the cells belonging to path
     path.frame <- design.frame[design.frame[[path.col]] == path, , drop = F]
 
@@ -75,19 +91,19 @@ make.pseudobulk.design <- function(design.file, pathCol,
     # Group by time
     path.time.cell <- path.time.cell %>%
       group_by_at(binned.col) %>%
-      summarise(cluster.members = paste0(scmp_bar, collapse = "|"))
+      summarise(!!bin_members_colname := paste0(scmp_bar, collapse = "|"))
 
     # Add Cluster Label
-    path.time.cell$bin <- paste0(path, "_bin_", seq(1, nrow(path.time.cell)))
+    path.time.cell[[bin_colname]] <- paste0(path, "_bin_", seq(1, nrow(path.time.cell)))
 
     # Set the Path Information
-    path.time.cell$path <- path
+    path.time.cell[[path.col]] <- path
 
     # Add Cluster Size
-    path.time.cell$bin.size <- apply(path.time.cell, 1, calc_bin_size)
+    path.time.cell[[bin_size_colname]] <- apply(path.time.cell, 1, calc_bin_size, clus_mem_col = bin_members_colname)
 
     # Claculate bin_range
-    bin_range <- range(path.time.cell$bin.size, na.rm = TRUE)
+    bin_range <- range(path.time.cell[[bin_size_colname]], na.rm = TRUE)
 
     # throw warning
     warningCondition(
@@ -104,7 +120,7 @@ make.pseudobulk.design <- function(design.file, pathCol,
   pB.frame <- bind_rows(pB.list) %>% as.data.frame()
 
   # Add rownames
-  rownames(pB.frame) <- pB.frame$bin
+  rownames(pB.frame) <- pB.frame[[bin_colname]]
 
   # Remove extra column
   # pB.frame <- pB.frame %>% select(-"scmp_bar")

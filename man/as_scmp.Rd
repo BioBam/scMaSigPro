@@ -2,7 +2,7 @@
 % Please edit documentation in R/as_scmp_object_conversion.R
 \name{as_scmp}
 \alias{as_scmp}
-\title{Convert cell_data_set or SingleCellExperiment to scMaSigProClass}
+\title{Convert 'Cell Dataset' or 'SingleCellExperiment' object to scmpClass}
 \usage{
 as_scmp(
   object,
@@ -16,43 +16,51 @@ as_scmp(
 )
 }
 \arguments{
-\item{object}{An S4 object of class 'cell_data_set' or 'SingleCellExperiment'.}
+\item{object}{An S4 object of class `cell_data_set` or `SingleCellExperiment`.}
 
-\item{from}{Character string specifying the class of 'object'. Can be either
-"cds" for "cell_data_set" or "sce" for "SingleCellExperiment".}
+\item{from}{Character string specifying the class of 'object'. Use "cds" for
+`cell_data_set` class and "sce" for `SingleCellExperiment` class.}
 
-\item{path_prefix}{Prefix used to annoate the paths, default is "Path".}
+\item{path_prefix}{Prefix used to annotate the paths. (Default is "Path").}
 
-\item{root_label}{Label used to describe root cells,  default is "root".}
+\item{root_label}{Label used to annotate root cells. (Default is "root").}
 
-\item{pseudotime_colname}{Name of the column in cell.metadata storing
-information for Pseudotime.}
+\item{pseudotime_colname}{Name of the column in `cell.metadata` generated using
+\code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
+(Default is "Pseudotime")}
 
-\item{path_colname}{Name of the column in cell.metadata storing information
-about annoated paths.}
+\item{path_colname}{Name of the column in `cell.metadata` generated using
+\code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+(Default is `path_prefix`)}
 
-\item{additional_params}{A list of additional parameters, see details.}
+\item{verbose}{Print detailed output in the console. (Default is TRUE)}
+
+\item{additional_params}{A named list of additional parameters. See details.}
 }
 \value{
-An instance of the 'scMaSigProClass'.
+An instance of the 'scmpClass'.
 }
 \description{
-This function converts a cell_data_set object from Monocle or a
-SingleCellExperiment object from slingshot to an instance of the
-scMaSigProClass.
+`as_scmp()` converts a cell_data_set object from Monocle \code{\link[monocle3]{new_cell_data_set}}
+or a SingleCellExperiment object from Slingshot to an instance of the
+scmpClass object.
 }
 \details{
-Additional parameters
+Additional Details
 }
 \examples{
 \dontrun{
 scmpObj <- as_scmp(object,
   from = "cds", path_prefix = "Path",
-  root_label = "root", path_colname = path_prefix,
+  root_label = "root",
+  path_colname = path_prefix,
   verbose = TRUE
 )
 }
 
+}
+\seealso{
+\code{\link[SingleCellExperiment]{colData}}, \code{\link[monocle3]{new_cell_data_set}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

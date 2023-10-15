@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotate_sce.R
 \name{annotate_sce}
 \alias{annotate_sce}
-\title{Annotate SingleCellExperiment object with pseudotime and path information.}
+\title{Annotate 'SingleCellExperiment' class object with pseudotime and path information.}
 \usage{
 annotate_sce(
   sce,
@@ -19,35 +19,47 @@ annotate_sce(
 \arguments{
 \item{sce}{A SingleCellExperiment object to be annotated.}
 
-\item{pseudotime_colname}{The name of the pseudotime column to be added or updated.}
+\item{pseudotime_colname}{Name of the column in `cell.metadata` generated using
+\code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
+(Default is "Pseudotime")}
 
-\item{path_prefix}{The prefix for the path column name (default is "Path").}
+\item{path_prefix}{Prefix used to annotate the paths. (Default is "Path").}
 
-\item{root_label}{The label for the root of the path (default is "root").}
+\item{root_label}{Label used to annotate root cells. (Default is "root").}
 
-\item{path_colname}{The name of the path column to be added or updated.}
-
-\item{existing_pseudotime_colname}{The name of an existing pseudotime column to be replaced (if not NULL).}
+\item{path_colname}{Name of the column in `cell.metadata` generated using
+\code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+(Default is `path_prefix`)
+#' @param existing_pseudotime_colname The name of an existing pseudotime column to be replaced (if not NULL).}
 
 \item{existing_path_colname}{The name of an existing path column to be replaced (if not NULL).}
 
 \item{overwrite_labels}{Logical, should existing column names be overwritten if they exist? (default is TRUE).}
 
-\item{verbose}{Logical, should progress messages be printed? (default is TRUE).}
+\item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }
 \value{
 A SingleCellExperiment object with updated cell metadata.
 }
 \description{
-This function allows you to annotate a SingleCellExperiment object with pseudotime
-and path information in its cell metadata.
+`annotate_sce()` annotates a \code{\link[SingleCellExperiment]{SingleCellExperiment}}
+class object with pseudotime and path information in its `cell.metadata`
+generated using \code{\link[SingleCellExperiment]{colData}}.
+}
+\details{
+Additional Details
 }
 \examples{
 # Annotate a SingleCellExperiment object with pseudotime and path information
 \dontrun{
-annotated_sce <- annotate_sce(sce, pseudotime_colname = "Pseudotime", path_colname = "Path")
+annotated_sce <- annotate_sce(sce, 
+    pseudotime_colname = "Pseudotime",
+    path_colname = "Path")
 }
 
+}
+\seealso{
+\code{\link[SingleCellExperiment]{SingleCellExperiment}}, \code{\link[SingleCellExperiment]{colData}}.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

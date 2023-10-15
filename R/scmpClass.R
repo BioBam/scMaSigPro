@@ -40,8 +40,8 @@ setClass(
       stop("edesign slot is not a valid edesignClass object.")
     }
     if (!validObject(object@siggenes)) {
-          stop("siggenes slot is not a valid sigClass object.")
-      }
+      stop("siggenes slot is not a valid sigClass object.")
+    }
   },
   prototype = list(
     scPVector = new("scPVectorClass"), # Assuming you've defined scPVectorClass with its prototype

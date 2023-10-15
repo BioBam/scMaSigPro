@@ -179,7 +179,7 @@ sc.PlotGroups <-
       ord <- order(lx)
       lxo <- lx[ord]
       lyo <- ly[ord]
-      #lines(lxo, lyo, col = color1[i], ...)
+      # lines(lxo, lyo, col = color1[i], ...)
 
       line_df_tmp <- data.frame(
         x = lxo, y = lyo,

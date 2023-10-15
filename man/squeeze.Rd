@@ -5,41 +5,61 @@
 \title{The 'squeeze' function}
 \usage{
 squeeze(
-  scmp.ob,
-  time.col,
-  path.col,
-  method = "Sturges",
+  scmpObject,
+  pseudotime_colname = "Pseudotime",
+  path_colname = "Path",
+  bin_method = "Sturges",
   drop.fac = 0.5,
   verbose = TRUE,
-  cluster.count.by = "sum",
-  assay.name = "counts"
+  cluster_count_by = "sum",
+  assay_name = "counts",
+  binning = "universal",
+  additional_params = NULL,
+  bin_pseudotime_colname = "scmp_binned_pseudotime"
 )
 }
 \arguments{
-\item{scmp.ob}{An object.}
+\item{scmpObject}{An object.}
 
-\item{time.col}{The name of the time column.}
+\item{pseudotime_colname}{Name of the column in `cell.metadata` generated using
+\code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
+(Default is "Pseudotime")}
 
-\item{path.col}{The name of the path column.}
+\item{path_colname}{Name of the column in `cell.metadata` generated using
+\code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+(Default is `path_prefix`)}
 
-\item{method}{Method for data compression (default: "Sturges").}
+\item{bin_method}{A character string (default = "Sturges"). The method to be
+used to estimate the optimal number of bins.}
 
-\item{drop.fac}{The factor by which to drop data (default: 0.5).}
+\item{drop.fac}{A numeric value (default = 0.5). The factor by which to
+decrease the number of bins if the initial binning results in too many bins.}
 
-\item{verbose}{Logical. If TRUE, detailed messages are printed (default: TRUE).}
+\item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{cluster.count.by}{How to count clusters (default: "sum").}
+\item{cluster_count_by}{A character string (default = "sum"). The method to
+use to aggregate counts within each cluster.}
 
-\item{assay.name}{The name of the assay (default: "counts").}
+\item{assay_name}{The name of the assay (default: "counts").}
+
+\item{binning}{A character string (deafult = "universal"). When set to
+"individual", the bins are calculated per path iteratively.}
+
+\item{additional_params}{Additional Parameters in a list
+The name of the column in the design file that contains the binned data.}
 }
 \value{
-Returns the object 'scmp.ob' with updated slots.
+Returns the object of 'scMaSigProClass' with updated slots.
+
+#' @examples
+\dontrun{
+
+}
 }
 \description{
 This function performs a series of operations including data compression, creating pseudo-bulk-design, and creating pseudo-bulk counts.
 It then generates a SingleCellExperiment object with updated slots.
 }
-\examples{
-# Insert an example of how to use the function here.
-
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

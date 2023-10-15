@@ -23,12 +23,14 @@ setClass(
   representation(
     dis = "matrix",
     groups.vector = "character",
-    edesign = "data.frame"
+    edesign = "data.frame",
+    poly_degree = "integer"
   ),
   prototype = list(
     dis = matrix(NA, nrow = 0, ncol = 0),
     groups.vector = character(),
-    edesign = data.frame()
+    edesign = data.frame(),
+    poly_degree = as.integer(2)
   ),
   validity = function(object) {
     if (!validObject(object@dis)) {
@@ -38,7 +40,10 @@ setClass(
       stop("groups.vector slot is not a valid character vector.")
     }
     if (!validObject(object@edesign)) {
-      stop("edesign slot is not a valid data frame.")
+      stop("poly_degree slot is not a valid data frame.")
+    }
+    if (!is.integer(object@poly_degree)) {
+      stop("edesign slot is not a valid integer")
     }
     TRUE
   }

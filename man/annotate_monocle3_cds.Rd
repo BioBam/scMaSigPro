@@ -20,29 +20,30 @@ annotate_monocle3_cds(
 \item{reduction_method}{The dimensionality reduction method used. Default is
 "umap". Monocle3 currently supports "UMAP" only for most procedure.}
 
-\item{path_prefix}{Prefix used to annoate the paths, default is "Path".}
+\item{path_prefix}{Prefix used to annotate the paths. (Default is "Path").}
 
-\item{root_label}{Label used to describe root cells,  default is "root".}
+\item{root_label}{Label used to annotate root cells. (Default is "root").}
 
-\item{pseudotime_colname}{Name of the column in cell.metadata storing
-information for Pseudotime.}
+\item{pseudotime_colname}{Name of the column in `cell.metadata` generated using
+\code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
+(Default is "Pseudotime")}
 
-\item{path_colname}{Name of the column in cell.metadata storing information
-about annoated paths.}
+\item{path_colname}{Name of the column in `cell.metadata` generated using
+\code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+(Default is `path_prefix`)}
 
-\item{verbose}{Logical. If TRUE, print the identified root points and
-information about the longest and shortest paths. Default is TRUE.}
+\item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }
 \value{
 Annotated CDS object with end-point/path information:
 }
 \description{
-This function annoated the Monocle3's CellDataSet (CDS). It uses
-the principal points, root cells, minimum spanning tree, to update the CDS 
+`annotate_monocle3_cds()` annotates the Monocle3's CellDataSet object. It uses
+the principal points, root cells, minimum spanning tree, to update the CDS
 with end-point information that is used as path information.
 }
 \details{
-The function first extracts the principal points and root cells from 
+The function first extracts the principal points and root cells from
 the CDS. It then calculates the minimum spanning tree and the network matrix,
 which contains the cells along each path from root to endpoint. Finally, it
 updates the CDS with the endpoint data and the updated cell metadata.
@@ -50,11 +51,13 @@ updates the CDS with the endpoint data and the updated cell metadata.
 \examples{
 \dontrun{
 # Assuming 'cds' is a Monocle3 CellDataSet (CDS)
-result <- annotate_monocle3_cds(cds, reduction_method = "umap",
-                                    path_prefix = "Path", 
-                                    root_label = "root",
-                                    path_colname = path_prefix,
-                                    verbose = TRUE)
+result <- annotate_monocle3_cds(cds,
+  reduction_method = "umap",
+  path_prefix = "Path",
+  root_label = "root",
+  path_colname = path_prefix,
+  verbose = TRUE
+)
 }
 
 }

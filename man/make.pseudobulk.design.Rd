@@ -2,16 +2,35 @@
 % Please edit documentation in R/make.bulk.design.R
 \name{make.pseudobulk.design}
 \alias{make.pseudobulk.design}
-\title{make.pseudobulk.design}
+\title{Create Pseduo-bulk metadata}
 \usage{
-make.pseudobulk.design(design.file, pathCol, binnedCol = "binnedTime")
+make.pseudobulk.design(
+  compressed_cell_metadata,
+  path_colname = "Path",
+  bin_colname = "scmp_bin",
+  bin_size_colname = "scmp_bin_size",
+  bin_members_colname = "scmp_bin_members",
+  bin_pseudotime_colname = "scmp_binned_pseudotime"
+)
 }
 \arguments{
-\item{design.file}{A data.frame. The design file containing the binned data.}
+\item{compressed_cell_metadata}{A data.frame. The design file containing the binned data.}
 
-\item{pathCol}{A character string. The name of the column in the design file that contains the path data.}
+\item{path_colname}{Name of the column in `cell.metadata` generated using
+\code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+(Default is `path_prefix`)}
 
-\item{binnedCol}{A character string (default = "binnedTime"). The name of the column in the design file that contains the binned data.}
+\item{bin_colname}{Name of the column in the 'compressed_cell_metadata', 
+storing information about the bin labels. (Default is 'scmp_bin')}
+
+\item{bin_size_colname}{Name of the column in the 'compressed_cell_metadata', 
+storing information about the size of the bins bin. (Default is 'scmp_bin_size')}
+
+\item{bin_members_colname}{Name of the column in the 'compressed_cell_metadata', 
+storing information about the members of the bins. (Default is 'scmp_bin_members')}
+
+\item{bin_pseudotime_colname}{Name of the column in the 'compressed_cell_metadata', 
+storing information about the binned pseudotime. (Default is 'scmp_binned_pseudotime')}
 }
 \value{
 A data.frame containing the pseudobulk profile. The data frame includes the following columns:
@@ -23,7 +42,9 @@ A data.frame containing the pseudobulk profile. The data frame includes the foll
 - Columns for each path in paths.vector, with binary values indicating whether the row belongs to the path
 }
 \description{
-This function creates a pseudobulk profile data frame from the design file. It groups cells into bins for each path from a given set of paths and calculates the bin size.
+`make.pseudobulk.design()` creates a pseudobulk profile data frame from the design file.
+It groups cells into bins for each path from a given set of paths and
+calculates the bin size.
 }
 \details{
 This function operates by iterating over the specified paths. For each path, it:
@@ -36,10 +57,13 @@ After processing all paths, the function adds binary columns for each path to th
 }
 \examples{
 \dontrun{
-make.pseudobulk.design(design.file = df, pathCol = "path1", binnedCol = "binnedTime")
+make.pseudobulk.design(compressed_cell_metadata = df, path_colname = "path1", binned_pseudotime_column = "binnedTime")
 }
 
 }
 \seealso{
 \code{\link{calc_bin_size}}
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

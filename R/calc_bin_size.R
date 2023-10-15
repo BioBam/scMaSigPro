@@ -15,14 +15,14 @@
 #'
 #' @keywords internal
 # Define a function 'calc_bin_size' which takes a data frame 'x' as input
-calc_bin_size <- function(x) {
+calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
   # Use the 'str_split' function from the 'stringr' package to split the 'cluster.members' column
   # of the input data frame 'x' by the '|' character.
   # This returns a list where each element is a vector of the split strings.
   # 'c()' is used to concatenate these vectors into a single vector.
   # Finally, 'length' is used to get the length of this vector (i.e., the number of split strings),
   # which is stored in the 'size' variable.
-  size <- length(c(str_split(x[["cluster.members"]], "\\|"))[[1]])
+  size <- length(c(str_split(x[[clus_mem_col]], "\\|"))[[1]])
 
   # Convert the 'size' variable to a numeric value and return it as the result of the function
   return(as.numeric(size))

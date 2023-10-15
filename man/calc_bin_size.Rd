@@ -4,7 +4,7 @@
 \alias{calc_bin_size}
 \title{Calculate Bin Size Function}
 \usage{
-calc_bin_size(x)
+calc_bin_size(x, clus_mem_col = "scmp_cluster_members")
 }
 \arguments{
 \item{x}{A data frame containing the "cluster.members" column.}

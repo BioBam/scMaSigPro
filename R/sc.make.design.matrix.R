@@ -3,45 +3,54 @@
 #' This function creates a design matrix using the 'compress.sce' slot of a 'scMaSigProClass' object.
 #' It generates an 'edesignClass' object which is then stored in the 'edesign' slot of the 'scMaSigProClass' object.
 #'
-#' @param scmpObj A 'scMaSigProClass' object.
+#' @param scmpObject A 'scMaSigProClass' object.
 #' @param degree Degree of the design matrix (default: 2).
-#' @param time.col Name of the time column.
-#' @param path.col Name of the path column.
+#' @param bin_pseudotime_colname Name of the time column.
+#' @param path_colname Name of the path column.
 #'
-#' @return Returns the 'scmpObj' with an updated 'edesign' slot.
+#' @return Returns the 'scmpObject' with an updated 'edesign' slot.
 #' @export
 #'
 #' @examples
 #' # Insert an example of how to use the function here.
 #'
-sc.make.design.matrix <- function(scmpObj,
-                                  degree = 2,
-                                  time.col,
-                                  path.col) {
+sc.make.design.matrix <- function(scmpObject,
+                                  poly_degree = 2,
+                                  bin_pseudotime_colname = "scmp_binned_pseudotime",
+                                  path_colname = "Path") {
   # Check Object Validity
-  assert_that(is(scmpObj, "scMaSigProClass"),
+  assert_that(is(scmpObject, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'"
   )
 
   # Extract cell metadata
-  comp.cell.metadata <- as.data.frame(colData(scmpObj@compress.sce))
+  comp.cell.metadata <- as.data.frame(colData(scmpObject@compress.sce))
+
+  # pseudotime_colname
+  assert_that((bin_pseudotime_colname %in% colnames(comp.cell.metadata)),
+    msg = paste0("'", bin_pseudotime_colname, "' ", "doesn't exit in cell.metadata.")
+  )
+  # path_colname
+  assert_that((path_colname %in% colnames(comp.cell.metadata)),
+    msg = paste0("'", path_colname, "' ", "doesn't exit in cell.metadata.")
+  )
 
   # Subset cell metadata
-  com.cell.meta <- comp.cell.metadata[, colnames(comp.cell.metadata) %in% c(time.col, path.col)]
+  com.cell.meta <- comp.cell.metadata[, colnames(comp.cell.metadata) %in% c(bin_pseudotime_colname, path_colname)]
 
   # Get available paths
-  avail.paths <- as.vector(unique(com.cell.meta[[path.col]]))
+  avail.paths <- as.vector(unique(com.cell.meta[[path_colname]]))
 
   # Add Dummy Variables
   for (i in avail.paths) {
-    com.cell.meta[[i]] <- ifelse(com.cell.meta[[path.col]] %in% i, 1, 0)
+    com.cell.meta[[i]] <- ifelse(com.cell.meta[[path_colname]] %in% i, 1, 0)
   }
 
   # Drop path columns
-  com.cell.meta <- com.cell.meta[, colnames(com.cell.meta) != path.col, drop = F]
+  com.cell.meta <- com.cell.meta[, colnames(com.cell.meta) != path_colname, drop = F]
 
   # Get colvec
-  col.vec <- colnames(com.cell.meta)[colnames(com.cell.meta) != time.col]
+  col.vec <- colnames(com.cell.meta)[colnames(com.cell.meta) != bin_pseudotime_colname]
 
   # Add Replicate Column
   com.cell.meta <- com.cell.meta %>%
@@ -56,7 +65,7 @@ sc.make.design.matrix <- function(scmpObj,
 
   # Run Original MaSigPro make.matrix.design
   edesignList <- make.design.matrix(com.cell.meta,
-    degree = degree,
+    degree = poly_degree,
     time.col = 1,
     repl.col = 2,
     group.cols = c(3:ncol(com.cell.meta))
@@ -66,11 +75,12 @@ sc.make.design.matrix <- function(scmpObj,
   edesignObj <- new("edesignClass",
     dis = edesignList$dis,
     groups.vector = edesignList$groups.vector,
-    edesign = edesignList$edesign
+    edesign = edesignList$edesign,
+    poly_degree = as.integer(poly_degree)
   )
 
   # Update Slot
-  scmpObj@edesign <- edesignObj
+  scmpObject@edesign <- edesignObj
 
-  return(scmpObj)
+  return(scmpObject)
 }

@@ -2,43 +2,56 @@
 % Please edit documentation in R/entropy_discretize.R
 \name{entropy_discretize}
 \alias{entropy_discretize}
-\title{entropy_discretize}
+\title{Find optimal number of pseudotime bins}
 \usage{
 entropy_discretize(
-  design_table,
-  time_col,
-  path_col,
-  method = "Sturges",
+  cell_metadata,
+  pseudotime_colname = "Pseudotime",
+  path_colname = "Path",
+  bin_method = "Sturges",
   drop.fac = 0.5,
   verbose = TRUE,
-  binning = "universal"
+  binning = "universal",
+  bin_pseudotime_colname = "scmp_binned_pseudotime"
 )
 }
 \arguments{
-\item{design_table}{A data.frame. The dataset containing the time series column to be discretized.}
+\item{cell_metadata}{`cell.metadata` in data.frame. It can be exported using
+the \code{\link[SingleCellExperiment]{colData}}. It should contain the column
+with temporal to be discretized.}
 
-\item{time_col}{A character string. The name of the column in design_table that contains the time series data to be discretized.}
+\item{pseudotime_colname}{Name of the column in `cell.metadata` generated using
+\code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
+(Default is "Pseudotime")}
 
-\item{path_col}{A character string. The name of the column in design_table that contains the Lineage information.}
+\item{path_colname}{Name of the column in `cell.metadata` generated using
+\code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+(Default is `path_prefix`)}
 
-\item{method}{A character string (default = "Sturges"). The method to be used to estimate the optimal number of bins. Currently, this function supports "Sturges" method.}
+\item{bin_method}{A character string (default = "Sturges"). The method to be
+used to estimate the optimal number of bins.}
 
-\item{drop.fac}{A numeric value (default = 0.5). The factor by which to decrease the number of bins if the initial binning results in too many empty bins. The optimal number of bins is recalculated until this criteria is met.}
+\item{drop.fac}{A numeric value (default = 0.5). The factor by which to
+decrease the number of bins if the initial binning results in too many bins.}
 
-\item{verbose}{A boolean (default = TRUE). If TRUE, detailed messages about the process (e.g. number of bins calculated) will be printed.}
+\item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{binning}{Universal or Individual}
+\item{binning}{A character string (deafult = "universal"). When set to
+"individual", the bins are calculated per path iteratively.}
 }
 \value{
 A data.frame that contains the original data plus additional columns:
-- 'bin' : the bin number
-- 'bin_size' : the size of the bin
-- 'binned_time' : the interval range of each bin
-This function returns the merged data.frame with new discretized time_col, preserving the original rownames.
+- 'bin' : Name of the bin
+- 'bin_size' : Size of the bin
+- 'binned_time' : Interval range of each bin
+This function returns the merged data.frame with new discretized 
+pseudotime_colname, preserving the original rownames.
 }
 \description{
-This function discretizes a continuous time series column into bins of equal size using entropy-based binning method. It automatically calculates the optimal number of bins using one of the supported methods.
-The bin sizes are also calculated and merged with the input design_table.
+`entropy_discretize()` discretizes a continuous time series column into bins
+of equal size using entropy-based binning method. It automatically calculates
+the optimal number of bins using one of the supported methods. The bin sizes
+are also calculated and merged with the input cell_metadata.
 }
 \details{
 This function performs the following steps:
@@ -54,8 +67,8 @@ This function performs the following steps:
 \examples{
 \dontrun{
 entropy_discretize(
-  design_table = data.frame, time_col = "time",
-  method = "Sturges", drop.fac = 0.5, verbose = TRUE
+  cell_metadata = data.frame, pseudotime_colname = "time",
+  bin_method = "Sturges", drop.fac = 0.5, verbose = TRUE
 )
 }
 
