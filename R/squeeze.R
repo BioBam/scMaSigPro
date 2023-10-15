@@ -113,7 +113,7 @@ squeeze <- function(scmpObject,
   tryCatch(
     expr = {
       compressed.cell.metadata <- make.pseudobulk.design(
-        design.file = compression.file,
+        compressed_cell_metadata = compression.file,
         path_colname = path_colname,
         bin_pseudotime_colname = bin_pseudotime_colname
       )

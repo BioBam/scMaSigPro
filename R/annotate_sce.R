@@ -53,7 +53,7 @@ annotate_sce <- function(sce,
   if (overwrite_labels) {
     assert_that(
       all(!is.null(existing_pseudotime_colname) & !is.null(existing_path_colname)),
-      msg = "If 'overwrite_labels' is TRUE, 'existing_pseudotime_colname' and 'existing_path_colname', cannot be NULL"
+      msg = paste("If",path_colname, "is TRUE, 'existing_pseudotime_colname' and 'existing_path_colname', cannot be NULL")
     )
 
     # Extract the cell metadata
@@ -62,12 +62,12 @@ annotate_sce <- function(sce,
     # Check columns
     assert_that(
       all(existing_pseudotime_colname %in% colnames(cell.meta)),
-      msg = "'existing_pseudotime_colname', doesn't exist in cell.metadata"
+      msg = paste("'",existing_pseudotime_colname,"', doesn't exist in cell.metadata")
     )
     # Check columns
     assert_that(
       all(existing_path_colname %in% colnames(cell.meta)),
-      msg = "'existing_path_colname', doesn't exist in cell.metadata"
+      msg = paste("'",existing_path_colname,"', doesn't exist in cell.metadata")
     )
 
     # Override

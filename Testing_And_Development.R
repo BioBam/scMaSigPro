@@ -14,14 +14,14 @@ load("../scMaSigPro_Supp/benchmarks/11_RealDataSmall/data/results/monocle3_infer
 load("../scMaSigPro_Supp/benchmarks/01_Sparsity/data/simulated/sce/sparsity_30.RData")
 
 # SCE
-# sce.anno <- annotate_sce(sce = sim.sce,
-#              existing_pseudotime_colname = "Step",
-#              existing_path_colname = "Group",
-#              path_prefix = "Path",
-#              path_colname = "Path",
-#              overwrite_labels = T,
-#              )
-# View(as.data.frame(SingleCellExperiment::colData(sce.anno)))
+sce.anno <- annotate_sce(sce = sim.sce,
+             existing_pseudotime_colname = "Step",
+             existing_path_colname = "Group",
+             path_prefix = "Path",
+             path_colname = "Path",
+             overwrite_labels = T,
+             )
+View(as.data.frame(SingleCellExperiment::colData(sce.anno)))
 
 # Convert the ScMaSigPro Object
 scmp.obj.sce <- as_scmp(sim.sce,
@@ -45,8 +45,8 @@ scmp.obj.cds <- as_scmp(cds,
 )
 View(as.data.frame(SingleCellExperiment::colData(scmp.obj.cds@sce)))
 
-# cds <- annotate_monocle3_cds(cds,root_label = "Progenitor",pseudotime_colname = "Goam")
-# View(as.data.frame(SingleCellExperiment::colData(cds)))
+cds <- annotate_monocle3_cds(cds,root_label = "Progenitor",pseudotime_colname = "Goam")
+ View(as.data.frame(SingleCellExperiment::colData(cds)))
 
 ###################################
 ############## Squeeze ############
@@ -63,17 +63,18 @@ compression.file <- entropy_discretize(
   verbose = T,
   binning = "universal"
 )
+View(compression.file)
 
 
 bulked.design <- make.pseudobulk.design(
-  design.file = compression.file,
+  compressed_cell_metadata = compression.file,
   path_colname = "Path"
 )
 
 xa <- make.pseudobulk.counts(
   counts = scmp.obj.cds@sce@assays@data@listData$counts,
   pseudo_bulk_profile = bulked.design,
-  cluster.count.by = "mean"
+  cluster_count_by = "mean"
 )
 
 # Compress
@@ -85,7 +86,7 @@ scmp.obj.sce <- squeeze(
   drop.fac = 0.6,
   verbose = T,
   assay_name = "counts",
-  cluster.count.by = "sum",
+  cluster_count_by = "sum",
   binning = "universal"
 )
 
@@ -98,18 +99,6 @@ scmp.obj.sce <- sc.make.design.matrix(scmp.obj.sce,
 
 View(as.data.frame(SingleCellExperiment::colData(scmp.obj.sce@compress.sce)))
 
-
-assertthat::assert_that(("Pseudotime" %in% colnames(pseudotime_colname)),
-  msg = paste0("'", "Pseudotime", "' ", "doesn't exit in cell.metadata.")
-)
-
-
-# Make Design
-scmp.obj <- sc.make.design.matrix(scmp.obj,
-  degree = 2,
-  time.col = "binnedTime",
-  path.col = "path"
-)
 
 # Run p-vector
 scmp.obj <- sc.p.vector(
