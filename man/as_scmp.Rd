@@ -30,7 +30,7 @@ as_scmp(
 (Default is "Pseudotime")}
 
 \item{path_colname}{Name of the column in `cell.metadata` generated using
-\code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+\code{\link[SingleCellExperiment]{colData}} storing information for Path.
 (Default is `path_prefix`)}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}

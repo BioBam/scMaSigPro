@@ -13,7 +13,7 @@
 #' \code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
 #' (Default is "Pseudotime")
 #' @param path_colname Name of the column in `cell.metadata` generated using
-#' \code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+#' \code{\link[SingleCellExperiment]{colData}} storing information for Path.
 #' (Default is `path_prefix`)
 #' @param bin_method A character string (default = "Sturges"). The method to be
 #' used to estimate the optimal number of bins.
@@ -28,7 +28,7 @@
 #' - 'bin' : Name of the bin
 #' - 'bin_size' : Size of the bin
 #' - 'binned_time' : Interval range of each bin
-#' This function returns the merged data.frame with new discretized 
+#' This function returns the merged data.frame with new discretized
 #' pseudotime_colname, preserving the original rownames.
 #'
 #' @details
@@ -62,14 +62,22 @@
 #'
 #' @export
 
-entropy_discretize <- function(cell_metadata,
-                               pseudotime_colname = "Pseudotime",
-                               path_colname = "Path",
+entropy_discretize <- function(scmpObject,
+                               pseudotime_colname = scmpObject@addParams@pseudotime_colname,
+                               path_colname = scmpObject@addParams@path_colname,
                                bin_method = "Sturges",
                                drop.fac = 0.5,
                                verbose = TRUE,
                                binning = "universal",
-                               bin_pseudotime_colname = "scmp_binned_pseudotime") {
+                               bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname) {
+  # Check Object Validity
+  assert_that(is(scmpObject, "scMaSigProClass"),
+    msg = "Please provide object of class 'scMaSigPro'"
+  )
+
+  # Extract cell metadata
+  cell_metadata <- as.data.frame(colData(scmpObject@sce))
+
   # Checks
   assert_that(pseudotime_colname %in% colnames(cell_metadata),
     msg = paste0("'", pseudotime_colname, "' does not exist in cell_metadata")
@@ -228,5 +236,15 @@ entropy_discretize <- function(cell_metadata,
   # Now, you can remove the 'cell' column
   processed_cell_metadata <- processed_cell_metadata %>% select(-"cell")
 
-  return(processed_cell_metadata)
+  ## Add Processed Cell Matadata back with slot update
+  colData(scmpObject@sce) <- DataFrame(processed_cell_metadata)
+
+  # Update Slots
+  scmpObject@addParams@pseudotime_colname <- pseudotime_colname
+  scmpObject@addParams@path_colname <- path_colname
+  scmpObject@addParams@bin_method <- bin_method
+  scmpObject@addParams@binning <- binning
+  scmpObject@addParams@bin_pseudotime_colname <- bin_pseudotime_colname
+
+  return(scmpObject)
 }

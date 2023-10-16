@@ -7,15 +7,15 @@
 #'
 #' @param compressed_cell_metadata A data.frame. The design file containing the binned data.
 #' @param path_colname Name of the column in `cell.metadata` generated using
-#' \code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+#' \code{\link[SingleCellExperiment]{colData}} storing information for Path.
 #' (Default is `path_prefix`)
-#' @param bin_colname Name of the column in the 'compressed_cell_metadata', 
+#' @param bin_colname Name of the column in the 'compressed_cell_metadata',
 #' storing information about the bin labels. (Default is 'scmp_bin')
-#' @param bin_size_colname Name of the column in the 'compressed_cell_metadata', 
+#' @param bin_size_colname Name of the column in the 'compressed_cell_metadata',
 #' storing information about the size of the bins bin. (Default is 'scmp_bin_size')
-#' @param bin_members_colname Name of the column in the 'compressed_cell_metadata', 
+#' @param bin_members_colname Name of the column in the 'compressed_cell_metadata',
 #' storing information about the members of the bins. (Default is 'scmp_bin_members')
-#' @param bin_pseudotime_colname Name of the column in the 'compressed_cell_metadata', 
+#' @param bin_pseudotime_colname Name of the column in the 'compressed_cell_metadata',
 #' storing information about the binned pseudotime. (Default is 'scmp_binned_pseudotime')
 #'
 #' @return
@@ -46,12 +46,21 @@
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-make.pseudobulk.design <- function(compressed_cell_metadata,
-                                   path_colname = "Path",
+make.pseudobulk.design <- function(scmpObject,
+                                   path_colname = scmpObject@addParams@path_colname,
                                    bin_colname = "scmp_bin",
                                    bin_size_colname = "scmp_bin_size",
                                    bin_members_colname = "scmp_bin_members",
-                                   bin_pseudotime_colname = "scmp_binned_pseudotime") {
+                                   bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname) {
+  # Check Object Validity
+  assert_that(is(scmpObject, "scMaSigProClass"),
+    msg = "Please provide object of class 'scMaSigPro'"
+  )
+
+  # Extract cell metadata
+  compressed_cell_metadata <- as.data.frame(colData(scmpObject@sce))
+
+
   assert_that(bin_pseudotime_colname %in% colnames(compressed_cell_metadata),
     msg = paste0("'", bin_pseudotime_colname, "' does not exist in compressed_cell_metadata, please run entropy_discretize()")
   )
@@ -125,6 +134,17 @@ make.pseudobulk.design <- function(compressed_cell_metadata,
   # Remove extra column
   # pB.frame <- pB.frame %>% select(-"scmp_bar")
 
+  ## Add Processed Cell Matadata back with slot update
+  compressed.sce <- SingleCellExperiment(assays = list(bulk.counts = as(matrix(NA, nrow = 0, ncol = nrow(pB.frame)), "dgCMatrix")))
+  colData(compressed.sce) <- DataFrame(pB.frame)
+  scmpObject@compress.sce <- compressed.sce
+
+  ## Slot Update
+  scmpObject@addParams@bin_colname <- bin_colname
+  scmpObject@addParams@bin_size_colname <- bin_size_colname
+  scmpObject@addParams@bin_members_colname <- bin_members_colname
+  scmpObject@addParams@bin_pseudotime_colname <- bin_pseudotime_colname
+
   # Pathway infor
-  return(pB.frame)
+  return(scmpObject)
 }

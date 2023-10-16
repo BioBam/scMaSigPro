@@ -25,7 +25,7 @@ with temporal to be discretized.}
 (Default is "Pseudotime")}
 
 \item{path_colname}{Name of the column in `cell.metadata` generated using
-\code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+\code{\link[SingleCellExperiment]{colData}} storing information for Path.
 (Default is `path_prefix`)}
 
 \item{bin_method}{A character string (default = "Sturges"). The method to be
@@ -44,7 +44,7 @@ A data.frame that contains the original data plus additional columns:
 - 'bin' : Name of the bin
 - 'bin_size' : Size of the bin
 - 'binned_time' : Interval range of each bin
-This function returns the merged data.frame with new discretized 
+This function returns the merged data.frame with new discretized
 pseudotime_colname, preserving the original rownames.
 }
 \description{

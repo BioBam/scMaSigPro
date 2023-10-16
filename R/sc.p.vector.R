@@ -54,7 +54,7 @@
 #'
 sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
                         counts = FALSE, family = NULL, theta = 10, epsilon = 0.00001,
-                        item = "gene", verbose = TRUE, offset = T) {
+                        item = "gene", verbose = TRUE, offset = T, parallel = F) {
   # Check the type of the 'design' parameter and set the corresponding variables
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
@@ -97,8 +97,10 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   p <- dim(dis)[2]
   sc.p.vector <- vector(mode = "numeric", length = g)
 
+  if(parallel == F){
   if (verbose) {
     pb <- txtProgressBar(min = 0, max = g, style = 3)
+  }
   }
 
   # Calculate  offset
@@ -110,48 +112,58 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
 
   # Iterate through each gene and perform the regression fit
   # Store the p-values in 'sc.p.vector'
-  for (i in 1:g) {
-    y <- as.numeric(dat[i, ])
+  # Convert to l_apply
 
-    # Print progress every 100 genes
-    div <- c(1:round(g / 100)) * 100
-    if (is.element(i, div)) {
-      if (verbose) {
-        setTxtProgressBar(pb, i)
-      }
-      # print(paste(c("fitting ", item, i, "out of", g), collapse = " "))
+
+  if (parallel) {
+    numCores <- detectCores()
+    if(verbose){
+    message(paste("Running with", numCores, "cores..."))
+        }
+  } else {
+    numCores <- 1
+  }
+
+  p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetdata_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose) {
+    y <- as.numeric(dat_lapply[i, ])
+
+    # Print prog_lapplyress every 100 g_lapplyenes
+    div <- c(1:round(g_lapply / 100)) * 100
+    
+    if(parallel == F){
+        if (is.element(i, div) && verbose_lapply) {
+            setTxtProgressBar(pb_lapply, i)
+            }
     }
-
     model.glm <- glm(y ~ .,
-      data = dis, family = family, epsilon = epsilon,
-      offset = offsetData
+      data = dis_lapply, family = family_lapply, epsilon = epsilon_lapply,
+      offset = offsetdata_lapply
     )
+
+    sc_p_val <- NA
     if (model.glm$null.deviance == 0) {
-      sc.p.vector[i] <- 1
+      sc_p_val <- 1
     } else {
       model.glm.0 <- glm(y ~ 1,
-        family = family, epsilon = epsilon,
-        offset = offsetData
+        family = family_lapply, epsilon = epsilon_lapply,
+        offset = offsetdata_lapply
       )
 
-      # Perform ANOVA or Chi-square test based on the distribution
-      if (family$family == "gaussian") {
+      # Perform ANOVA or Chi-square test based on the dis_lapplytribution
+      if (family_lapply$family == "gaussian") {
         test <- anova(model.glm.0, model.glm, test = "F")
-        if (is.na(test[6][2, 1])) {
-          sc.p.vector[i] <- 1
-        } else {
-          sc.p.vector[i] <- test[6][2, 1]
-        }
+        sc_p_val <- ifelse(is.na(test[6][2, 1]), 1, test[6][2, 1])
       } else {
         test <- anova(model.glm.0, model.glm, test = "Chisq")
-        if (is.na(test[5][2, 1])) {
-          sc.p.vector[i] <- 1
-        } else {
-          sc.p.vector[i] <- test[5][2, 1]
-        }
+        sc_p_val <- ifelse(is.na(test[5][2, 1]), 1, test[5][2, 1])
       }
     }
-  }
+
+    return(sc_p_val)
+  }, mc.cores = numCores)
+
+  names(p.vector.list) <- rownames(dat)
+  sc.p.vector <- unlist(p.vector.list)
 
   #----------------------------------------------------------------------
   # Correct p-values using FDR correction and select significant genes
@@ -189,7 +201,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   )
 
   # Update Slot
-  scmp.obj@scPVector <- scPVector.obj
+  scmpObj@scPVector <- scPVector.obj
 
-  return(scmp.obj)
+  return(scmpObj)
 }

@@ -14,7 +14,7 @@
 #' \code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
 #' (Default is "Pseudotime")
 #' @param path_colname Name of the column in `cell.metadata` generated using
-#' \code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+#' \code{\link[SingleCellExperiment]{colData}} storing information for Path.
 #' (Default is `path_prefix`)
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #' @param additional_params A named list of additional parameters. See details.
@@ -22,10 +22,10 @@
 #' @details Additional Details
 #'
 #' @return An instance of the 'scmpClass'.
-#' 
+#'
 #' @seealso
 #' \code{\link[SingleCellExperiment]{colData}}, \code{\link[monocle3]{new_cell_data_set}}
-#' 
+#'
 #' @examples
 #' \dontrun{
 #' scmpObj <- as_scmp(object,
@@ -78,7 +78,7 @@ as_scmp <- function(object, from = "cds",
       )
     }
   } else {
-      # If additional_params == NULL for 'cds' 
+    # If additional_params == NULL for 'cds'
     if (from == "cds") {
       additional_params <- list(reduction_method = "umap")
     } else if (from == "sce") {
@@ -112,14 +112,19 @@ as_scmp <- function(object, from = "cds",
       sce = annotated_sce,
       compress.sce = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
     )
-    
-    if(verbose){
-        print(scmpObj)
+
+    # Update the AddParams slot
+    scmpObj@addParams@pseudotime_colname <- pseudotime_colname
+    scmpObj@addParams@root_label <- root_label
+    scmpObj@addParams@path_prefix <- path_prefix
+    scmpObj@addParams@path_colname <- path_colname
+
+    if (verbose) {
+      print(scmpObj)
     }
 
     # Return Object
     return(scmpObj)
-    
   } else if (is(object)[1] == "cell_data_set") {
     if (verbose) {
       message("Supplied object: cell_data_set object from Monocle3")
@@ -145,10 +150,16 @@ as_scmp <- function(object, from = "cds",
       sce = annotated_cds,
       compress.sce = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
     )
-    
+
+    # Update Slots
+    scmpObj@addParams@pseudotime_colname <- pseudotime_colname
+    scmpObj@addParams@root_label <- root_label
+    scmpObj@addParams@path_prefix <- path_prefix
+    scmpObj@addParams@path_colname <- path_colname
+
     # Print
-    if(verbose){
-        print(scmpObj)
+    if (verbose) {
+      print(scmpObj)
     }
     return(scmpObj)
   }

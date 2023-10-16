@@ -15,7 +15,8 @@ sc.p.vector(
   epsilon = 1e-05,
   item = "gene",
   verbose = TRUE,
-  offset = T
+  offset = T,
+  parrallel = F
 )
 }
 \arguments{

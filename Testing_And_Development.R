@@ -10,22 +10,23 @@ set.seed(007)
 library(scMaSigPro)
 
 # Load Objects
-load("../scMaSigPro_Supp/benchmarks/11_RealDataSmall/data/results/monocle3_inferred_pseudotime.RData")
+#load("../scMaSigPro_Supp/benchmarks/11_RealDataSmall/data/results/monocle3_inferred_pseudotime.RData")
 load("../scMaSigPro_Supp/benchmarks/01_Sparsity/data/simulated/sce/sparsity_30.RData")
 
 # SCE
-sce.anno <- annotate_sce(sce = sim.sce,
-             existing_pseudotime_colname = "Step",
-             existing_path_colname = "Group",
-             path_prefix = "Path",
-             path_colname = "Path",
-             overwrite_labels = T,
-             )
-View(as.data.frame(SingleCellExperiment::colData(sce.anno)))
+# sce.anno <- annotate_sce(sce = sim.sce,
+#              existing_pseudotime_colname = "Step",
+#              existing_path_colname = "Group",
+#              path_prefix = "Path",
+#              path_colname = "Path",
+#              overwrite_labels = T,
+#              )
+# View(as.data.frame(SingleCellExperiment::colData(sce.anno)))
 
 # Convert the ScMaSigPro Object
 scmp.obj.sce <- as_scmp(sim.sce,
   from = "sce",
+  verbose = T,
   path_colname = "Lineage",
   pseudotime_colname = "Pseudotime",
   additional_params = list(
@@ -36,46 +37,57 @@ scmp.obj.sce <- as_scmp(sim.sce,
 )
 View(as.data.frame(SingleCellExperiment::colData(scmp.obj.sce@sce)))
 
-# Monocle3
-scmp.obj.cds <- as_scmp(cds,
-  from = "cds",
-  pseudotime_colname = "Pseudotime",
-  root_label = "Progenitor", path_colname = "Path",
-  path_prefix = "Lineage"
-)
-View(as.data.frame(SingleCellExperiment::colData(scmp.obj.cds@sce)))
+# Check enrtopy
+scmp.obj.sce <- entropy_discretize(scmpObject = scmp.obj.sce,
+                                   path_colname = "Lineage")
 
-cds <- annotate_monocle3_cds(cds,root_label = "Progenitor",pseudotime_colname = "Goam")
- View(as.data.frame(SingleCellExperiment::colData(cds)))
+# Compress Cell Meta
+scmp.obj.sce <- make.pseudobulk.design(scmpObject = scmp.obj.sce,
+                                   path_colname = "Lineage")
+
+# Pseudobulking
+scmp.obj.sce <- make.pseudobulk.counts(scmpObject = scmp.obj.sce)
+
+# # Monocle3
+# scmp.obj.cds <- as_scmp(cds,
+#   from = "cds",
+#   pseudotime_colname = "Pseudotime",
+#   root_label = "Progenitor", path_colname = "Path",
+#   path_prefix = "Lineage"
+# )
+# View(as.data.frame(SingleCellExperiment::colData(scmp.obj.cds@sce)))
+# 
+# cds <- annotate_monocle3_cds(cds,root_label = "Progenitor",pseudotime_colname = "Goam")
+#  View(as.data.frame(SingleCellExperiment::colData(cds)))
 
 ###################################
 ############## Squeeze ############
 ###################################
 
-cell_metadata <- as.data.frame(SingleCellExperiment::colData(scmp.obj.cds@sce))
-
-compression.file <- entropy_discretize(
-  cell_metadata = cell_metadata, # as.data.frame(SingleCellExperiment::colData(scmp.obj.cds@sce)),
-  pseudotime_colname = "Pseudotime",
-  path_colname = "Path",
-  bin_method = "Sturges",
-  drop.fac = 0.6,
-  verbose = T,
-  binning = "universal"
-)
-View(compression.file)
-
-
-bulked.design <- make.pseudobulk.design(
-  compressed_cell_metadata = compression.file,
-  path_colname = "Path"
-)
-
-xa <- make.pseudobulk.counts(
-  counts = scmp.obj.cds@sce@assays@data@listData$counts,
-  pseudo_bulk_profile = bulked.design,
-  cluster_count_by = "mean"
-)
+# cell_metadata <- as.data.frame(SingleCellExperiment::colData(scmp.obj.cds@sce))
+# 
+# compression.file <- entropy_discretize(
+#   cell_metadata = cell_metadata, # as.data.frame(SingleCellExperiment::colData(scmp.obj.cds@sce)),
+#   pseudotime_colname = "Pseudotime",
+#   path_colname = "Path",
+#   bin_method = "Sturges",
+#   drop.fac = 0.6,
+#   verbose = T,
+#   binning = "universal"
+# )
+# View(compression.file)
+# 
+# 
+# bulked.design <- make.pseudobulk.design(
+#   compressed_cell_metadata = compression.file,
+#   path_colname = "Path"
+# )
+# 
+# xa <- make.pseudobulk.counts(
+#   counts = scmp.obj.cds@sce@assays@data@listData$counts,
+#   pseudo_bulk_profile = bulked.design,
+#   cluster_count_by = "mean"
+# )
 
 # Compress
 scmp.obj.sce <- squeeze(
@@ -91,7 +103,7 @@ scmp.obj.sce <- squeeze(
 )
 
 scmp.obj.sce <- sc.make.design.matrix(scmp.obj.sce,
-  poly_degree = 3,
+  poly_degree = 2,
   path_colname = "Lineage",
   bin_pseudotime_colname = "scmp_binned_pseudotime"
 )
@@ -101,15 +113,15 @@ View(as.data.frame(SingleCellExperiment::colData(scmp.obj.sce@compress.sce)))
 
 
 # Run p-vector
-scmp.obj <- sc.p.vector(
-  scmpObj = scmp.obj, verbose = F, min.obs = 6,
-  counts = T, theta = 1,
+scmp.obj.sce <- sc.p.vector(
+  scmpObj = scmp.obj.sce, verbose = F, min.obs = 6,
+  counts = T, theta = 1,parallel=T,
   offset = T, epsilon = 0.00001
 )
 
 # Run-Step-2
-scmp.obj <- sc.T.fit(
-  data = scmp.obj, verbose = T,
+non_parallel <- sc.T.fit(
+  data = scmp.obj.sce, verbose = T,
   step.method = "backward",
   family = scmp.obj@scPVector@family,
   offset = T

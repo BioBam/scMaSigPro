@@ -11,7 +11,7 @@
 #' @param path_prefix Prefix used to annotate the paths. (Default is "Path").
 #' @param root_label Label used to annotate root cells. (Default is "root").
 #' @param path_colname Name of the column in `cell.metadata` generated using
-#' \code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+#' \code{\link[SingleCellExperiment]{colData}} storing information for Path.
 #' (Default is `path_prefix`)
 #' @param pseudotime_colname Name of the column in `cell.metadata` generated using
 #' \code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.

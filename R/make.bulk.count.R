@@ -4,9 +4,9 @@
 #' `make.pseudobulk.counts()` creates a dataframe of pseudo bulk counts from single cell counts. It does this by either taking the mean or sum of counts across clusters in each bin, depending on the specified method.
 #'
 #' @param counts Raw count data from single cell RNA-seq experiment.
-#' @param bin_members_colname Name of the column in the 'compressed_cell_metadata', 
+#' @param bin_members_colname Name of the column in the 'compressed_cell_metadata',
 #' storing information about the members of the bins. (Default is 'scmp_bin_members')
-#' @param bin_colname Name of the column in the 'compressed_cell_metadata', 
+#' @param bin_colname Name of the column in the 'compressed_cell_metadata',
 #' storing information about the bin labels. (Default is 'scmp_bin')
 #' @param pseudo_bulk_profile A data.frame generated using
 #' \code{\link{make.pseudobulk.design}}.
@@ -29,14 +29,34 @@
 #' }
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#' 
+#'
 #' @export
 
-make.pseudobulk.counts <- function(counts,
+make.pseudobulk.counts <- function(scmpObject,
                                    bin_members_colname = "scmp_bin_members",
                                    bin_colname = "scmp_bin",
+                                   assay_name = "counts",
                                    pseudo_bulk_profile,
                                    cluster_count_by = "sum") {
+  # Check Object Validity
+  assert_that(is(scmpObject, "scMaSigProClass"),
+    msg = "Please provide object of class 'scMaSigPro'"
+  )
+
+  # Count slot
+  assert_that(
+    all(
+      assay_name %in% names(scmpObject@sce@assays@data@listData)
+    ),
+    msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObject")
+  )
+
+  # Get assay
+  counts <- as.matrix(scmpObject@sce@assays@data@listData[[assay_name]])
+
+  # Get Pseudobulk Profile
+  pseudo_bulk_profile <- as.data.frame(colData(scmpObject@compress.sce))
+
   assert_that(bin_members_colname %in% colnames(pseudo_bulk_profile),
     msg = paste0("'", bin_members_colname, "' does not exist in pseudo-bulk-profile")
   )
@@ -82,6 +102,9 @@ make.pseudobulk.counts <- function(counts,
   rownames(pb.counts) <- rownames(counts)
   colnames(pb.counts) <- meta.info[[bin_colname]]
 
+  # Return the counts
+  scmpObject@compress.sce@assays@data@listData$bulk.counts <- as(pb.counts, "dgCMatrix")
+
   # return
-  return(pb.counts)
+  return(scmpObject)
 }

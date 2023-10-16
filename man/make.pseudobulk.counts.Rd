@@ -15,10 +15,10 @@ make.pseudobulk.counts(
 \arguments{
 \item{counts}{Raw count data from single cell RNA-seq experiment.}
 
-\item{bin_members_colname}{Name of the column in the 'compressed_cell_metadata', 
+\item{bin_members_colname}{Name of the column in the 'compressed_cell_metadata',
 storing information about the members of the bins. (Default is 'scmp_bin_members')}
 
-\item{bin_colname}{Name of the column in the 'compressed_cell_metadata', 
+\item{bin_colname}{Name of the column in the 'compressed_cell_metadata',
 storing information about the bin labels. (Default is 'scmp_bin')}
 
 \item{pseudo_bulk_profile}{A data.frame generated using

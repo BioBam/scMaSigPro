@@ -28,7 +28,7 @@ annotate_sce(
 \item{root_label}{Label used to annotate root cells. (Default is "root").}
 
 \item{path_colname}{Name of the column in `cell.metadata` generated using
-\code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+\code{\link[SingleCellExperiment]{colData}} storing information for Path.
 (Default is `path_prefix`)
 #' @param existing_pseudotime_colname The name of an existing pseudotime column to be replaced (if not NULL).}
 
@@ -52,9 +52,10 @@ Additional Details
 \examples{
 # Annotate a SingleCellExperiment object with pseudotime and path information
 \dontrun{
-annotated_sce <- annotate_sce(sce, 
-    pseudotime_colname = "Pseudotime",
-    path_colname = "Path")
+annotated_sce <- annotate_sce(sce,
+  pseudotime_colname = "Pseudotime",
+  path_colname = "Path"
+)
 }
 
 }

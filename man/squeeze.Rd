@@ -2,7 +2,7 @@
 % Please edit documentation in R/squeeze.R
 \name{squeeze}
 \alias{squeeze}
-\title{The 'squeeze' function}
+\title{Wrapper for scMaSigPro Binning}
 \usage{
 squeeze(
   scmpObject,
@@ -26,7 +26,7 @@ squeeze(
 (Default is "Pseudotime")}
 
 \item{path_colname}{Name of the column in `cell.metadata` generated using
-\code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+\code{\link[SingleCellExperiment]{colData}} storing information for Path.
 (Default is `path_prefix`)}
 
 \item{bin_method}{A character string (default = "Sturges"). The method to be
@@ -57,7 +57,7 @@ Returns the object of 'scMaSigProClass' with updated slots.
 }
 }
 \description{
-This function performs a series of operations including data compression, creating pseudo-bulk-design, and creating pseudo-bulk counts.
+`squeeze()` performs a series of operations including data compression, creating pseudo-bulk-design, and creating pseudo-bulk counts.
 It then generates a SingleCellExperiment object with updated slots.
 }
 \author{

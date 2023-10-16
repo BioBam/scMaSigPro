@@ -17,19 +17,19 @@ make.pseudobulk.design(
 \item{compressed_cell_metadata}{A data.frame. The design file containing the binned data.}
 
 \item{path_colname}{Name of the column in `cell.metadata` generated using
-\code{\link[SingleCellExperiment]{colData}} storing information for Path. 
+\code{\link[SingleCellExperiment]{colData}} storing information for Path.
 (Default is `path_prefix`)}
 
-\item{bin_colname}{Name of the column in the 'compressed_cell_metadata', 
+\item{bin_colname}{Name of the column in the 'compressed_cell_metadata',
 storing information about the bin labels. (Default is 'scmp_bin')}
 
-\item{bin_size_colname}{Name of the column in the 'compressed_cell_metadata', 
+\item{bin_size_colname}{Name of the column in the 'compressed_cell_metadata',
 storing information about the size of the bins bin. (Default is 'scmp_bin_size')}
 
-\item{bin_members_colname}{Name of the column in the 'compressed_cell_metadata', 
+\item{bin_members_colname}{Name of the column in the 'compressed_cell_metadata',
 storing information about the members of the bins. (Default is 'scmp_bin_members')}
 
-\item{bin_pseudotime_colname}{Name of the column in the 'compressed_cell_metadata', 
+\item{bin_pseudotime_colname}{Name of the column in the 'compressed_cell_metadata',
 storing information about the binned pseudotime. (Default is 'scmp_binned_pseudotime')}
 }
 \value{
