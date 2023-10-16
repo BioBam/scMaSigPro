@@ -5,13 +5,6 @@
 \alias{scMaSigProClass}
 \title{scMaSigProClass}
 \description{
-scMaSigProClass
+A class to represent the ScMaSigPro analysis results and associated data.
+Inherits from \code{SingleCellExperiment}.
 }
-\section{Slots}{
-
-\describe{
-\item{\code{covariate}}{Description of Slot.}
-
-\item{\code{parameters}}{Description of Slot.}
-}}
-

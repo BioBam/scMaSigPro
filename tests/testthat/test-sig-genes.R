@@ -18,7 +18,7 @@ test_that("Check Selections of significant genes; match dimension and value", {
 
   ######################################################
   # Transfer column shift columns
-  summary_frame_scMaSigPro <- summary_frame_scMaSigPro[, c(2,1),drop = F]
+  summary_frame_scMaSigPro <- summary_frame_scMaSigPro[, c(2, 1), drop = F]
   colnames(summary_frame_scMaSigPro) <- colnames(summary_frame_maSigPro)
   ######################################################
 

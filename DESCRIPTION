@@ -1,16 +1,23 @@
 Package: scMaSigPro
 Type: Package
 Title: Application fof MaSigPro Bioconductor Package for scRNA-Data
-Version: 0.1.0
-Author: Priyansh Srivastava
+Version: 1.0.2
+Author: Ana Conesa, Maria Jose Nueda and Priyansh Srivastava
 Maintainer: Priyansh Srivastava <spriyansh29@gmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Description: maSigPro is a regression based approach to find genes for which
+    there are significant gene expression profile differences between
+    experimental groups in time course microarray and RNA-Seq experiments.
 License: MIT + file LICENSE
-Imports: reshape2, ggplot2, SingleCellExperiment, methods, tidyverse, glmmTMB, MASS, assertthat, moments, pscl, DESeq2, entropy, parallel
+Imports: reshape2, ggplot2, SingleCellExperiment, methods, MASS, assertthat,
+    moments, entropy, parallel, dplyr, magrittr, stringr, rlang, tibble,
+    Biobase, graphics, grDevices, venn, mclust, stats, slingshot, S4Vectors,
+    monocle3, DESeq2, igraph, SummarizedExperiment, data.table, ggpubr, RColorConesa,
+    UpSetR
 Encoding: UTF-8
-LazyData: false
+LazyData: true
 RoxygenNote: 7.2.3
-Suggests: 
-    testthat (>= 3.0.0)
+Suggests: testthat, roxygen2
 Config/testthat/edition: 3
+URL: https://github.com/spriyansh/scMaSigPro
+biocViews: Microarray, RNA-Seq, Differential Expression, TimeCourse
+BugReports: https://github.com/spriyansh/scMaSigPro/issues

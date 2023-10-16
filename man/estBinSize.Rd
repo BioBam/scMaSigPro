@@ -4,7 +4,7 @@
 \alias{estBinSize}
 \title{estBinSize}
 \usage{
-estBinSize(time_vector, nPoints, drop_fac, method)
+estBinSize(time_vector, nPoints, drop_fac, bin_method)
 }
 \arguments{
 \item{time_vector}{A numeric vector. The time series data points that need to be binned.}
@@ -13,13 +13,13 @@ estBinSize(time_vector, nPoints, drop_fac, method)
 
 \item{drop_fac}{A numeric. A factor to adjust the calculated bin size. The estimated bin size is multiplied by this value. It helps in refining the bin size when the original bin size calculation results in too many empty bins.}
 
-\item{method}{A character string. The method to estimate the bin size. Possible values include "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal".}
+\item{bin_method}{A character string. The bin_method to estimate the bin size. Possible values include "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal".}
 }
 \value{
 A numeric value representing the estimated bin size, adjusted by the drop_fac.
 }
 \description{
-This function calculates the optimal bin size for discretizing a continuous variable. It uses various methods for bin size estimation such as "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal".
+This function calculates the optimal bin size for discretizing a continuous variable. It uses various bin_methods for bin size estimation such as "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal".
 }
 \details{
 The function uses various rules for calculating the bin size:
@@ -34,7 +34,10 @@ After estimating the bin size, it is scaled down by a factor specified by 'drop_
 }
 \examples{
 \dontrun{
-estBinSize(time_vector = c(1, 2, 3, 4, 5), nPoints = 5, drop_fac = 0.5, method = "Sturges")
+estBinSize(time_vector = c(1, 2, 3, 4, 5), nPoints = 5, drop_fac = 0.5, bin_method = "Sturges")
 }
-
 }
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
+}
+\keyword{internal}

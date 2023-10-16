@@ -1,36 +1,76 @@
-exportPattern("^[[:alpha:]]+")
-
 # Single Function Imports
-importFrom("SingleCellExperiment", "colData")
+importFrom("SingleCellExperiment", "SingleCellExperiment", "colData", "reducedDims", "rowData")
+importFrom("SummarizedExperiment", "colData<-")
+importFrom("monocle3", "principal_graph", "principal_graph_aux", "pseudotime", "plot_cells")
 importFrom("reshape2", "melt")
-importFrom("methods", "new")
+importFrom("stringr", "str_split", "str_remove_all")
+importFrom("magrittr", "%>%")
+importFrom("methods", "new", "is", "as")
 importFrom("moments", "skewness")
 importFrom("entropy", "discretize")
-importFrom("assertthat", "assert_that")
 importFrom("MASS", "negative.binomial")
-importFrom("parallel", "mclapply")
-importFrom("parallel", "detectCores")
+importFrom("assertthat", "assert_that")
+importFrom("parallel", "mclapply","detectCores")
 importFrom("DESeq2", "estimateSizeFactorsForMatrix")
+importFrom("utils", "View", "setTxtProgressBar", "txtProgressBar")
+importFrom("rlang",".data")
+importFrom("igraph","degree", "shortest_paths")
+importFrom("slingshot","slingCurves", "slingPseudotime")
+importFrom("tibble","rownames_to_column","column_to_rownames")
+importFrom("dplyr", "left_join", "join_by", "mutate", "select", "bind_rows", "group_by_at", "summarise", "rename_with", "between", "group_by",
+           "across", "all_of", "ungroup")
+importFrom("S4Vectors", "DataFrame")
+importFrom("data.table", "rleid")
+importFrom("DESeq2", "estimateSizeFactorsForMatrix")
+importFrom("ggpubr", "ggarrange")
+importFrom("RColorConesa", "getConesaColors")
+importFrom("UpSetR", "fromList", "upset")
 
 # Import Entire Libraries
 import("ggplot2")
 import("stats")
-import("glmmTMB")
-import("pscl")
 
 # Exports
 export("plot_loess_fit")
 export("glm_inspection")
 export("sc_makeDesign")
-export("sc_pVector")
-export("sc_tFit")
-export("showEstimates")
-export("showTscores")
-export("showSol")
-export("sc.sel.features")
+export("sc.p.vector")
+export("sc.T.fit")
 export("entropy_discretize")
 export("make.pseudobulk.design")
 export("make.pseudobulk.counts")
+export("extract_slingshot_components")
+export("annotate_monocle3_cds")
+export("as_scmp")
+export("squeeze")
+export("sc.make.design.matrix")
+export("showSol")
+export("sc.get.siggenes")
+export("selectPath")
+export("sc.PlotGroups")
+export("sc.plot.bins")
+export("sc.path.intersection")
+export("annotate_sce")
 
 # Export Classes
-exportClasses("scMaSigProClass")
+#exportClasses("scMaSigProClass", "covariateClass", "parameterClass", "pVectorClass", "sigGeneClass", "tFitClass")
+
+# maSigPro Namespace
+importFrom(Biobase, addVigs2WinMenu, readExpressionSet)
+
+importFrom(graphics, abline, axis, curve, lines, par, plot, legend, plot.new)
+
+importFrom(grDevices, dev.off, X11, heat.colors)
+
+importFrom(venn, venn)
+
+importFrom(mclust, Mclust)
+
+importFrom(stats, as.dist, cor, cutree, dist, hclust, influence.measures, 
+	   kmeans, lm, median, p.adjust, pf, sd, anova, gaussian, glm, heatmap, as.formula)
+
+importFrom(MASS, negative.binomial)
+
+export(average.rows, get.siggenes, i.rank, make.design.matrix, maSigProUsersGuide,
+       p.vector, PlotGroups, PlotProfiles, position, reg.coeffs, see.genes,
+       stepback, stepfor, suma2Venn, T.fit, two.ways.stepback, two.ways.stepfor,IsoModel, getDS, seeDS, tableDS, PodiumChange, IsoPlot, getDSPatterns)

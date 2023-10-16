@@ -1,21 +1,35 @@
-#' entropy_discretize
+#' @title Find optimal number of pseudotime bins
 #'
 #' @description
-#' This function discretizes a continuous time series column into bins of equal size using entropy-based binning method. It automatically calculates the optimal number of bins using one of the supported methods.
-#' The bin sizes are also calculated and merged with the input design_table.
+#' `entropy_discretize()` discretizes a continuous time series column into bins
+#' of equal size using entropy-based binning method. It automatically calculates
+#' the optimal number of bins using one of the supported methods. The bin sizes
+#' are also calculated and merged with the input cell_metadata.
 #'
-#' @param design_table A data.frame. The dataset containing the time series column to be discretized.
-#' @param time_col A character string. The name of the column in design_table that contains the time series data to be discretized.
-#' @param method A character string (default = "Sturges"). The method to be used to estimate the optimal number of bins. Currently, this function supports "Sturges" method.
-#' @param drop.fac A numeric value (default = 0.5). The factor by which to decrease the number of bins if the initial binning results in too many empty bins. The optimal number of bins is recalculated until this criteria is met.
-#' @param verbose A boolean (default = TRUE). If TRUE, detailed messages about the process (e.g. number of bins calculated) will be printed.
+#' @param cell_metadata `cell.metadata` in data.frame. It can be exported using
+#' the \code{\link[SingleCellExperiment]{colData}}. It should contain the column
+#' with temporal to be discretized.
+#' @param pseudotime_colname Name of the column in `cell.metadata` generated using
+#' \code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
+#' (Default is "Pseudotime")
+#' @param path_colname Name of the column in `cell.metadata` generated using
+#' \code{\link[SingleCellExperiment]{colData}} storing information for Path.
+#' (Default is `path_prefix`)
+#' @param bin_method A character string (default = "Sturges"). The method to be
+#' used to estimate the optimal number of bins.
+#' @param drop.fac A numeric value (default = 0.5). The factor by which to
+#' decrease the number of bins if the initial binning results in too many bins.
+#' @param verbose Print detailed output in the console. (Default is TRUE)
+#' @param binning A character string (deafult = "universal"). When set to
+#' "individual", the bins are calculated per path iteratively.
 #'
 #' @return
 #' A data.frame that contains the original data plus additional columns:
-#' - 'bin' : the bin number
-#' - 'bin_size' : the size of the bin
-#' - 'binned_time' : the interval range of each bin
-#' This function returns the merged data.frame with new discretized time_col, preserving the original rownames.
+#' - 'bin' : Name of the bin
+#' - 'bin_size' : Size of the bin
+#' - 'binned_time' : Interval range of each bin
+#' This function returns the merged data.frame with new discretized
+#' pseudotime_colname, preserving the original rownames.
 #'
 #' @details
 #' This function performs the following steps:
@@ -30,55 +44,207 @@
 #'
 #' @examples
 #' \dontrun{
-#' entropy_discretize(design_table = data.frame, time_col = "time",
-#' method = "Sturges", drop.fac = 0.5, verbose = TRUE)
+#' entropy_discretize(
+#'   cell_metadata = data.frame, pseudotime_colname = "time",
+#'   bin_method = "Sturges", drop.fac = 0.5, verbose = TRUE
+#' )
 #' }
-#' 
+#'
+#' @importFrom assertthat assert_that
+#' @importFrom parallel mclapply detectCores
+#' @importFrom entropy discretize
+#' @importFrom dplyr left_join join_by mutate select bind_rows group_by_at summarise rename_with
+#' @importFrom magrittr %>%
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @seealso \code{\link{estBinSize}}, \code{\link{discretize}}, \code{\link{create_range}}
-#' 
+#'
 #' @export
 
-entropy_discretize <- function(design_table, time_col,
-                               method = "Sturges",
+entropy_discretize <- function(scmpObject,
+                               pseudotime_colname = scmpObject@addParams@pseudotime_colname,
+                               path_colname = scmpObject@addParams@path_colname,
+                               bin_method = "Sturges",
                                drop.fac = 0.5,
-                               verbose = TRUE) {
+                               verbose = TRUE,
+                               binning = "universal",
+                               bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname) {
+  # Check Object Validity
+  assert_that(is(scmpObject, "scMaSigProClass"),
+    msg = "Please provide object of class 'scMaSigPro'"
+  )
+
+  # Extract cell metadata
+  cell_metadata <- as.data.frame(colData(scmpObject@sce))
+
+  # Checks
+  assert_that(pseudotime_colname %in% colnames(cell_metadata),
+    msg = paste0("'", pseudotime_colname, "' does not exist in cell_metadata")
+  )
+  assert_that(path_colname %in% colnames(cell_metadata),
+    msg = paste0("'", path_colname, "' does not exist in cell_metadata")
+  )
+  assert_that(drop.fac >= 0.3,
+    msg = "Invalid value for 'drop.fac'. It should be between 0.3 and 1."
+  )
+  assert_that(all(binning %in% c("universal", "individual")),
+    msg = "Allowed options for binning are 'universal' and 'individual'"
+  )
+  assert_that(
+    all(
+      bin_method %in% c("Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", "Scott.Normal")
+    ),
+    msg = "Available binning methods are 'Freedman.Diaconis', 'Sqrt', 'Sturges', 'Rice', 'Doane', and 'Scott.Normal'"
+  )
 
   # Add a column
-  design_table$cell <- rownames(design_table)
+  cell_metadata$cell <- rownames(cell_metadata)
 
-  # Extract the time information as a vector
-  time_vector <- design_table[, time_col]
-  length_n <- length(time_vector)
-  
-  # Calculate Optimal Number of Bins
-  estBins <- estBinSize(time_vector = time_vector, nPoints = length_n,
-                        drop_fac = drop.fac, method = method)
- 
-  # Client-Verbose
-  if (verbose){message(paste("Estimated Bin Sizes =", estBins, "with",
-                    method, "binning for", length_n, "time points."))}
-  
-  # Calculate Bin intervals with entropy
-  bin_intervals <- as.data.frame(discretize(time_vector, numBins = estBins, r = range(time_vector)))
-  
-  # Clean the table before merge
-  colnames(bin_intervals) <- c("bin", "bin_size")
-  bin_intervals$binned_time <- rownames(bin_intervals)
+  # Get the avaible paths
+  avail.paths <- as.vector(unique(cell_metadata[[path_colname]]))
 
-  # Create the bin table
-  bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range))))
-  colnames(bin_table) <- c("from", "to", "bin_size", "binnedTime")
+  # Check for path
+  assert_that(length(avail.paths) >= 2,
+    msg = "Invalid number of paths detected. Please make sure that dataset has atleast two paths"
+  )
 
-  # Merge with design table
-  processed_design_table <- as.data.frame(left_join(design_table, bin_table,
-    by = join_by(closest(!!time_col >= from), closest(!!time_col <= to))
-  ))
+  # Switch
+  result <- switch(binning,
+    universal = {
+      # Extract the time information as a vector
+      time_vector <- cell_metadata[, pseudotime_colname]
+      length_n <- length(time_vector)
 
-  # Remove cell column
-  rownames(processed_design_table) <- processed_design_table$cell
+      # Calculate Optimal Number of Bins
+      tryCatch(
+        expr = {
+          estBins <- estBinSize(
+            time_vector = time_vector, nPoints = length_n,
+            drop_fac = drop.fac, bin_method = bin_method
+          )
+        },
+        error = function(e) {
+          message(paste("Error message: ", e$message))
+          stop("Unable to estimate bin size")
+        }
+      )
 
-  # Drop cell column
-  processed_design_table <- processed_design_table[, colnames(processed_design_table) != "cell"]
-  
-  return(processed_design_table)
+      # Calculate Bin intervals with entropy
+      bin_intervals <- as.data.frame(discretize(time_vector, numBins = estBins, r = range(time_vector)))
+
+      # Clean the table before merge
+      colnames(bin_intervals) <- c("bin", "bin_size")
+      bin_intervals[[bin_pseudotime_colname]] <- rownames(bin_intervals)
+
+      # Create the bin table
+      bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range, bin_pseudotime_colname = bin_pseudotime_colname))))
+      colnames(bin_table) <- c("from", "to", "bin_size", bin_pseudotime_colname)
+
+      # Combine Tables
+      processed_cell_metadata <- as.data.frame(
+        left_join(cell_metadata, bin_table,
+          by = join_by(
+            closest(!!pseudotime_colname >= from),
+            closest(!!pseudotime_colname <= to)
+          )
+        )
+      )
+
+      # Set the 'cell' column as rownames
+      rownames(processed_cell_metadata) <- processed_cell_metadata$cell
+    },
+    individual = {
+      # Apply transformations on data
+      discrete.list <- lapply(avail.paths, function(path, design.frame = cell_metadata,
+                                                    drop_fac = drop.fac, path.col = path_colname,
+                                                    time.col = pseudotime_colname, method.bin = bin_method) {
+        # Get the cells belonging to path
+        path.frame <- design.frame[design.frame[[path.col]] == path, , drop = F]
+
+        # Extract the time information as a vector
+        time_vector <- path.frame[, time.col]
+        length_n <- length(time_vector)
+
+        # Validation
+        if (length_n <= 7) {
+          message(paste("Time points are already less than 7 in", path))
+        }
+
+        # Calculate Optimal Number of Bins
+        tryCatch(
+          expr = {
+            estBins <- estBinSize(
+              time_vector = time_vector, nPoints = length_n,
+              drop_fac = drop.fac, bin_method = method.bin
+            )
+
+            if (verbose) {
+              message(paste(
+                "Estimated Bin Sizes =", estBins, "with",
+                bin_method, "binning for", length_n, "time points for", path
+              ))
+            }
+          },
+          error = function(e) {
+            message(paste("Error message: ", e$message))
+            stop("Unable to estimate bin size")
+          }
+        )
+
+        # Calculate Bin intervals with entropy
+        bin_intervals <- as.data.frame(discretize(time_vector, numBins = estBins, r = range(time_vector)))
+
+        # Client-Verbose
+        if (verbose) {
+          message(paste(
+            "For", path, ",", length_n, "time points has been compressed to", nrow(bin_intervals), "bins"
+          ))
+        }
+
+        # Clean the table before merge
+        colnames(bin_intervals) <- c("bin", "bin_size")
+        bin_intervals$binned_Pseudotime <- rownames(bin_intervals)
+
+        # Create the bin table
+        bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range))))
+        colnames(bin_table) <- c("from", "to", "bin_size", "binned_Pseudotime")
+
+        # Combine Tables
+        processed_cell_metadata <- as.data.frame(
+          left_join(path.frame, bin_table,
+            by = join_by(
+              closest(!!time.col >= from),
+              closest(!!time.col <= to)
+            )
+          )
+        )
+
+        return(processed_cell_metadata)
+      })
+
+      # Bind rows and convert to data frame, then drop 'cell' column
+      processed_cell_metadata <- bind_rows(discrete.list) %>%
+        as.data.frame()
+
+      # Set the 'cell' column as rownames
+      rownames(processed_cell_metadata) <- processed_cell_metadata$cell
+    },
+    stop("Invalid option")
+  )
+
+  # Now, you can remove the 'cell' column
+  processed_cell_metadata <- processed_cell_metadata %>% select(-"cell")
+
+  ## Add Processed Cell Matadata back with slot update
+  colData(scmpObject@sce) <- DataFrame(processed_cell_metadata)
+
+  # Update Slots
+  scmpObject@addParams@pseudotime_colname <- pseudotime_colname
+  scmpObject@addParams@path_colname <- path_colname
+  scmpObject@addParams@bin_method <- bin_method
+  scmpObject@addParams@binning <- binning
+  scmpObject@addParams@bin_pseudotime_colname <- bin_pseudotime_colname
+
+  return(scmpObject)
 }

@@ -8,7 +8,7 @@
 
 # Function to Create ScMaSigPro Object
 sc_makeDesign <- function(sce.object, path.col = "Group",
-                                  time.col = "Step", poly.order = 2) {
+                          time.col = "Step", poly.order = 2) {
   # Extract the cell Metadata
   cell.meta <- as.data.frame(colData(sce.object))
 

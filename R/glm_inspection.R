@@ -1,17 +1,28 @@
 #' Visually Inspect Model Fit
 #'
-#' @param glm.model model from the output of \link[stats]{glm}.
-#' @param plot.type Plot-type. Currentry supported options are
-#' _fitted_vs_pearson_, _pearson_vs_obs_, _fitted_vs_obs_
-#' @param point.color Point colour.
-#' @param point.shape Point shape.
-#' @param point.alpha Point alpha.
-#' @param ref.line.y.intercept Y intercept of the reference line.
-#' @param func Which function is used
-#' @param input.data No information
-#' @param bar_width bar width of the cook's distance plot
-#
-
+#' This function is used to visually inspect the model fit of a generalized linear
+#' model (GLM) and provides different types of plots for validation purposes.
+#'
+#' @param glm.model A model from the output of \link[stats]{glm}.
+#' @param plot.type Plot type. Currently supported options are:
+#'   - "fitted_vs_pearson": Fitted values vs Pearson residuals plot.
+#'   - "cooks_vs_obs": Cook's distance vs observations bar plot.
+#'   - "pearson_vs_obs": Pearson residuals vs observed values plot.
+#'   - "fitted_vs_obs": Fitted values vs observed values plot.
+#'   - "std_vs_fitted": Standard residuals vs fitted values plot.
+#' @param point.color Point colour for the plots.
+#' @param point.shape Point shape for the plots.
+#' @param point.alpha Point alpha for the plots.
+#' @param ref.line.y.intercept Y intercept of the reference line in some plots.
+#' @param func Which function is used (options: "glm" or "zeroinfl").
+#' @param input.data No information.
+#' @param bar_width Bar width for the Cook's distance plot.
+#'
+#' @importFrom ggplot2 ggplot aes geom_point geom_hline geom_bar facet_wrap
+#' @importFrom stats fitted resid rstandard
+#'
+#' @keywords internal
+#' @export
 glm_inspection <- function(glm.model, plot.type = "fitted_vs_pearson",
                            point.color = "blue", point.shape = 3, bar_width = 0.05,
                            point.alpha = 0.8, ref.line.y.intercept = 0,
@@ -26,7 +37,6 @@ glm_inspection <- function(glm.model, plot.type = "fitted_vs_pearson",
       axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5)
     )
 
-  # Check plot type
   if (plot.type == "fitted_vs_pearson") {
     # Extract Fitted Value
     fit_vals <- fitted(glm.model)
@@ -54,7 +64,6 @@ glm_inspection <- function(glm.model, plot.type = "fitted_vs_pearson",
         from = min(plt.table$pearson_residuals),
         to = max(plt.table$pearson_residuals), length.out = 6
       ))) +
-
       ggtitle("ScMaSigPro: Model Validation Plot", "Fitted Values vs Pearson Residual")
 
     # Plot
@@ -78,7 +87,6 @@ glm_inspection <- function(glm.model, plot.type = "fitted_vs_pearson",
       ) +
       geom_hline(yintercept = 0.5, linetype = "dashed", color = "red", alpha = 0.5)
 
-
     # Plot
     print(p)
   } else if (plot.type == "pearson_vs_obs") {
@@ -98,7 +106,6 @@ glm_inspection <- function(glm.model, plot.type = "fitted_vs_pearson",
     } else if (func == "glm") {
       # Extraxt obsData fro each value
       obs_data <- as.data.frame(glm.model$data)
-
 
       # Rowname
       obs_data$observation <- rownames(obs_data)
@@ -123,16 +130,8 @@ glm_inspection <- function(glm.model, plot.type = "fitted_vs_pearson",
         color = point.color, alpha = point.alpha, shape = point.shape
       ) +
       geom_hline(yintercept = ref.line.y.intercept, linetype = "dashed", color = "red", alpha = 0.5) +
-      xlab("Obserevd Values") + ylab("Pearson Residuals") +
-      facet_wrap(~covariate) #+
-    # scale_x_continuous(breaks = round(seq(
-    #   from = min(plt.table$obs_value),
-    #   to = max(plt.table$obs_value), length.out = 10
-    # ))) +
-    # scale_y_continuous(breaks = round(seq(
-    #   from = min(plt.table$pearson_residuals),
-    #   to = max(plt.table$pearson_residuals), length.out = 6
-    # )))
+      xlab("Observed Values") + ylab("Pearson Residuals") +
+      facet_wrap(~covariate)
 
     if (func == "zeroinfl") {
       pearson_vs_obs <- pearson_vs_obs + ggtitle("ScMaSigPro: Model Validation Plot", "Observed Value per covariate (Scaled) vs Pearson Residual")
@@ -144,7 +143,7 @@ glm_inspection <- function(glm.model, plot.type = "fitted_vs_pearson",
     return(pearson_vs_obs)
   } else if (plot.type == "fitted_vs_obs") {
     # Extract Table
-    plt.table <- plt.table <- data.frame(
+    plt.table <- data.frame(
       obs_value = glm.model$y,
       fit_value = fitted(glm.model)
     )
@@ -167,6 +166,7 @@ glm_inspection <- function(glm.model, plot.type = "fitted_vs_pearson",
         to = max(plt.table$obs_value),
         length.out = 10
       )))
+
     ggtitle("ScMaSigPro: Model Validation Plot", "Fitted Values vs Observed Value")
 
     # Plot
