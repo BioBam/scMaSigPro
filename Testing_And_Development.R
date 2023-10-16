@@ -122,10 +122,100 @@ scmp.obj.sce <- sc.p.vector(
 # Run-Step-2
 non_parallel <- sc.T.fit(
   data = scmp.obj.sce, verbose = T,
-  step.method = "backward",
+  step.method = "backward", parallel = F,
   family = scmp.obj@scPVector@family,
   offset = T
 )
+
+
+
+
+library(pryr)
+
+# Measure Time and Memory for Non-Parallel Way
+start_mem_np <- mem_used()
+start_time_np <- system.time({
+    nonparallel_way <-sc.T.fit(
+        data = scmp.obj.sce, verbose = T,
+        step.method = "backward", parallel = F,
+        family = scmp.obj@scPVector@family,
+        offset = T
+    )
+})
+end_mem_np <- mem_used()
+mem_diff_np <- end_mem_np - start_mem_np
+
+# Measure Time and Memory for Parallel Way
+start_mem_p <- mem_used()
+start_time_p <- system.time({
+    parallel_way <- sc.T.fit(
+        data = scmp.obj.sce, verbose = T,
+        step.method = "backward", parallel = T,
+        family = scmp.obj@scPVector@family,
+        offset = T
+    )
+})
+end_mem_p <- mem_used()
+mem_diff_p <- end_mem_p - start_mem_p
+
+# Display the results
+cat("Non-Parallel Way:\n")
+print(paste("Time taken: ", round(as.numeric(start_time_np[3]), 2), "seconds"))
+print(paste("Memory used: ", mem_diff_np, "bytes"))
+
+cat("\nParallel Way:\n")
+print(paste("Time taken: ", round(as.numeric(start_time_p[3]), 2), "seconds"))
+print(paste("Memory used: ", mem_diff_p, "bytes"))
+
+
+
+
+
+
+# test that
+
+expect_equal(parallel_way@scTFit@sol, expected = nonparallel_way@scTFit@sol)
+expect_equal(parallel_way@scTFit@sig.profiles, expected = nonparallel_way@scTFit@sig.profiles)
+expect_equal(parallel_way@scTFit@coefficients, expected = nonparallel_way@scTFit@coefficients)
+expect_equal(parallel_way@scTFit@dis, expected = nonparallel_way@scTFit@dis)
+expect_equal(parallel_way@scTFit@group.coeffs, expected = nonparallel_way@scTFit@group.coeffs)
+expect_equal(parallel_way@scTFit@edesign, expected = nonparallel_way@scTFit@edesign)
+expect_equal(parallel_way@scTFit@dat, expected = nonparallel_way@scTFit@dat)
+expect_equal(parallel_way@scTFit@groups.vector, expected = nonparallel_way@scTFit@groups.vector)
+expect_equal(parallel_way@scTFit@g, expected = nonparallel_way@scTFit@g)
+
+
+expect_equal(parallel_way@scTFit@influ.info, expected = nonparallel_way@scTFit@influ.info)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Extract the genes
 sig.gene <- sc.get.siggenes(scmpObj = scmp.obj, rsq = 0.7, vars = "groups")
