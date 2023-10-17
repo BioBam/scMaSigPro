@@ -10,18 +10,7 @@ set.seed(007)
 library(scMaSigPro)
 
 # Load Objects
-#load("../scMaSigPro_Supp/benchmarks/11_RealDataSmall/data/results/monocle3_inferred_pseudotime.RData")
 load("../scMaSigPro_Supp/benchmarks/01_Sparsity/data/simulated/sce/sparsity_30.RData")
-
-# SCE
-# sce.anno <- annotate_sce(sce = sim.sce,
-#              existing_pseudotime_colname = "Step",
-#              existing_path_colname = "Group",
-#              path_prefix = "Path",
-#              path_colname = "Path",
-#              overwrite_labels = T,
-#              )
-# View(as.data.frame(SingleCellExperiment::colData(sce.anno)))
 
 # Convert the ScMaSigPro Object
 scmp.obj.sce <- as_scmp(sim.sce,
@@ -48,60 +37,6 @@ scmp.obj.sce <- make.pseudobulk.design(scmpObject = scmp.obj.sce,
 # Pseudobulking
 scmp.obj.sce <- make.pseudobulk.counts(scmpObject = scmp.obj.sce)
 
-# # Monocle3
-# scmp.obj.cds <- as_scmp(cds,
-#   from = "cds",
-#   pseudotime_colname = "Pseudotime",
-#   root_label = "Progenitor", path_colname = "Path",
-#   path_prefix = "Lineage"
-# )
-# View(as.data.frame(SingleCellExperiment::colData(scmp.obj.cds@sce)))
-# 
-# cds <- annotate_monocle3_cds(cds,root_label = "Progenitor",pseudotime_colname = "Goam")
-#  View(as.data.frame(SingleCellExperiment::colData(cds)))
-
-###################################
-############## Squeeze ############
-###################################
-
-# cell_metadata <- as.data.frame(SingleCellExperiment::colData(scmp.obj.cds@sce))
-# 
-# compression.file <- entropy_discretize(
-#   cell_metadata = cell_metadata, # as.data.frame(SingleCellExperiment::colData(scmp.obj.cds@sce)),
-#   pseudotime_colname = "Pseudotime",
-#   path_colname = "Path",
-#   bin_method = "Sturges",
-#   drop.fac = 0.6,
-#   verbose = T,
-#   binning = "universal"
-# )
-# View(compression.file)
-# 
-# 
-# bulked.design <- make.pseudobulk.design(
-#   compressed_cell_metadata = compression.file,
-#   path_colname = "Path"
-# )
-# 
-# xa <- make.pseudobulk.counts(
-#   counts = scmp.obj.cds@sce@assays@data@listData$counts,
-#   pseudo_bulk_profile = bulked.design,
-#   cluster_count_by = "mean"
-# )
-
-# Compress
-scmp.obj.sce <- squeeze(
-  scmpObject = scmp.obj.sce,
-  pseudotime_colname = "Pseudotime",
-  path_colname = "Lineage",
-  bin_method = "Sturges",
-  drop.fac = 0.6,
-  verbose = T,
-  assay_name = "counts",
-  cluster_count_by = "sum",
-  binning = "universal"
-)
-
 scmp.obj.sce <- sc.make.design.matrix(scmp.obj.sce,
   poly_degree = 2,
   path_colname = "Lineage",
@@ -114,21 +49,21 @@ View(as.data.frame(SingleCellExperiment::colData(scmp.obj.sce@compress.sce)))
 
 # Run p-vector
 scmp.obj.sce <- sc.p.vector(
-  scmpObj = scmp.obj.sce, verbose = F, min.obs = 6,
-  counts = T, theta = 1,parallel=T,
+  scmpObj = scmp.obj.sce, verbose = T, min.obs = 6,
+  counts = T, theta = 1,
   offset = T, epsilon = 0.00001
 )
 
-# Run-Step-2
-non_parallel <- sc.T.fit(
-  data = scmp.obj.sce, verbose = T,
-  step.method = "backward", parallel = F,
-  family = scmp.obj@scPVector@family,
-  offset = T
+
+
+
+scmp.obj.sce <-scMaSigPro::sc.T.fit(
+    data = scmp.obj.sce, verbose = T,
+    step.method = "backward",
+    family = scmp.obj@scPVector@family,
+    offset = T
 )
-
-
-
+#------------------------------------------
 
 library(pryr)
 
@@ -150,7 +85,7 @@ start_mem_p <- mem_used()
 start_time_p <- system.time({
     parallel_way <- sc.T.fit(
         data = scmp.obj.sce, verbose = T,
-        step.method = "backward", parallel = T,
+        step.method = "backward", parallel = F,
         family = scmp.obj@scPVector@family,
         offset = T
     )
@@ -169,59 +104,25 @@ print(paste("Memory used: ", mem_diff_p, "bytes"))
 
 
 
-
-
-
 # test that
 
-expect_equal(parallel_way@scTFit@sol, expected = nonparallel_way@scTFit@sol)
-expect_equal(parallel_way@scTFit@sig.profiles, expected = nonparallel_way@scTFit@sig.profiles)
-expect_equal(parallel_way@scTFit@coefficients, expected = nonparallel_way@scTFit@coefficients)
-expect_equal(parallel_way@scTFit@dis, expected = nonparallel_way@scTFit@dis)
-expect_equal(parallel_way@scTFit@group.coeffs, expected = nonparallel_way@scTFit@group.coeffs)
-expect_equal(parallel_way@scTFit@edesign, expected = nonparallel_way@scTFit@edesign)
-expect_equal(parallel_way@scTFit@dat, expected = nonparallel_way@scTFit@dat)
-expect_equal(parallel_way@scTFit@groups.vector, expected = nonparallel_way@scTFit@groups.vector)
-expect_equal(parallel_way@scTFit@g, expected = nonparallel_way@scTFit@g)
-
-
-expect_equal(parallel_way@scTFit@influ.info, expected = nonparallel_way@scTFit@influ.info)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+expect_equal(parallel@scTFit@sol, expected = non_parallel@scTFit@sol)
+expect_equal(parallel@scTFit@sig.profiles, expected = non_parallel@scTFit@sig.profiles)
+expect_equal(parallel@scTFit@coefficients, expected = non_parallel@scTFit@coefficients)
+expect_equal(parallel@scTFit@dis, expected = non_parallel@scTFit@dis)
+expect_equal(parallel@scTFit@group.coeffs, expected = non_parallel@scTFit@group.coeffs)
+expect_equal(parallel@scTFit@edesign, expected = non_parallel@scTFit@edesign)
+expect_equal(parallel@scTFit@dat, expected = non_parallel@scTFit@dat)
+expect_equal(parallel@scTFit@groups.vector, expected = non_parallel@scTFit@groups.vector)
+expect_equal(parallel@scTFit@g, expected = non_parallel@scTFit@g)
+expect_equal(parallel@scTFit@influ.info, expected = non_parallel@scTFit@influ.info)
 
 
 # Extract the genes
 sig.gene <- sc.get.siggenes(scmpObj = scmp.obj, rsq = 0.7, vars = "groups")
 
 sc.PlotGroups(
-  scmpObj = scmp.obj, feature_id = "GATA1", dis = scmp.obj@scTFit@dis,
+  scmpObj = scmp.obj.sce, feature_id = "Gene233", dis = scmp.obj@scTFit@dis,
   edesign = scmp.obj@scTFit@edesign,
   groups.vector = scmp.obj@scTFit@groups.vector
 )
@@ -276,3 +177,71 @@ p <- ggplot(plot.data, aes(x = binnedTime, y = raw_count)) +
   labs(title = "Raw Count vs. Binned Time", x = "Binned Time", y = "Raw Count", color = "Path")
 
 print(p)
+
+
+
+# # Monocle3
+# scmp.obj.cds <- as_scmp(cds,
+#   from = "cds",
+#   pseudotime_colname = "Pseudotime",
+#   root_label = "Progenitor", path_colname = "Path",
+#   path_prefix = "Lineage"
+# )
+# View(as.data.frame(SingleCellExperiment::colData(scmp.obj.cds@sce)))
+# 
+# cds <- annotate_monocle3_cds(cds,root_label = "Progenitor",pseudotime_colname = "Goam")
+#  View(as.data.frame(SingleCellExperiment::colData(cds)))
+
+# SCE
+#load("../scMaSigPro_Supp/benchmarks/11_RealDataSmall/data/results/monocle3_inferred_pseudotime.RData")
+# sce.anno <- annotate_sce(sce = sim.sce,
+#              existing_pseudotime_colname = "Step",
+#              existing_path_colname = "Group",
+#              path_prefix = "Path",
+#              path_colname = "Path",
+#              overwrite_labels = T,
+#              )
+# View(as.data.frame(SingleCellExperiment::colData(sce.anno)))
+
+
+###################################
+############## Squeeze ############
+###################################
+
+# cell_metadata <- as.data.frame(SingleCellExperiment::colData(scmp.obj.cds@sce))
+# 
+# compression.file <- entropy_discretize(
+#   cell_metadata = cell_metadata, # as.data.frame(SingleCellExperiment::colData(scmp.obj.cds@sce)),
+#   pseudotime_colname = "Pseudotime",
+#   path_colname = "Path",
+#   bin_method = "Sturges",
+#   drop.fac = 0.6,
+#   verbose = T,
+#   binning = "universal"
+# )
+# View(compression.file)
+# 
+# 
+# bulked.design <- make.pseudobulk.design(
+#   compressed_cell_metadata = compression.file,
+#   path_colname = "Path"
+# )
+# 
+# xa <- make.pseudobulk.counts(
+#   counts = scmp.obj.cds@sce@assays@data@listData$counts,
+#   pseudo_bulk_profile = bulked.design,
+#   cluster_count_by = "mean"
+# )
+
+# Compress
+# scmp.obj.sce <- squeeze(
+#   scmpObject = scmp.obj.sce,
+#   pseudotime_colname = "Pseudotime",
+#   path_colname = "Lineage",
+#   bin_method = "Sturges",
+#   drop.fac = 0.6,
+#   verbose = T,
+#   assay_name = "counts",
+#   cluster_count_by = "sum",
+#   binning = "universal"
+# )

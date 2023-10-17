@@ -121,14 +121,13 @@
 #' @keywords models
 sc.T.fit <- function(data,
                      design = NULL,
-                     step.method = "backward",
+                     step.method = "foraward",
                      min.obs = NULL,
                      alfa = NULL,
                      nvar.correction = FALSE,
                      family = gaussian(),
                      epsilon = 0.00001, offset = T,
-                     item = "gene", verbose = TRUE,
-                     parallel = F) {
+                     item = "gene", verbose = TRUE) {
   assert_that(is(data, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
   )
@@ -171,202 +170,47 @@ sc.T.fit <- function(data,
   } else {
     offsetData <- NULL
   }
+# 
+#   # If parallel is requested
+#   if (parallel) {
+#     numCores <- detectCores()
+#     if (verbose) {
+#       message(paste("Running with", numCores, "cores..."))
+#     }
+#   } else {
+#     numCores <- 1
+#   }
 
-  if(parallel){
+    # Compute using mclapply
+  result_list <- lapply(2:(g + 1), function(i, step.method_lapply = step.method, dat_lapply =dat, dis_lapply=dis, family_lapply=family, epsilon_lapply=epsilon, offsetData_lapply= offsetData, pb_lapply=pb, verbose_lapply = verbose) {
+  #result_list <- mclapply(2:(g + 1), function(i, step.method_lapply = step.method, dat_lapply =dat, dis_lapply=dis, family_lapply=family, epsilon_lapply=epsilon, offsetData_lapply= offsetData, pb_lapply=pb) {
+      y <- as.numeric(dat_lapply[i, ])
       
-      num_cores <- 8
-  result_list <- mclapply(2:(g + 1), function(i) {
-      
-    y <- as.numeric(dat[i, ])
-    name <- rownames(dat)[i]
-    if (step.method == "backward") {
-      reg <- sc.stepback(y = y, d = dis, alfa = alfa, family = family, epsilon = epsilon, useOffset = offsetData)
-    } else if (step.method == "forward") {
-      reg <- sc.stepfor(y = y, d = dis, alfa = alfa, family = family, epsilon = epsilon, useOffset = offsetData)
-    } else if (step.method == "two.ways.backward") {
-      reg <- sc.two.ways.stepback(y = y, d = dis, alfa = alfa, family = family, epsilon = epsilon, useOffset = offsetData)
-    } else if (step.method == "two.ways.forward") {
-      reg <- sc.two.ways.stepfor(y = y, d = dis, alfa = alfa, family = family, epsilon = epsilon, useOffset = offsetData)
-    } else {
-      stop("stepwise method must be one of backward, forward, two.ways.backward, two.ways.forward")
-    }
-
-    div <- c(1:round(g / 100)) * 100
-    if (is.element(i, div)) {
-      if (verbose) {
-        setTxtProgressBar(pb, i)
-      }
-      # print(paste(c("fitting ", item, i, "out of", g), collapse = " "))
-    }
-    lmf <- glm(y ~ ., data = as.data.frame(dis), family = family, epsilon = epsilon, offset = offsetData)
-    result <- summary(lmf)
-    novar <- vars.in[!is.element(vars.in, names(result$coefficients[,4]))]
-    influ <- influence.measures(reg)$is.inf
-    influ <- influ[, c(ncol(influ) - 3, ncol(influ) - 1)]
-    influ1 <- which(apply(influ, 1, all))
-    if (length(influ1) != 0) {
-      paste.names <- function(a) {
-        paste(names(a)[a], collapse = "/")
-      }
-      match <- match(rownames(dis), rownames(influ))
-      influ <- as.data.frame(apply(influ, 1, paste.names))
-      influ.info <- cbind(influ.info, influ[match, ])
-      colnames(influ.info)[ncol(influ.info)] <- name
-    }else{
-        influ.info <- cbind(influ.info, influ.info)
-    }
-    result <- summary(reg)
-    if ((!(result$aic == -Inf) & !is.na(result$aic) & family$family == "gaussian") | family$family != "gaussian") {
-      k <- i
-
-      # Computing p-values
-      model.glm.0 <- glm(y ~ 1, family = family, epsilon = epsilon, offset = offsetData)
-
-      if (family$family == "gaussian") {
-        test <- anova(model.glm.0, reg, test = "F")
-        p.value <- test[6][2, 1]
-      } else {
-        test <- anova(model.glm.0, reg, test = "Chisq")
-        p.value <- test[5][2, 1]
-      }
-      # Computing goodness of fitting:
-
-      bondad <- (reg$null.deviance - reg$deviance) / reg$null.deviance
-      if (bondad < 0) {
-        bondad <- 0
-      }
-      beta.coeff <- result$coefficients[, 1]
-      beta.p.valor <- result$coefficients[, 4]
-      coeff <- rep(0, (length(vars.in) + 1))
-      if (length(novar) != 0) {
-        for (m in 1:length(novar)) {
-          coeff[position(dis, novar[m]) + 1] <- NA
-        }
-      }
-      p.valor <- t <- as.numeric(rep(NA, (length(vars.in) + 1)))
-
-      if (result$coefficients[, 4][rownames(result$coefficients) ==
-        "(Intercept)"] < alfa) {
-        coeff[1] <- result$coefficients[, 1][rownames(result$coefficients) ==
-          "(Intercept)"]
-        p.valor[1] <- result$coefficients[, 4][rownames(result$coefficients) ==
-          "(Intercept)"]
-        t[1] <- result$coefficients[, 3][rownames(result$coefficients) ==
-          "(Intercept)"]
-      }
-      for (j in 2:length(coeff)) {
-        if (is.element(vars.in[j - 1], rownames(result$coefficients))) {
-          coeff[j] <- result$coefficients[, 1][rownames(result$coefficients) ==
-            vars.in[j - 1]]
-          p.valor[j] <- result$coefficients[, 4][rownames(result$coefficients) ==
-            vars.in[j - 1]]
-          t[j] <- result$coefficients[, 3][rownames(result$coefficients) ==
-            vars.in[j - 1]]
-        }
-      }
-      if (!all(is.na(p.valor))) {
-        sol <- rbind(sol, as.numeric(c(
-          p.value, bondad,
-          p.valor
-        )))
-        coefficients <- rbind(coefficients, coeff)
-        t.score <- rbind(t.score, t)
-        sig.profiles <- rbind(sig.profiles, y)
-        h <- nrow(sol)
-        rownames(sol)[h] <- name
-        rownames(coefficients)[h] <- name
-        rownames(t.score)[h] <- name
-        rownames(sig.profiles)[h] <- name
-      }
-    }
-    
-    
-    # Return Calculation
-    return(list(
-        p_value = p.value,
-        bondad = bondad,
-        p_valor = p.valor,
-        coeff = coeff,
-        t = t,
-        sig_profiles = y,
-        sol = sol,
-        influ.info = influ.info
-    ))
-  
-    }, mc.cores = num_cores)
-
-  # Get the soluction frame
-  sol.list <- lapply(result_list, function(element){
-      return(element[["sol"]])
-  })
-  
-  # Get Sig.profile list
-  sig_profile.list <- lapply(result_list, function(element){
-      return(element[["sig_profiles"]])
-  })
-  
-  # Get Coeffcient
-  coeff.list <- lapply(result_list, function(element){
-      return(element[["coeff"]])
-  })
-  
-  # Get t scores
-  t.list <- lapply(result_list, function(element){
-      return(element[["t"]])
-  })
-  
-  # Get influ.info
-  influ.info.list <- lapply(result_list, function(element){
-      return(element[["influ.info"]])
-  })
-  return(influ.info.list)
-  
-  # Create Dataframe
-  sol <- do.call("rbind", sol.list)
-  sig.profiles <- do.call("rbind", sig_profile.list)
-  coefficients <- do.call("rbind", coeff.list)
-  t.score <- do.call("rbind", t.list)
-  influ.info <- do.call("rbind", influ.info.list)
-  
-  # Add rownames
-  rownames(sig.profiles) <- rownames(sol)
-  rownames(coefficients) <- rownames(sol)
-  rownames(t.score) <- rownames(sol)
- 
-  }else{
-  
-  
-  #----------------------------
-  for (i in 2:(g + 1)) {
-      
-      y <- as.numeric(dat[i, ])
-      name <- rownames(dat)[i]
-      if (step.method == "backward") {
-          reg <- sc.stepback(y = y, d = dis, alfa = alfa, family = family, epsilon = epsilon, useOffset = offsetData)
-      } else if (step.method == "forward") {
-          reg <- sc.stepfor(y = y, d = dis, alfa = alfa, family = family, epsilon = epsilon, useOffset = offsetData)
-      } else if (step.method == "two.ways.backward") {
-          reg <- sc.two.ways.stepback(y = y, d = dis, alfa = alfa, family = family, epsilon = epsilon, useOffset = offsetData)
-      } else if (step.method == "two.ways.forward") {
-          reg <- sc.two.ways.stepfor(y = y, d = dis, alfa = alfa, family = family, epsilon = epsilon, useOffset = offsetData)
+      name <- rownames(dat_lapply)[i]
+      if (step.method_lapply == "backward") {
+          reg <- sc.stepback(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+      } else if (step.method_lapply == "forward") {
+          reg <- sc.stepfor(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+      } else if (step.method_lapply == "two.ways.backward") {
+          reg <- sc.two.ways.stepback(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+      } else if (step.method_lapply == "two.ways.forward") {
+          reg <- sc.two.ways.stepfor(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
       } else {
           stop("stepwise method must be one of backward, forward, two.ways.backward, two.ways.forward")
       }
       
       div <- c(1:round(g / 100)) * 100
       if (is.element(i, div)) {
-          if (verbose) {
-              setTxtProgressBar(pb, i)
-          }
+          #if (parallel == F) {
+              if (verbose_lapply) {
+                  setTxtProgressBar(pb_lapply, i)
+              }
+          #}
           # print(paste(c("fitting ", item, i, "out of", g), collapse = " "))
       }
-      lmf <- glm(y ~ ., data = as.data.frame(dis), family = family, epsilon = epsilon, offset = offsetData)
+      lmf <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
       result <- summary(lmf)
-      novar <- vars.in[!is.element(vars.in, names(result$coefficients[
-          ,
-          4
-      ]))]
-      
+      novar <- vars.in[!is.element(vars.in, names(result$coefficients[, 4]))]
       influ <- influence.measures(reg)$is.inf
       influ <- influ[, c(ncol(influ) - 3, ncol(influ) - 1)]
       influ1 <- which(apply(influ, 1, all))
@@ -374,19 +218,20 @@ sc.T.fit <- function(data,
           paste.names <- function(a) {
               paste(names(a)[a], collapse = "/")
           }
-          match <- match(rownames(dis), rownames(influ))
+          match <- match(rownames(dis_lapply), rownames(influ))
           influ <- as.data.frame(apply(influ, 1, paste.names))
           influ.info <- cbind(influ.info, influ[match, ])
           colnames(influ.info)[ncol(influ.info)] <- name
+          influ.info <- as.matrix(influ.info)
       }
       result <- summary(reg)
-      if ((!(result$aic == -Inf) & !is.na(result$aic) & family$family == "gaussian") | family$family != "gaussian") {
+      if ((!(result$aic == -Inf) & !is.na(result$aic) & family_lapply$family == "gaussian") | family_lapply$family != "gaussian") {
           k <- i
           
           # Computing p-values
-          model.glm.0 <- glm(y ~ 1, family = family, epsilon = epsilon, offset = offsetData)
+          model.glm.0 <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
           
-          if (family$family == "gaussian") {
+          if (family_lapply$family == "gaussian") {
               test <- anova(model.glm.0, reg, test = "F")
               p.value <- test[6][2, 1]
           } else {
@@ -404,7 +249,7 @@ sc.T.fit <- function(data,
           coeff <- rep(0, (length(vars.in) + 1))
           if (length(novar) != 0) {
               for (m in 1:length(novar)) {
-                  coeff[position(dis, novar[m]) + 1] <- NA
+                  coeff[position(dis_lapply, novar[m]) + 1] <- NA
               }
           }
           p.valor <- t <- as.numeric(rep(NA, (length(vars.in) + 1)))
@@ -443,12 +288,69 @@ sc.T.fit <- function(data,
               rownames(sig.profiles)[h] <- name
           }
       }
-  }
-}
+      
+      #Return Calculation
+      return(list(
+          p_value = p.value,
+          bondad = bondad,
+          p_valor = p.valor,
+          coeff = coeff,
+          t = t,
+          sig_profiles = y,
+          sol = sol,
+          influ.info = influ.info
+      ))
+  })
+  #, mc.cores = num_cores)
   
+  # Get the soluction frame
+  sol.list <- lapply(result_list, function(element) {
+    return(element[["sol"]])
+  })
+
+  # Get Sig.profile list
+  sig_profile.list <- lapply(result_list, function(element) {
+    return(element[["sig_profiles"]])
+  })
+
+  # Get Coeffcient
+  coeff.list <- lapply(result_list, function(element) {
+    return(element[["coeff"]])
+  })
+
+  # Get t scores
+  t.list <- lapply(result_list, function(element) {
+    return(element[["t"]])
+  })
+
+  # Get influ.info
+  influ.info.list <- lapply(result_list, function(element) {
+    return(element[["influ.info"]])
+  })
+
+  # Assuming 'parallel' is your list
+  influ.info.list <- influ.info.list[!sapply(influ.info.list, function(x) is.logical(x))]
+
+  # Lapply to remove column 1
+  influ.info.list <- lapply(influ.info.list, function(element) {
+    return(element[, -1, drop = F])
+  })
+
+  # Create Dataframe
+  sol <- do.call("rbind", sol.list)
+  sig.profiles <- do.call("rbind", sig_profile.list)
+  coefficients <- do.call("rbind", coeff.list)
+  t.score <- do.call("rbind", t.list)
+  influ.info <- do.call("cbind", influ.info.list)
+
+  # Add rownames
+  rownames(sig.profiles) <- rownames(sol)
+  rownames(coefficients) <- rownames(sol)
+  rownames(t.score) <- rownames(sol)
+
   #---------------------------
 
-  
+
   # Ends here
 
   if (!is.null(sol)) {
@@ -492,9 +394,9 @@ sc.T.fit <- function(data,
     }
   }
   if (ncol(influ.info) > 2) {
-    message(paste("\nInfluence:", ncol(influ.info) - 1, "genes with influential data at slot influ.info. Model validation for these genes is recommended"))
+    message(paste("\nInfluence:", ncol(influ.info), "genes with influential data at slot influ.info. Model validation for these genes is recommended"))
   }
-  influ.info <- influ.info[, -1]
+  # influ.info <- influ.info[, -1]
 
   # Create a constructor for the class
   t.fit.object <- new("scTFitClass",
