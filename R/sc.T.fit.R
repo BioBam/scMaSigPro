@@ -181,20 +181,21 @@ sc.T.fit <- function(data,
   #     numCores <- 1
   #   }
 
+  
   # Compute using mclapply
-  result_list <- lapply(2:(g + 1), function(i, step.method_lapply = step.method, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose) {
-    # result_list <- mclapply(2:(g + 1), function(i, step.method_lapply = step.method, dat_lapply =dat, dis_lapply=dis, family_lapply=family, epsilon_lapply=epsilon, offsetData_lapply= offsetData, pb_lapply=pb) {
+  #result_list <- lapply(2:(g + 1), function(i, step.method_lapply = step.method, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose) {
+    result_list <- parallel::mclapply(2:(g + 1), function(i, step.method_lapply = step.method, dat_lapply =dat, dis_lapply=dis, family_lapply=family, epsilon_lapply=epsilon, offsetData_lapply= offsetData, pb_lapply=pb, verbose_lapply = verbose) {
     y <- as.numeric(dat_lapply[i, ])
 
     name <- rownames(dat_lapply)[i]
     if (step.method_lapply == "backward") {
-      reg <- sc.stepback(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+      reg <- scMaSigPro::sc.stepback(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
     } else if (step.method_lapply == "forward") {
-      reg <- sc.stepfor(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+      reg <- scMaSigPro::sc.stepfor(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
     } else if (step.method_lapply == "two.ways.backward") {
-      reg <- sc.two.ways.stepback(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+      reg <- scMaSigPro::sc.two.ways.stepback(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
     } else if (step.method_lapply == "two.ways.forward") {
-      reg <- sc.two.ways.stepfor(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+      reg <- scMaSigPro::sc.two.ways.stepfor(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
     } else {
       stop("stepwise method must be one of backward, forward, two.ways.backward, two.ways.forward")
     }
@@ -298,59 +299,53 @@ sc.T.fit <- function(data,
       t = t,
       sig_profiles = y,
       sol = sol,
-      influ.info = influ.info
+      influ.info = influ.info,
+      feature_name = name
     ))
-  })
-  # , mc.cores = num_cores)
-
+  #})
+   }, mc.cores = num_cores, step.method_lapply = step.method)
+  feature_names <- unlist(lapply(result_list, function(element) {
+      return(element[["feature_name"]])
+  }))
   # Get the soluction frame
   sol.list <- lapply(result_list, function(element) {
     return(element[["sol"]])
   })
-
   # Get Sig.profile list
   sig_profile.list <- lapply(result_list, function(element) {
     return(element[["sig_profiles"]])
   })
-
   # Get Coeffcient
   coeff.list <- lapply(result_list, function(element) {
     return(element[["coeff"]])
   })
-
   # Get t scores
   t.list <- lapply(result_list, function(element) {
     return(element[["t"]])
   })
-
   # Get influ.info
   influ.info.list <- lapply(result_list, function(element) {
     return(element[["influ.info"]])
   })
-
   # Assuming 'parallel' is your list
   influ.info.list <- influ.info.list[!sapply(influ.info.list, function(x) is.logical(x))]
-
   # Lapply to remove column 1
   influ.info.list <- lapply(influ.info.list, function(element) {
     return(element[, -1, drop = F])
   })
-
   # Create Dataframe
   sol <- do.call("rbind", sol.list)
   sig.profiles <- do.call("rbind", sig_profile.list)
   coefficients <- do.call("rbind", coeff.list)
   t.score <- do.call("rbind", t.list)
   influ.info <- do.call("cbind", influ.info.list)
-
+  
   # Add rownames
-  rownames(sig.profiles) <- rownames(sol)
-  rownames(coefficients) <- rownames(sol)
-  rownames(t.score) <- rownames(sol)
-
-  #---------------------------
-
-
+  rownames(sig.profiles) <- feature_names
+  rownames(coefficients) <- feature_names
+  rownames(t.score) <- feature_names
+  
+#-------------------------  
   # Ends here
 
   if (!is.null(sol)) {

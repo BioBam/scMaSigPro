@@ -27,8 +27,8 @@
     ))
 
     # Extract info
-    per_path_num_bin <- extract_info(x, return_type = "num_bins", bin_size_col = object@addParams@bin_size_colname, object@addParams@path_colname)
-    per_path_bin_size <- round(extract_info(x, return_type = "avg_bin_size", bin_size_col = object@addParams@bin_size_colname, object@addParams@path_colname))
+    per_path_num_bin <- extract_info(compressed.cell.metadata, return_type = "num_bins", bin_size_col = object@addParams@bin_size_colname, object@addParams@path_colname)
+    per_path_bin_size <- round(extract_info(compressed.cell.metadata, return_type = "avg_bin_size", bin_size_col = object@addParams@bin_size_colname, object@addParams@path_colname))
 
     # Paste
     cat("\nAverage bin Size->", paste(names(per_path_num_bin), per_path_num_bin, sep = ": "))

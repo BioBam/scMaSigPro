@@ -27,6 +27,7 @@ importFrom("RColorConesa", "getConesaColors")
 importFrom("UpSetR", "fromList", "upset")
 importFrom("foreach", "foreach", "%dopar%")
 importFrom("doParallel", "registerDoParallel")
+importFrom("BiocParallel", "bplapply")
 
 # Import Entire Libraries
 import("ggplot2")
@@ -53,6 +54,10 @@ export("sc.PlotGroups")
 export("sc.plot.bins")
 export("sc.path.intersection")
 export("annotate_sce")
+export("sc.stepback")
+export("sc.stepfor")
+export("sc.two.ways.stepback")
+export("sc.two.ways.stepfor")
 
 # Export Classes
 #exportClasses("scMaSigProClass", "covariateClass", "parameterClass", "pVectorClass", "sigGeneClass", "tFitClass")
