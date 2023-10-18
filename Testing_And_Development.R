@@ -61,7 +61,7 @@
 # 
 # # 
 scmp.obj.sce <- readRDS("../scmp.obj.sce.pvector")
-scmp.obj.sce <-scMaSigPro::sc.T.fit(
+test <-scMaSigPro::sc.T.fit(
     data = scmp.obj.sce, verbose = T,
     step.method = "backward",
     family = scmp.obj@scPVector@family,
