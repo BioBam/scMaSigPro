@@ -26,6 +26,10 @@ scmp.obj.sce <- as_scmp(sim.sce,
 )
 View(as.data.frame(SingleCellExperiment::colData(scmp.obj.sce@sce)))
 
+
+# Squeze
+scmp.obj.sce <- squeeze(scmpObject = scmp.obj.sce)
+
 # Check enrtopy
 scmp.obj.sce <- entropy_discretize(scmpObject = scmp.obj.sce,
                                    path_colname = "Lineage")
@@ -50,11 +54,9 @@ View(as.data.frame(SingleCellExperiment::colData(scmp.obj.sce@compress.sce)))
 # Run p-vector
 scmp.obj.sce <- sc.p.vector(
   scmpObj = scmp.obj.sce, verbose = T, min.obs = 6,
-  counts = T, theta = 1,
+  counts = T, theta = 1,parallel = T,
   offset = T, epsilon = 0.00001
 )
-
-
 
 
 scmp.obj.sce <-scMaSigPro::sc.T.fit(
@@ -122,11 +124,11 @@ expect_equal(parallel@scTFit@influ.info, expected = non_parallel@scTFit@influ.in
 sig.gene <- sc.get.siggenes(scmpObj = scmp.obj, rsq = 0.7, vars = "groups")
 
 sc.PlotGroups(
-  scmpObj = scmp.obj.sce, feature_id = "Gene233", dis = scmp.obj@scTFit@dis,
-  edesign = scmp.obj@scTFit@edesign,
-  groups.vector = scmp.obj@scTFit@groups.vector
+  scmpObj = scmp.obj.sce, feature_id = "Gene233", dis = scmp.obj.sce@scTFit@dis,
+  edesign = scmp.obj.sce@scTFit@edesign,
+  groups.vector = scmp.obj.sce@scTFit@groups.vector
 )
-sc.plot.bins(scmpObj = scmp.obj)
+sc.plot.bins(scmpObj = scmp.obj.sce)
 
 saveRDS(scmp.obj, "../scMaSigPro_Supp/Testing_And_Development/scmp.obj.latest.RDS")
 scmp.obj <- readRDS("../scMaSigPro_Supp/Testing_And_Development/scmp.obj.latest.RDS")

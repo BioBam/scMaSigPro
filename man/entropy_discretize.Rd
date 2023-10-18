@@ -5,21 +5,17 @@
 \title{Find optimal number of pseudotime bins}
 \usage{
 entropy_discretize(
-  cell_metadata,
-  pseudotime_colname = "Pseudotime",
-  path_colname = "Path",
+  scmpObject,
+  pseudotime_colname = scmpObject@addParams@pseudotime_colname,
+  path_colname = scmpObject@addParams@path_colname,
   bin_method = "Sturges",
   drop.fac = 0.5,
   verbose = TRUE,
   binning = "universal",
-  bin_pseudotime_colname = "scmp_binned_pseudotime"
+  bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname
 )
 }
 \arguments{
-\item{cell_metadata}{`cell.metadata` in data.frame. It can be exported using
-the \code{\link[SingleCellExperiment]{colData}}. It should contain the column
-with temporal to be discretized.}
-
 \item{pseudotime_colname}{Name of the column in `cell.metadata` generated using
 \code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
 (Default is "Pseudotime")}
@@ -38,6 +34,10 @@ decrease the number of bins if the initial binning results in too many bins.}
 
 \item{binning}{A character string (deafult = "universal"). When set to
 "individual", the bins are calculated per path iteratively.}
+
+\item{cell_metadata}{`cell.metadata` in data.frame. It can be exported using
+the \code{\link[SingleCellExperiment]{colData}}. It should contain the column
+with temporal to be discretized.}
 }
 \value{
 A data.frame that contains the original data plus additional columns:

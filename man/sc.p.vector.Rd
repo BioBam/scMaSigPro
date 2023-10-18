@@ -16,7 +16,7 @@ sc.p.vector(
   item = "gene",
   verbose = TRUE,
   offset = T,
-  parrallel = F
+  parallel = F
 )
 }
 \arguments{

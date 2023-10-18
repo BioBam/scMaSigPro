@@ -15,17 +15,24 @@
   cat("Class: ScMaSigPro\n")
   cat(paste0("nCells: ", ncol(object@sce), "\n"))
   cat(paste0("nFeatures: ", nrow(object@sce), "\n"))
-  cat("Continuum:")
+  cat("Pseudotime Range:", paste(range(colData(object@sce)[[object@addParams@pseudotime_colname]])))
 
   # Calculate the Compression
   compressed.cell.metadata <- as.data.frame(colData(object@compress.sce))
   if (length(compressed.cell.metadata) > 0) {
-    cat(paste("\nPaths:", paste(levels(as.factor(compressed.cell.metadata$path)), collapse = ", ")))
+    cat(paste("\nPaths:", paste(levels(as.factor(compressed.cell.metadata[[object@addParams@path_colname]])), collapse = ", ")))
     cat(paste0(
-      "\nBinned Pseudotime: ", paste(range(compressed.cell.metadata$binnedTime), collapse = "-"), "(Range), ",
-      mean(compressed.cell.metadata$bin.size), "(Mean), ",
-      median(compressed.cell.metadata$bin.size), "(Median)"
+      "\nBinned Pseudotime: ", paste(range(compressed.cell.metadata[[object@addParams@bin_pseudotime_colname]]), collapse = "-"), "(Range), ",
+      mean(compressed.cell.metadata[[object@addParams@bin_pseudotime_colname]]), "(Mean), "
     ))
+
+    # Extract info
+    per_path_num_bin <- extract_info(x, return_type = "num_bins", bin_size_col = object@addParams@bin_size_colname, object@addParams@path_colname)
+    per_path_bin_size <- round(extract_info(x, return_type = "avg_bin_size", bin_size_col = object@addParams@bin_size_colname, object@addParams@path_colname))
+
+    # Paste
+    cat("\nAverage bin Size->", paste(names(per_path_num_bin), per_path_num_bin, sep = ": "))
+    cat("\nNumber of bins->", paste(names(per_path_bin_size), per_path_bin_size, sep = ": "))
   }
 
   # Calculate Dynamic Information
@@ -42,5 +49,18 @@
   # Influential Genes if any
   if (ncol(object@scTFit@influ.info) > 0) {
     cat(paste("\nNo. of Influential Features:", ncol(object@scTFit@influ.info)))
+  }
+}
+
+# helper to extract the lineage info
+extract_info <- function(data, return_type = "avg_bin_size", bin_size_col, path_col) {
+  if (return_type == "avg_bin_size") {
+    avg_sizes <- tapply(data[[bin_size_col]], data[[path_col]], mean)
+    return(avg_sizes)
+  } else if (return_type == "num_bins") {
+    bin_counts <- table(data[[path_col]])
+    return(bin_counts)
+  } else {
+    stop("Invalid return_type. Choose between 'avg_bin_size' and 'num_bins'.")
   }
 }
