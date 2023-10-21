@@ -5,17 +5,15 @@
 \title{Create Pseduo-bulk metadata}
 \usage{
 make.pseudobulk.design(
-  compressed_cell_metadata,
-  path_colname = "Path",
+  scmpObject,
+  path_colname = scmpObject@addParams@path_colname,
   bin_colname = "scmp_bin",
   bin_size_colname = "scmp_bin_size",
   bin_members_colname = "scmp_bin_members",
-  bin_pseudotime_colname = "scmp_binned_pseudotime"
+  bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname
 )
 }
 \arguments{
-\item{compressed_cell_metadata}{A data.frame. The design file containing the binned data.}
-
 \item{path_colname}{Name of the column in `cell.metadata` generated using
 \code{\link[SingleCellExperiment]{colData}} storing information for Path.
 (Default is `path_prefix`)}
@@ -31,6 +29,8 @@ storing information about the members of the bins. (Default is 'scmp_bin_members
 
 \item{bin_pseudotime_colname}{Name of the column in the 'compressed_cell_metadata',
 storing information about the binned pseudotime. (Default is 'scmp_binned_pseudotime')}
+
+\item{compressed_cell_metadata}{A data.frame. The design file containing the binned data.}
 }
 \value{
 A data.frame containing the pseudobulk profile. The data frame includes the following columns:

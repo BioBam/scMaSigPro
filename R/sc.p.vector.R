@@ -97,10 +97,10 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   p <- dim(dis)[2]
   sc.p.vector <- vector(mode = "numeric", length = g)
 
-  if(parallel == F){
-  if (verbose) {
-    pb <- txtProgressBar(min = 0, max = g, style = 3)
-  }
+  if (parallel == F) {
+    if (verbose) {
+      pb <- txtProgressBar(min = 0, max = g, style = 3)
+    }
   }
 
   # Calculate  offset
@@ -117,9 +117,9 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
 
   if (parallel) {
     numCores <- detectCores()
-    if(verbose){
-    message(paste("Running with", numCores, "cores..."))
-        }
+    if (verbose) {
+      message(paste("Running with", numCores, "cores..."))
+    }
   } else {
     numCores <- 1
   }
@@ -129,11 +129,13 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
 
     # Print prog_lapplyress every 100 g_lapplyenes
     div <- c(1:round(g_lapply / 100)) * 100
-    
-    if(parallel == F){
-        if (is.element(i, div) && verbose_lapply) {
-            setTxtProgressBar(pb_lapply, i)
-            }
+
+    if (parallel == F) {
+      if (is.element(i, div) && verbose_lapply) {
+        if (verbose) {
+          setTxtProgressBar(pb_lapply, i)
+        }
+      }
     }
     model.glm <- glm(y ~ .,
       data = dis_lapply, family = family_lapply, epsilon = epsilon_lapply,

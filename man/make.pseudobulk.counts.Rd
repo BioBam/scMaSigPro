@@ -5,16 +5,15 @@
 \title{Create Pseduo-bulk Counts}
 \usage{
 make.pseudobulk.counts(
-  counts,
+  scmpObject,
   bin_members_colname = "scmp_bin_members",
   bin_colname = "scmp_bin",
+  assay_name = "counts",
   pseudo_bulk_profile,
   cluster_count_by = "sum"
 )
 }
 \arguments{
-\item{counts}{Raw count data from single cell RNA-seq experiment.}
-
 \item{bin_members_colname}{Name of the column in the 'compressed_cell_metadata',
 storing information about the members of the bins. (Default is 'scmp_bin_members')}
 
@@ -26,6 +25,8 @@ storing information about the bin labels. (Default is 'scmp_bin')}
 
 \item{cluster_count_by}{A character string (default = "sum"). The method to
 use to aggregate counts within each cluster.}
+
+\item{counts}{Raw count data from single cell RNA-seq experiment.}
 }
 \value{
 A data.frame. The data frame includes pseudo bulk counts with each row being a gene and each column being a bin.

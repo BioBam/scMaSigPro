@@ -34,8 +34,8 @@
 #'
 #' @export
 squeeze <- function(scmpObject,
-                    pseudotime_colname = "Pseudotime",
-                    path_colname = "Path",
+                    pseudotime_colname = scmpObject@addParams@pseudotime_colname,
+                    path_colname = scmpObject@addParams@path_colname,
                     bin_method = "Sturges",
                     drop.fac = 0.5,
                     verbose = TRUE,
@@ -43,7 +43,7 @@ squeeze <- function(scmpObject,
                     assay_name = "counts",
                     binning = "universal",
                     additional_params = NULL,
-                    bin_pseudotime_colname = "scmp_binned_pseudotime") {
+                    bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname) {
   if (!is.null(additional_params)) {
     assert_that(is.list(additional_params),
       msg = "Please provide 'additional_params' as a named list. See details for more information"

@@ -7,7 +7,7 @@
 sc.T.fit(
   data,
   design = NULL,
-  step.method = "forward",
+  step.method = "foraward",
   min.obs = NULL,
   alfa = NULL,
   nvar.correction = FALSE,
