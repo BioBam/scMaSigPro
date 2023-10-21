@@ -1,34 +1,37 @@
-# ##########################################################
-# ## Author: Priyansh Srivastava ###########################
-# ## Email: spriyansh29@gmail.com ##########################
-# ## Script: scMaSigPro Application ########################
-# ##########################################################
-# 
-# set.seed(007)
-# 
-# # Load scMaSigPro
-# library(scMaSigPro)
-# 
-# # Load Objects
-# load("../scMaSigPro_Supp/benchmarks/01_Sparsity/data/simulated/sce/sparsity_30.RData")
-# 
+##########################################################
+## Author: Priyansh Srivastava ###########################
+## Email: spriyansh29@gmail.com ##########################
+## Script: scMaSigPro Application ########################
+##########################################################
+
+set.seed(007)
+
+# Load scMaSigPro
+library(scMaSigPro)
+
+# Load Objects
+load("../scMaSigPro_Supp/Analysis_Public_Data/data/rep1/rep1_processed.RData")
+
+# Check Annoatete Monocle3
+annotated_cds <- annotate_monocle3_cds(cds)
+
 # # Convert the ScMaSigPro Object
-# scmp.obj.sce <- as_scmp(sim.sce,
-#   from = "sce",
-#   verbose = T,
-#   path_colname = "Lineage",
-#   pseudotime_colname = "Pseudotime",
-#   additional_params = list(
-#     overwrite_labels = T,
-#     existing_pseudotime_colname = "Step",
-#     existing_path_colname = "Group"
-#   )
-# )
-# View(as.data.frame(SingleCellExperiment::colData(scmp.obj.sce@sce)))
+scmp.obj.sce <- as_scmp(cds,
+  from = "cds",
+  verbose = T,
+  path_colname = "Lineage",
+  pseudotime_colname = "Pseudotime",
+  additional_params = list(
+    overwrite_labels = F#,
+    #existing_pseudotime_colname = "Step",
+    #existing_path_colname = "Group"
+  )
+)
+ View(as.data.frame(SingleCellExperiment::colData(scmp.obj.sce@sce)))
 # 
 # 
 # # Squeze
-# scmp.obj.sce <- squeeze(scmpObject = scmp.obj.sce)
+scmp.obj.sce <- squeeze(scmpObject = scmp.obj.sce)
 # 
 # # Check enrtopy
 # scmp.obj.sce <- entropy_discretize(scmpObject = scmp.obj.sce,
@@ -52,11 +55,11 @@
 # 
 # 
 # # Run p-vector
-# scmp.obj.sce <- sc.p.vector(
-#   scmpObj = scmp.obj.sce, verbose = T, min.obs = 6,
-#   counts = T, theta = 1,parallel = T,
-#   offset = T, epsilon = 0.00001
-# )
+scmp.obj.sce <- sc.p.vector(
+  scmpObj = scmp.obj.sce, verbose = T, min.obs = 0,
+  counts = T, theta = 1,parallel = T,
+  offset = T, epsilon = 0.00001
+)
 # 
 # 
 # # 
