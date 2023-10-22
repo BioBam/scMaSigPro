@@ -10,6 +10,7 @@
 #' @return A character vector with the same length as the input where
 #' unique elements, excluding "root", are renamed to "Path1", "Path2", etc.
 #'
+#' @importFrom stats setNames
 #'
 #' @keywords internal
 convert_to_path <- function(vec, path_prefix, root_label) {
