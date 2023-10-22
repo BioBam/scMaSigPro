@@ -1,6 +1,4 @@
-#' @title Class "addParamClass"
-#'
-#' @description A class for additional parameters related to pseudotime and path analyses.
+#' Class "addParamClass"
 #'
 #' @slot bin_pseudotime_colname A character representing the name of the column for binned pseudotime values.
 #' @slot path_prefix A character representing the prefix for path labeling.
@@ -13,15 +11,9 @@
 #' @slot bin_size_colname A character representing the name of the column for bin sizes.
 #' @slot bin_members_colname A character representing the name of the column for bin members.
 #'
-#' @name scmpAddParamClass
-#' @aliases addParam-class
-#' @rdname addParamClass-class
-#' @exportClass addParamClass
-#' @keywords classes
-#' @export
-#' 
 #' @importFrom methods is new
-#'
+#' @exportClass addParamClass
+
 setClass(
   "addParamClass",
   representation(

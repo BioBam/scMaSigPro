@@ -1,18 +1,17 @@
 #' @title Annotate 'SingleCellExperiment' class object with pseudotime and path information.
-#'
+#' 
 #' @description
-#' `annotate_sce()` annotates a \code{\link[SingleCellExperiment]{SingleCellExperiment}}
-#' class object with pseudotime and path information in its `cell.metadata`
-#' generated using \code{\link[SingleCellExperiment]{colData}}.
+#' `annotate_sce()` annotates a SingleCellExperiment class object with pseudotime 
+#' and path information in its `cell.metadata` generated using `colData` from the \pkg{SingleCellExperiment} package.
 #'
 #' @param sce A SingleCellExperiment object to be annotated.
 #' @param pseudotime_colname Name of the column in `cell.metadata` generated using
-#' \code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
+#' `colData` from the \pkg{SingleCellExperiment} package, storing information for Pseudotime.
 #' (Default is "Pseudotime")
 #' @param path_prefix Prefix used to annotate the paths. (Default is "Path").
 #' @param root_label Label used to annotate root cells. (Default is "root").
 #' @param path_colname Name of the column in `cell.metadata` generated using
-#' \code{\link[SingleCellExperiment]{colData}} storing information for Path.
+#' `colData` from the \pkg{SingleCellExperiment} package, storing information for Path.
 #' (Default is `path_prefix`)
 #' @param existing_pseudotime_colname The name of an existing pseudotime column to be replaced (if not NULL).
 #' @param existing_path_colname The name of an existing path column to be replaced (if not NULL).
@@ -23,8 +22,7 @@
 #'
 #' @details Additional Details
 #'
-#' @seealso
-#' \code{\link[SingleCellExperiment]{SingleCellExperiment}}, \code{\link[SingleCellExperiment]{colData}}.
+#' @seealso SingleCellExperiment class object, `colData` from the \pkg{SingleCellExperiment} package
 #'
 #' @examples
 #' # Annotate a SingleCellExperiment object with pseudotime and path information
@@ -40,7 +38,6 @@
 #' @importFrom SingleCellExperiment colData
 #' @importFrom assertthat assert_that
 #' 
-#'
 #' @export
 annotate_sce <- function(sce,
                          pseudotime_colname = "Pseudotime",

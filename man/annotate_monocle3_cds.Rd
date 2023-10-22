@@ -25,11 +25,11 @@ annotate_monocle3_cds(
 \item{root_label}{Label used to annotate root cells. (Default is "root").}
 
 \item{pseudotime_colname}{Name of the column in `cell.metadata` generated using
-\code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
+`colData` from the \pkg{SingleCellExperiment} package, storing information for Pseudotime.
 (Default is "Pseudotime")}
 
 \item{path_colname}{Name of the column in `cell.metadata` generated using
-\code{\link[SingleCellExperiment]{colData}} storing information for Path.
+`colData` from the \pkg{SingleCellExperiment} package, storing information for Path.
 (Default is `path_prefix`)}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
@@ -63,7 +63,7 @@ result <- annotate_monocle3_cds(cds,
 }
 \seealso{
 \code{\link[monocle3]{principal_graph_aux}}, \code{\link[monocle3]{principal_graph}},
-\code{\link[igraph]{shortest_paths}}, \code{\link[SingleCellExperiment]{colData}}
+\code{\link[igraph]{shortest_paths}}, `colData` from the \pkg{SingleCellExperiment} package
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

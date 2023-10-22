@@ -3,12 +3,9 @@
 #' A class to represent the ScMaSigPro analysis results and associated data.
 #' Inherits from \code{SingleCellExperiment}.
 #'
-#' @name scMaSigProClass
-#' @aliases scMaSigProClass
-#' @exportClass scMaSigProClass
-#' 
 #' @importFrom methods is new
-#' 
+#' @exportClass scMaSigProClass
+
 setClass(
   "scMaSigProClass",
   representation(
@@ -72,7 +69,7 @@ scMaSigProClass <- function(sce = new("SingleCellExperiment"), # Remove default 
     compress.sce = compress.sce,
     edesign = edesign,
     siggenes = siggenes,
-    addParamClass = addParamClass
+    addParamClass = addParams
   )
 }
 

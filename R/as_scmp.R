@@ -1,9 +1,7 @@
 #' @title Convert 'Cell Dataset' or 'SingleCellExperiment' object to scmpClass
 #'
 #' @description
-#' `as_scmp()` converts a cell_data_set object from Monocle \code{\link[monocle3]{new_cell_data_set}}
-#' or a SingleCellExperiment object from Slingshot to an instance of the
-#' scmpClass object.
+#' `as_scmp()` converts a cell_data_set object from Monocle or a SingleCellExperiment object from Slingshot to an instance of the scmpClass object.
 #'
 #' @param object An S4 object of class `cell_data_set` or `SingleCellExperiment`.
 #' @param from Character string specifying the class of 'object'. Use "cds" for
@@ -11,10 +9,10 @@
 #' @param path_prefix Prefix used to annotate the paths. (Default is "Path").
 #' @param root_label Label used to annotate root cells. (Default is "root").
 #' @param pseudotime_colname Name of the column in `cell.metadata` generated using
-#' \code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
+#' `colData` from the \pkg{SingleCellExperiment} package, storing information for Pseudotime.
 #' (Default is "Pseudotime")
 #' @param path_colname Name of the column in `cell.metadata` generated using
-#' \code{\link[SingleCellExperiment]{colData}} storing information for Path.
+#' `colData` from the \pkg{SingleCellExperiment} package, storing information for Path.
 #' (Default is `path_prefix`)
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #' @param additional_params A named list of additional parameters. See details.
@@ -23,8 +21,7 @@
 #'
 #' @return An instance of the 'scmpClass'.
 #'
-#' @seealso
-#' \code{\link[SingleCellExperiment]{colData}}, \code{\link[monocle3]{new_cell_data_set}}
+#' @seealso `colData` from the \pkg{SingleCellExperiment} package, `new_cell_data_set` function in \pkg{monocle3}
 #'
 #' @examples
 #' \dontrun{
@@ -135,7 +132,7 @@ as_scmp <- function(object, from = "cds",
     }
 
     # Annotate the monocel3 Object
-    annotated_cds <- annotate_monocle3_cds(cds,
+    annotated_cds <- annotate_monocle3_cds(object,
       reduction_method = additional_params[["reduction_method"]],
       path_prefix = path_prefix,
       root_label = root_label,

@@ -11,10 +11,10 @@
 #' @param path_prefix Prefix used to annotate the paths. (Default is "Path").
 #' @param root_label Label used to annotate root cells. (Default is "root").
 #' @param path_colname Name of the column in `cell.metadata` generated using
-#' \code{\link[SingleCellExperiment]{colData}} storing information for Path.
+#' `colData` from the \pkg{SingleCellExperiment} package, storing information for Path.
 #' (Default is `path_prefix`)
 #' @param pseudotime_colname Name of the column in `cell.metadata` generated using
-#' \code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
+#' `colData` from the \pkg{SingleCellExperiment} package, storing information for Pseudotime.
 #' (Default is "Pseudotime")
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #'
@@ -28,7 +28,7 @@
 #'
 #' @seealso
 #' \code{\link[monocle3]{principal_graph_aux}}, \code{\link[monocle3]{principal_graph}},
-#' \code{\link[igraph]{shortest_paths}}, \code{\link[SingleCellExperiment]{colData}}
+#' \code{\link[igraph]{shortest_paths}}, `colData` from the \pkg{SingleCellExperiment} package
 #'
 #' @examples
 #' \dontrun{
@@ -44,15 +44,14 @@
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#'
 #' @importFrom monocle3 principal_graph principal_graph_aux pseudotime
 #' @importFrom igraph degree shortest_paths
 #' @importFrom SingleCellExperiment colData
 #' @importFrom magrittr %>%
 #' @importFrom dplyr mutate select
 #' @importFrom S4Vectors DataFrame
+#' @import SingleCellExperiment
 #' @export
-#'
 annotate_monocle3_cds <- function(cds, reduction_method = "umap",
                                   path_prefix = "Path",
                                   root_label = "root",
