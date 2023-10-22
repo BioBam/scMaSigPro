@@ -1,7 +1,7 @@
 #' @title Annotate 'SingleCellExperiment' class object with pseudotime and path information.
-#' 
+#'
 #' @description
-#' `annotate_sce()` annotates a SingleCellExperiment class object with pseudotime 
+#' `annotate_sce()` annotates a SingleCellExperiment class object with pseudotime
 #' and path information in its `cell.metadata` generated using `colData` from the \pkg{SingleCellExperiment} package.
 #'
 #' @param sce A SingleCellExperiment object to be annotated.
@@ -37,7 +37,7 @@
 #'
 #' @importFrom SingleCellExperiment colData
 #' @importFrom assertthat assert_that
-#' 
+#'
 #' @export
 annotate_sce <- function(sce,
                          pseudotime_colname = "Pseudotime",

@@ -43,7 +43,7 @@ annotate_sce(
 A SingleCellExperiment object with updated cell metadata.
 }
 \description{
-`annotate_sce()` annotates a SingleCellExperiment class object with pseudotime 
+`annotate_sce()` annotates a SingleCellExperiment class object with pseudotime
 and path information in its `cell.metadata` generated using `colData` from the \pkg{SingleCellExperiment} package.
 }
 \details{
