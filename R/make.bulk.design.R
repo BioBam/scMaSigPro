@@ -5,6 +5,8 @@
 #' It groups cells into bins for each path from a given set of paths and
 #' calculates the bin size.
 #'
+#' @param scmpObject object of Class scMaSigPro. See \code{\link{scmpClass}} 
+#' for more details.
 #' @param path_colname Name of the column in `cell.metadata` storing information 
 #' for Path. Generated using \code{\link[SingleCellExperiment]{colData}}. (Default 
 #' is `path_prefix`).
