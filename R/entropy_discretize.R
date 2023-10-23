@@ -9,20 +9,23 @@
 #' @param scmpObject `colData` in data.frame. It can be exported using
 #' the \pkg{SingleCellExperiment}. It should contain the column
 #' with temporal to be discretized.
-#' @param pseudotime_colname Name of the column in `cell.metadata` generated using
-#' `colData` from the \pkg{SingleCellExperiment} package, storing information for Pseudotime.
-#' (Default is "Pseudotime")
-#' @param path_colname Name of the column in `cell.metadata` generated using
-#' `colData` from the \pkg{SingleCellExperiment} package, storing information for Path.
-#' (Default is `path_prefix`)
-#' @param bin_pseudotime_colname description
-#' @param bin_method A character string (default = "Sturges"). The method to be
-#' used to estimate the optimal number of bins.
-#' @param drop.fac A numeric value (default = 0.5). The factor by which to
-#' decrease the number of bins if the initial binning results in too many bins.
+#' @param pseudotime_colname Name of the column in `cell.metadata` storing 
+#' Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment} 
+#' package. (Default is "Pseudotime").
+#' @param path_colname Name of the column in `cell.metadata` storing information 
+#' for Path. Generated using `colData` from the \pkg{SingleCellExperiment} 
+#' package. (Default is `path_prefix`).
+#' @param bin_pseudotime_colname Name of the column to store the computed Pseudotime
+#' bins.
+#' @param bin_method A character string specifying the method to use in order to 
+#' estimate the optimal number of bins. Available options: "Freedman.Diaconis", 
+#' "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal". See \code{\link{estBinSize}} 
+#' for more details. (Default = "Sturges").
+#' @param drop.fac A numeric value specifying the factor by which to decrease the 
+#' number of bins if the initial binning results in too many bins. (Default = 0.5).
 #' @param verbose Print detailed output in the console. (Default is TRUE)
-#' @param binning A character string (deafult = "universal"). When set to
-#' "individual", the bins are calculated per path iteratively.
+#' @param binning A character string. When set to "individual", the bins are calculated 
+#' per path iteratively. Options: "universal", "individual. (Default = "universal").
 #'
 #' @return
 #' A data.frame that contains the original data plus additional columns:
@@ -73,7 +76,7 @@ entropy_discretize <- function(scmpObject,
                                bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname) {
   # Check Object Validity
   assert_that(is(scmpObject, "scMaSigProClass"),
-    msg = "Please provide object of class 'scMaSigPro'"
+    msg = "Please provide object of class 'scMaSigPro'."
   )
 
   # Extract cell metadata
@@ -81,13 +84,16 @@ entropy_discretize <- function(scmpObject,
 
   # Checks
   assert_that(pseudotime_colname %in% colnames(cell_metadata),
-    msg = paste0("'", pseudotime_colname, "' does not exist in cell_metadata")
+    msg = paste0("'", pseudotime_colname, "' does not exist in cell_metadata. Please review the 'pseudotime_colname' parameter.")
   )
   assert_that(path_colname %in% colnames(cell_metadata),
-    msg = paste0("'", path_colname, "' does not exist in cell_metadata")
+    msg = paste0("'", path_colname, "' does not exist in cell_metadata. Please review the 'path_colname' parameter.")
   )
   assert_that(drop.fac >= 0.3,
     msg = "Invalid value for 'drop.fac'. It should be between 0.3 and 1."
+  )
+  assert_that(drop.fac <= 1,
+              msg = "Invalid value for 'drop.fac'. It should be between 0.3 and 1."
   )
   assert_that(all(binning %in% c("universal", "individual")),
     msg = "Allowed options for binning are 'universal' and 'individual'"
@@ -107,7 +113,7 @@ entropy_discretize <- function(scmpObject,
 
   # Check for path
   assert_that(length(avail.paths) >= 2,
-    msg = "Invalid number of paths detected. Please make sure that dataset has atleast two paths"
+    msg = "Invalid number of paths detected. Please make sure that dataset has at least two paths"
   )
 
   # Switch
