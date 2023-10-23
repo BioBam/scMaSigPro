@@ -19,23 +19,26 @@ annotate_sce(
 \arguments{
 \item{sce}{A SingleCellExperiment object to be annotated.}
 
-\item{pseudotime_colname}{Name of the column in `cell.metadata` generated using
-`colData` from the \pkg{SingleCellExperiment} package, storing information for Pseudotime.
-(Default is "Pseudotime")}
+\item{pseudotime_colname}{Name of the column in `cell.metadata`  storing 
+information for Pseudotime. It is generated using `colData` from the 
+\pkg{SingleCellExperiment} package. (Default is "Pseudotime").}
 
 \item{path_prefix}{Prefix used to annotate the paths. (Default is "Path").}
 
 \item{root_label}{Label used to annotate root cells. (Default is "root").}
 
-\item{path_colname}{Name of the column in `cell.metadata` generated using
-`colData` from the \pkg{SingleCellExperiment} package, storing information for Path.
-(Default is `path_prefix`)}
+\item{path_colname}{Name of the column in `cell.metadata` storing information 
+for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} 
+package. (Default is `path_prefix`).}
 
-\item{existing_pseudotime_colname}{The name of an existing pseudotime column to be replaced (if not NULL).}
+\item{existing_pseudotime_colname}{The name of an existing pseudotime column 
+to be replaced (if not NULL).}
 
-\item{existing_path_colname}{The name of an existing path column to be replaced (if not NULL).}
+\item{existing_path_colname}{The name of an existing path column to be replaced 
+(if not NULL).}
 
-\item{overwrite_labels}{Logical, should existing column names be overwritten if they exist? (default is TRUE).}
+\item{overwrite_labels}{Logical, should existing column names be overwritten 
+if they already exist? (default is TRUE).}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }
@@ -44,7 +47,8 @@ A SingleCellExperiment object with updated cell metadata.
 }
 \description{
 `annotate_sce()` annotates a SingleCellExperiment class object with pseudotime
-and path information in its `cell.metadata` generated using `colData` from the \pkg{SingleCellExperiment} package.
+and path information in its `cell.metadata` generated using `colData` from the 
+\pkg{SingleCellExperiment} package.
 }
 \details{
 Additional Details
@@ -60,7 +64,7 @@ annotated_sce <- annotate_sce(sce,
 
 }
 \seealso{
-SingleCellExperiment class object, `colData` from the \pkg{SingleCellExperiment} package
+SingleCellExperiment class object, `colData` from the \pkg{SingleCellExperiment} package.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
