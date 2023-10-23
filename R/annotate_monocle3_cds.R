@@ -1,21 +1,21 @@
 #' @title Annotate Monocle3 Object
 #'
 #' @description
-#' `annotate_monocle3_cds()` annotates the Monocle3's CellDataSet object. It uses
-#' the principal points, root cells, minimum spanning tree, to update the CDS
+#' `annotate_monocle3_cds()` annotates the Monocle3's cds/CellDataSet (CDS) object. It uses
+#' the principal points, root cells, and minimum spanning tree to update the CDS
 #' with end-point information that is used as path information.
 #'
-#' @param cds A Monocle3 CellDataSet (CDS).
+#' @param cds A Monocle3 cds/CellDataSet object (CDS).
 #' @param reduction_method The dimensionality reduction method used. Default is
 #' "umap". Monocle3 currently supports "UMAP" only for most procedure.
 #' @param path_prefix Prefix used to annotate the paths. (Default is "Path").
 #' @param root_label Label used to annotate root cells. (Default is "root").
-#' @param path_colname Name of the column in `cell.metadata` generated using
-#' \code{\link[SingleCellExperiment]{colData}} storing information for Path.
-#' (Default is `path_prefix`)
-#' @param pseudotime_colname Name of the column in `cell.metadata` generated using
-#' \code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
-#' (Default is "Pseudotime")
+#' @param path_colname Name of the column in `cell.metadata` storing information 
+#' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} 
+#' package. (Default is `path_prefix`).
+#' @param pseudotime_colname Name of the column in `cell.metadata` storing 
+#' information for Pseudotime. It is generated usingn`colData` from the 
+#' \pkg{SingleCellExperiment} package. (Default is "Pseudotime").
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #'
 #' @details
@@ -28,7 +28,7 @@
 #'
 #' @seealso
 #' \code{\link[monocle3]{principal_graph_aux}}, \code{\link[monocle3]{principal_graph}},
-#' \code{\link[igraph]{shortest_paths}}, \code{\link[monocle3]{pseudotime}}
+#' \code{\link[igraph]{shortest_paths}}, `colData` from the \pkg{SingleCellExperiment} package
 #'
 #' @examples
 #' \dontrun{
@@ -44,12 +44,14 @@
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#'
 #' @importFrom monocle3 principal_graph principal_graph_aux pseudotime
-#' @importFrom igraph degree
-#'
+#' @importFrom igraph degree shortest_paths
+#' @importFrom SingleCellExperiment colData
+#' @importFrom magrittr %>%
+#' @importFrom dplyr mutate select
+#' @importFrom S4Vectors DataFrame
+#' @import SingleCellExperiment
 #' @export
-#'
 annotate_monocle3_cds <- function(cds, reduction_method = "umap",
                                   path_prefix = "Path",
                                   root_label = "root",
@@ -156,7 +158,7 @@ annotate_monocle3_cds <- function(cds, reduction_method = "umap",
       message("Universal Pseudotime Detected, using monocle3")
     }
   } else {
-    stop("Pseudotime is different for different paths, this is not a normal for monocle3. Consider using 'extract_slingshot_components()'")
+    stop("Pseudotime is different for different paths, this is not a normal for Monocle3. Consider using 'extract_slingshot_components()'")
   }
 
   # Add path information
@@ -166,7 +168,7 @@ annotate_monocle3_cds <- function(cds, reduction_method = "umap",
   )
 
   # Update cell dataset with the updated cell metadata
-  colData(cds) <- DataFrame(cell.meta)
+  cds@colData <- DataFrame(cell.meta)
 
   # Return a list with updated cell dataset, y_to_cells data, endpoints, root, and number of cells per path
   return(cds)

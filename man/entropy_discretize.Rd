@@ -16,28 +16,33 @@ entropy_discretize(
 )
 }
 \arguments{
-\item{pseudotime_colname}{Name of the column in `cell.metadata` generated using
-\code{\link[SingleCellExperiment]{colData}} storing information for Pseudotime.
-(Default is "Pseudotime")}
+\item{scmpObject}{`colData` in data.frame. It can be exported using
+the \pkg{SingleCellExperiment}. It should contain the column
+with temporal to be discretized.}
 
-\item{path_colname}{Name of the column in `cell.metadata` generated using
-\code{\link[SingleCellExperiment]{colData}} storing information for Path.
-(Default is `path_prefix`)}
+\item{pseudotime_colname}{Name of the column in `cell.metadata` storing 
+Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment} 
+package. (Default is "Pseudotime").}
 
-\item{bin_method}{A character string (default = "Sturges"). The method to be
-used to estimate the optimal number of bins.}
+\item{path_colname}{Name of the column in `cell.metadata` storing information 
+for Path. Generated using `colData` from the \pkg{SingleCellExperiment} 
+package. (Default is `path_prefix`).}
 
-\item{drop.fac}{A numeric value (default = 0.5). The factor by which to
-decrease the number of bins if the initial binning results in too many bins.}
+\item{bin_method}{A character string specifying the method to use in order to 
+estimate the optimal number of bins. Available options: "Freedman.Diaconis", 
+"Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal". See \code{\link{estBinSize}} 
+for more details. (Default = "Sturges").}
+
+\item{drop.fac}{A numeric value specifying the factor by which to decrease the 
+number of bins if the initial binning results in too many bins. (Default = 0.5).}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{binning}{A character string (deafult = "universal"). When set to
-"individual", the bins are calculated per path iteratively.}
+\item{binning}{A character string. When set to "individual", the bins are calculated 
+per path iteratively. Options: "universal", "individual. (Default = "universal").}
 
-\item{cell_metadata}{`cell.metadata` in data.frame. It can be exported using
-the \code{\link[SingleCellExperiment]{colData}}. It should contain the column
-with temporal to be discretized.}
+\item{bin_pseudotime_colname}{Name of the column to store the computed Pseudotime
+bins.}
 }
 \value{
 A data.frame that contains the original data plus additional columns:

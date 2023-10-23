@@ -53,69 +53,6 @@
 #'
 #' @seealso{\code{\link{p.vector}}, \code{\link{step}}}
 #'
-#' @examples{
-#' #### GENERATE TIME COURSE DATA
-#' ## generate n random gene expression profiles of a data set with
-#' ## one control plus 3 treatments, 3 time points and r replicates per time point.
-#'
-#' tc.GENE <- function(n, r,
-#'              var11 = 0.01, var12 = 0.01,var13 = 0.01,
-#'              var21 = 0.01, var22 = 0.01, var23 =0.01,
-#'              var31 = 0.01, var32 = 0.01, var33 = 0.01,
-#'              var41 = 0.01, var42 = 0.01, var43 = 0.01,
-#'              a1 = 0, a2 = 0, a3 = 0, a4 = 0,
-#'              b1 = 0, b2 = 0, b3 = 0, b4 = 0,
-#'              c1 = 0, c2 = 0, c3 = 0, c4 = 0)
-#'
-#' {
-#'
-#'   tc.dat <- NULL
-#'   for (i in 1:n) {
-#'     Ctl <- c(rnorm(r, a1, var11), rnorm(r, b1, var12), rnorm(r, c1, var13))  # Ctl group
-#'     Tr1 <- c(rnorm(r, a2, var21), rnorm(r, b2, var22), rnorm(r, c2, var23))  # Tr1 group
-#'     Tr2 <- c(rnorm(r, a3, var31), rnorm(r, b3, var32), rnorm(r, c3, var33))  # Tr2 group
-#'     Tr3 <- c(rnorm(r, a4, var41), rnorm(r, b4, var42), rnorm(r, c4, var43))  # Tr3 group
-#'     gene <- c(Ctl, Tr1, Tr2, Tr3)
-#'     tc.dat <- rbind(tc.dat, gene)
-#'   }
-#'   tc.dat
-#' }
-#'
-#' ## Create 270 flat profiles
-#' flat <- tc.GENE(n = 270, r = 3)
-#' ## Create 10 genes with profile differences between Ctl and Tr1 groups
-#' twodiff <- tc.GENE (n = 10, r = 3, b2 = 0.5, c2 = 1.3)
-#' ## Create 10 genes with profile differences between Ctl, Tr2, and Tr3 groups
-#' threediff <- tc.GENE(n = 10, r = 3, b3 = 0.8, c3 = -1, a4 = -0.1, b4 = -0.8, c4 = -1.2)
-#' ## Create 10 genes with profile differences between Ctl and Tr2 and different variance
-#' vardiff <- tc.GENE(n = 10, r = 3, a3 = 0.7, b3 = 1, c3 = 1.2, var32 = 0.03, var33 = 0.03)
-#' ## Create dataset
-#' tc.DATA <- rbind(flat, twodiff, threediff, vardiff)
-#' rownames(tc.DATA) <- paste("feature", c(1:300), sep = "")
-#' colnames(tc.DATA) <- paste("Array", c(1:36), sep = "")
-#' tc.DATA [sample(c(1:(300*36)), 300)] <- NA  # introduce missing values
-#'
-#' #### CREATE EXPERIMENTAL DESIGN
-#' Time <- rep(c(rep(c(1:3), each = 3)), 4)
-#' Replicates <- rep(c(1:12), each = 3)
-#' Control <- c(rep(1, 9), rep(0, 27))
-#' Treat1 <- c(rep(0, 9), rep(1, 9), rep(0, 18))
-#' Treat2 <- c(rep(0, 18), rep(1, 9), rep(0,9))
-#' Treat3 <- c(rep(0, 27), rep(1, 9))
-#' edesign <- cbind(Time, Replicates, Control, Treat1, Treat2, Treat3)
-#' rownames(edesign) <- paste("Array", c(1:36), sep = "")
-#'
-#' ## run T.fit from a p.vector object
-#' tc.p <- p.vector(tc.DATA, design = make.design.matrix(edesign), Q = 0.01)
-#' tc.tstep <- T.fit(data = tc.p , alfa = 0.05)
-#'
-#' ## run T.fit from a data matrix and a design matrix
-#' dise <- make.design.matrix(edesign)
-#' tc.tstep <- T.fit (data = tc.DATA[271:300,], design = dise$dis,
-#'                    step.method = "two.ways.backward", min.obs = 10, alfa = 0.05)
-#' tc.tstep$sol # gives the p.values of the significant
-#'              # regression coefficients of the optimized models
-#' }
 #'
 #' @keywords regression
 #' @keywords models
@@ -128,362 +65,361 @@ sc.T.fit <- function(data,
                      family = gaussian(),
                      epsilon = 0.00001, offset = T,
                      item = "gene", verbose = TRUE) {
-    assert_that(is(data, "scMaSigProClass"),
-                msg = "Please provide object of class 'scMaSigProClass'"
+  assert_that(is(data, "scMaSigProClass"),
+    msg = "Please provide object of class 'scMaSigProClass'"
+  )
+  pvectorObj <- data@scPVector
+
+  design <- pvectorObj@dis
+  min.obs <- pvectorObj@min.obs
+  alfa <- pvectorObj@Q
+  dat <- as.matrix(pvectorObj@SELEC)
+  dat <- rbind(c(rep(1, ncol(dat))), dat)
+  groups.vector <- pvectorObj@groups.vector
+  groups.vector <- c(groups.vector[nchar(groups.vector) == min(nchar(groups.vector))][1], groups.vector)
+  edesign <- pvectorObj@edesign
+  G <- pvectorObj@g
+  family <- pvectorObj@family
+
+
+  dis <- as.data.frame(design)
+  dat <- dat[, as.character(rownames(dis))]
+  g <- (dim(dat)[1] - 1)
+  n <- dim(dat)[2]
+  p <- dim(dis)[2]
+  vars.in <- colnames(dis)
+  sol <- coefficients <- group.coeffs <- t.score <- sig.profiles <- NULL
+  influ.info <- matrix(NA, nrow = nrow(dis), ncol = 1)
+  rownames(influ.info) <- rownames(dis)
+
+  if (nvar.correction) {
+    alfa <- alfa / ncol(dis)
+  }
+
+  # Added Progress Bar
+  if (verbose) {
+    pb <- txtProgressBar(min = 0, max = g, style = 3)
+  }
+
+  # Calculate  offset
+  if (offset) {
+    offsetData <- log(estimateSizeFactorsForMatrix(dat + 1))
+  } else {
+    offsetData <- NULL
+  }
+  #
+  #   # If parallel is requested
+  #   if (parallel) {
+  #     numCores <- detectCores()
+  #     if (verbose) {
+  #       message(paste("Running with", numCores, "cores..."))
+  #     }
+  #   } else {
+  #     numCores <- 1
+  #   }
+  numCores <- detectCores()
+
+  # Collect all the y
+  y_input <- parallel::mclapply(2:(g + 1), function(i, dat_lapply = dat) {
+    return(as.numeric(dat_lapply[i, ]))
+  }, mc.cores = numCores)
+  names(y_input) <- rownames(dat)[-1]
+
+  # Select the covariates
+  if (step.method == "backward") {
+    result_list <- parallel::mclapply(names(y_input), function(gene_name, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, alfa_lapply = alfa, influ.info_lapply = influ.info) {
+      # result_list <- lapply(names(y_input), function(gene_name, dat_lapply =dat, dis_lapply=dis, family_lapply=family, epsilon_lapply=epsilon, offsetData_lapply= offsetData, pb_lapply=pb, verbose_lapply = verbose, vars_in_lapply= vars.in, alfa_lapply = alfa, influ.info_lapply = influ.info){
+      y <- y_input[[gene_name]]
+      reg_data <- sc.stepback(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+      lmf_data <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+      model.glm.0_data <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+
+      return(extract_fitting(reg = reg_data, lmf = lmf_data, model.glm.0 = model.glm.0_data, dis = dis_lapply, family = family_lapply, name = gene_name, vars.in = vars_in_lapply, alfa = alfa_lapply, influ.info = influ.info_lapply))
+      # return(list(
+      #     reg = reg,
+      #     lmf = lmf,
+      #     model.glm.0 = model.glm.0
+      # ))
+    }, mc.cores = numCores, mc.set.seed = 2023)
+    # })
+  } else if (step.method == "forward") {
+    result_list <- parallel::mclapply(y_input, function(y, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose) {
+      reg <- sc.stepfor(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+      lmf <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+      model.glm.0 <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+      return(list(
+        reg = reg,
+        lmf = lmf,
+        model.glm.0 = model.glm.0
+      ))
+    }, mc.cores = numCores, mc.set.seed = 2023)
+  } else if (step.method == "two.ways.backward") {
+    result_list <- parallel::mclapply(y_input, function(y, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose) {
+      reg <- sc.two.ways.stepback(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+      lmf <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+      model.glm.0 <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+      return(list(
+        reg = reg,
+        lmf = lmf,
+        model.glm.0 = model.glm.0
+      ))
+    }, mc.cores = numCores, mc.set.seed = 2023)
+  } else if (step.method == "two.ways.forward") {
+    result_list <- parallel::mclapply(y_input, function(y, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose) {
+      reg <- sc.two.ways.stepfor(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+      lmf <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+      model.glm.0 <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+
+      return(list(
+        reg = reg,
+        lmf = lmf,
+        model.glm.0 = model.glm.0
+      ))
+    }, mc.cores = numCores, mc.set.seed = 2023)
+  } else {
+    stop("stepwise method must be one of backward, forward, two.ways.backward, two.ways.forward")
+  }
+
+  # Compute using mclapply
+  # result_list <- lapply(2:(g + 1), function(i, step.method_lapply = step.method, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose) {
+  # result_list <- lapply(model.list, function(models, dat_lapply =dat, dis_lapply=dis, family_lapply=family, epsilon_lapply=epsilon, offsetData_lapply= offsetData, pb_lapply=pb, verbose_lapply = verbose) {
+  #
+  #     reg <- models$reg
+  #     lmf <- models$lmf
+  #     model.glm.0 <- models$model.glm.0
+  #     y <- models$reg$y
+  #
+  #
+  # name <- rownames(dat_lapply)[i]
+  # if (step.method_lapply == "backward") {
+  #   reg <- scMaSigPro::sc.stepback(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+  # } else if (step.method_lapply == "forward") {
+  #   reg <- scMaSigPro::sc.stepfor(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+  # } else if (step.method_lapply == "two.ways.backward") {
+  #   reg <- scMaSigPro::sc.two.ways.stepback(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+  # } else if (step.method_lapply == "two.ways.forward") {
+  #   reg <- scMaSigPro::sc.two.ways.stepfor(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+  # } else {
+  #   stop("stepwise method must be one of backward, forward, two.ways.backward, two.ways.forward")
+  # }
+
+  # div <- c(1:round(g / 100)) * 100
+  # if (is.element(i, div)) {
+  #   # if (parallel == F) {
+  #   if (verbose_lapply) {
+  #     setTxtProgressBar(pb_lapply, i)
+  #   }
+  # }
+  # print(paste(c("fitting ", item, i, "out of", g), collapse = " "))
+  # }
+  # lmf <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+
+  # result <- summary(lmf)
+  # novar <- vars.in[!is.element(vars.in, names(result$coefficients[, 4]))]
+  # influ <- influence.measures(reg)$is.inf
+  # influ <- influ[, c(ncol(influ) - 3, ncol(influ) - 1)]
+  # influ1 <- which(apply(influ, 1, all))
+  # if (length(influ1) != 0) {
+  #     paste.names <- function(a) {
+  #         paste(names(a)[a], collapse = "/")
+  #     }
+  #     match <- match(rownames(dis_lapply), rownames(influ))
+  #     influ <- as.data.frame(apply(influ, 1, paste.names))
+  #     influ.info <- cbind(influ.info, influ[match, ])
+  #     colnames(influ.info)[ncol(influ.info)] <- name
+  #     influ.info <- as.matrix(influ.info)
+  # }
+  # result <- summary(reg)
+  # if ((!(result$aic == -Inf) & !is.na(result$aic) & family_lapply$family == "gaussian") | family_lapply$family != "gaussian") {
+  #     #k <- i
+  #
+  #     # Computing p-values
+  #     #model.glm.0 <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+  #
+  #     if (family_lapply$family == "gaussian") {
+  #         test <- anova(model.glm.0, reg, test = "F")
+  #         p.value <- test[6][2, 1]
+  #     } else {
+  #         test <- anova(model.glm.0, reg, test = "Chisq")
+  #         p.value <- test[5][2, 1]
+  #     }
+  #     # Computing goodness of fitting:
+  #
+  #     bondad <- (reg$null.deviance - reg$deviance) / reg$null.deviance
+  #     if (bondad < 0) {
+  #         bondad <- 0
+  #     }
+  #     beta.coeff <- result$coefficients[, 1]
+  #     beta.p.valor <- result$coefficients[, 4]
+  #     coeff <- rep(0, (length(vars.in) + 1))
+  #     if (length(novar) != 0) {
+  #         for (m in 1:length(novar)) {
+  #             coeff[position(dis_lapply, novar[m]) + 1] <- NA
+  #         }
+  #     }
+  #     p.valor <- t <- as.numeric(rep(NA, (length(vars.in) + 1)))
+  #
+  #     if (result$coefficients[, 4][rownames(result$coefficients) ==
+  #                                  "(Intercept)"] < alfa) {
+  #         coeff[1] <- result$coefficients[, 1][rownames(result$coefficients) ==
+  #                                                  "(Intercept)"]
+  #         p.valor[1] <- result$coefficients[, 4][rownames(result$coefficients) ==
+  #                                                    "(Intercept)"]
+  #         t[1] <- result$coefficients[, 3][rownames(result$coefficients) ==
+  #                                              "(Intercept)"]
+  #     }
+  #     for (j in 2:length(coeff)) {
+  #         if (is.element(vars.in[j - 1], rownames(result$coefficients))) {
+  #             coeff[j] <- result$coefficients[, 1][rownames(result$coefficients) ==
+  #                                                      vars.in[j - 1]]
+  #             p.valor[j] <- result$coefficients[, 4][rownames(result$coefficients) ==
+  #                                                        vars.in[j - 1]]
+  #             t[j] <- result$coefficients[, 3][rownames(result$coefficients) ==
+  #                                                  vars.in[j - 1]]
+  #         }
+  #     }
+  #     if (!all(is.na(p.valor))) {
+  #         sol <- rbind(sol, as.numeric(c(
+  #             p.value, bondad,
+  #             p.valor
+  #         )))
+  #         coefficients <- rbind(coefficients, coeff)
+  #         t.score <- rbind(t.score, t)
+  #         sig.profiles <- rbind(sig.profiles, y)
+  #         h <- nrow(sol)
+  #         rownames(sol)[h] <- name
+  #         rownames(coefficients)[h] <- name
+  #         rownames(t.score)[h] <- name
+  #         rownames(sig.profiles)[h] <- name
+  #     }
+  # }
+  #
+  # # Return Calculation
+  # return(list(
+  #     p_value = p.value,
+  #     bondad = bondad,
+  #     p_valor = p.valor,
+  #     coeff = coeff,
+  #     t = t,
+  #     sig_profiles = y,
+  #     sol = sol,
+  #     influ.info = influ.info,
+  #     feature_name = name
+  # ))
+  # })
+  # }, mc.cores = numCores, mc.set.seed = 2023)
+
+
+  #--------------------------------------------
+  feature_names <- unlist(lapply(result_list, function(element) {
+    return(element[["feature_name"]])
+  }))
+  # Get the soluction frame
+  sol.list <- lapply(result_list, function(element) {
+    return(element[["sol"]])
+  })
+  # Get Sig.profile list
+  sig_profile.list <- lapply(result_list, function(element) {
+    return(element[["sig_profiles"]])
+  })
+  # Get Coeffcient
+  coeff.list <- lapply(result_list, function(element) {
+    return(element[["coeff"]])
+  })
+  # Get t scores
+  t.list <- lapply(result_list, function(element) {
+    return(element[["t"]])
+  })
+  # Get influ.info
+  influ.info.list <- lapply(result_list, function(element) {
+    return(element[["influ.info"]])
+  })
+  # Assuming 'parallel' is your list
+  influ.info.list <- influ.info.list[!sapply(influ.info.list, function(x) is.logical(x))]
+  # Lapply to remove column 1
+  influ.info.list <- lapply(influ.info.list, function(element) {
+    return(element[, -1, drop = F])
+  })
+  # Create Dataframe
+  sol <- do.call("rbind", sol.list)
+  sig.profiles <- do.call("rbind", sig_profile.list)
+  coefficients <- do.call("rbind", coeff.list)
+  t.score <- do.call("rbind", t.list)
+  influ.info <- do.call("cbind", influ.info.list)
+
+  # Add rownames
+  rownames(sig.profiles) <- feature_names
+  rownames(coefficients) <- feature_names
+  rownames(t.score) <- feature_names
+
+  #-------------------------
+  # Ends here
+
+  if (!is.null(sol)) {
+    sol <- as.data.frame(sol)
+    coefficients <- as.data.frame(coefficients)
+    coeffic <- coefficients
+    t.score <- as.data.frame(t.score)
+    sig.profiles <- as.data.frame(sig.profiles)
+    colnames(sol) <- c(
+      "p-value", "R-squared", "p.valor_beta0",
+      paste("p.valor_", vars.in, sep = "")
     )
-    pvectorObj <- data@scPVector
-    
-    design <- pvectorObj@dis
-    min.obs <- pvectorObj@min.obs
-    alfa <- pvectorObj@Q
-    dat <- as.matrix(pvectorObj@SELEC)
-    dat <- rbind(c(rep(1, ncol(dat))), dat)
-    groups.vector <- pvectorObj@groups.vector
-    groups.vector <- c(groups.vector[nchar(groups.vector) == min(nchar(groups.vector))][1], groups.vector)
-    edesign <- pvectorObj@edesign
-    G <- pvectorObj@g
-    family <- pvectorObj@family
-    
-    
-    dis <- as.data.frame(design)
-    dat <- dat[, as.character(rownames(dis))]
-    g <- (dim(dat)[1] - 1)
-    n <- dim(dat)[2]
-    p <- dim(dis)[2]
-    vars.in <- colnames(dis)
-    sol <- coefficients <- group.coeffs <- t.score <- sig.profiles <- NULL
-    influ.info <- matrix(NA, nrow = nrow(dis), ncol = 1)
-    rownames(influ.info) <- rownames(dis)
-    
-    if (nvar.correction) {
-        alfa <- alfa / ncol(dis)
-    }
-    
-    # Added Progress Bar
-    if (verbose) {
-        pb <- txtProgressBar(min = 0, max = g, style = 3)
-    }
-    
-    # Calculate  offset
-    if (offset) {
-        offsetData <- log(estimateSizeFactorsForMatrix(dat + 1))
-    } else {
-        offsetData <- NULL
-    }
-    #
-    #   # If parallel is requested
-    #   if (parallel) {
-    #     numCores <- detectCores()
-    #     if (verbose) {
-    #       message(paste("Running with", numCores, "cores..."))
-    #     }
-    #   } else {
-    #     numCores <- 1
-    #   }
-    numCores <- detectCores()
-    
-    # Collect all the y 
-    y_input <- parallel::mclapply(2:(g + 1), function(i, dat_lapply = dat){
-        return(as.numeric(dat_lapply[i, ]))
-    }, mc.cores = numCores)
-    names(y_input) <- rownames(dat)[-1]
-    
-    # Select the covariates
-    if (step.method == "backward") {
-        result_list <- parallel::mclapply(names(y_input), function(gene_name, dat_lapply =dat, dis_lapply=dis, family_lapply=family, epsilon_lapply=epsilon, offsetData_lapply= offsetData, pb_lapply=pb, verbose_lapply = verbose, vars_in_lapply= vars.in, alfa_lapply = alfa, influ.info_lapply = influ.info){
-            #result_list <- lapply(names(y_input), function(gene_name, dat_lapply =dat, dis_lapply=dis, family_lapply=family, epsilon_lapply=epsilon, offsetData_lapply= offsetData, pb_lapply=pb, verbose_lapply = verbose, vars_in_lapply= vars.in, alfa_lapply = alfa, influ.info_lapply = influ.info){
-            y <- y_input[[gene_name]]
-            reg_data <- sc.stepback(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-            lmf_data <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-            model.glm.0_data <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-            
-            return(extract_fitting(reg = reg_data, lmf= lmf_data, model.glm.0 = model.glm.0_data, dis = dis_lapply, family = family_lapply, name = gene_name, vars.in =vars_in_lapply, alfa = alfa_lapply, influ.info = influ.info_lapply ))
-            # return(list(
-            #     reg = reg,
-            #     lmf = lmf,
-            #     model.glm.0 = model.glm.0
-            # ))
-        }, mc.cores = numCores, mc.set.seed = 2023)
-    #})
-        
-    } else if (step.method == "forward") {
-        result_list <- parallel::mclapply(y_input, function(y, dat_lapply =dat, dis_lapply=dis, family_lapply=family, epsilon_lapply=epsilon, offsetData_lapply= offsetData, pb_lapply=pb, verbose_lapply = verbose){
-            reg <- sc.stepfor(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-            lmf <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-            model.glm.0 <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-            return(list(
-                reg = reg,
-                lmf = lmf,
-                model.glm.0 = model.glm.0
-            ))
-        }, mc.cores = numCores, mc.set.seed = 2023)
-    } else if (step.method == "two.ways.backward") {
-        result_list <- parallel::mclapply(y_input, function(y, dat_lapply =dat, dis_lapply=dis, family_lapply=family, epsilon_lapply=epsilon, offsetData_lapply= offsetData, pb_lapply=pb, verbose_lapply = verbose){
-            reg <- sc.two.ways.stepback(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-            lmf <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-            model.glm.0 <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-            return(list(
-                reg = reg,
-                lmf = lmf,
-                model.glm.0 = model.glm.0
-            ))
-        }, mc.cores = numCores, mc.set.seed = 2023)
-    } else if (step.method == "two.ways.forward") {
-        result_list <- parallel::mclapply(y_input, function(y, dat_lapply =dat, dis_lapply=dis, family_lapply=family, epsilon_lapply=epsilon, offsetData_lapply= offsetData, pb_lapply=pb, verbose_lapply = verbose){
-            reg <- sc.two.ways.stepfor(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-            lmf <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-            model.glm.0 <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-            
-            return(list(
-                reg = reg,
-                lmf = lmf,
-                model.glm.0 = model.glm.0
-            ))
-        }, mc.cores = numCores, mc.set.seed = 2023)
-    } else {
-        stop("stepwise method must be one of backward, forward, two.ways.backward, two.ways.forward")
-    }
-    
-    # Compute using mclapply
-    #result_list <- lapply(2:(g + 1), function(i, step.method_lapply = step.method, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose) {
-    # result_list <- lapply(model.list, function(models, dat_lapply =dat, dis_lapply=dis, family_lapply=family, epsilon_lapply=epsilon, offsetData_lapply= offsetData, pb_lapply=pb, verbose_lapply = verbose) {
-    #     
-    #     reg <- models$reg
-    #     lmf <- models$lmf
-    #     model.glm.0 <- models$model.glm.0
-    #     y <- models$reg$y
-    #     
-        # 
-        # name <- rownames(dat_lapply)[i]
-        # if (step.method_lapply == "backward") {
-        #   reg <- scMaSigPro::sc.stepback(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-        # } else if (step.method_lapply == "forward") {
-        #   reg <- scMaSigPro::sc.stepfor(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-        # } else if (step.method_lapply == "two.ways.backward") {
-        #   reg <- scMaSigPro::sc.two.ways.stepback(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-        # } else if (step.method_lapply == "two.ways.forward") {
-        #   reg <- scMaSigPro::sc.two.ways.stepfor(y = y, d = dis_lapply, alfa = alfa, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-        # } else {
-        #   stop("stepwise method must be one of backward, forward, two.ways.backward, two.ways.forward")
-        # }
-        
-        # div <- c(1:round(g / 100)) * 100
-        # if (is.element(i, div)) {
-        #   # if (parallel == F) {
-        #   if (verbose_lapply) {
-        #     setTxtProgressBar(pb_lapply, i)
-        #   }
-        # }
-        # print(paste(c("fitting ", item, i, "out of", g), collapse = " "))
-        # }
-        #lmf <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-        
-        # result <- summary(lmf)
-        # novar <- vars.in[!is.element(vars.in, names(result$coefficients[, 4]))]
-        # influ <- influence.measures(reg)$is.inf
-        # influ <- influ[, c(ncol(influ) - 3, ncol(influ) - 1)]
-        # influ1 <- which(apply(influ, 1, all))
-        # if (length(influ1) != 0) {
-        #     paste.names <- function(a) {
-        #         paste(names(a)[a], collapse = "/")
-        #     }
-        #     match <- match(rownames(dis_lapply), rownames(influ))
-        #     influ <- as.data.frame(apply(influ, 1, paste.names))
-        #     influ.info <- cbind(influ.info, influ[match, ])
-        #     colnames(influ.info)[ncol(influ.info)] <- name
-        #     influ.info <- as.matrix(influ.info)
-        # }
-        # result <- summary(reg)
-        # if ((!(result$aic == -Inf) & !is.na(result$aic) & family_lapply$family == "gaussian") | family_lapply$family != "gaussian") {
-        #     #k <- i
-        #     
-        #     # Computing p-values
-        #     #model.glm.0 <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-        #     
-        #     if (family_lapply$family == "gaussian") {
-        #         test <- anova(model.glm.0, reg, test = "F")
-        #         p.value <- test[6][2, 1]
-        #     } else {
-        #         test <- anova(model.glm.0, reg, test = "Chisq")
-        #         p.value <- test[5][2, 1]
-        #     }
-        #     # Computing goodness of fitting:
-        #     
-        #     bondad <- (reg$null.deviance - reg$deviance) / reg$null.deviance
-        #     if (bondad < 0) {
-        #         bondad <- 0
-        #     }
-        #     beta.coeff <- result$coefficients[, 1]
-        #     beta.p.valor <- result$coefficients[, 4]
-        #     coeff <- rep(0, (length(vars.in) + 1))
-        #     if (length(novar) != 0) {
-        #         for (m in 1:length(novar)) {
-        #             coeff[position(dis_lapply, novar[m]) + 1] <- NA
-        #         }
-        #     }
-        #     p.valor <- t <- as.numeric(rep(NA, (length(vars.in) + 1)))
-        #     
-        #     if (result$coefficients[, 4][rownames(result$coefficients) ==
-        #                                  "(Intercept)"] < alfa) {
-        #         coeff[1] <- result$coefficients[, 1][rownames(result$coefficients) ==
-        #                                                  "(Intercept)"]
-        #         p.valor[1] <- result$coefficients[, 4][rownames(result$coefficients) ==
-        #                                                    "(Intercept)"]
-        #         t[1] <- result$coefficients[, 3][rownames(result$coefficients) ==
-        #                                              "(Intercept)"]
-        #     }
-        #     for (j in 2:length(coeff)) {
-        #         if (is.element(vars.in[j - 1], rownames(result$coefficients))) {
-        #             coeff[j] <- result$coefficients[, 1][rownames(result$coefficients) ==
-        #                                                      vars.in[j - 1]]
-        #             p.valor[j] <- result$coefficients[, 4][rownames(result$coefficients) ==
-        #                                                        vars.in[j - 1]]
-        #             t[j] <- result$coefficients[, 3][rownames(result$coefficients) ==
-        #                                                  vars.in[j - 1]]
-        #         }
-        #     }
-        #     if (!all(is.na(p.valor))) {
-        #         sol <- rbind(sol, as.numeric(c(
-        #             p.value, bondad,
-        #             p.valor
-        #         )))
-        #         coefficients <- rbind(coefficients, coeff)
-        #         t.score <- rbind(t.score, t)
-        #         sig.profiles <- rbind(sig.profiles, y)
-        #         h <- nrow(sol)
-        #         rownames(sol)[h] <- name
-        #         rownames(coefficients)[h] <- name
-        #         rownames(t.score)[h] <- name
-        #         rownames(sig.profiles)[h] <- name
-        #     }
-        # }
-        # 
-        # # Return Calculation
-        # return(list(
-        #     p_value = p.value,
-        #     bondad = bondad,
-        #     p_valor = p.valor,
-        #     coeff = coeff,
-        #     t = t,
-        #     sig_profiles = y,
-        #     sol = sol,
-        #     influ.info = influ.info,
-        #     feature_name = name
-        # ))
-        # })
-    # }, mc.cores = numCores, mc.set.seed = 2023)
-    
-    
-    #--------------------------------------------
-    feature_names <- unlist(lapply(result_list, function(element) {
-        return(element[["feature_name"]])
-    }))
-    # Get the soluction frame
-    sol.list <- lapply(result_list, function(element) {
-        return(element[["sol"]])
-    })
-    # Get Sig.profile list
-    sig_profile.list <- lapply(result_list, function(element) {
-        return(element[["sig_profiles"]])
-    })
-    # Get Coeffcient
-    coeff.list <- lapply(result_list, function(element) {
-        return(element[["coeff"]])
-    })
-    # Get t scores
-    t.list <- lapply(result_list, function(element) {
-        return(element[["t"]])
-    })
-    # Get influ.info
-    influ.info.list <- lapply(result_list, function(element) {
-        return(element[["influ.info"]])
-    })
-    # Assuming 'parallel' is your list
-    influ.info.list <- influ.info.list[!sapply(influ.info.list, function(x) is.logical(x))]
-    # Lapply to remove column 1
-    influ.info.list <- lapply(influ.info.list, function(element) {
-        return(element[, -1, drop = F])
-    })
-    # Create Dataframe
-    sol <- do.call("rbind", sol.list)
-    sig.profiles <- do.call("rbind", sig_profile.list)
-    coefficients <- do.call("rbind", coeff.list)
-    t.score <- do.call("rbind", t.list)
-    influ.info <- do.call("cbind", influ.info.list)
-    
-    # Add rownames
-    rownames(sig.profiles) <- feature_names
-    rownames(coefficients) <- feature_names
-    rownames(t.score) <- feature_names
-    
-    #-------------------------  
-    # Ends here
-    
-    if (!is.null(sol)) {
-        sol <- as.data.frame(sol)
-        coefficients <- as.data.frame(coefficients)
-        coeffic <- coefficients
-        t.score <- as.data.frame(t.score)
-        sig.profiles <- as.data.frame(sig.profiles)
-        colnames(sol) <- c(
-            "p-value", "R-squared", "p.valor_beta0",
-            paste("p.valor_", vars.in, sep = "")
-        )
-        colnames(coefficients) <- c("beta0", paste("beta", vars.in,
-                                                   sep = ""
-        ))
-        colnames(t.score) <- c("t.score_beta0", paste("t.score_",
-                                                      vars.in,
-                                                      sep = ""
-        ))
-        colnames(sig.profiles) <- colnames(dat)
-        if (!is.null(groups.vector) & !is.null(edesign)) {
-            groups <- colnames(edesign)[3:ncol(edesign)]
-            degree <- (length(groups.vector) / length(groups)) -
-                1
-            for (w in 1:nrow(coefficients)) {
-                A <- NULL
-                col.names <- NULL
-                for (l in 1:length(groups)) {
-                    B <- reg.coeffs(coefficients = coefficients[w, ], groups.vector = groups.vector, group = groups[l])
-                    cols <- paste(rep(groups[l], each = length(B)),
-                                  paste("beta", c(0:(length(B) - 1)), sep = ""),
-                                  sep = "_"
-                    )
-                    A <- c(A, B)
-                    col.names <- c(col.names, cols)
-                }
-                group.coeffs <- (rbind(group.coeffs, A))
-            }
-            colnames(group.coeffs) <- col.names
-            rownames(group.coeffs) <- rownames(coefficients)
+    colnames(coefficients) <- c("beta0", paste("beta", vars.in,
+      sep = ""
+    ))
+    colnames(t.score) <- c("t.score_beta0", paste("t.score_",
+      vars.in,
+      sep = ""
+    ))
+    colnames(sig.profiles) <- colnames(dat)
+    if (!is.null(groups.vector) & !is.null(edesign)) {
+      groups <- colnames(edesign)[3:ncol(edesign)]
+      degree <- (length(groups.vector) / length(groups)) -
+        1
+      for (w in 1:nrow(coefficients)) {
+        A <- NULL
+        col.names <- NULL
+        for (l in 1:length(groups)) {
+          B <- reg.coeffs(coefficients = coefficients[w, ], groups.vector = groups.vector, group = groups[l])
+          cols <- paste(rep(groups[l], each = length(B)),
+            paste("beta", c(0:(length(B) - 1)), sep = ""),
+            sep = "_"
+          )
+          A <- c(A, B)
+          col.names <- c(col.names, cols)
         }
+        group.coeffs <- (rbind(group.coeffs, A))
+      }
+      colnames(group.coeffs) <- col.names
+      rownames(group.coeffs) <- rownames(coefficients)
     }
-    if (ncol(influ.info) > 2) {
-        message(paste("\nInfluence:", ncol(influ.info), "genes with influential data at slot influ.info. Model validation for these genes is recommended"))
-    }
-    # influ.info <- influ.info[, -1]
-    
-    # Create a constructor for the class
-    t.fit.object <- new("scTFitClass",
-                        sol = sol,
-                        sig.profiles = sig.profiles,
-                        coefficients = coefficients,
-                        group.coeffs = group.coeffs,
-                        t.score = t.score,
-                        variables = vars.in,
-                        G = G,
-                        g = g,
-                        dat = dat,
-                        dis = dis,
-                        step.method = step.method,
-                        groups.vector = groups.vector,
-                        edesign = edesign,
-                        influ.info = influ.info
-    )
-    
-    # Added Tfit
-    data@scTFit <- t.fit.object
-    
-    return(data)
+  }
+  if (ncol(influ.info) > 2) {
+    message(paste("\nInfluence:", ncol(influ.info), "genes with influential data at slot influ.info. Model validation for these genes is recommended"))
+  }
+  # influ.info <- influ.info[, -1]
+
+  # Create a constructor for the class
+  t.fit.object <- new("scTFitClass",
+    sol = sol,
+    sig.profiles = sig.profiles,
+    coefficients = coefficients,
+    group.coeffs = group.coeffs,
+    t.score = t.score,
+    variables = vars.in,
+    G = G,
+    g = g,
+    dat = dat,
+    dis = dis,
+    step.method = step.method,
+    groups.vector = groups.vector,
+    edesign = edesign,
+    influ.info = influ.info
+  )
+
+  # Added Tfit
+  data@scTFit <- t.fit.object
+
+  return(data)
 }

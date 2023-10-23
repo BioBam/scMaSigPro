@@ -12,10 +12,6 @@
 #' @return A bar plot and, optionally, a tile (heatmap) plot, visualizing the bin sizes across different binned time and paths.
 #' If add_tile is TRUE, returns a combined ggplot object with both plots; otherwise, only the bar plot is printed.
 #'
-#' @examples
-#' # Assuming 'sce' is a SingleCellExperiment object with compression information in '@compress.sce' slot
-#' sc.plot.bins(sce)
-#' sc.plot.bins(sce, add_tile = FALSE)
 #'
 #' @export
 sc.plot.bins <- function(scmpObj, add_tile = T, bar.title = "Bin size across binned pseudotime",

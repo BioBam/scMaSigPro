@@ -14,11 +14,11 @@ sc.make.design.matrix(
 \arguments{
 \item{scmpObject}{A 'scMaSigProClass' object.}
 
+\item{poly_degree}{Degree of the design matrix (default: 2).}
+
 \item{bin_pseudotime_colname}{Name of the time column.}
 
 \item{path_colname}{Name of the path column.}
-
-\item{degree}{Degree of the design matrix (default: 2).}
 }
 \value{
 Returns the 'scmpObject' with an updated 'edesign' slot.

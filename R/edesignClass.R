@@ -6,6 +6,7 @@
 #' @slot dis A data frame.
 #' @slot groups.vector A character vector.
 #' @slot edesign A data frame.
+#' @slot poly_degree Polynomial degree
 #'
 #' @section Validity:
 #'   Valid objects must have:
@@ -15,8 +16,6 @@
 #'     \item{edesign}{A valid data frame.}
 #'   }
 #'
-#' @name edesignClass
-#' @aliases edesignClass
 #' @exportClass edesignClass
 setClass(
   "edesignClass",

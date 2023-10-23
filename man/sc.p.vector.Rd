@@ -44,6 +44,8 @@ If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = 
 \item{verbose}{Name of the analyzed item to show on the screen while \code{T.fit} is in process.}
 
 \item{offset}{Whether ro use offset for normalization}
+
+\item{parallel}{description}
 }
 \value{
 A list containing:

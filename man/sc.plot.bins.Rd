@@ -29,9 +29,3 @@ This function generates plots to visualize the compressed data from a SingleCell
 It produces a bar plot and, optionally, a tile (heatmap) plot to display the bin sizes across different
 binned time intervals and paths.
 }
-\examples{
-# Assuming 'sce' is a SingleCellExperiment object with compression information in '@compress.sce' slot
-sc.plot.bins(sce)
-sc.plot.bins(sce, add_tile = FALSE)
-
-}

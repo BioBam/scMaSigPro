@@ -4,11 +4,13 @@
 #' It generates an 'edesignClass' object which is then stored in the 'edesign' slot of the 'scMaSigProClass' object.
 #'
 #' @param scmpObject A 'scMaSigProClass' object.
-#' @param degree Degree of the design matrix (default: 2).
+#' @param poly_degree Degree of the design matrix (default: 2).
 #' @param bin_pseudotime_colname Name of the time column.
 #' @param path_colname Name of the path column.
 #'
 #' @return Returns the 'scmpObject' with an updated 'edesign' slot.
+#' 
+#' @importFrom maSigPro make.design.matrix
 #' @export
 #'
 #' @examples

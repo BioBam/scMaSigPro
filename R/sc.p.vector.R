@@ -17,6 +17,7 @@
 #' @param item Name of the analyzed item to show on the screen while \code{sc.p.vector} is in process.
 #' @param verbose Name of the analyzed item to show on the screen while \code{T.fit} is in process.
 #' @param offset Whether ro use offset for normalization
+#' @param parallel description
 #'
 #' @details \code{rownames(design)} and \code{colnames(data)} must be identical vectors
 #'   and indicate array naming. \code{rownames(data)} should contain unique gene IDs.
@@ -49,6 +50,9 @@
 #' # ... (add example usage of the function here)
 #'
 #' @keywords regression
+#' 
+#' @importFrom stats anova dist glm median na.omit p.adjust
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #'
 #' @export
 #'

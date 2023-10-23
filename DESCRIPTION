@@ -8,11 +8,11 @@ Description: maSigPro is a regression based approach to find genes for which
     there are significant gene expression profile differences between
     experimental groups in time course microarray and RNA-Seq experiments.
 License: MIT + file LICENSE
-Imports: reshape2, ggplot2, SingleCellExperiment, methods, MASS, assertthat,
+Imports: maSigPro, reshape2, ggplot2, SingleCellExperiment, methods, MASS, assertthat,
     moments, entropy, parallel, dplyr, magrittr, stringr, rlang, tibble,
-    Biobase, graphics, grDevices, venn, mclust, stats, slingshot, S4Vectors,
+    Biobase, graphics, grDevices, stats, S4Vectors,
     monocle3, DESeq2, igraph, SummarizedExperiment, data.table, ggpubr, RColorConesa,
-    UpSetR, foreach, doParallel, BiocParallel
+    UpSetR
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3

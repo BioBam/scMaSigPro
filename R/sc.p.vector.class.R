@@ -32,8 +32,9 @@
 #'
 #' @author Priyansh Srivastava <spriyansh29@gmail.com>
 #' @seealso \code{\link{T.fit}}, \code{\link{lm}}
-#' @importFrom stats family gaussian poisson negative.binomial
+#' @importFrom stats family gaussian poisson
 #' @importFrom utils data combn
+#' @importFrom MASS negative.binomial
 
 # Define the scPVectorClass with the following slots:
 setClass("scPVectorClass",
