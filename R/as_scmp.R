@@ -1,12 +1,12 @@
 #' @title Convert 'Cell Dataset' or 'SingleCellExperiment' object to scmpClass
 #'
 #' @description
-#' `as_scmp()` converts a cell_data_set object from Monocle or a SingleCellExperiment 
+#' `as_scmp()` converts a cds/CellDataSet object from Monocle3 or a SingleCellExperiment 
 #' object from Slingshot to an instance of the scmpClass object.
 #'
-#' @param object An S4 object of class `cell_data_set` or `SingleCellExperiment`.
+#' @param object An S4 object of class `cds/CellDataSet` or `SingleCellExperiment`.
 #' @param from Character string specifying the class of 'object'. Use "cds" for
-#' `cell_data_set` class and "sce" for `SingleCellExperiment` class.
+#' `cds/CellDataSet` class and "sce" for `SingleCellExperiment` class.
 #' @param path_prefix Prefix used to annotate the paths. (Default is "Path").
 #' @param root_label Label used to annotate root cells. (Default is "root").
 #' @param pseudotime_colname Name of the column in `cell.metadata` storing 
@@ -51,13 +51,13 @@ as_scmp <- function(object, from = "cds",
   # Check Conversion Type
   assert_that(from %in% c("cds", "sce"),
     msg = ("Currently, accepted options in the 'from' parameter are 'cds' 
-    ('cell_data_set' object) and 'sce' ('SingleCellExperiment').")
+    ('cds/CellDataSet' object) and 'sce' ('SingleCellExperiment').")
   )
 
   # Validate S4
   assert_that(
     all(isS4(object) & all(is(object, "cell_data_set") | is(object, "SingleCellExperiment"))),
-    msg = "Please provide object from one of the class 'Monocle3/cell_data_set', 
+    msg = "Please provide object from one of the class 'cds/CellDataSet', 
     or 'SingleCellExperiment/SCE'."
   )
 
@@ -70,7 +70,7 @@ as_scmp <- function(object, from = "cds",
     # Check additional parameters
     if (from == "cds") {
       assert_that(names(additional_params) %in% c("reduction_method", "overwrite_labels"),
-        msg = "Allowed additional parameters for 'cds' (cell_data_set) are 
+        msg = "Allowed additional parameters for 'cds' (cds/CellDataSet) are 
         'reduction_method', and 'overwrite_labels'."
       )
     } else if (from == "sce") {
