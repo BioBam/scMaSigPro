@@ -137,7 +137,7 @@ make.pseudobulk.design <- function(scmpObject,
 
   ## Add Processed Cell Matadata back with slot update
   compressed.sce <- SingleCellExperiment(assays = list(bulk.counts = as(matrix(NA, nrow = 0, ncol = nrow(pB.frame)), "dgCMatrix")))
-  colData(compressed.sce) <- DataFrame(pB.frame)
+  compressed.sce@colData <- DataFrame(pB.frame)
   scmpObject@compress.sce <- compressed.sce
 
   ## Slot Update

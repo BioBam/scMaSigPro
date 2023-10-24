@@ -12,7 +12,15 @@ Inherits from \code{SingleCellExperiment}.
 \section{Slots}{
 
 \describe{
-\item{\code{addParams}}{}
+\item{\code{sce}}{Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.}
+
+\item{\code{scPVector}}{Object of Class scPVectorClass See \pkg{scPVectorClass} for more details.}
+
+\item{\code{scTFit}}{Object of Class scTFitClass. See \code{\link{scTFitClass}} for more details.}
+
+\item{\code{edesign}}{Object of Class edesignClass. See \code{\link{edesignClass}} for more details.}
+
+\item{\code{addParams}}{Object of Class addParamClass. See \code{\link{addParamClass}} for more details.}
 }}
 
 \keyword{classes}

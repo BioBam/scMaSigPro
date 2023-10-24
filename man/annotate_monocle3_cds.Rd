@@ -24,12 +24,12 @@ annotate_monocle3_cds(
 
 \item{root_label}{Label used to annotate root cells. (Default is "root").}
 
-\item{pseudotime_colname}{Name of the column in `cell.metadata` storing 
-information for Pseudotime. It is generated usingn`colData` from the 
+\item{pseudotime_colname}{Name of the column in `cell.metadata` storing
+information for Pseudotime. It is generated usingn`colData` from the
 \pkg{SingleCellExperiment} package. (Default is "Pseudotime").}
 
-\item{path_colname}{Name of the column in `cell.metadata` storing information 
-for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} 
+\item{path_colname}{Name of the column in `cell.metadata` storing information
+for Path. It is generated using `colData` from the \pkg{SingleCellExperiment}
 package. (Default is `path_prefix`).}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}

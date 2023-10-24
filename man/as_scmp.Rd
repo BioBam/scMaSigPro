@@ -25,11 +25,11 @@ as_scmp(
 
 \item{root_label}{Label used to annotate root cells. (Default is "root").}
 
-\item{pseudotime_colname}{Name of the column in `cell.metadata` storing 
-Pseudotime values. It is generated using `colData` from the \pkg{SingleCellExperiment} 
+\item{pseudotime_colname}{Name of the column in `cell.metadata` storing
+Pseudotime values. It is generated using `colData` from the \pkg{SingleCellExperiment}
 package. (Default is "Pseudotime").}
 
-\item{path_colname}{Name of the column in `cell.metadata` storing information 
+\item{path_colname}{Name of the column in `cell.metadata` storing information
 for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
 (Default is `path_prefix`)}
 
@@ -41,7 +41,7 @@ for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} pa
 An instance of the 'scmpClass'.
 }
 \description{
-`as_scmp()` converts a cds/CellDataSet object from Monocle3 or a SingleCellExperiment 
+`as_scmp()` converts a cds/CellDataSet object from Monocle3 or a SingleCellExperiment
 object from Slingshot to an instance of the scmpClass object.
 }
 \details{
@@ -59,7 +59,7 @@ scmpObj <- as_scmp(object,
 
 }
 \seealso{
-`colData` from the \pkg{SingleCellExperiment} package, `new_cell_data_set` 
+`colData` from the \pkg{SingleCellExperiment} package, `new_cell_data_set`
 function in \pkg{monocle3}
 }
 \author{

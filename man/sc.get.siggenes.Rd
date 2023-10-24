@@ -21,19 +21,29 @@ sc.get.siggenes(
 )
 }
 \arguments{
-\item{scmpObj}{A \code{T.fit} object.}
+\item{scmpObj}{Object of Class \code{\link{scMaSigProClass}} in which the
+\code{sc.T.fit} has been run.}
 
-\item{rsq}{Cut-off level at the R-squared value for the stepwise regression fit. Only genes with R-squared more than 'rsq' are selected.}
+\item{rsq}{Cut-off level at the R-squared value for the stepwise regression fit.
+Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).}
 
-\item{add.IDs}{Logical indicating whether to include additional gene id's in the result.}
+\item{add.IDs}{Logical indicating whether to include additional gene id's in
+the result. (Default = FALSE)}
 
 \item{IDs}{Matrix containing additional gene id information (required when \code{add.IDs = TRUE}).}
 
-\item{matchID.col}{Number of the matching column in the matrix \code{IDs} for adding gene ids.}
+\item{matchID.col}{Number of the matching column in the matrix \code{IDs} for
+adding gene ids. (Default = 1)}
 
-\item{only.names}{Logical. If \code{TRUE}, expression values are omitted in the results.}
+\item{only.names}{Logical. If \code{TRUE}, expression values are omitted in
+the results. (Default = FALSE)}
 
-\item{vars}{Variables for which to extract significant genes.}
+\item{vars}{Variables for which to extract significant genes. There are 3 possible values:
+\itemize{
+  \item \code{"all"}: generates one single matrix or gene list with all significant genes.
+  \item \code{"each"}: generates as many significant genes extractions as variables in the general regression model.
+  \item \code{"groups"}: generates a significant genes extraction for each experimental group.
+}}
 
 \item{significant.intercept}{Experimental groups for which significant intercept coefficients are considered.}
 
@@ -45,7 +55,7 @@ sc.get.siggenes(
 
 \item{match}{Argument of the \code{\link{average.rows}} function to use when \code{trat.repl.spots = "average"}.}
 
-\item{r}{Minimum Pearson correlation coefficient for replicated spots profiles to be averaged.}
+\item{r}{Minimum Pearson correlation coefficient for replicated spots profiles to be averaged. (Default = 0.7).}
 }
 \value{
 A list with two elements:
@@ -64,20 +74,10 @@ A list with two elements:
   }
 }
 \description{
-There are 3 possible values for the \code{vars} argument:
-\itemize{
-  \item \code{"all"}: generates one single matrix or gene list with all significant genes.
-  \item \code{"each"}: generates as many significant genes extractions as variables in the general regression model.
-  \item \code{"groups"}: generates a significant genes extraction for each experimental group.
-}
+`sc.get.siggenes()` creates lists of significant genes for a set of variables
+whose significance value has been computed with the \code{sc.T.fit} function.
 }
 \details{
-Extract significant genes for sets of variables in time series gene expression experiments
-
-This function creates lists of significant genes for a set of variables whose significance
-value has been computed with the \code{T.fit} function.
-
-
 Refer to the function description for details on the arguments and their usage.
 }
 \examples{

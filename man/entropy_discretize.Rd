@@ -16,28 +16,28 @@ entropy_discretize(
 )
 }
 \arguments{
-\item{scmpObject}{object of Class scMaSigPro. See \code{\link{scMaSigProClass}} 
+\item{scmpObject}{object of Class scMaSigPro. See \code{\link{scMaSigProClass}}
 for more details.}
 
-\item{pseudotime_colname}{Name of the column in `cell.metadata` storing 
-Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment} 
+\item{pseudotime_colname}{Name of the column in `cell.metadata` storing
+Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment}
 package. (Default is "Pseudotime").}
 
-\item{path_colname}{Name of the column in `cell.metadata` storing information 
-for Path. Generated using `colData` from the \pkg{SingleCellExperiment} 
+\item{path_colname}{Name of the column in `cell.metadata` storing information
+for Path. Generated using `colData` from the \pkg{SingleCellExperiment}
 package. (Default is `path_prefix`).}
 
-\item{bin_method}{A character string specifying the method to use in order to 
-estimate the optimal number of bins. Available options: "Freedman.Diaconis", 
-"Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal". See \code{\link{estBinSize}} 
+\item{bin_method}{A character string specifying the method to use in order to
+estimate the optimal number of bins. Available options: "Freedman.Diaconis",
+"Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal". See \code{\link{estBinSize}}
 for more details. (Default = "Sturges").}
 
-\item{drop.fac}{A numeric value specifying the factor by which to decrease the 
+\item{drop.fac}{A numeric value specifying the factor by which to decrease the
 number of bins if the initial binning results in too many bins. (Default = 0.5).}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{binning}{A character string. When set to "individual", the bins are calculated 
+\item{binning}{A character string. When set to "individual", the bins are calculated
 per path iteratively. Options: "universal", "individual. (Default = "universal").}
 
 \item{bin_pseudotime_colname}{Name of the column to store the computed Pseudotime
