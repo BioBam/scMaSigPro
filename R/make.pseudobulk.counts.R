@@ -1,7 +1,7 @@
 #' @title Create Pseduo-bulk Counts
 #'
 #' @description
-#' `make.bulk.counts()` creates a dataframe of pseudo bulk counts from single cell counts. It does this by either taking the mean or sum of counts across clusters in each bin, depending on the specified method.
+#' `make.pseudobulk.counts()` creates a dataframe of pseudo bulk counts from single cell counts. It does this by either taking the mean or sum of counts across clusters in each bin, depending on the specified method.
 #'
 #' @param scmpObject object of Class scMaSigPro. See \code{\link{scMaSigProClass}} 
 #' for more details.
