@@ -2,23 +2,23 @@
 #'
 #' @description
 #' `annotate_sce()` annotates a SingleCellExperiment class object with pseudotime
-#' and path information in its `cell.metadata` generated using `colData` from the 
+#' and path information in its `cell.metadata` generated using `colData` from the
 #' \pkg{SingleCellExperiment} package.
 #'
 #' @param sce A SingleCellExperiment object to be annotated.
-#' @param pseudotime_colname Name of the column in `cell.metadata`  storing 
-#' information for Pseudotime. It is generated using `colData` from the 
+#' @param pseudotime_colname Name of the column in `cell.metadata`  storing
+#' information for Pseudotime. It is generated using `colData` from the
 #' \pkg{SingleCellExperiment} package. (Default is "Pseudotime").
 #' @param path_prefix Prefix used to annotate the paths. (Default is "Path").
 #' @param root_label Label used to annotate root cells. (Default is "root").
-#' @param path_colname Name of the column in `cell.metadata` storing information 
-#' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} 
+#' @param path_colname Name of the column in `cell.metadata` storing information
+#' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment}
 #' package. (Default is `path_prefix`).
-#' @param existing_pseudotime_colname The name of an existing pseudotime column 
+#' @param existing_pseudotime_colname The name of an existing pseudotime column
 #' to be replaced (if not NULL).
-#' @param existing_path_colname The name of an existing path column to be replaced 
+#' @param existing_path_colname The name of an existing path column to be replaced
 #' (if not NULL).
-#' @param overwrite_labels Logical, should existing column names be overwritten 
+#' @param overwrite_labels Logical, should existing column names be overwritten
 #' if they already exist? (default is TRUE).
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #'

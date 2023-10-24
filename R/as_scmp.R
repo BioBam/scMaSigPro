@@ -1,7 +1,7 @@
 #' @title Convert 'Cell Dataset' or 'SingleCellExperiment' object to scmpClass
 #'
 #' @description
-#' `as_scmp()` converts a cds/CellDataSet object from Monocle3 or a SingleCellExperiment 
+#' `as_scmp()` converts a cds/CellDataSet object from Monocle3 or a SingleCellExperiment
 #' object from Slingshot to an instance of the scmpClass object.
 #'
 #' @param object An S4 object of class `cds/CellDataSet` or `SingleCellExperiment`.
@@ -9,10 +9,10 @@
 #' `cds/CellDataSet` class and "sce" for `SingleCellExperiment` class.
 #' @param path_prefix Prefix used to annotate the paths. (Default is "Path").
 #' @param root_label Label used to annotate root cells. (Default is "root").
-#' @param pseudotime_colname Name of the column in `cell.metadata` storing 
-#' Pseudotime values. It is generated using `colData` from the \pkg{SingleCellExperiment} 
+#' @param pseudotime_colname Name of the column in `cell.metadata` storing
+#' Pseudotime values. It is generated using `colData` from the \pkg{SingleCellExperiment}
 #' package. (Default is "Pseudotime").
-#' @param path_colname Name of the column in `cell.metadata` storing information 
+#' @param path_colname Name of the column in `cell.metadata` storing information
 #' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
 #' (Default is `path_prefix`)
 #' @param verbose Print detailed output in the console. (Default is TRUE)
@@ -22,7 +22,7 @@
 #'
 #' @return An instance of the 'scmpClass'.
 #'
-#' @seealso `colData` from the \pkg{SingleCellExperiment} package, `new_cell_data_set` 
+#' @seealso `colData` from the \pkg{SingleCellExperiment} package, `new_cell_data_set`
 #' function in \pkg{monocle3}
 #'
 #' @examples
@@ -50,27 +50,27 @@ as_scmp <- function(object, from = "cds",
                     additional_params = list(overwrite_labels = TRUE)) {
   # Check Conversion Type
   assert_that(from %in% c("cds", "sce"),
-    msg = ("Currently, accepted options in the 'from' parameter are 'cds' 
+    msg = ("Currently, accepted options in the 'from' parameter are 'cds'
     ('cds/CellDataSet' object) and 'sce' ('SingleCellExperiment').")
   )
 
   # Validate S4
   assert_that(
     all(isS4(object) & all(is(object, "cell_data_set") | is(object, "SingleCellExperiment"))),
-    msg = "Please provide object from one of the class 'cds/CellDataSet', 
+    msg = "Please provide object from one of the class 'cds/CellDataSet',
     or 'SingleCellExperiment/SCE'."
   )
 
   # Check and validate additional parameters
   if (!is.null(additional_params)) {
     assert_that(is.list(additional_params),
-      msg = "Please provide 'additional_params' as a named list. 
+      msg = "Please provide 'additional_params' as a named list.
       See details for more information"
     )
     # Check additional parameters
     if (from == "cds") {
       assert_that(names(additional_params) %in% c("reduction_method", "overwrite_labels"),
-        msg = "Allowed additional parameters for 'cds' (cds/CellDataSet) are 
+        msg = "Allowed additional parameters for 'cds' (cds/CellDataSet) are
         'reduction_method', and 'overwrite_labels'."
       )
     } else if (from == "sce") {

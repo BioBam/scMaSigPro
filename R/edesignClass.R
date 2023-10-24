@@ -7,7 +7,7 @@
 #' @slot groups.vector A character vector.
 #' @slot edesign A data frame.
 #' @slot poly_degree Polynomial degree
-#' 
+#'
 #' @name edesignClass
 #' @aliases edesignClass-class
 #' @rdname edesignClass-class

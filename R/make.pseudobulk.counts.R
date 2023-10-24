@@ -3,14 +3,14 @@
 #' @description
 #' `make.pseudobulk.counts()` creates a dataframe of pseudo bulk counts from single cell counts. It does this by either taking the mean or sum of counts across clusters in each bin, depending on the specified method.
 #'
-#' @param scmpObject object of Class scMaSigPro. See \code{\link{scMaSigProClass}} 
+#' @param scmpObject object of Class scMaSigPro. See \code{\link{scMaSigProClass}}
 #' for more details.
 #' @param bin_members_colname Name of the column in the 'compressed_cell_metadata'
 #' storing information about the members of the bins. (Default is 'scmp_bin_members').
 #' @param bin_colname Name of the column in the 'compressed_cell_metadata'
 #' storing information about the bin labels. (Default is 'scmp_bin').
 #' @param pseudo_bulk_profile A data.frame generated using \code{\link{make.pseudobulk.design}}.
-#' @param cluster_count_by A character string specifying the method to use to 
+#' @param cluster_count_by A character string specifying the method to use to
 #' aggregate counts within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").
 #' @param assay_name Name of the Assay in the assay_name object from which retrieve the counts.
 #' (Default = "counts").
@@ -19,10 +19,10 @@
 #' A data.frame. The data frame includes pseudo bulk counts with each row being a gene and each column being a bin.
 #'
 #' @details
-#' The function operates by iterating over each row of the pseudo_bulk_profile. 
-#' For each bin, it identifies the cells that belong to the bin and selects their 
-#' counts from the counts data frame. It then calculates the mean or sum of these 
-#' counts (depending on the specified method), and adds these to a new data frame of pseudo bulk counts. 
+#' The function operates by iterating over each row of the pseudo_bulk_profile.
+#' For each bin, it identifies the cells that belong to the bin and selects their
+#' counts from the counts data frame. It then calculates the mean or sum of these
+#' counts (depending on the specified method), and adds these to a new data frame of pseudo bulk counts.
 #' The result is a pseudo bulk counts data frame where each row is a gene and each column is a bin.
 #'
 #' @examples

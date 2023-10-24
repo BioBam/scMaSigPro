@@ -6,11 +6,11 @@
 #' @slot sce Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.
 #' @slot scPVector Object of Class scPVectorClass See \pkg{scPVectorClass} for more details.
 #' @slot scTFit Object of Class scTFitClass. See \code{\link{scTFitClass}} for more details.
-#' @slot compress.sce 
+#' @slot compress.sce
 #' @slot edesign Object of Class edesignClass. See \code{\link{edesignClass}} for more details.
 #' @slot siggenes
 #' @slot addParams Object of Class addParamClass. See \code{\link{addParamClass}} for more details.
-#' 
+#'
 #' @name scMaSigProClass
 #' @aliases scMaSigProClass-class
 #' @rdname scMaSigProClass-class
@@ -50,18 +50,18 @@ setClass(
     if (!validObject(object@compress.sce)) {
       stop("compress.sce slot is not a valid SingleCellExperiment object.")
     }
-      
+
     # Check edesignClass slot
     if (!validObject(object@edesign)) {
       stop("edesign slot is not a valid edesignClass object.")
     }
-      
-    # Check sigClass slot  
+
+    # Check sigClass slot
     if (!validObject(object@siggenes)) {
       stop("siggenes slot is not a valid sigClass object.")
     }
-      
-    # Check addParamClass slot 
+
+    # Check addParamClass slot
     if (!validObject(object@addParams)) {
       stop("addParams slot is not a valid addParamClass object.")
     }

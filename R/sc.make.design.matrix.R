@@ -9,7 +9,7 @@
 #' @param path_colname Name of the path column.
 #'
 #' @return Returns the 'scmpObject' with an updated 'edesign' slot.
-#' 
+#'
 #' @importFrom maSigPro make.design.matrix
 #' @export
 #'

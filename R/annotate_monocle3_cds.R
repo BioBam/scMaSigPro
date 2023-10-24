@@ -10,11 +10,11 @@
 #' "umap". Monocle3 currently supports "UMAP" only for most procedure.
 #' @param path_prefix Prefix used to annotate the paths. (Default is "Path").
 #' @param root_label Label used to annotate root cells. (Default is "root").
-#' @param path_colname Name of the column in `cell.metadata` storing information 
-#' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} 
+#' @param path_colname Name of the column in `cell.metadata` storing information
+#' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment}
 #' package. (Default is `path_prefix`).
-#' @param pseudotime_colname Name of the column in `cell.metadata` storing 
-#' information for Pseudotime. It is generated usingn`colData` from the 
+#' @param pseudotime_colname Name of the column in `cell.metadata` storing
+#' information for Pseudotime. It is generated usingn`colData` from the
 #' \pkg{SingleCellExperiment} package. (Default is "Pseudotime").
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #'

@@ -18,8 +18,8 @@
 #' @slot Q Significance level. (Default = 0.05).
 #' @slot groups.vector Character list containing groups information.
 #' @slot edesign Matrix containing the experimental design.
-#' @slot family Distribution function to be used in the glm model. If NULL, the 
-#' family will be \code{negative.binomial(theta)} when \code{counts = TRUE} or 
+#' @slot family Distribution function to be used in the glm model. If NULL, the
+#' family will be \code{negative.binomial(theta)} when \code{counts = TRUE} or
 #' \code{gaussian()} when \code{counts = FALSE}.
 #'
 #' @name scPVectorClass

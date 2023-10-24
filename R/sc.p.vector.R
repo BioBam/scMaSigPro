@@ -50,7 +50,7 @@
 #' # ... (add example usage of the function here)
 #'
 #' @keywords regression
-#' 
+#'
 #' @importFrom stats anova dist glm median na.omit p.adjust
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #'

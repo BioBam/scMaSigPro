@@ -1,19 +1,19 @@
 #' @title Extract significant genes for sets of variables in time series gene expression experiments
 #'
 #' @description
-#' `sc.get.siggenes()` creates lists of significant genes for a set of variables 
+#' `sc.get.siggenes()` creates lists of significant genes for a set of variables
 #' whose significance value has been computed with the \code{sc.T.fit} function.
-#' 
-#' @param scmpObj Object of Class \code{\link{scMaSigProClass}} in which the 
+#'
+#' @param scmpObj Object of Class \code{\link{scMaSigProClass}} in which the
 #' \code{sc.T.fit} has been run.
-#' @param rsq Cut-off level at the R-squared value for the stepwise regression fit. 
+#' @param rsq Cut-off level at the R-squared value for the stepwise regression fit.
 #' Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).
-#' @param add.IDs Logical indicating whether to include additional gene id's in 
+#' @param add.IDs Logical indicating whether to include additional gene id's in
 #' the result. (Default = FALSE)
 #' @param IDs Matrix containing additional gene id information (required when \code{add.IDs = TRUE}).
-#' @param matchID.col Number of the matching column in the matrix \code{IDs} for 
+#' @param matchID.col Number of the matching column in the matrix \code{IDs} for
 #' adding gene ids. (Default = 1)
-#' @param only.names Logical. If \code{TRUE}, expression values are omitted in 
+#' @param only.names Logical. If \code{TRUE}, expression values are omitted in
 #' the results. (Default = FALSE)
 #' @param vars Variables for which to extract significant genes. There are 3 possible values:
 #' \itemize{

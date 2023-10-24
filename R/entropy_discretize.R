@@ -6,24 +6,24 @@
 #' the optimal number of bins using one of the supported methods. The bin sizes
 #' are also calculated and merged with the input cell_metadata.
 #'
-#' @param scmpObject object of Class scMaSigPro. See \code{\link{scMaSigProClass}} 
+#' @param scmpObject object of Class scMaSigPro. See \code{\link{scMaSigProClass}}
 #' for more details.
-#' @param pseudotime_colname Name of the column in `cell.metadata` storing 
-#' Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment} 
+#' @param pseudotime_colname Name of the column in `cell.metadata` storing
+#' Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment}
 #' package. (Default is "Pseudotime").
-#' @param path_colname Name of the column in `cell.metadata` storing information 
-#' for Path. Generated using `colData` from the \pkg{SingleCellExperiment} 
+#' @param path_colname Name of the column in `cell.metadata` storing information
+#' for Path. Generated using `colData` from the \pkg{SingleCellExperiment}
 #' package. (Default is `path_prefix`).
 #' @param bin_pseudotime_colname Name of the column to store the computed Pseudotime
 #' bins.
-#' @param bin_method A character string specifying the method to use in order to 
-#' estimate the optimal number of bins. Available options: "Freedman.Diaconis", 
-#' "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal". See \code{\link{estBinSize}} 
+#' @param bin_method A character string specifying the method to use in order to
+#' estimate the optimal number of bins. Available options: "Freedman.Diaconis",
+#' "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal". See \code{\link{estBinSize}}
 #' for more details. (Default = "Sturges").
-#' @param drop.fac A numeric value specifying the factor by which to decrease the 
+#' @param drop.fac A numeric value specifying the factor by which to decrease the
 #' number of bins if the initial binning results in too many bins. (Default = 0.5).
 #' @param verbose Print detailed output in the console. (Default is TRUE)
-#' @param binning A character string. When set to "individual", the bins are calculated 
+#' @param binning A character string. When set to "individual", the bins are calculated
 #' per path iteratively. Options: "universal", "individual. (Default = "universal").
 #'
 #' @return
@@ -92,7 +92,7 @@ entropy_discretize <- function(scmpObject,
     msg = "Invalid value for 'drop.fac'. It should be between 0.3 and 1."
   )
   assert_that(drop.fac <= 1,
-              msg = "Invalid value for 'drop.fac'. It should be between 0.3 and 1."
+    msg = "Invalid value for 'drop.fac'. It should be between 0.3 and 1."
   )
   assert_that(all(binning %in% c("universal", "individual")),
     msg = "Allowed options for binning are 'universal' and 'individual'"
