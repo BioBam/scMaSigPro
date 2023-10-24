@@ -5,23 +5,28 @@
 #' number of input genes, number of genes taken in the regression fit, and more. This class is useful for analyzing time course
 #' microarray experiments and identifying significant differential expression profiles.
 #'
-#' @slot SELEC Matrix containing the expression values for significant genes
-#' @slot sc.p.vector Matrix containing the computed p-values
-#' @slot p.adjusted Vector of FDR-adjusted p-values
-#' @slot G Total number of input genes
-#' @slot g Number of genes taken in the regression fit
-#' @slot FDR P-value at FDR \code{Q} control when Benjamini & Hochberg (BH) correction is used
-#' @slot i Number of significant genes
-#' @slot dis Design matrix used in the regression fit
-#' @slot dat Matrix of expression value data used in the regression fit
-#' @slot min.obs Minimum value to estimate the model (degree+1) x Groups + 1. Default is 6.
-#' @slot Q Significance level (default is 0.05)
-#' @slot groups.vector List containing groups information
-#' @slot edesign Experimental design data frame
-#' @slot family Distribution function to be used in the glm model. If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = TRUE} or \code{gaussian()} when \code{counts = FALSE}.
+#' @slot SELEC Matrix containing the expression values for significant genes.
+#' @slot sc.p.vector Matrix containing the computed p-values.
+#' @slot p.adjusted Numeric vector of FDR-adjusted p-values.
+#' @slot G Integer. Total number of input genes.
+#' @slot g Integer. Number of genes taken in the regression fit.
+#' @slot FDR P-value at FDR \code{Q} control when Benjamini & Hochberg (BH) correction is used.
+#' @slot i Integer. Number of significant genes.
+#' @slot dis Data frame containing the matrix used in the regression fit.
+#' @slot dat Matrix of expression value data used in the regression fit.
+#' @slot min.obs Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).
+#' @slot Q Significance level. (Default = 0.05).
+#' @slot groups.vector Character list containing groups information.
+#' @slot edesign Matrix containing the experimental design.
+#' @slot family Distribution function to be used in the glm model. If NULL, the 
+#' family will be \code{negative.binomial(theta)} when \code{counts = TRUE} or 
+#' \code{gaussian()} when \code{counts = FALSE}.
 #'
-#' @export
-#' @keywords regression
+#' @name scPVectorClass
+#' @aliases scPVectorClass-class
+#' @rdname scPVectorClass-class
+#' @exportClass scPVectorClass
+#' @keywords classes regression
 #'
 #' @examples
 #' #### GENERATE TIME COURSE DATA

@@ -6,9 +6,8 @@
 #' the optimal number of bins using one of the supported methods. The bin sizes
 #' are also calculated and merged with the input cell_metadata.
 #'
-#' @param scmpObject `colData` in data.frame. It can be exported using
-#' the \pkg{SingleCellExperiment}. It should contain the column
-#' with temporal to be discretized.
+#' @param scmpObject object of Class scMaSigPro. See \code{\link{scMaSigProClass}} 
+#' for more details.
 #' @param pseudotime_colname Name of the column in `cell.metadata` storing 
 #' Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment} 
 #' package. (Default is "Pseudotime").

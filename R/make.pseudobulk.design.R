@@ -1,38 +1,39 @@
 #' @title Create Pseduo-bulk metadata
 #'
 #' @description
-#' `make.pseudobulk.design()` creates a pseudobulk profile data frame from the design file.
+#' `make.bulk.design()` creates a pseudobulk profile data frame from the design file.
 #' It groups cells into bins for each path from a given set of paths and
 #' calculates the bin size.
 #'
-#' @param compressed_cell_metadata A data.frame. The design file containing the binned data.
-#' @param path_colname Name of the column in `cell.metadata` generated using
-#' \code{\link[SingleCellExperiment]{colData}} storing information for Path.
-#' (Default is `path_prefix`)
+#' @param scmpObject object of Class scMaSigPro. See \code{\link{scMaSigProClass}} 
+#' for more details.
+#' @param path_colname Name of the column in `cell.metadata` storing information 
+#' for Path. Generated using \code{\link[SingleCellExperiment]{colData}}. (Default 
+#' is `path_prefix`).
 #' @param bin_colname Name of the column in the 'compressed_cell_metadata',
-#' storing information about the bin labels. (Default is 'scmp_bin')
-#' @param bin_size_colname Name of the column in the 'compressed_cell_metadata',
-#' storing information about the size of the bins bin. (Default is 'scmp_bin_size')
-#' @param bin_members_colname Name of the column in the 'compressed_cell_metadata',
-#' storing information about the members of the bins. (Default is 'scmp_bin_members')
-#' @param bin_pseudotime_colname Name of the column in the 'compressed_cell_metadata',
-#' storing information about the binned pseudotime. (Default is 'scmp_binned_pseudotime')
+#' storing information about the bin labels. (Default is 'scmp_bin').
+#' @param bin_size_colname Name of the column in the 'compressed_cell_metadata'
+#' storing information about the size of the bins. (Default is 'scmp_bin_size').
+#' @param bin_members_colname Name of the column in the 'compressed_cell_metadata'
+#' storing information about the members of the bins. (Default is 'scmp_bin_members').
+#' @param bin_pseudotime_colname Name of the column in the 'compressed_cell_metadata'
+#' storing information about the binned pseudotime. (Default is 'scmp_binned_pseudotime').
 #'
 #' @return
 #' A data.frame containing the pseudobulk profile. The data frame includes the following columns:
-#' - 'binnedTime': The time bin
-#' - 'cluster.members': The cells that fall into the bin
-#' - 'bin': The bin identifier
-#' - 'path': The path identifier
-#' - 'bin.size': The size of the bin (number of cells in the bin)
-#' - Columns for each path in paths.vector, with binary values indicating whether the row belongs to the path
+#' - 'binnedTime': The time bin.
+#' - 'cluster.members': The cells grouped in the bin.
+#' - 'bin': The bin identifier.
+#' - 'path': The path identifier.
+#' - 'bin.size': The size of the bin (number of cells in the bin).
+#' - Columns for each path in paths.vector, with binary values indicating whether the row belongs to the path.
 #'
 #' @details
 #' This function operates by iterating over the specified paths. For each path, it:
-#' - Filters the design file to only include cells that belong to the path
-#' - Groups the cells into bins based on the binned time column
-#' - Calculates the size of each bin
-#' - Appends the resulting data frame to the pseudobulk profile
+#' - Filters the design file to only include cells that belong to the path.
+#' - Groups the cells into bins based on the binned time column.
+#' - Calculates the size of each bin.
+#' - Appends the resulting data frame to the pseudobulk profile.
 #'
 #' After processing all paths, the function adds binary columns for each path to the pseudobulk profile.
 #'
@@ -54,7 +55,7 @@ make.pseudobulk.design <- function(scmpObject,
                                    bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname) {
   # Check Object Validity
   assert_that(is(scmpObject, "scMaSigProClass"),
-    msg = "Please provide object of class 'scMaSigPro'"
+    msg = "Please provide object of class 'scMaSigPro'."
   )
 
   # Extract cell metadata
@@ -65,7 +66,7 @@ make.pseudobulk.design <- function(scmpObject,
     msg = paste0("'", bin_pseudotime_colname, "' does not exist in compressed_cell_metadata, please run entropy_discretize()")
   )
   assert_that(path_colname %in% colnames(compressed_cell_metadata),
-    msg = paste0("'", path_colname, "' does not exist in compressed_cell_metadata")
+    msg = paste0("'", path_colname, "' does not exist in compressed_cell_metadata. Please review 'path_colname' parameter.")
   )
 
   # Get the avaible paths
