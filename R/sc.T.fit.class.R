@@ -2,27 +2,35 @@
 #'
 #' @description A class for fitting a model.
 #'
-#' @slot sol A data frame representing ...
-#' @slot sig.profiles A data frame representing ...
-#' @slot coefficients A data frame representing ...
-#' @slot group.coeffs A data frame representing ...
-#' @slot t.score A data frame representing ...
-#' @slot variables A character vector representing ...
-#' @slot G An integer representing ...
-#' @slot g An integer representing ...
-#' @slot dat A matrix representing ...
-#' @slot dis A data frame representing ...
-#' @slot step.method A character representing ...
-#' @slot groups.vector A character vector representing ...
-#' @slot edesign A matrix representing ...
-#' @slot influ.info A matrix representing ...
+#' @slot sol A data frame for summary results of the stepwise regression. 
+#' For each selected gene the following values are given:
+#'   \itemize{
+#'     \item{p-value}{of the regression ANOVA.}
+#'     \item{R-squared}{of the model.}
+#'     \item{p-value}{of the regression coefficients of the selected variables.}
+#'   }
+#' @slot sig.profiles A data frame with the expression values for the genes contained in sol.
+#' @slot coefficients A data frame containing regression coefficients for the adjusted models.
+#' @slot group.coeffs A matrix with the coefficients of the implicit models of each experimental group.
+#' @slot t.score A data frame containing tscores for each covariate in polynomial glm.
+#' @slot variables A character vector containing the variables in the complete regression model.
+#' @slot G An integer representing the total number of input genes.
+#' @slot g An numeric value representing the number of genes taken in the regression fit.
+#' @slot dat A matrix with the input analysis data.
+#' @slot dis A data frame with the regression design.
+#' @slot step.method A character specifying the imputed step method for stepwise regression.
+#' @slot groups.vector A character vector containing the branching path.
+#' @slot edesign Experimental design in matrix format.
+#' @slot influ.info A matrix with genes containing influencial data.
 #'
 #' @name scTFitClass
 #' @aliases scTFitClass-class
 #' @rdname scTFitClass-class
 #' @exportClass scTFitClass
+#' @importFrom methods is new
 #' @keywords classes
-#'
+
+
 setClass(
   "scTFitClass",
   representation(

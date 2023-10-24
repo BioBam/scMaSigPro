@@ -11,8 +11,12 @@
 #' @slot bin_size_colname A character representing the name of the column for bin sizes.
 #' @slot bin_members_colname A character representing the name of the column for bin members.
 #'
-#' @importFrom methods is new
+#' @name addParamClass
+#' @aliases addParamClass-class
+#' @rdname addParamClass-class
 #' @exportClass addParamClass
+#' @importFrom methods is new
+#' @keywords classes
 
 setClass(
   "addParamClass",

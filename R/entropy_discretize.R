@@ -6,7 +6,7 @@
 #' the optimal number of bins using one of the supported methods. The bin sizes
 #' are also calculated and merged with the input cell_metadata.
 #'
-#' @param scmpObject object of Class scMaSigPro. See \code{\link{scmpClass}} 
+#' @param scmpObject object of Class scMaSigPro. See \code{\link{scMaSigProClass}} 
 #' for more details.
 #' @param pseudotime_colname Name of the column in `cell.metadata` storing 
 #' Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment} 

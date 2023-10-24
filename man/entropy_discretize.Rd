@@ -16,9 +16,8 @@ entropy_discretize(
 )
 }
 \arguments{
-\item{scmpObject}{`colData` in data.frame. It can be exported using
-the \pkg{SingleCellExperiment}. It should contain the column
-with temporal to be discretized.}
+\item{scmpObject}{object of Class scMaSigPro. See \code{\link{scMaSigProClass}} 
+for more details.}
 
 \item{pseudotime_colname}{Name of the column in `cell.metadata` storing 
 Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment} 
