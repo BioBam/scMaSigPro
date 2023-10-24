@@ -2,9 +2,9 @@
 #'
 #' @description A class for Storing significant genes.
 #'
-#' @slot summary A dataframe listing significant genes for the variables given
+#' @slot summary A dataframe listing significant genes for the variables given 
 #' by the function parameters.
-#' @slot sig.genes A list with detailed information on the significant genes found
+#' @slot sig.genes A list with detailed information on the significant genes found 
 #' for the variables given by the function parameters. Each element of the list is also a list containing:
 #'     \itemize{
 #'       \item{\code{sig.profiles}:}{Expression values of significant genes.}
