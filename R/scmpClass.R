@@ -4,7 +4,7 @@
 #' Inherits from \code{SingleCellExperiment}.
 #'
 #' @slot sce Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.
-#' @slot scPVector 
+#' @slot scPVector Object of Class scPVectorClass See \pkg{scPVectorClass} for more details.
 #' @slot scTFit Object of Class scTFitClass. See \code{\link{scTFitClass}} for more details.
 #' @slot compress.sce 
 #' @slot edesign Object of Class edesignClass. See \code{\link{edesignClass}} for more details.
