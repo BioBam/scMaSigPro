@@ -56,19 +56,20 @@ annotate_sce <- function(sce,
   if (labels_exist) {
     assert_that(
       all(!is.null(existing_pseudotime_colname) & !is.null(existing_path_colname)),
-      msg = paste("Requested to set 'path_colname' as", path_colname, "with 'labels_exist' as TRUE. Please supply, 
+      msg = paste("Requested to set 'path_colname' as", path_colname, "with 'labels_exist' as TRUE. Please supply,
                   'existing_pseudotime_colname' and 'existing_path_colname', through 'additional_params'")
     )
-      
-    if(verbose){
-        
-        message(paste0("Overwritting columns in cell.level.metadata, '", existing_path_colname, "' is replaced by '", path_colname,
-                      "' and '", existing_pseudotime_colname, "' is replaced by '", pseudotime_colname, "'."))
+
+    if (verbose) {
+      message(paste0(
+        "Overwritting columns in cell.level.metadata, '", existing_path_colname, "' is replaced by '", path_colname,
+        "' and '", existing_pseudotime_colname, "' is replaced by '", pseudotime_colname, "'."
+      ))
     }
 
     # Extract the cell metadata
     cell.meta <- as.data.frame(colData(sce))
-    
+
     # Check columns
     assert_that(
       all(existing_pseudotime_colname %in% colnames(cell.meta)),
@@ -88,13 +89,13 @@ annotate_sce <- function(sce,
 
     # Update cell dataset with the updated cell metadata
     sce@colData <- DataFrame(cell.meta)
-    
+
     # Return
     return(sce)
   } else {
-      if(verbose){
-          message(paste("Skipping overwritting of colnames in cell.level.metadata requested"))
-      }
+    if (verbose) {
+      message(paste("Skipping overwritting of colnames in cell.level.metadata requested"))
+    }
     # Return
     return(sce)
   }

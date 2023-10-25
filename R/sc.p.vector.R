@@ -14,7 +14,6 @@
 #'   If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = TRUE} or \code{gaussian()} when \code{counts = FALSE}.
 #' @param theta theta parameter for negative.binomial family.
 #' @param epsilon argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.
-#' @param item Name of the analyzed item to show on the screen while \code{sc.p.vector} is in process.
 #' @param verbose Name of the analyzed item to show on the screen while \code{T.fit} is in process.
 #' @param offset Whether ro use offset for normalization
 #' @param parallel description
@@ -87,15 +86,15 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   # Removing rows with many missings:
   count.na <- function(x) (length(x) - length(x[is.na(x)]))
   dat <- dat[apply(dat, 1, count.na) >= min.obs, ]
-  
+
   # Add check
-  assert_that((dat@Dim[1] > 1), msg = paste(min.obs,"for 'min.obs' is too high. Try lowering the threshold."))
-  
+  assert_that((dat@Dim[1] > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
+
   # if(verbose){
   #     message(paste("'min.obs' is set at", min.obs))
   #     message(paste("After filtering with 'min.obs'", scmpObj@compress.sce@assays@data@listData$bulk.counts@Dim[1] - dat@Dim[1], "gene are dropped"))
   # }
-  
+
   # Removing rows with all zeros:
   sumatot <- apply(dat, 1, sum)
   counts0 <- which(sumatot == 0)
@@ -117,12 +116,12 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
 
   # Calculate  offset
   if (offset) {
-      dat@x <- dat@x + 1
-      offsetData <- log(scmp_estimateSizeFactorsForMatrix(dat))
-      if(verbose){
+    dat@x <- dat@x + 1
+    offsetData <- log(scmp_estimateSizeFactorsForMatrix(dat))
+    if (verbose) {
       message("Using DESeq2::estimateSizeFactorsForMatrix")
-          message("Please cite DESeq2 as 'Love, M.I., Huber, W., Anders, S. Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2 Genome Biology 15(12):550 (2014)'")
-          }
+      message("Please cite DESeq2 as 'Love, M.I., Huber, W., Anders, S. Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2 Genome Biology 15(12):550 (2014)'")
+    }
   } else {
     offsetData <- NULL
   }
@@ -181,43 +180,43 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   #----------------------------------------------------------------------
   # Correct p-values using FDR correction and select significant genes
   p.adjusted <- unlist(p.adjust(sc.p.vector, method = MT.adjust, n = length(sc.p.vector)),
-                       recursive = T, use.names = T)
+    recursive = T, use.names = T
+  )
   names(p.adjusted) <- names(sc.p.vector)
   genes.selected <- rownames(dat)[which(p.adjusted <= Q)]
   FDR <- sort(sc.p.vector)[length(genes.selected)]
 
   # Subset the expression values of significant genes
   SELEC <- dat[rownames(dat) %in% genes.selected, ]
-  
+
   if (nrow(SELEC) == 0) {
     message("No significant genes detected. Try changing parameters.")
-      return(scmpObj)
-  }else{
+    return(scmpObj)
+  } else {
+    # Prepare 'sc.p.vector' for output
+    names(sc.p.vector) <- rownames(dat)
 
-  # Prepare 'sc.p.vector' for output
-  names(sc.p.vector) <- rownames(dat)
+    # Add Data to the class
+    scPVector.obj <- new("scPVectorClass",
+      SELEC = SELEC,
+      sc.p.vector = sc.p.vector,
+      p.adjusted = p.adjusted,
+      FDR = FDR,
+      dis = dis,
+      groups.vector = groups.vector,
+      family = family
+    )
 
-  # Add Data to the class
-  scPVector.obj <- new("scPVectorClass",
-    SELEC = SELEC,
-    sc.p.vector = sc.p.vector,
-    p.adjusted = p.adjusted,
-    FDR = FDR,
-    dis = dis,
-    groups.vector = groups.vector,
-    family = family
-  )
+    # Update Slot
+    scmpObj@scPVector <- scPVector.obj
 
-  # Update Slot
-  scmpObj@scPVector <- scPVector.obj
-  
-  # Update Parameter Slot
-  scmpObj@addParams@Q <- Q
-  scmpObj@addParams@min.obs <- min.obs
-  scmpObj@addParams@g <- g
-  scmpObj@addParams@MT.adjust <- MT.adjust
-  scmpObj@addParams@epsilon <- epsilon
+    # Update Parameter Slot
+    scmpObj@addParams@Q <- Q
+    scmpObj@addParams@min.obs <- min.obs
+    scmpObj@addParams@g <- g
+    scmpObj@addParams@MT.adjust <- MT.adjust
+    scmpObj@addParams@epsilon <- epsilon
 
-  return(scmpObj)
+    return(scmpObj)
   }
 }

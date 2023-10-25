@@ -28,6 +28,9 @@
 #' }
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
+#' @importFrom stats IQR sd
+#' @importFrom e1071 skewness
+#'
 #' @keywords internal
 estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
   estBins <- switch(bin_method,

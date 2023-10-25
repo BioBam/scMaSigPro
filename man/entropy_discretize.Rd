@@ -49,6 +49,8 @@ per path iteratively. Options: "universal", "individual. (Default = "universal")
 
 \item{bin_pseudotime_colname}{Name of the column to store the computed Pseudotime
 bins.}
+
+\item{additional_params}{Pass additional parameters as a named list. See Details.}
 }
 \value{
 A data.frame that contains the original data plus additional columns:

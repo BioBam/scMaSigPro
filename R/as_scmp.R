@@ -85,7 +85,7 @@ as_scmp <- function(object, from = "cds",
       additional_params <- list(reduction_method = "umap")
     } else if (from == "sce") {
       additional_params <- list(
-          labels_exist = NULL,
+        labels_exist = NULL,
         existing_pseudotime_colname = NULL,
         existing_path_colname = NULL
       )

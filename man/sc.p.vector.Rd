@@ -43,8 +43,6 @@ If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = 
 \item{offset}{Whether ro use offset for normalization}
 
 \item{parallel}{description}
-
-\item{item}{Name of the analyzed item to show on the screen while \code{sc.p.vector} is in process.}
 }
 \value{
 A list containing:

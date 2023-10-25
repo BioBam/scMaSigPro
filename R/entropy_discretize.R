@@ -27,6 +27,7 @@
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #' @param binning A character string. When set to "individual", the bins are calculated
 #' per path iteratively. Options: "universal", "individual. (Default = "universal").
+#' @param additional_params Pass additional parameters as a named list. See Details.
 #'
 #' @return
 #' A data.frame that contains the original data plus additional columns:
@@ -77,14 +78,11 @@ entropy_discretize <- function(scmpObject,
                                bin_colname = "scmp_bin",
                                bin_size_colname = "scmp_bin_size",
                                bin_pseudotime_colname = "scmp_binned_pseudotime",
-                               additional_params = list(use_unique_time_points = FALSE)
-                               ) {
-    
-    
-    # Initiate Variable
-    scmp_bin_lower_bound <- "scmp_l_bound"
-    scmp_bin_upper_bound <- "scmp_u_bound"
-    
+                               additional_params = list(use_unique_time_points = FALSE)) {
+  # Initiate Variable
+  scmp_bin_lower_bound <- "scmp_l_bound"
+  scmp_bin_upper_bound <- "scmp_u_bound"
+
   # Check Object Validity
   assert_that(is(scmpObject, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'."
@@ -113,14 +111,14 @@ entropy_discretize <- function(scmpObject,
     msg = "Available binning methods are 'Freedman.Diaconis', 'Sqrt', 'Sturges', 'Rice', 'Doane', and 'Scott.Normal'"
   )
   if (!is.null(additional_params)) {
-      assert_that(is.list(additional_params),
-                  msg = "Please provide 'additional_params' as a named list.
+    assert_that(is.list(additional_params),
+      msg = "Please provide 'additional_params' as a named list.
       See details for more information"
-      )
-      
-      assert_that(names(additional_params) %in% c("use_unique_time_points"),
-                      msg = "Allowed additional parameters are 'use_unique_time_points'."
-          )
+    )
+
+    assert_that(names(additional_params) %in% c("use_unique_time_points"),
+      msg = "Allowed additional parameters are 'use_unique_time_points'."
+    )
   }
 
   # Add a column
@@ -133,13 +131,13 @@ entropy_discretize <- function(scmpObject,
   assert_that(length(avail.paths) >= 2,
     msg = "Invalid number of paths detected. Please make sure that dataset has at least two paths"
   )
-  
-  if(verbose){
-      message(paste("Computing optimal bin-size with", bin_method, "method."))
-      message(paste("Number of available path in the dataset:", length(avail.paths)))
-      message(paste("Paths:", paste(avail.paths, collapse = ", ")))
-      message(paste("Drop factor:", drop.fac))
-      message(paste("Initiating binning by:", binning, "method."))
+
+  if (verbose) {
+    message(paste("Computing optimal bin-size with", bin_method, "method."))
+    message(paste("Number of available path in the dataset:", length(avail.paths)))
+    message(paste("Paths:", paste(avail.paths, collapse = ", ")))
+    message(paste("Drop factor:", drop.fac))
+    message(paste("Initiating binning by:", binning, "method."))
   }
 
   # Switch
@@ -148,18 +146,18 @@ entropy_discretize <- function(scmpObject,
       # Extract the time information as a vector
       time_vector <- cell_metadata[, pseudotime_colname]
       length_n <- length(time_vector)
-      
-      if(additional_params$use_unique_time_points){
-          time_vector <- unique(time_vector)
-          length_n <- length(time_vector)
-          if(verbose){
-              message(paste("Using only unique points in the time series"))
-          }
+
+      if (additional_params$use_unique_time_points) {
+        time_vector <- unique(time_vector)
+        length_n <- length(time_vector)
+        if (verbose) {
+          message(paste("Using only unique points in the time series"))
+        }
       }
-      
-      if(verbose){
-          message(paste("Number of pseudotime points detected", length_n))
-          message(paste("Range of Pseudotime points", paste(range(time_vector), collapse = "-")))
+
+      if (verbose) {
+        message(paste("Number of pseudotime points detected", length_n))
+        message(paste("Range of Pseudotime points", paste(range(time_vector), collapse = "-")))
       }
 
       # Calculate Optimal Number of Bins
@@ -169,8 +167,8 @@ entropy_discretize <- function(scmpObject,
             time_vector = time_vector, nPoints = length_n,
             drop_fac = drop.fac, bin_method = bin_method
           )
-          if(verbose){
-              message(paste("Sucessfully estimated optimal number of bin size."))
+          if (verbose) {
+            message(paste("Sucessfully estimated optimal number of bin size."))
           }
         },
         error = function(e) {
@@ -178,9 +176,9 @@ entropy_discretize <- function(scmpObject,
           stop("Unable to estimate bin size")
         }
       )
-      
-      if(verbose){
-          message(paste("Estimated bin size is", estBins))
+
+      if (verbose) {
+        message(paste("Estimated bin size is", estBins))
       }
 
       # Calculate Bin intervals with entropy
@@ -191,12 +189,14 @@ entropy_discretize <- function(scmpObject,
       bin_intervals[[bin_pseudotime_colname]] <- rownames(bin_intervals)
 
       # Create the bin table
-      bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range, bin_pseudotime_colname = bin_pseudotime_colname,
-                                                       bin_size_colname = bin_size_colname, bin_colname = bin_colname, verbose = verbose))))
+      bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range,
+        bin_pseudotime_colname = bin_pseudotime_colname,
+        bin_size_colname = bin_size_colname, bin_colname = bin_colname, verbose = verbose
+      ))))
       colnames(bin_table) <- c(scmp_bin_lower_bound, scmp_bin_upper_bound, bin_size_colname, bin_pseudotime_colname)
-      
-      if(verbose){
-          message(paste("Estimating bin intervals"))
+
+      if (verbose) {
+        message(paste("Estimating bin intervals"))
       }
 
       # Combine Tables
@@ -208,16 +208,15 @@ entropy_discretize <- function(scmpObject,
           )
         )
       )
-      
+
       # Set the 'cell' column as rownames
       rownames(processed_cell_metadata) <- processed_cell_metadata$cell
     },
     individual = {
-        
       # Apply transformations on data
       discrete.list <- lapply(avail.paths, function(path, design.frame = cell_metadata,
                                                     drop_fac = drop.fac, path.col = path_colname,
-                                                    bin.size = bin_size_colname, bin =bin_colname,
+                                                    bin.size = bin_size_colname, bin = bin_colname,
                                                     time.col = pseudotime_colname, method.bin = bin_method,
                                                     bin.time.col = bin_pseudotime_colname,
                                                     v = verbose, use.unique.time.points = additional_params$use_unique_time_points,
@@ -228,14 +227,14 @@ entropy_discretize <- function(scmpObject,
         # Extract the time information as a vector
         time_vector <- path.frame[, time.col]
         length_n <- length(time_vector)
-        
-        
-        if(use.unique.time.points){
-            time_vector <- unique(time_vector)
-            length_n <- length(time_vector)
-            if(v){
-                message(paste("Using only unique points in the time series"))
-            }
+
+
+        if (use.unique.time.points) {
+          time_vector <- unique(time_vector)
+          length_n <- length(time_vector)
+          if (v) {
+            message(paste("Using only unique points in the time series"))
+          }
         }
 
         # Validation
@@ -279,9 +278,10 @@ entropy_discretize <- function(scmpObject,
         bin_intervals[[bin.time.col]] <- rownames(bin_intervals)
 
         # Create the bin table
-        bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range, bin_pseudotime_colname = bin.time.col,
-                                                         bin_size_colname = bin.size, bin_colname = bin, verbose = v
-                                                         ))))
+        bin_table <- as.data.frame(t(as.data.frame(apply(bin_intervals, 1, create_range,
+          bin_pseudotime_colname = bin.time.col,
+          bin_size_colname = bin.size, bin_colname = bin, verbose = v
+        ))))
         colnames(bin_table) <- c(lbound, ubound, bin.size, bin.time.col)
 
         # Combine Tables
@@ -319,7 +319,7 @@ entropy_discretize <- function(scmpObject,
   scmpObject@addParams@bin_method <- bin_method
   scmpObject@addParams@binning <- binning
   scmpObject@addParams@bin_pseudotime_colname <- bin_pseudotime_colname
-  scmpObject@addParams@bin_colname = bin_colname
-  scmpObject@addParams@bin_size_colname = bin_size_colname
+  scmpObject@addParams@bin_colname <- bin_colname
+  scmpObject@addParams@bin_size_colname <- bin_size_colname
   return(scmpObject)
 }

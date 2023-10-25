@@ -59,25 +59,25 @@ setClass(
         errors <- c(errors, paste(slot_name, "must not be empty and should be of type character."))
       }
     }
-    
+
     # Check for slot g
     if (!is.integer(object@g)) {
-        stop("Slot 'g' must be an integer.")
+      stop("Slot 'g' must be an integer.")
     }
-    
-    
+
+
     # Check for slot Q
     if (!is.numeric(object@Q)) {
-        stop("Slot 'Q' must be numeric.")
+      stop("Slot 'Q' must be numeric.")
     }
-    
+
     if (!is.numeric(object@epsilon)) {
-        stop("Slot 'epsilon' must be numeric.")
+      stop("Slot 'epsilon' must be numeric.")
     }
-    
+
     # Check for slot min.obs
     if (!is.numeric(object@min.obs)) {
-        stop("Slot 'min.obs' must be an integer.")
+      stop("Slot 'min.obs' must be an integer.")
     }
 
     # Check if any of the character slots have multiple values

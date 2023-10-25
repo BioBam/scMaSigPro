@@ -104,7 +104,7 @@ sc.T.fit <- function(data,
 
   # Calculate  offset
   if (offset) {
-    offsetData <- log(estimateSizeFactorsForMatrix(dat + 1))
+    offsetData <- log(scmp_estimateSizeFactorsForMatrix(dat + 1))
   } else {
     offsetData <- NULL
   }

@@ -7,6 +7,9 @@
 # Set seed
 set.seed(123)
 
+save(sim.sce, file = "data/Sim2Path.RData", compress = "xz")
+
+
 # Load ScMaSigpro
 library(scMaSigPro)
 

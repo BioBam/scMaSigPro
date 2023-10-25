@@ -18,7 +18,7 @@ values}
 
 \item{locfunc}{a function to compute a location for a sample. By default, the
 median is used. However, especially for low counts, the
-\code{\link[genefilter]{shorth}} function from genefilter may give better results.}
+function from `genefilter` package may give better results.}
 
 \item{geoMeans}{by default this is not provided, and the
 geometric means of the counts are calculated within the function.
@@ -40,16 +40,7 @@ Given a matrix or data frame of count data, this function estimates the size
 factors as follows: Each column is divided by the geometric means of the
 rows. The median (or, if requested, another location estimator) of these
 ratios (skipping the genes with a geometric mean of zero) is used as the size
-factor for this column. Typically, one will not call this function directly, but use
-\code{\link{estimateSizeFactors}}.
-}
-\examples{
-
-dds <- makeExampleDESeqDataSet()
-estimateSizeFactorsForMatrix(counts(dds))
-geoMeans <- exp(rowMeans(log(counts(dds))))
-estimateSizeFactorsForMatrix(counts(dds),geoMeans=geoMeans)
-
+factor for this column.
 }
 \seealso{
 \code{\link{estimateSizeFactors}}
