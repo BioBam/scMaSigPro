@@ -15,7 +15,7 @@ annotate_monocle3_cds(
 )
 }
 \arguments{
-\item{cds}{A Monocle3 CellDataSet (CDS).}
+\item{cds}{A Monocle3 cds/CellDataSet object (CDS).}
 
 \item{reduction_method}{The dimensionality reduction method used. Default is
 "umap". Monocle3 currently supports "UMAP" only for most procedure.}
@@ -24,13 +24,13 @@ annotate_monocle3_cds(
 
 \item{root_label}{Label used to annotate root cells. (Default is "root").}
 
-\item{pseudotime_colname}{Name of the column in `cell.metadata` generated using
-`colData` from the \pkg{SingleCellExperiment} package, storing information for Pseudotime.
-(Default is "Pseudotime")}
+\item{pseudotime_colname}{Name of the column in `cell.metadata` storing
+information for Pseudotime. It is generated usingn`colData` from the
+\pkg{SingleCellExperiment} package. (Default is "Pseudotime").}
 
-\item{path_colname}{Name of the column in `cell.metadata` generated using
-`colData` from the \pkg{SingleCellExperiment} package, storing information for Path.
-(Default is `path_prefix`)}
+\item{path_colname}{Name of the column in `cell.metadata` storing information
+for Path. It is generated using `colData` from the \pkg{SingleCellExperiment}
+package. (Default is `path_prefix`).}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }
@@ -38,8 +38,8 @@ annotate_monocle3_cds(
 Annotated CDS object with end-point/path information:
 }
 \description{
-`annotate_monocle3_cds()` annotates the Monocle3's CellDataSet object. It uses
-the principal points, root cells, minimum spanning tree, to update the CDS
+`annotate_monocle3_cds()` annotates the Monocle3's cds/CellDataSet (CDS) object. It uses
+the principal points, root cells, and minimum spanning tree to update the CDS
 with end-point information that is used as path information.
 }
 \details{

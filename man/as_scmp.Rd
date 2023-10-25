@@ -12,25 +12,25 @@ as_scmp(
   pseudotime_colname = "Pseudotime",
   path_colname = path_prefix,
   verbose = TRUE,
-  additional_params = list(overwrite_labels = TRUE)
+  additional_params = list(labels_exist = FALSE)
 )
 }
 \arguments{
-\item{object}{An S4 object of class `cell_data_set` or `SingleCellExperiment`.}
+\item{object}{An S4 object of class `cds/CellDataSet` or `SingleCellExperiment`.}
 
 \item{from}{Character string specifying the class of 'object'. Use "cds" for
-`cell_data_set` class and "sce" for `SingleCellExperiment` class.}
+`cds/CellDataSet` class and "sce" for `SingleCellExperiment` class.}
 
 \item{path_prefix}{Prefix used to annotate the paths. (Default is "Path").}
 
 \item{root_label}{Label used to annotate root cells. (Default is "root").}
 
-\item{pseudotime_colname}{Name of the column in `cell.metadata` generated using
-`colData` from the \pkg{SingleCellExperiment} package, storing information for Pseudotime.
-(Default is "Pseudotime")}
+\item{pseudotime_colname}{Name of the column in `cell.metadata` storing
+Pseudotime values. It is generated using `colData` from the \pkg{SingleCellExperiment}
+package. (Default is "Pseudotime").}
 
-\item{path_colname}{Name of the column in `cell.metadata` generated using
-`colData` from the \pkg{SingleCellExperiment} package, storing information for Path.
+\item{path_colname}{Name of the column in `cell.metadata` storing information
+for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
 (Default is `path_prefix`)}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
@@ -41,7 +41,8 @@ as_scmp(
 An instance of the 'scmpClass'.
 }
 \description{
-`as_scmp()` converts a cell_data_set object from Monocle or a SingleCellExperiment object from Slingshot to an instance of the scmpClass object.
+`as_scmp()` converts a cds/CellDataSet object from Monocle3 or a SingleCellExperiment
+object from Slingshot to an instance of the scmpClass object.
 }
 \details{
 Additional Details
@@ -58,7 +59,8 @@ scmpObj <- as_scmp(object,
 
 }
 \seealso{
-`colData` from the \pkg{SingleCellExperiment} package, `new_cell_data_set` function in \pkg{monocle3}
+`colData` from the \pkg{SingleCellExperiment} package, `new_cell_data_set`
+function in \pkg{monocle3}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

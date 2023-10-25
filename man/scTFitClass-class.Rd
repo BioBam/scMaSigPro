@@ -11,33 +11,39 @@ A class for fitting a model.
 \section{Slots}{
 
 \describe{
-\item{\code{sol}}{A data frame representing ...}
+\item{\code{sol}}{A data frame for summary results of the stepwise regression.
+For each selected gene the following values are given:
+  \itemize{
+    \item{p-value}{of the regression ANOVA.}
+    \item{R-squared}{of the model.}
+    \item{p-value}{of the regression coefficients of the selected variables.}
+  }}
 
-\item{\code{sig.profiles}}{A data frame representing ...}
+\item{\code{sig.profiles}}{A data frame with the expression values for the genes contained in sol.}
 
-\item{\code{coefficients}}{A data frame representing ...}
+\item{\code{coefficients}}{A data frame containing regression coefficients for the adjusted models.}
 
-\item{\code{group.coeffs}}{A data frame representing ...}
+\item{\code{group.coeffs}}{A matrix with the coefficients of the implicit models of each experimental group.}
 
-\item{\code{t.score}}{A data frame representing ...}
+\item{\code{t.score}}{A data frame containing tscores for each covariate in polynomial glm.}
 
-\item{\code{variables}}{A character vector representing ...}
+\item{\code{variables}}{A character vector containing the variables in the complete regression model.}
 
-\item{\code{G}}{An integer representing ...}
+\item{\code{G}}{An integer representing the total number of input genes.}
 
-\item{\code{g}}{An integer representing ...}
+\item{\code{g}}{An numeric value representing the number of genes taken in the regression fit.}
 
-\item{\code{dat}}{A matrix representing ...}
+\item{\code{dat}}{A matrix with the input analysis data.}
 
-\item{\code{dis}}{A data frame representing ...}
+\item{\code{dis}}{A data frame with the regression design.}
 
-\item{\code{step.method}}{A character representing ...}
+\item{\code{step.method}}{A character specifying the imputed step method for stepwise regression.}
 
-\item{\code{groups.vector}}{A character vector representing ...}
+\item{\code{groups.vector}}{A character vector containing the branching path.}
 
-\item{\code{edesign}}{A matrix representing ...}
+\item{\code{edesign}}{Experimental design in matrix format.}
 
-\item{\code{influ.info}}{A matrix representing ...}
+\item{\code{influ.info}}{A matrix with genes containing influencial data.}
 }}
 
 \keyword{classes}

@@ -8,6 +8,13 @@
 #' @slot edesign A data frame.
 #' @slot poly_degree Polynomial degree
 #'
+#' @name edesignClass
+#' @aliases edesignClass-class
+#' @rdname edesignClass-class
+#' @exportClass edesignClass
+#' @importFrom methods is new
+#' @keywords classes
+#'
 #' @section Validity:
 #'   Valid objects must have:
 #'   \itemize{
@@ -16,7 +23,7 @@
 #'     \item{edesign}{A valid data frame.}
 #'   }
 #'
-#' @exportClass edesignClass
+
 setClass(
   "edesignClass",
   representation(

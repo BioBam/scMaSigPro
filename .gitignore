@@ -3,5 +3,4 @@
 .RData
 .Ruserdata
 test/testthat/sce.test.RDS
-data/
 extdata/
