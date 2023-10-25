@@ -39,7 +39,7 @@
 
 make.pseudobulk.counts <- function(scmpObject,
                                    bin_members_colname = scmpObject@addParams@bin_members_colname,
-                                   bin_colname = scmpObject@addParams@bin_size_colname,
+                                   bin_colname = scmpObject@addParams@bin_colname,
                                    assay_name = "counts",
                                    cluster_count_by = "sum") {
   # Check Object Validity

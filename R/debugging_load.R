@@ -4,4 +4,5 @@ load_package <- function(){
     suppressPackageStartupMessages(library(SingleCellExperiment))
     suppressPackageStartupMessages(library(entropy))
     suppressPackageStartupMessages(library(tidyverse))
+    suppressPackageStartupMessages(library(DESeq2))
 }

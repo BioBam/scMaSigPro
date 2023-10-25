@@ -18,8 +18,8 @@
 #'
 sc.make.design.matrix <- function(scmpObject,
                                   poly_degree = 2,
-                                  bin_pseudotime_colname = "scmp_binned_pseudotime",
-                                  path_colname = "Path") {
+                                  bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname,
+                                  path_colname = scmpObject@addParams@path_colname) {
   # Check Object Validity
   assert_that(is(scmpObject, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'"

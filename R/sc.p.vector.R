@@ -38,7 +38,7 @@
 #' maSigPro: a Method to Identify Significant Differential Expression Profiles in Time-Course Microarray Experiments.
 #' Bioinformatics 22, 1096-1102
 #'
-#' @author Ana Conesa and Maria Jose Nueda, \email{mj.nueda@ua.es}
+#' @author Ana Conesa and Maria Jose Nueda, \email{mj.nueda@@ua.es}
 #'
 #' @seealso \code{\link{T.fit}}, \code{\link{lm}}
 #'
@@ -81,14 +81,14 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   }
 
   # Convert 'scmpObj' to matrix and select relevant columns based on 'design' rows
-  dat <- as.matrix(scmpObj@compress.sce@assays@data@listData$bulk.counts)
+  dat <- scmpObj@compress.sce@assays@data@listData$bulk.counts
   dat <- dat[, as.character(rownames(dis))]
   G <- nrow(dat)
 
   # Removing rows with many missings:
   count.na <- function(x) (length(x) - length(x[is.na(x)]))
   dat <- dat[apply(dat, 1, count.na) >= min.obs, ]
-
+  
   # Removing rows with all zeros:
   sumatot <- apply(dat, 1, sum)
   counts0 <- which(sumatot == 0)
@@ -110,15 +110,15 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
 
   # Calculate  offset
   if (offset) {
-    offsetData <- log(estimateSizeFactorsForMatrix(dat + 1))
+      dat@x <- dat@x + 1
+      offsetData <- log(scmp_estimateSizeFactorsForMatrix(dat))
+      if(verbose){
+      message("Using DESeq2::estimateSizeFactorsForMatrix")
+          message("Please cite DESeq2 as 'Love, M.I., Huber, W., Anders, S. Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2 Genome Biology 15(12):550 (2014)'")
+          }
   } else {
     offsetData <- NULL
   }
-
-  # Iterate through each gene and perform the regression fit
-  # Store the p-values in 'sc.p.vector'
-  # Convert to l_apply
-
 
   if (parallel) {
     numCores <- detectCores()
@@ -170,16 +170,18 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   }, mc.cores = numCores)
 
   names(p.vector.list) <- rownames(dat)
-  sc.p.vector <- unlist(p.vector.list)
-
+  sc.p.vector <- unlist(p.vector.list, recursive = T, use.names = T)
   #----------------------------------------------------------------------
   # Correct p-values using FDR correction and select significant genes
-  p.adjusted <- p.adjust(sc.p.vector, method = MT.adjust, n = length(sc.p.vector))
+  p.adjusted <- unlist(p.adjust(sc.p.vector, method = MT.adjust, n = length(sc.p.vector)),
+                       recursive = T, use.names = T)
+  names(p.adjusted) <- names(sc.p.vector)
   genes.selected <- rownames(dat)[which(p.adjusted <= Q)]
   FDR <- sort(sc.p.vector)[length(genes.selected)]
 
   # Subset the expression values of significant genes
-  SELEC <- as.matrix(as.data.frame(dat)[genes.selected, ])
+  SELEC <- dat[rownames(dat) %in% genes.selected, ]
+  
   if (nrow(SELEC) == 0) {
     print("no significant genes")
   }
@@ -199,11 +201,9 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     FDR = FDR,
     i = nrow(SELEC),
     dis = dis,
-    dat = dat,
     min.obs = min.obs,
     Q = Q,
     groups.vector = groups.vector,
-    edesign = as.matrix(edesign),
     family = family
   )
 

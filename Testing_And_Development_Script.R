@@ -2,7 +2,7 @@
 # This will be removed from the final package
 
 # Use while debugging
-load_package()
+#load_package()
 
 # Set seed
 set.seed(123)
@@ -27,7 +27,6 @@ scmp <- entropy_discretize(scmp,drop.fac = 1,
                            binning = "individual",
                            additional_params = list(use_unique_time_points = TRUE))
 
-
 # Step-3-B: Create Pseudo-Bulk Cell Metadata
 scmp <- make.pseudobulk.design(scmp,
                                verbose= T)
@@ -35,5 +34,8 @@ scmp <- make.pseudobulk.design(scmp,
 # Step-3-C: Pseudo-bulk the counts
 scmp <- make.pseudobulk.counts(scmp)
 
-# Step-4: Run Pvector
-scmp <- sc.p.vector(scmp, parallel = T)
+# Step-4: Make DesignMatrix
+scmp <- sc.make.design.matrix(scmp, poly_degree = 2)
+
+# Step-5: Run Pvector
+data <- sc.p.vector(scmp, parallel = F)

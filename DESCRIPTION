@@ -11,7 +11,7 @@ License: MIT + file LICENSE
 Imports: maSigPro, reshape2, ggplot2, SingleCellExperiment, methods, MASS, assertthat,
     moments, entropy, parallel, dplyr, magrittr, stringr, rlang, tibble,
     Biobase, graphics, grDevices, stats, S4Vectors,
-    monocle3, DESeq2, igraph, SummarizedExperiment, data.table, ggpubr, RColorConesa,
+    monocle3, MatrixGenerics, igraph, SummarizedExperiment, data.table, ggpubr, RColorConesa,
     UpSetR
 Encoding: UTF-8
 LazyData: true
