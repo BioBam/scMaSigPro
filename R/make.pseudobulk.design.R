@@ -49,10 +49,11 @@
 #' @export
 make.pseudobulk.design <- function(scmpObject,
                                    path_colname = scmpObject@addParams@path_colname,
-                                   bin_colname = "scmp_bin",
-                                   bin_size_colname = "scmp_bin_size",
-                                   bin_members_colname = "scmp_bin_members",
-                                   bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname) {
+                                   bin_colname = scmpObject@addParams@bin_colname,
+                                   bin_size_colname = scmpObject@addParams@bin_size_colname,
+                                   bin_members_colname = scmpObject@addParams@bin_members_colname,
+                                   bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname,
+                                   verbose =T) {
   # Check Object Validity
   assert_that(is(scmpObject, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'."
@@ -60,8 +61,6 @@ make.pseudobulk.design <- function(scmpObject,
 
   # Extract cell metadata
   compressed_cell_metadata <- as.data.frame(colData(scmpObject@sce))
-
-
   assert_that(bin_pseudotime_colname %in% colnames(compressed_cell_metadata),
     msg = paste0("'", bin_pseudotime_colname, "' does not exist in compressed_cell_metadata, please run entropy_discretize()")
   )
@@ -92,6 +91,9 @@ make.pseudobulk.design <- function(scmpObject,
 
     # Order along the temporal vector
     path.time.cell <- path.frame[order(path.frame[, binned.col]), c(binned.col, "scmp_bar")]
+    
+    View(path.time.cell)
+    stop()
 
     # Validation
     assert_that(nrow(path.time.cell) >= 2,
@@ -141,6 +143,7 @@ make.pseudobulk.design <- function(scmpObject,
   scmpObject@compress.sce <- compressed.sce
 
   ## Slot Update
+  scmpObject@addParams@path_colname <- path_colname
   scmpObject@addParams@bin_colname <- bin_colname
   scmpObject@addParams@bin_size_colname <- bin_size_colname
   scmpObject@addParams@bin_members_colname <- bin_members_colname

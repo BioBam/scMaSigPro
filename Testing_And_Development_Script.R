@@ -29,7 +29,8 @@ scmp <- entropy_discretize(scmp,drop.fac = 1,
 
 
 # Step-3-B: Create Pseudo-Bulk Cell Metadata
-scmp <- make.pseudobulk.design(scmp)
+scmp <- make.pseudobulk.design(scmp,
+                               verbose= T)
 
 # Step-3-C: Pseudo-bulk the counts
 scmp <- make.pseudobulk.counts(scmp)

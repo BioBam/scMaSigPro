@@ -220,7 +220,7 @@ entropy_discretize <- function(scmpObject,
                                                     bin.size = bin_size_colname, bin =bin_colname,
                                                     time.col = pseudotime_colname, method.bin = bin_method,
                                                     bin.time.col = bin_pseudotime_colname,
-                                                    v = verbose,
+                                                    v = verbose, use.unique.time.points = additional_params$use_unique_time_points,
                                                     lbound = scmp_bin_lower_bound, ubound = scmp_bin_upper_bound) {
         # Get the cells belonging to path
         path.frame <- design.frame[design.frame[[path.col]] == path, , drop = F]
@@ -228,6 +228,15 @@ entropy_discretize <- function(scmpObject,
         # Extract the time information as a vector
         time_vector <- path.frame[, time.col]
         length_n <- length(time_vector)
+        
+        
+        if(use.unique.time.points){
+            time_vector <- unique(time_vector)
+            length_n <- length(time_vector)
+            if(v){
+                message(paste("Using only unique points in the time series"))
+            }
+        }
 
         # Validation
         if (length_n <= 7) {
