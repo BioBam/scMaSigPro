@@ -12,7 +12,7 @@ annotate_sce(
   path_colname = path_prefix,
   existing_pseudotime_colname = NULL,
   existing_path_colname = NULL,
-  overwrite_labels = TRUE,
+  labels_exist = FALSE,
   verbose = TRUE
 )
 }
@@ -37,7 +37,7 @@ to be replaced (if not NULL).}
 \item{existing_path_colname}{The name of an existing path column to be replaced
 (if not NULL).}
 
-\item{overwrite_labels}{Logical, should existing column names be overwritten
+\item{labels_exist}{Logical, should existing column names be overwritten
 if they already exist? (default is TRUE).}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}

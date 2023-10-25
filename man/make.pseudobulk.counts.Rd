@@ -6,10 +6,9 @@
 \usage{
 make.pseudobulk.counts(
   scmpObject,
-  bin_members_colname = "scmp_bin_members",
-  bin_colname = "scmp_bin",
+  bin_members_colname = scmpObject@addParams@bin_members_colname,
+  bin_colname = scmpObject@addParams@bin_size_colname,
   assay_name = "counts",
-  pseudo_bulk_profile,
   cluster_count_by = "sum"
 )
 }
@@ -25,8 +24,6 @@ storing information about the bin labels. (Default is 'scmp_bin').}
 
 \item{assay_name}{Name of the Assay in the assay_name object from which retrieve the counts.
 (Default = "counts").}
-
-\item{pseudo_bulk_profile}{A data.frame generated using \code{\link{make.pseudobulk.design}}.}
 
 \item{cluster_count_by}{A character string specifying the method to use to
 aggregate counts within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").}

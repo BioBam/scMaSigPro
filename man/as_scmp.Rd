@@ -12,7 +12,7 @@ as_scmp(
   pseudotime_colname = "Pseudotime",
   path_colname = path_prefix,
   verbose = TRUE,
-  additional_params = list(overwrite_labels = TRUE)
+  additional_params = list(labels_exist = FALSE)
 )
 }
 \arguments{

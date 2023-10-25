@@ -7,10 +7,11 @@
 make.pseudobulk.design(
   scmpObject,
   path_colname = scmpObject@addParams@path_colname,
-  bin_colname = "scmp_bin",
-  bin_size_colname = "scmp_bin_size",
+  bin_colname = scmpObject@addParams@bin_colname,
+  bin_size_colname = scmpObject@addParams@bin_size_colname,
   bin_members_colname = "scmp_bin_members",
-  bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname
+  bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname,
+  verbose = T
 )
 }
 \arguments{
