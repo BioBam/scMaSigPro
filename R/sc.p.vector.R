@@ -53,13 +53,12 @@
 #'
 #' @importFrom stats anova dist glm median na.omit p.adjust
 #' @importFrom utils setTxtProgressBar txtProgressBar
-#' @importFrom DESeq2 estimateSizeFactorsForMatrix
 #'
 #' @export
 #'
 sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
                         counts = FALSE, family = NULL, theta = 10, epsilon = 0.00001,
-                        item = "gene", verbose = TRUE, offset = T, parallel = F) {
+                        verbose = TRUE, offset = T, parallel = F) {
   # Check the type of the 'design' parameter and set the corresponding variables
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
@@ -88,6 +87,14 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   # Removing rows with many missings:
   count.na <- function(x) (length(x) - length(x[is.na(x)]))
   dat <- dat[apply(dat, 1, count.na) >= min.obs, ]
+  
+  # Add check
+  assert_that((dat@Dim[1] > 1), msg = paste(min.obs,"for 'min.obs' is too high. Try lowering the threshold."))
+  
+  # if(verbose){
+  #     message(paste("'min.obs' is set at", min.obs))
+  #     message(paste("After filtering with 'min.obs'", scmpObj@compress.sce@assays@data@listData$bulk.counts@Dim[1] - dat@Dim[1], "gene are dropped"))
+  # }
   
   # Removing rows with all zeros:
   sumatot <- apply(dat, 1, sum)
@@ -183,32 +190,34 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   SELEC <- dat[rownames(dat) %in% genes.selected, ]
   
   if (nrow(SELEC) == 0) {
-    print("no significant genes")
-  }
+    message("No significant genes detected. Try changing parameters.")
+      return(scmpObj)
+  }else{
 
   # Prepare 'sc.p.vector' for output
-  sc.p.vector <- as.matrix(sc.p.vector)
-  rownames(sc.p.vector) <- rownames(dat)
-  colnames(sc.p.vector) <- c("p.value")
+  names(sc.p.vector) <- rownames(dat)
 
   # Add Data to the class
   scPVector.obj <- new("scPVectorClass",
     SELEC = SELEC,
     sc.p.vector = sc.p.vector,
     p.adjusted = p.adjusted,
-    G = G,
-    g = g,
     FDR = FDR,
-    i = nrow(SELEC),
     dis = dis,
-    min.obs = min.obs,
-    Q = Q,
     groups.vector = groups.vector,
     family = family
   )
 
   # Update Slot
   scmpObj@scPVector <- scPVector.obj
+  
+  # Update Parameter Slot
+  scmpObj@addParams@Q <- Q
+  scmpObj@addParams@min.obs <- min.obs
+  scmpObj@addParams@g <- g
+  scmpObj@addParams@MT.adjust <- MT.adjust
+  scmpObj@addParams@epsilon <- epsilon
 
   return(scmpObj)
+  }
 }

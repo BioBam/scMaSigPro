@@ -6,15 +6,10 @@
 #' microarray experiments and identifying significant differential expression profiles.
 #'
 #' @slot SELEC dgCMatrix containing the expression values for significant genes.
-#' @slot sc.p.vector Matrix containing the computed p-values.
+#' @slot sc.p.vector Numeric vector containing the computed p-values.
 #' @slot p.adjusted Numeric vector of FDR-adjusted p-values.
-#' @slot G Integer. Total number of input genes.
-#' @slot g Integer. Number of genes taken in the regression fit.
 #' @slot FDR P-value at FDR \code{Q} control when Benjamini & Hochberg (BH) correction is used.
-#' @slot i Integer. Number of significant genes.
 #' @slot dis Data frame containing the matrix used in the regression fit.
-#' @slot min.obs Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).
-#' @slot Q Significance level. (Default = 0.05).
 #' @slot groups.vector Character list containing groups information.
 #' @slot family Distribution function to be used in the glm model. If NULL, the
 #' family will be \code{negative.binomial(theta)} when \code{counts = TRUE} or
@@ -43,15 +38,10 @@
 setClass("scPVectorClass",
   slots = c(
     SELEC = "dgCMatrix", # Matrix containing the expression values for significant genes
-    sc.p.vector = "matrix", # Matrix containing the computed p-values
+    sc.p.vector = "numeric", # Matrix containing the computed p-values
     p.adjusted = "numeric", # Vector of FDR-adjusted p-values
-    G = "integer", # Total number of input genes
-    g = "integer", # Number of genes taken in the regression fit
     FDR = "numeric", # P-value at FDR Q control when Benjamini & Hochberg (BH) correction is used
-    i = "integer", # Number of significant genes
     dis = "data.frame", # Design matrix used in the regression fit
-    min.obs = "numeric", # Minimum value to estimate the model (degree+1) x Groups + 1
-    Q = "numeric", # Significance level (default is 0.05)
     groups.vector = "character", # List containing groups information
     family = "ANY" # Distribution function to be used in the glm model
   ),
@@ -62,8 +52,8 @@ setClass("scPVectorClass",
     }
 
     # Check for slot sc.p.vector
-    if (!is.matrix(object@sc.p.vector)) {
-      stop("Slot 'sc.p.vector' must be a matrix.")
+    if (!is.numeric(object@sc.p.vector)) {
+      stop("Slot 'sc.p.vector' must be a numeric")
     }
 
     # Check for slot p.adjusted
@@ -71,39 +61,14 @@ setClass("scPVectorClass",
       stop("Slot 'p.adjusted' must be numeric.")
     }
 
-    # Check for slot G
-    if (!is.integer(object@G)) {
-      stop("Slot 'G' must be an integer.")
-    }
-
-    # Check for slot g
-    if (!is.integer(object@g)) {
-      stop("Slot 'g' must be an integer.")
-    }
-
     # Check for slot FDR
     if (!is.numeric(object@FDR)) {
       stop("Slot 'FDR' must be numeric.")
     }
 
-    # Check for slot i
-    if (!is.integer(object@i)) {
-      stop("Slot 'i' must be an integer.")
-    }
-
     # Check for slot dis
     if (!is.data.frame(object@dis)) {
       stop("Slot 'dis' must be a data frame.")
-    }
-
-    # Check for slot min.obs
-    if (!is.numeric(object@min.obs)) {
-      stop("Slot 'min.obs' must be an integer.")
-    }
-
-    # Check for slot Q
-    if (!is.numeric(object@Q)) {
-      stop("Slot 'Q' must be numeric.")
     }
 
     # Check for slot groups.vector
@@ -120,15 +85,10 @@ setClass("scPVectorClass",
   },
   prototype = list(
     SELEC = as(matrix(NA, nrow = 0, ncol = 0), "dgCMatrix"), # Empty matrix for SELEC
-    sc.p.vector = matrix(NA, nrow = 0, ncol = 0), # Empty matrix for sc.p.vector
+    sc.p.vector = numeric(0), # Empty matrix for sc.p.vector
     p.adjusted = numeric(0), # Empty numeric vector for p.adjusted
-    G = 0L, # Default G value is 0
-    g = 0L, # Default g value is 0
     FDR = 0, # Default FDR value is 0
-    i = 0L, # Default i value is 0
     dis = data.frame(), # Empty data frame for dis
-    min.obs = 6, # Default min.obs value is 0
-    Q = 0.05, # Default Q value is 0
     groups.vector = character(), # Empty list for groups.vector
     family = gaussian() # Default family value is NULL
   )

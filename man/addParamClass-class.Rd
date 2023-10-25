@@ -30,6 +30,16 @@ Class "addParamClass"
 \item{\code{bin_size_colname}}{A character representing the name of the column for bin sizes.}
 
 \item{\code{bin_members_colname}}{A character representing the name of the column for bin members.}
+
+\item{\code{Q}}{Significance Level}
+
+\item{\code{min.obs}}{Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).}
+
+\item{\code{g}}{Integer. Number of genes taken in the regression fit.}
+
+\item{\code{MT.adjust}}{Pvalue correction}
+
+\item{\code{epsilon}}{convergence tolerance}
 }}
 
 \keyword{classes}

@@ -34,8 +34,11 @@ scmp <- make.pseudobulk.design(scmp,
 # Step-3-C: Pseudo-bulk the counts
 scmp <- make.pseudobulk.counts(scmp)
 
-# Step-4: Make DesignMatrix
+# Step-4: Make Design-Matrix
 scmp <- sc.make.design.matrix(scmp, poly_degree = 2)
 
-# Step-5: Run Pvector
-data <- sc.p.vector(scmp, parallel = F)
+# Step-5: Run P-vector
+scmp <- sc.p.vector(scmp, parallel = T)
+
+# Step-6: Run T.fit
+sc.T.fit(scmp)
