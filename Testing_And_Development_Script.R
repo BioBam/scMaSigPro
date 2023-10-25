@@ -1,6 +1,9 @@
 # This document tempreory and is inteneded for testing and debugging
 # This will be removed from the final package
 
+# Use while debugging
+load_package()
+
 # Set seed
 set.seed(123)
 
@@ -12,15 +15,18 @@ data("Sim2Path", package = "scMaSigPro")
 
 # Step-2: Convert to ScMaSigpro Object
 scmp <- as_scmp(object = sim.sce,
-                from = "sce",
-                additional_params = list(
-                    overwrite_labels = TRUE,
-                    existing_pseudotime_colname = "Step",
-                    existing_path_colname = "Group"
-                ))
+                from = "sce", 
+                additional_params = list(labels_exist = TRUE,
+                                         existing_pseudotime_colname = "Step",
+                                         existing_path_colname = "Group")
+                )
 
 # Step-3-A: Perform Binning
-scmp <- entropy_discretize(scmp)
+scmp <- entropy_discretize(scmp,drop.fac = 1,
+                           verbose = T,
+                           binning = "individual",
+                           additional_params = list(use_unique_time_points = TRUE))
+
 
 # Step-3-B: Create Pseudo-Bulk Cell Metadata
 scmp <- make.pseudobulk.design(scmp)

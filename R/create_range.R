@@ -26,9 +26,10 @@
 #' @importFrom stringr str_remove_all
 #'
 #' @keywords internal
-create_range <- function(x, bin_pseudotime_colname = "scmp_binned_pseudotime") {
+create_range <- function(x, bin_pseudotime_colname = "scmp_binned_pseudotime", bin_size_colname  = "scmp_bin_size",
+                         bin_colname = "scmp_bin", verbose = TRUE) {
   # Convert the factor column "bin" to character
-  y <- as.character(x[["bin"]])
+  y <- as.character(x[[bin_colname]])
 
   # Remove square and round brackets from the character string
   y <- y %>% str_remove_all(pattern = "\\[|\\]|\\(|\\)")
@@ -38,9 +39,14 @@ create_range <- function(x, bin_pseudotime_colname = "scmp_binned_pseudotime") {
 
   # Split the character string by comma and extract the second element (upper bound of the range)
   y2 <- as.numeric(sapply(strsplit(y, ","), "[", 2))
+  
+  if(verbose){
+      message(paste0("Lower Bound:", y1, ", Upper Bound:", y2, ", Number of cells:", x[[bin_size_colname]],
+                     ", Bin Index:", x[[bin_pseudotime_colname]]))
+  }
 
   # Combine the lower bound, upper bound, bin size, and binned time into a numeric vector
-  rangeVec <- c(y1, y2, x[["bin_size"]], x[[bin_pseudotime_colname]])
+  rangeVec <- c(y1, y2, x[[bin_size_colname]], x[[bin_pseudotime_colname]])
 
   # Return the numeric vector
   return(as.numeric(rangeVec))

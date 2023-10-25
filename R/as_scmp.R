@@ -47,7 +47,7 @@ as_scmp <- function(object, from = "cds",
                     pseudotime_colname = "Pseudotime",
                     path_colname = path_prefix,
                     verbose = TRUE,
-                    additional_params = list(overwrite_labels = TRUE)) {
+                    additional_params = list(labels_exist = FALSE)) {
   # Check Conversion Type
   assert_that(from %in% c("cds", "sce"),
     msg = ("Currently, accepted options in the 'from' parameter are 'cds'
@@ -69,14 +69,14 @@ as_scmp <- function(object, from = "cds",
     )
     # Check additional parameters
     if (from == "cds") {
-      assert_that(names(additional_params) %in% c("reduction_method", "overwrite_labels"),
+      assert_that(names(additional_params) %in% c("reduction_method", "labels_exist"),
         msg = "Allowed additional parameters for 'cds' (cds/CellDataSet) are
-        'reduction_method', and 'overwrite_labels'."
+        'reduction_method', and 'labels_exist'."
       )
     } else if (from == "sce") {
-      assert_that(all(names(additional_params) %in% c("existing_pseudotime_colname", "existing_path_colname", "overwrite_labels")),
+      assert_that(all(names(additional_params) %in% c("existing_pseudotime_colname", "existing_path_colname", "labels_exist")),
         msg = "Allowed additional parameters for SCE are 'existing_pseudotime_colname',
-                  'existing_path_colname', and 'overwrite_labels'."
+                  'existing_path_colname', and 'labels_exist'."
       )
     }
   } else {
@@ -85,6 +85,7 @@ as_scmp <- function(object, from = "cds",
       additional_params <- list(reduction_method = "umap")
     } else if (from == "sce") {
       additional_params <- list(
+          labels_exist = NULL,
         existing_pseudotime_colname = NULL,
         existing_path_colname = NULL
       )
@@ -105,7 +106,7 @@ as_scmp <- function(object, from = "cds",
       path_colname = path_colname,
       existing_pseudotime_colname = additional_params[["existing_pseudotime_colname"]],
       existing_path_colname = additional_params[["existing_path_colname"]],
-      overwrite_labels = additional_params[["overwrite_labels"]],
+      labels_exist = additional_params[["labels_exist"]],
       verbose = verbose
     )
 
