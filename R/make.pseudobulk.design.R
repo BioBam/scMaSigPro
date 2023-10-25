@@ -51,7 +51,7 @@ make.pseudobulk.design <- function(scmpObject,
                                    path_colname = scmpObject@addParams@path_colname,
                                    bin_colname = scmpObject@addParams@bin_colname,
                                    bin_size_colname = scmpObject@addParams@bin_size_colname,
-                                   bin_members_colname = scmpObject@addParams@bin_members_colname,
+                                   bin_members_colname = "scmp_bin_members",
                                    bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname,
                                    verbose =T) {
   # Check Object Validity
@@ -85,15 +85,17 @@ make.pseudobulk.design <- function(scmpObject,
   # Apply transformations on data
   # pB.list <- mclapply(avail.paths, function(path, design.frame = compressed_cell_metadata,
   pB.list <- lapply(avail.paths, function(path, design.frame = compressed_cell_metadata,
-                                          binned.col = bin_pseudotime_colname, path.col = path_colname) {
+                                          binned.col = bin_pseudotime_colname, path.col = path_colname,
+                                          v= verbose) {
+      
+      if(v){
+          message("Running for", path)
+      }
     # Get the cells belonging to path
     path.frame <- design.frame[design.frame[[path.col]] == path, , drop = F]
 
     # Order along the temporal vector
     path.time.cell <- path.frame[order(path.frame[, binned.col]), c(binned.col, "scmp_bar")]
-    
-    View(path.time.cell)
-    stop()
 
     # Validation
     assert_that(nrow(path.time.cell) >= 2,
@@ -106,13 +108,19 @@ make.pseudobulk.design <- function(scmpObject,
       summarise(!!bin_members_colname := paste0(scmp_bar, collapse = "|"))
 
     # Add Cluster Label
-    path.time.cell[[bin_colname]] <- paste0(path, "_bin_", seq(1, nrow(path.time.cell)))
+    tmp.bin.name <- paste0(path, "_bin_", seq(1, nrow(path.time.cell)))
+    path.time.cell[[bin_colname]] <- tmp.bin.name
 
     # Set the Path Information
     path.time.cell[[path.col]] <- path
 
     # Add Cluster Size
-    path.time.cell[[bin_size_colname]] <- apply(path.time.cell, 1, calc_bin_size, clus_mem_col = bin_members_colname)
+    tmp.bin.sise <- apply(path.time.cell, 1, calc_bin_size, clus_mem_col = bin_members_colname)
+    path.time.cell[[bin_size_colname]] <- tmp.bin.sise
+    
+    if(v){
+        message(paste(tmp.bin.name, "has", tmp.bin.sise, "cells."))
+    }
 
     # Claculate bin_range
     bin_range <- range(path.time.cell[[bin_size_colname]], na.rm = TRUE)
@@ -136,7 +144,7 @@ make.pseudobulk.design <- function(scmpObject,
 
   # Remove extra column
   # pB.frame <- pB.frame %>% select(-"scmp_bar")
-
+  
   ## Add Processed Cell Matadata back with slot update
   compressed.sce <- SingleCellExperiment(assays = list(bulk.counts = as(matrix(NA, nrow = 0, ncol = nrow(pB.frame)), "dgCMatrix")))
   compressed.sce@colData <- DataFrame(pB.frame)

@@ -36,4 +36,4 @@ scmp <- make.pseudobulk.design(scmp,
 scmp <- make.pseudobulk.counts(scmp)
 
 # Step-4: Run Pvector
-
+scmp <- sc.p.vector(scmp, parallel = T)

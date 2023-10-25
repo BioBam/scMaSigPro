@@ -53,6 +53,7 @@
 #'
 #' @importFrom stats anova dist glm median na.omit p.adjust
 #' @importFrom utils setTxtProgressBar txtProgressBar
+#' @importFrom DESeq2 estimateSizeFactorsForMatrix
 #'
 #' @export
 #'
