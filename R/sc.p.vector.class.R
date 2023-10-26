@@ -89,19 +89,6 @@ setClass("scPVectorClass",
     p.adjusted = numeric(0), # Empty numeric vector for p.adjusted
     FDR = 0, # Default FDR value is 0
     dis = data.frame(), # Empty data frame for dis
-    groups.vector = character(), # Empty list for groups.vector
-    family = gaussian() # Default family value is NULL
+    groups.vector = character() # Empty list for groups.vector
   )
 )
-
-setGeneric("family", function(object) standardGeneric("family"))
-
-setMethod("family", "scPVectorClass", function(object) {
-  if (isS4(object)) {
-    return(object@family)
-  } else if (is(object, "list")) {
-    return(object$family)
-  } else {
-    stop("Object must be of class 'scPVectorClass' (S4) or list (S3).")
-  }
-})

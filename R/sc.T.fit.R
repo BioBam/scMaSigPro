@@ -2,7 +2,7 @@
 #'
 #' \code{T.fit} selects the best regression model for each gene using stepwise regression.
 #'
-#' @param scmpObject Can either be a \code{\link{p.vector}} object or a matrix containing expression scmpObject with the same requirements as for
+#' @param scmpObj Can either be a \code{\link{p.vector}} object or a matrix containing expression scmpObj with the same requirements as for
 #' the \code{\link{p.vector}} function.
 #' @param step.method Argument to be passed to the step function. Can be either \code{"backward"}, \code{"forward"}, \code{"two.ways.backward"}, or \code{"two.ways.forward"}.
 #' @param Q Significance level used for variable selection in the stepwise regression.
@@ -11,6 +11,7 @@
 #' @param epsilon Argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.
 #' @param verbose Name of the analyzed item to show on the screen while \code{T.fit} is in process.
 #' @param offset Whether ro use offset for normalization
+#' @param parallel description
 #'
 #' @details
 #' In the maSigPro approach, \code{\link{p.vector}} and \code{\link{T.fit}} are subsequent steps, meaning that significant genes are
@@ -29,17 +30,16 @@
 #'   \item R-squared of the model
 #'   \item p-value of the regression coefficients of the selected variables
 #' }}
-#' \item{sig.profiles}{Expression values for the genes contained in \code{sol}.}
 #' \item{coefficients}{Matrix containing regression coefficients for the adjusted models.}
 #' \item{group.coeffs}{Matrix containing the coefficients of the implicit models of each experimental group.}
 #' \item{variables}{Variables in the complete regression model.}
 #' \item{G}{Total number of input genes.}
 #' \item{g}{Number of genes taken in the regression fit.}
-#' \item{dat}{Input analysis scmpObject matrix.}
+#' \item{dat}{Input analysis scmpObj matrix.}
 #' \item{dis}{Regression design matrix.}
 #' \item{step.method}{Imputed step method for stepwise regression.}
 #' \item{edesign}{Matrix of experimental design.}
-#' \item{influ.info}{scmpObject frame of genes containing influential scmpObject.}
+#' \item{influ.info}{scmpObj frame of genes containing influential scmpObj.}
 #'
 #' @references{Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
 #' maSigPro: a Method to Identify Significant Differential Expression Profiles in Time-Course Microarray Experiments.
@@ -49,33 +49,34 @@
 #'
 #' @seealso{\code{\link{p.vector}}, \code{\link{step}}}
 #'
-#' @importFrom maSigPro position
+#' @importFrom maSigPro position reg.coeffs
 #' @keywords regression
 #' @keywords models
 #' @export
-sc.T.fit <- function(scmpObject,
+sc.T.fit <- function(scmpObj,
                      step.method = "backward",
-                     Q = scmpObject@addParams@Q,
+                     Q = scmpObj@addParams@Q,
                      nvar.correction = FALSE,
-                     family = gaussian(),
-                     epsilon = scmpObject@addParams@epsilon,
+                     family = scmpObj@distribution,
+                     epsilon = scmpObj@addParams@epsilon,
                      offset = T,
-                     verbose = TRUE
+                     verbose = TRUE,
+                     parallel = T
                      ) {
-  assert_that(is(scmpObject, "scMaSigProClass"),
+  assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
   )
     
   # Transfer Data
-  dis <- scmpObject@edesign@dis
-  Q <- scmpObject@addParams@Q
-  groups.vector <- scmpObject@edesign@groups.vector
+  dis <- scmpObj@edesign@dis
+  Q <- scmpObj@addParams@Q
+  groups.vector <- scmpObj@edesign@groups.vector
   groups.vector <- c(groups.vector[nchar(groups.vector) == min(nchar(groups.vector))][1], groups.vector)
-  edesign <- scmpObject@edesign@edesign
-  G <- scmpObject@addParams@g
-  family <- scmpObject@scPVector@family
+  edesign <- scmpObj@edesign@edesign
+  G <- scmpObj@addParams@g
+  family <- scmpObj@scPVector@family
   
-  dat <- scmpObject@scPVector@SELEC
+  dat <- scmpObj@scPVector@SELEC
   dat <- rbind(c(rep(1, ncol(dat))), dat)
   dat <- dat[, as.character(rownames(dis))]
   
@@ -91,27 +92,27 @@ sc.T.fit <- function(scmpObject,
     Q <- Q / ncol(dis)
   }
 
-  # Added Progress Bar
-  if (verbose) {
-    pb <- txtProgressBar(min = 0, max = g, style = 3)
-  }
-
   # Calculate  offset
   if (offset) {
     offsetData <- log(scmp_estimateSizeFactorsForMatrix(dat + 1))
   } else {
     offsetData <- NULL
   }
-  #
-  #   # If parallel is requested
-  #   if (parallel) {
-  #     numCores <- detectCores()
-  #     if (verbose) {
-  #       message(paste("Running with", numCores, "cores..."))
-  #     }
-  #   } else {
-  #     numCores <- 1
-  #   }
+
+    # If parallel is requested
+    if (parallel) {
+      numCores <- detectCores()
+      if (verbose) {
+        message(paste("Running with", numCores, "cores..."))
+      }
+    } else {
+      numCores <- 1
+      if (verbose) {
+          i <-1
+          div <- c(1:round(g / 100)) * 100
+          pb <- txtProgressBar(min = 0, max = g, style = 3)
+      }
+    }
   numCores <- detectCores()
 
   # Collect all the y
@@ -123,13 +124,22 @@ sc.T.fit <- function(scmpObject,
   # Select the covariates
   if (step.method == "backward") {
     #result_list <- parallel::mclapply(names(y_input), function(gene_name, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info) {
-       result_list <- lapply(names(y_input), function(gene_name, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info){
-      y <- y_input[[gene_name]]
-      View(dis_lapply)
-      reg_scmpObject <- sc.stepback(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-      lmf_scmpObject <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-      model.glm.0_scmpObject <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-      return(extract_fitting(reg = reg_scmpObject, lmf = lmf_scmpObject, model.glm.0 = model.glm.0_scmpObject, dis = dis_lapply, family = family_lapply, name = gene_name, vars.in = vars_in_lapply, Q = Q_lapply, influ.info = influ.info_lapply))
+       result_list <- lapply(names(y_input), function(gene_name, g_lapply = g,dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info){
+        y <- y_input[[gene_name]]
+      reg_scmpObj <- sc.stepback(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+      lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+      model.glm.0_scmpObj <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+      
+      
+      if (parallel == F) {
+          if (verbose_lapply) {
+              if (verbose_lapply) {
+                  i=i+1
+                  setTxtProgressBar(pb_lapply, i)
+              }
+          }
+      }
+      return(extract_fitting(reg = reg_scmpObj, lmf = lmf_scmpObj, model.glm.0 = model.glm.0_scmpObj, dis = dis_lapply, family = family_lapply, name = gene_name, vars.in = vars_in_lapply, alfa = Q_lapply, influ.info = influ.info_lapply))
       # return(list(
       #     reg = reg,
       #     lmf = lmf,
@@ -138,45 +148,58 @@ sc.T.fit <- function(scmpObject,
     #}, mc.cores = numCores, mc.set.seed = 2023)
      })
   } else if (step.method == "forward") {
-    result_list <- parallel::mclapply(y_input, function(y, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose) {
-      reg <- sc.stepfor(y = y, d = dis_lapply, alfa = Q, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-      lmf <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-      model.glm.0 <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-      return(list(
-        reg = reg,
-        lmf = lmf,
-        model.glm.0 = model.glm.0
-      ))
-    }, mc.cores = numCores, mc.set.seed = 2023)
+      result_list <- parallel::mclapply(names(y_input), function(gene_name,  g_lapply = g,dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info) {
+          y <- y_input[[gene_name]]
+          reg_scmpObj <- sc.stepfor(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+          lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+          model.glm.0_scmpObj <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+          div <- c(1:round(g / 100)) * 100
+          if (parallel == F) {
+              if (is.element(y, div) && verbose_lapply) {
+                  if (verbose) {
+                      setTxtProgressBar(pb_lapply, y)
+                  }
+              }
+          }
+          return(extract_fitting(reg = reg_scmpObj, lmf = lmf_scmpObj, model.glm.0 = model.glm.0_scmpObj, dis = dis_lapply, family = family_lapply, name = gene_name, vars.in = vars_in_lapply, alfa = Q_lapply, influ.info = influ.info_lapply))
+      }, mc.cores = numCores, mc.set.seed = 2023)
   } else if (step.method == "two.ways.backward") {
-    result_list <- parallel::mclapply(y_input, function(y, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose) {
-      reg <- sc.two.ways.stepback(y = y, d = dis_lapply, alfa = Q, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-      lmf <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-      model.glm.0 <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-      return(list(
-        reg = reg,
-        lmf = lmf,
-        model.glm.0 = model.glm.0
-      ))
-    }, mc.cores = numCores, mc.set.seed = 2023)
+      result_list <- parallel::mclapply(names(y_input), function(gene_name,  g_lapply = g,dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info) {
+          y <- y_input[[gene_name]]
+          reg_scmpObj <- sc.two.ways.stepback(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+          lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+          model.glm.0_scmpObj <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+          div <- c(1:round(g / 100)) * 100
+          if (parallel == F) {
+              if (is.element(y, div) && verbose_lapply) {
+                  if (verbose) {
+                      setTxtProgressBar(pb_lapply, y)
+                  }
+              }
+          }
+          return(extract_fitting(reg = reg_scmpObj, lmf = lmf_scmpObj, model.glm.0 = model.glm.0_scmpObj, dis = dis_lapply, family = family_lapply, name = gene_name, vars.in = vars_in_lapply, alfa = Q_lapply, influ.info = influ.info_lapply))
+      }, mc.cores = numCores, mc.set.seed = 2023)
+      #})
   } else if (step.method == "two.ways.forward") {
-    result_list <- parallel::mclapply(y_input, function(y, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose) {
-      reg <- sc.two.ways.stepfor(y = y, d = dis_lapply, alfa = Q, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-      lmf <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-      model.glm.0 <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-
-      return(list(
-        reg = reg,
-        lmf = lmf,
-        model.glm.0 = model.glm.0
-      ))
-    }, mc.cores = numCores, mc.set.seed = 2023)
+      result_list <- parallel::mclapply(names(y_input), function(gene_name,  g_lapply = g,dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info) {
+          y <- y_input[[gene_name]]
+          reg_scmpObj <- sc.two.ways.stepfor(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
+          lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+          model.glm.0_scmpObj <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+          div <- c(1:round(g / 100)) * 100
+          if (parallel == F) {
+              if (is.element(y, div) && verbose_lapply) {
+                  if (verbose) {
+                      setTxtProgressBar(pb_lapply, y)
+                  }
+              }
+          }
+          return(extract_fitting(reg = reg_scmpObj, lmf = lmf_scmpObj, model.glm.0 = model.glm.0_scmpObj, dis = dis_lapply, family = family_lapply, name = gene_name, vars.in = vars_in_lapply, alfa = Q_lapply, influ.info = influ.info_lapply))
+      }, mc.cores = numCores, mc.set.seed = 2023)
   } else {
     stop("stepwise method must be one of backward, forward, two.ways.backward, two.ways.forward")
   }
   
-  return(result_list)
-
   #--------------------------------------------
   feature_names <- unlist(lapply(result_list, function(element) {
     return(element[["feature_name"]])
@@ -184,10 +207,6 @@ sc.T.fit <- function(scmpObject,
   # Get the soluction frame
   sol.list <- lapply(result_list, function(element) {
     return(element[["sol"]])
-  })
-  # Get Sig.profile list
-  sig_profile.list <- lapply(result_list, function(element) {
-    return(element[["sig_profiles"]])
   })
   # Get Coeffcient
   coeff.list <- lapply(result_list, function(element) {
@@ -207,15 +226,13 @@ sc.T.fit <- function(scmpObject,
   influ.info.list <- lapply(influ.info.list, function(element) {
     return(element[, -1, drop = F])
   })
-  # Create scmpObjectframe
+  # Create scmpObjframe
   sol <- do.call("rbind", sol.list)
-  sig.profiles <- do.call("rbind", sig_profile.list)
   coefficients <- do.call("rbind", coeff.list)
   t.score <- do.call("rbind", t.list)
   influ.info <- do.call("cbind", influ.info.list)
 
   # Add rownames
-  rownames(sig.profiles) <- feature_names
   rownames(coefficients) <- feature_names
   rownames(t.score) <- feature_names
 
@@ -227,7 +244,6 @@ sc.T.fit <- function(scmpObject,
     coefficients <- as.data.frame(coefficients)
     coeffic <- coefficients
     t.score <- as.data.frame(t.score)
-    sig.profiles <- as.data.frame(sig.profiles)
     colnames(sol) <- c(
       "p-value", "R-squared", "p.valor_beta0",
       paste("p.valor_", vars.in, sep = "")
@@ -239,7 +255,6 @@ sc.T.fit <- function(scmpObject,
       vars.in,
       sep = ""
     ))
-    colnames(sig.profiles) <- colnames(dat)
     if (!is.null(groups.vector) & !is.null(edesign)) {
       groups <- colnames(edesign)[3:ncol(edesign)]
       degree <- (length(groups.vector) / length(groups)) -
@@ -263,34 +278,30 @@ sc.T.fit <- function(scmpObject,
     }
   }
   if (ncol(influ.info) > 2) {
-    message(paste("\nInfluence:", ncol(influ.info), "genes with influential scmpObject at slot influ.info. Model validation for these genes is recommended"))
+    message(paste("\nInfluence:", ncol(influ.info), "genes with influential scmpObj at slot influ.info. Model validation for these genes is recommended"))
   }
   # influ.info <- influ.info[, -1]
 
   # Create a constructor for the class
   t.fit.object <- new("scTFitClass",
     sol = sol,
-    sig.profiles = sig.profiles,
     coefficients = coefficients,
     group.coeffs = group.coeffs,
     t.score = t.score,
     variables = vars.in,
-    G = G,
-    g = g,
-    dat = dat,
-    dis = dis,
-    step.method = step.method,
     groups.vector = groups.vector,
-    edesign = edesign,
     influ.info = influ.info
   )
 
   # Added Tfit
-  scmpObject@scTFit <- t.fit.object
+  scmpObj@scTFit <- t.fit.object
   
   # Update Parameter Slot
   scmpObj@addParams@Q <- Q
   scmpObj@addParams@epsilon <- epsilon
+  scmpObj@addParams@g <- integer(g)
+  scmpObj@addParams@step.method <- step.method
+  scmpObj@distribution <- family
   
-  return(scmpObject)
+  return(scmpObj)
 }

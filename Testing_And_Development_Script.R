@@ -41,7 +41,8 @@ scmp <- make.pseudobulk.counts(scmp)
 scmp <- sc.make.design.matrix(scmp, poly_degree = 2)
 
 # Step-5: Run P-vector
-scmp <- sc.p.vector(scmp, parallel = T)
+scmp <- sc.p.vector(scmp, parallel = T, family = gaussian())
 
 # Step-6: Run T.fit
-test <- sc.T.fit(scmp,step.method = "backward")
+test <- sc.T.fit(scmp, step.method = "backward",
+                 parallel = T, verbose = T)

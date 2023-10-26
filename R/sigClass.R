@@ -19,6 +19,7 @@
 #' @aliases sigClass-class
 #' @rdname sigClass-class
 #' @exportClass sigClass
+#' @importFrom methods is new as
 #' @keywords classes
 #'
 setClass(
