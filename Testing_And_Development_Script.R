@@ -50,3 +50,16 @@ scmp <- sc.T.fit(scmp, parallel = T, verbose = T)
 scmp <- sc.get.siggenes(scmpObj = scmp,
                         vars = "all",
                         significant.intercept = "dummy")
+
+# Step-9: Plot the significant Genes
+PlotGroups(data = scmp@compress.sce@assays@data@listData$bulk.counts[1, ],
+           edesign = scmp@edesign@edesign,
+           show.lines = T,
+           show.fit = T,
+           dis = scmp@edesign@dis,
+           groups.vector = scmp@scPVector@groups.vector,
+           summary.mode = "median"
+           )
+
+sc.PlotGroups(scmpObj = scmp,
+              feature_id = "Gene10")

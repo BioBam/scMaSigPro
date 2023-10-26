@@ -28,6 +28,8 @@
 #' @param plot.bins Additionally Plot bins
 #' @param ... Additional plotting parameters.
 #'
+#' @importFrom maSigPro i.rank T.fit reg.coeffs
+#' @importFrom ggplot2 ggplot
 #' @return Generates a plot.
 #' @export
 
@@ -38,160 +40,207 @@ sc.PlotGroups <-
            xlab = "Pooled Pseudotime", ylab = "Pseudobulk Expression", item = NULL, ylim = NULL, pch = 21,
            col = NULL, legend = TRUE, cex.legend = 1, show.umap = T,
            lty.legend = NULL, plot.bins = FALSE) {
-    data <- scmpObj@scTFit@dat
-    assert_that(all(feature_id %in% rownames(data)),
-      msg = "Feature Id doesn't exist please select another one"
-    )
-    data <- data[rownames(data) %in% feature_id, , drop = F]
+      
+      # Extract the bulk counts
+      bulk.counts = scmpObj@compress.sce@assays@data@listData$bulk.counts
+      
+      # Check
+      assert_that(all(feature_id %in% rownames(bulk.counts)),
+                  msg = "Feature Id doesn't exist please select another one"
+      )
+      # gene_i
+      yy <- bulk.counts[rownames(bulk.counts) %in% feature_id, , drop = F]
+      
+      # Extract the bulk counts
+      edesign = scmpObj@edesign@edesign
+      
+      # group Vector
+      groups.vector = scmpObj@scPVector@groups.vector
+      
+      # Prepare for Tfit
+      rm <- matrix(yy, nrow = 1, ncol = length(yy))
+      rownames(rm) <- c("ratio medio")
+      colnames(rm) <- rownames(scmpObj@edesign@dis)
+      
+      # Extract the beta
+      betas.table <- showCoeff(scmpObj, view = F, return = T)
+      betas <- betas.table[feature_id, , drop = F]
+      
+      # Set Data
+      curve.df <- data.frame(x = 0, y = 0, path = scmpObj@addParams@path_prefix)
+      line.df <- data.frame(x = 0, y = 0, path = scmpObj@addParams@path_prefix)
+      colnames(line.df) <- c("x", "y", scmpObj@addParams@path_colname)
+      colnames(line.df) <- c("x", "y", scmpObj@addParams@path_colname)
+      curve_data <- NULL
+      path.names <- unique(scmpObj@compress.sce@colData[[scmp@addParams@path_colname]])
+      
+      # Get x and y
+      x <- y <- rep(0, nrow(scmpObj@edesign@edesign))
+      
+      print(x)
+      
+      PlotGroups(data = yy,
+                 edesign = scmp@edesign@edesign,
+                 show.lines = T,
+                 show.fit = T,
+                 dis = scmp@edesign@dis,
+                 groups.vector = scmp@scPVector@groups.vector,
+                 summary.mode = "median"
+                 
+      )
+      
 
-    sol <- showSol(scmpObj, view = F, return = T)
-    data.sol <- sol[rownames(sol) %in% feature_id, , drop = F]
-    # Get the R2 and Pvalues
-
-    # View(data)
-
-    # Check if data is a vector
-    if (!is.vector(data)) {
-      if (summary.mode == "representative") {
-        distances <- apply(as.matrix(dist(data,
-          diag = TRUE,
-          upper = TRUE
-        )), 1, sum)
-        representative <- names(distances)[distances == min(distances)]
-        yy <- as.numeric(data[rownames(data) == representative, ])
-        sub <- paste("Representative:", representative)
-      } else if (summary.mode == "median") {
-        yy <- apply(as.matrix(data), 2, median, na.rm = TRUE)
-        if (is.null(sub)) {
-          sub <- paste("Median profile of", nrow(data), item, sep = " ")
-        }
-      } else {
-        stop("not valid summary.mode")
-      }
-      if (dim(data)[1] == 1) {
-        main <- rownames(data)
-        sub <- NULL
-      }
-    } else if (length(data) != 0) {
-      yy <- as.numeric(data)
-      sub <- rownames(data)
-    } else {
-      stop("empty data")
-    }
-    if (is.null(ncol(groups))) {
-      ncol <- 1
-      legend <- FALSE
-      codeg <- "group"
-    } else {
-      ncol <- ncol(groups)
-      codeg <- as.character(colnames(groups))
-    }
-
-    reps <- i.rank(repvect)
-    y <- vector(mode = "numeric", length = length(unique(reps)))
-    x <- vector(mode = "numeric", length = length(unique(reps)))
-    g <- matrix(nrow = length(unique(reps)), ncol = ncol)
-    for (k in 1:length(y)) {
-      y[k] <- mean(yy[reps == k], na.rm = TRUE)
-      x[k] <- mean(time[reps == k])
-      for (j in 1:ncol) {
-        g[k, j] <- mean(groups[reps == k, j])
-      }
-    }
-    if (is.null(ylim)) {
-      ylim <- c(min(as.numeric(yy), na.rm = TRUE), max(as.numeric(yy),
-        na.rm = TRUE
-      ))
-    }
-    abcissa <- x
-    xlim <- c(min(abcissa, na.rm = TRUE), max(abcissa, na.rm = TRUE) *
-      1.3)
-    if (is.null(col)) {
-      color1 <- as.numeric(sort(factor(colnames(groups)))) + 1
-      color2 <- groups
-      for (j in 1:ncol) {
-        color2[, j] <- color2[, j] * j
-      }
-      color2 <- as.vector(apply(color2, 1, sum) + 1)
-    } else {
-      color1 <- col
-      color2 <- groups
-      for (j in 1:ncol) {
-        color2[, j] <- color2[, j] * col[j]
-      }
-      color2 <- as.vector(apply(color2, 1, sum))
-    }
-
-    paths <- setNames(colnames(groups), unique(color2))
-    paths <- paths[as.character(color2)]
-    names(paths) <- NULL
-
-    points.df <- data.frame(
-      pooled.time = time,
-      pb.counts = yy,
-      path = paths
-    )
-    rm <- matrix(yy, nrow = 1, ncol = length(yy))
-    rownames(rm) <- c("ratio medio")
-    colnames(rm) <- rownames(dis)
-    fit.y <- T.fit(rm,
-      design = dis, step.method = step.method,
-      min.obs = min.obs, alfa = alfa, nvar.correction = nvar.correction
-    )
-    betas <- fit.y$coefficients
-
-    curve.df <- data.frame(x = 0, y = 0, path = "path")
-    line.df <- data.frame(x = 0, y = 0, path = "path")
-    curve_data <- NULL
-    path.names <- colnames(groups)
-
-    for (i in 1:ncol(groups)) {
-      group <- g[, i]
-      if (!is.null(betas)) {
-        li <- c(2:6)
-        a <- reg.coeffs(
-          coefficients = betas, groups.vector = groups.vector,
-          group = colnames(groups)[i]
-        )
-
-        a <- c(a, rep(0, (7 - length(a))))
-
-        # Create a null device to suppress plotting
-        invisible({
-          curve_data <- curve(
-            a[1] + a[2] * x + a[3] * (x^2) + a[4] * (x^3) +
-              a[5] * (x^4) + a[6] * (x^5) + a[7] * (x^5),
-            from = min(time), to = max(time),
-            col = color1[i], add = F, lty = li[i]
+      
+      for (i in path.names){
+          
+          # Extract Coeff
+          a <- reg.coeffs(
+              coefficients = betas, 
+              groups.vector = groups.vector,
+              group = i
           )
-        })
+          a <- c(a, rep(0, (7 - length(a))))
+          
+          # Extract the time
+          time <- scmpObj@edesign@edesign[scmpObj@edesign@edesign[[i]] == 1, scmpObj@addParams@bin_pseudotime_colname]
+          
+          # Create a data frame with time values
+          x <- seq(from = min(time), to = max(time), by = 0.001)
+          
+          # Compute the curve values
+          y <- a[1] + a[2]*x + a[3]*(x^2) + a[4]*(x^3) +
+              a[5]*(x^4) + a[6]*(x^5) + a[7]*(x^5)
+          
+          # Create tmpvector
+          curve_df_tmp <- data.frame(
+              x = x, y = y,
+              path = i
+          )
+          curve.df <- rbind(curve.df, curve_df_tmp)
       }
-
-      curve_df_tmp <- data.frame(
-        x = curve_data$x, y = curve_data$y,
-        path = path.names[i]
+      
+      curve.df <- curve.df[-1, ]
+      
+      View(curve.df)
+      
+      
+      
+      PlotGroups(data = yy,
+                 edesign = scmp@edesign@edesign,
+                 show.lines = T,
+                 show.fit = T,
+                 dis = scmp@edesign@dis,
+                 groups.vector = scmp@scPVector@groups.vector,
+                 summary.mode = "median"
+                 
       )
-
-      curve.df <- rbind(curve.df, curve_df_tmp)
-
-      lx <- abcissa[group != 0]
-      ly <- y[group != 0]
-      ord <- order(lx)
-      lxo <- lx[ord]
-      lyo <- ly[ord]
-      # lines(lxo, lyo, col = color1[i], ...)
-
-      line_df_tmp <- data.frame(
-        x = lxo, y = lyo,
-        path = path.names[i]
-      )
-
-      line.df <- rbind(line.df, line_df_tmp)
-    }
-
-    # Factor Convert
-    curve.df <- curve.df[-1, ]
-    line.df <- line.df[-1, ]
+      
+      
+      
+      p <- ggplot() +
+          #geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.5, size = 2, stroke = 1, shape = 21) +
+          geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "solid", linewidth = 1.5) +
+          #geom_line(data = line.df, aes(x = x, y = y, color = path), linetype = "dotted", linewidth = 1) +
+          # ggtitle(paste("Feature Id:", feature_id),
+          #         subtitle = paste("R2:", round(data.sol[, 2], 3), "| p-Value:", round(data.sol[, 1], 3))
+          # ) +
+          # xlab(xlab) +
+          # ylab(ylab) +
+          theme_classic(base_size = 12) +
+          theme(
+              legend.position = "bottom",
+              panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
+              panel.grid.minor = element_blank()
+          ) #+
+          # scale_x_continuous(breaks = seq(min(xlim), max(xlim), by = round(log10(length(time))))) +
+          # labs(color = "Paths") +
+          # coord_cartesian(xlim = xlim, ylim = ylim) +
+          # scale_color_manual(values = conesa_colors)
+          # 
+      print(p)
+      
+      stop()
+      
+      points.df$path <- as.factor(points.df$path)
+      curve.df$path <- as.factor(curve.df$path)
+      line.df$path <- as.factor(line.df$path)
+      
+      conesa_colors <- getConesaColors()[c(T, F)][c(1:length(unique(paths)))]
+      names(conesa_colors) <- unique(paths)
+      
+      
+      p <- ggplot() +
+          geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.5, size = 2, stroke = 1, shape = 21) +
+          geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "solid", linewidth = 1.5) +
+          geom_line(data = line.df, aes(x = x, y = y, color = path), linetype = "dotted", linewidth = 1) +
+          ggtitle(paste("Feature Id:", feature_id),
+                  subtitle = paste("R2:", round(data.sol[, 2], 3), "| p-Value:", round(data.sol[, 1], 3))
+          ) +
+          xlab(xlab) +
+          ylab(ylab) +
+          theme_classic(base_size = 12) +
+          theme(
+              legend.position = "bottom",
+              panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
+              panel.grid.minor = element_blank()
+          ) +
+          scale_x_continuous(breaks = seq(min(xlim), max(xlim), by = round(log10(length(time))))) +
+          labs(color = "Paths") +
+          coord_cartesian(xlim = xlim, ylim = ylim) +
+          scale_color_manual(values = conesa_colors)
+      
+      
+      stop()
+      
+      # Extract the curve
+      for (i in groups) {
+          group <- g[, i]
+          if (!is.null(betas)) {
+              li <- c(2:6)
+              a <- reg.coeffs(
+                  coefficients = betas, groups.vector = groups.vector,
+                  group = colnames(groups)[i]
+              )
+              
+              a <- c(a, rep(0, (7 - length(a))))
+              
+              # Create a null device to suppress plotting
+              invisible({
+                  curve_data <- curve(
+                      a[1] + a[2] * x + a[3] * (x^2) + a[4] * (x^3) +
+                          a[5] * (x^4) + a[6] * (x^5) + a[7] * (x^5),
+                      from = min(time), to = max(time),
+                      col = color1[i], add = F, lty = li[i]
+                  )
+              })
+          }
+          
+          curve_df_tmp <- data.frame(
+              x = curve_data$x, y = curve_data$y,
+              path = path.names[i]
+          )
+          
+          curve.df <- rbind(curve.df, curve_df_tmp)
+          
+          lx <- abcissa[group != 0]
+          ly <- y[group != 0]
+          ord <- order(lx)
+          lxo <- lx[ord]
+          lyo <- ly[ord]
+          # lines(lxo, lyo, col = color1[i], ...)
+          
+          line_df_tmp <- data.frame(
+              x = lxo, y = lyo,
+              path = path.names[i]
+          )
+          
+          line.df <- rbind(line.df, line_df_tmp)
+      }
+      
+      # Factor Convert
+      curve.df <- curve.df[-1, ]
+      line.df <- line.df[-1, ]
+      
 
 
     points.df$path <- as.factor(points.df$path)
