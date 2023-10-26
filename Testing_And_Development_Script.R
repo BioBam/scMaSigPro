@@ -49,5 +49,4 @@ scmp <- sc.T.fit(scmp, parallel = T, verbose = T)
 # Step-7: Select with R2 
 scmp <- sc.get.siggenes(scmpObj = scmp,
                         vars = "all",
-                        significant.intercept = "dummy"
-                        )
+                        significant.intercept = "dummy")

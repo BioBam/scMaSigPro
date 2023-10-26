@@ -14,7 +14,6 @@
 #' @slot t.score A data frame containing tscores for each covariate in polynomial glm.
 #' @slot variables A character vector containing the variables in the complete regression model.
 #' @slot groups.vector A character vector containing the branching path.
-#' @slot edesign Experimental design in matrix format.
 #' @slot influ.info A matrix with genes containing influencial data.
 #'
 #' @name scTFitClass

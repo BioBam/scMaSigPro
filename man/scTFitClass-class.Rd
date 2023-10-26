@@ -29,8 +29,6 @@ For each selected gene the following values are given:
 
 \item{\code{groups.vector}}{A character vector containing the branching path.}
 
-\item{\code{edesign}}{Experimental design in matrix format.}
-
 \item{\code{influ.info}}{A matrix with genes containing influencial data.}
 }}
 
