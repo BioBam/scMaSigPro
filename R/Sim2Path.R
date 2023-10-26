@@ -10,5 +10,4 @@
 #' @source Source of the data, if applicable
 #' @references References, if applicable
 #'
-#' @export
-"Sim2Path"
+"sim.sce"
