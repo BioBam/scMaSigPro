@@ -126,6 +126,8 @@
                 ord <- order(lx)
                 lxo <- lx[ord]
                 lyo <- ly[ord]
+                print(lyo)
+                print(lxo)
                 lines(lxo, lyo, col = color1[i], ...)
             }
         }
