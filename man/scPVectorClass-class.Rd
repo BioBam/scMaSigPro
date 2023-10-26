@@ -14,31 +14,17 @@ microarray experiments and identifying significant differential expression profi
 \section{Slots}{
 
 \describe{
-\item{\code{SELEC}}{Matrix containing the expression values for significant genes.}
+\item{\code{SELEC}}{dgCMatrix containing the expression values for significant genes.}
 
-\item{\code{sc.p.vector}}{Matrix containing the computed p-values.}
+\item{\code{sc.p.vector}}{Numeric vector containing the computed p-values.}
 
 \item{\code{p.adjusted}}{Numeric vector of FDR-adjusted p-values.}
 
-\item{\code{G}}{Integer. Total number of input genes.}
-
-\item{\code{g}}{Integer. Number of genes taken in the regression fit.}
-
 \item{\code{FDR}}{P-value at FDR \code{Q} control when Benjamini & Hochberg (BH) correction is used.}
-
-\item{\code{i}}{Integer. Number of significant genes.}
 
 \item{\code{dis}}{Data frame containing the matrix used in the regression fit.}
 
-\item{\code{dat}}{Matrix of expression value data used in the regression fit.}
-
-\item{\code{min.obs}}{Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).}
-
-\item{\code{Q}}{Significance level. (Default = 0.05).}
-
 \item{\code{groups.vector}}{Character list containing groups information.}
-
-\item{\code{edesign}}{Matrix containing the experimental design.}
 
 \item{\code{family}}{Distribution function to be used in the glm model. If NULL, the
 family will be \code{negative.binomial(theta)} when \code{counts = TRUE} or

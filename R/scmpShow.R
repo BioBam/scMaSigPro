@@ -23,7 +23,7 @@
     cat(paste("\nPaths:", paste(levels(as.factor(compressed.cell.metadata[[object@addParams@path_colname]])), collapse = ", ")))
     cat(paste0(
       "\nBinned Pseudotime: ", paste(range(compressed.cell.metadata[[object@addParams@bin_pseudotime_colname]]), collapse = "-"), "(Range), ",
-      mean(compressed.cell.metadata[[object@addParams@bin_pseudotime_colname]]), "(Mean), "
+      round(mean(compressed.cell.metadata[[object@addParams@bin_pseudotime_colname]]), 2), "(Mean), "
     ))
 
     # Extract info
@@ -37,7 +37,7 @@
 
   # Calculate Dynamic Information
   if (length(object@scPVector@p.adjusted) > 0) {
-    sig.level <- object@scPVector@Q
+    sig.level <- object@addParams@Q
     nSigs <- length(object@scPVector@p.adjusted[object@scPVector@p.adjusted <= sig.level])
     if (all(object@scPVector@p.adjusted > sig.level)) {
       cat("\nSig. Profiles (P-vector): None found")

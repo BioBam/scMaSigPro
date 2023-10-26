@@ -6,16 +6,16 @@
 #' @slot sce Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.
 #' @slot scPVector Object of Class scPVectorClass See \pkg{scPVectorClass} for more details.
 #' @slot scTFit Object of Class scTFitClass. See \code{\link{scTFitClass}} for more details.
-#' @slot compress.sce
+#' @slot compress.sce ABC
 #' @slot edesign Object of Class edesignClass. See \code{\link{edesignClass}} for more details.
-#' @slot siggenes
+#' @slot siggenes ABC
 #' @slot addParams Object of Class addParamClass. See \code{\link{addParamClass}} for more details.
 #'
 #' @name scMaSigProClass
 #' @aliases scMaSigProClass-class
 #' @rdname scMaSigProClass-class
 #' @exportClass scMaSigProClass
-#' @importFrom methods is new
+#' @importFrom methods is new as
 #' @keywords classes
 
 

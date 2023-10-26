@@ -12,7 +12,10 @@ entropy_discretize(
   drop.fac = 0.5,
   verbose = TRUE,
   binning = "universal",
-  bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname
+  bin_colname = "scmp_bin",
+  bin_size_colname = "scmp_bin_size",
+  bin_pseudotime_colname = "scmp_binned_pseudotime",
+  additional_params = list(use_unique_time_points = FALSE)
 )
 }
 \arguments{
@@ -40,8 +43,14 @@ number of bins if the initial binning results in too many bins. (Default = 0.5).
 \item{binning}{A character string. When set to "individual", the bins are calculated
 per path iteratively. Options: "universal", "individual. (Default = "universal").}
 
+\item{bin_colname}{Name of the bin column name}
+
+\item{bin_size_colname}{Setting the name of the bin size column.}
+
 \item{bin_pseudotime_colname}{Name of the column to store the computed Pseudotime
 bins.}
+
+\item{additional_params}{Pass additional parameters as a named list. See Details.}
 }
 \value{
 A data.frame that contains the original data plus additional columns:

@@ -7,10 +7,11 @@
 make.pseudobulk.design(
   scmpObject,
   path_colname = scmpObject@addParams@path_colname,
-  bin_colname = "scmp_bin",
-  bin_size_colname = "scmp_bin_size",
+  bin_colname = scmpObject@addParams@bin_colname,
+  bin_size_colname = scmpObject@addParams@bin_size_colname,
   bin_members_colname = "scmp_bin_members",
-  bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname
+  bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -18,7 +19,7 @@ make.pseudobulk.design(
 for more details.}
 
 \item{path_colname}{Name of the column in `cell.metadata` storing information
-for Path. Generated using \code{\link[SingleCellExperiment]{colData}}. (Default
+for Path. Generated using pkg{SingleCellExperiment}. (Default
 is `path_prefix`).}
 
 \item{bin_colname}{Name of the column in the 'compressed_cell_metadata',
@@ -32,6 +33,8 @@ storing information about the members of the bins. (Default is 'scmp_bin_members
 
 \item{bin_pseudotime_colname}{Name of the column in the 'compressed_cell_metadata'
 storing information about the binned pseudotime. (Default is 'scmp_binned_pseudotime').}
+
+\item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }
 \value{
 A data.frame containing the pseudobulk profile. The data frame includes the following columns:
@@ -58,7 +61,10 @@ After processing all paths, the function adds binary columns for each path to th
 }
 \examples{
 \dontrun{
-make.pseudobulk.design(compressed_cell_metadata = df, path_colname = "path1", binned_pseudotime_column = "binnedTime")
+make.pseudobulk.design(
+  compressed_cell_metadata = df,
+  path_colname = "path1", binned_pseudotime_column = "binnedTime"
+)
 }
 
 }

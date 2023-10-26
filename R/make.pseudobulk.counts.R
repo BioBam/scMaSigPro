@@ -9,7 +9,6 @@
 #' storing information about the members of the bins. (Default is 'scmp_bin_members').
 #' @param bin_colname Name of the column in the 'compressed_cell_metadata'
 #' storing information about the bin labels. (Default is 'scmp_bin').
-#' @param pseudo_bulk_profile A data.frame generated using \code{\link{make.pseudobulk.design}}.
 #' @param cluster_count_by A character string specifying the method to use to
 #' aggregate counts within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").
 #' @param assay_name Name of the Assay in the assay_name object from which retrieve the counts.
@@ -39,10 +38,9 @@
 #' @export
 
 make.pseudobulk.counts <- function(scmpObject,
-                                   bin_members_colname = "scmp_bin_members",
-                                   bin_colname = "scmp_bin",
+                                   bin_members_colname = scmpObject@addParams@bin_members_colname,
+                                   bin_colname = scmpObject@addParams@bin_colname,
                                    assay_name = "counts",
-                                   pseudo_bulk_profile,
                                    cluster_count_by = "sum") {
   # Check Object Validity
   assert_that(is(scmpObject, "scMaSigProClass"),
@@ -58,25 +56,20 @@ make.pseudobulk.counts <- function(scmpObject,
   )
 
   # Get assay
-  counts <- as.matrix(scmpObject@sce@assays@data@listData[[assay_name]])
+  counts <- scmpObject@sce@assays@data@listData[[assay_name]]
 
   # Get Pseudobulk Profile
   pseudo_bulk_profile <- as.data.frame(colData(scmpObject@compress.sce))
 
   assert_that(bin_members_colname %in% colnames(pseudo_bulk_profile),
-    msg = paste0("'", bin_members_colname, "' does not exist in pseudo-bulk-profile.")
+    msg = paste0("'", bin_members_colname, "' does not exist in level.meta.data")
   )
   assert_that(bin_colname %in% colnames(pseudo_bulk_profile),
-    msg = paste0("'", bin_colname, "' does not exist in pseudo-bulk-profile.")
+    msg = paste0("'", bin_colname, "' does not exist in level.meta.data")
   )
 
   # Get the meta-information for pseudobulking
   meta.info <- pseudo_bulk_profile[, c(bin_members_colname, bin_colname)]
-
-  # Determine the number of cores to use for parallel processing.
-  # Here, I've used one less than the total number of cores available on the machine,
-  # but you can adjust this based on your specific hardware.
-  # num_cores <- detectCores() - 1
 
   # Run mclapply
   pb.counts <- lapply(1:nrow(meta.info), function(i) {

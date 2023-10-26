@@ -18,7 +18,7 @@
 #' to be replaced (if not NULL).
 #' @param existing_path_colname The name of an existing path column to be replaced
 #' (if not NULL).
-#' @param overwrite_labels Logical, should existing column names be overwritten
+#' @param labels_exist Logical, should existing column names be overwritten
 #' if they already exist? (default is TRUE).
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #'
@@ -50,14 +50,22 @@ annotate_sce <- function(sce,
                          path_colname = path_prefix,
                          existing_pseudotime_colname = NULL,
                          existing_path_colname = NULL,
-                         overwrite_labels = TRUE,
+                         labels_exist = FALSE,
                          verbose = TRUE) {
   # Overwite the columns
-  if (overwrite_labels) {
+  if (labels_exist) {
     assert_that(
       all(!is.null(existing_pseudotime_colname) & !is.null(existing_path_colname)),
-      msg = paste("If", path_colname, "is TRUE, 'existing_pseudotime_colname' and 'existing_path_colname', cannot be NULL")
+      msg = paste("Requested to set 'path_colname' as", path_colname, "with 'labels_exist' as TRUE. Please supply,
+                  'existing_pseudotime_colname' and 'existing_path_colname', through 'additional_params'")
     )
+
+    if (verbose) {
+      message(paste0(
+        "Overwritting columns in cell.level.metadata, '", existing_path_colname, "' is replaced by '", path_colname,
+        "' and '", existing_pseudotime_colname, "' is replaced by '", pseudotime_colname, "'."
+      ))
+    }
 
     # Extract the cell metadata
     cell.meta <- as.data.frame(colData(sce))
@@ -85,6 +93,9 @@ annotate_sce <- function(sce,
     # Return
     return(sce)
   } else {
+    if (verbose) {
+      message(paste("Skipping overwritting of colnames in cell.level.metadata requested"))
+    }
     # Return
     return(sce)
   }

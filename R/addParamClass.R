@@ -10,6 +10,11 @@
 #' @slot bin_colname A character representing the name of the column for bin values.
 #' @slot bin_size_colname A character representing the name of the column for bin sizes.
 #' @slot bin_members_colname A character representing the name of the column for bin members.
+#' @slot Q Significance Level
+#' @slot min.obs Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).
+#' @slot g Integer. Number of genes taken in the regression fit.
+#' @slot MT.adjust Pvalue correction
+#' @slot epsilon convergence tolerance
 #'
 #' @name addParamClass
 #' @aliases addParamClass-class
@@ -30,7 +35,12 @@ setClass(
     path_colname = "character",
     bin_colname = "character",
     bin_size_colname = "character",
-    bin_members_colname = "character"
+    bin_members_colname = "character",
+    g = "integer",
+    Q = "numeric", # Significance level (default is 0.05)
+    min.obs = "numeric", # Minimum value to estimate the model (degree+1) x Groups + 1
+    MT.adjust = "character",
+    epsilon = "numeric"
   ),
   validity = function(object) {
     errors <- character(0)
@@ -40,7 +50,7 @@ setClass(
       "bin_pseudotime_colname", "path_prefix", "root_label",
       "pseudotime_colname", "binning", "bin_method",
       "path_colname", "bin_colname", "bin_size_colname",
-      "bin_members_colname"
+      "bin_members_colname", "MT.adjust"
     )
 
     for (slot_name in char_slots) {
@@ -48,6 +58,26 @@ setClass(
       if (length(slot_value) == 0 || !is.character(slot_value)) { # Corrected line
         errors <- c(errors, paste(slot_name, "must not be empty and should be of type character."))
       }
+    }
+
+    # Check for slot g
+    if (!is.integer(object@g)) {
+      stop("Slot 'g' must be an integer.")
+    }
+
+
+    # Check for slot Q
+    if (!is.numeric(object@Q)) {
+      stop("Slot 'Q' must be numeric.")
+    }
+
+    if (!is.numeric(object@epsilon)) {
+      stop("Slot 'epsilon' must be numeric.")
+    }
+
+    # Check for slot min.obs
+    if (!is.numeric(object@min.obs)) {
+      stop("Slot 'min.obs' must be an integer.")
     }
 
     # Check if any of the character slots have multiple values
@@ -69,7 +99,12 @@ setClass(
     path_colname = "Path",
     bin_method = "Sturges",
     bin_colname = "scmp_bin",
+    g = 0L, # Default g value is 0
+    Q = 0.05,
+    min.obs = 6, # Default min.obs value is 0
     bin_size_colname = "scmp_bin_size",
-    bin_members_colname = "scmp_bin_members"
+    bin_members_colname = "scmp_bin_members",
+    MT.adjust = "BH",
+    epsilon = 0.00001
   )
 )
