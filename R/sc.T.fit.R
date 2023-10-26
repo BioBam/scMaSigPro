@@ -50,6 +50,7 @@
 #' @seealso{\code{\link{p.vector}}, \code{\link{step}}}
 #'
 #' @importFrom maSigPro position reg.coeffs
+#' @importFrom stats influence.measures
 #' @keywords regression
 #' @keywords models
 #' @export
