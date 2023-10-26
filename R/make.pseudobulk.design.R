@@ -111,7 +111,7 @@ make.pseudobulk.design <- function(scmpObject,
     # Group by time
     path.time.cell <- path.time.cell %>%
       group_by_at(binned.col) %>%
-      summarise(!!bin_members_colname := paste0(!!scmp_bar, collapse = "|"))
+      summarise(!!bin_members_colname := paste0(scmp_bar, collapse = "|"))
 
     # Add Cluster Label
     tmp.bin.name <- paste0(path, "_bin_", seq(1, nrow(path.time.cell)))

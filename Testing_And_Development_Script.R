@@ -44,4 +44,4 @@ scmp <- sc.make.design.matrix(scmp, poly_degree = 2)
 scmp <- sc.p.vector(scmp, parallel = T)
 
 # Step-6: Run T.fit
-sc.T.fit(scmp)
+test <- sc.T.fit(scmp,step.method = "backward")
