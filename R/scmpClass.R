@@ -9,6 +9,7 @@
 #' @slot compress.sce ABC
 #' @slot edesign Object of Class edesignClass. See \code{\link{edesignClass}} for more details.
 #' @slot addParams Object of Class addParamClass. See \code{\link{addParamClass}} for more details.
+#' @slot sig.genes ABC
 #' @slot distribution The distribution function to be used in the glm model.
 #'
 #' @name scMaSigProClass
@@ -20,6 +21,23 @@
 
 
 setClass(
+    "sigClass",
+    representation(
+        summary = "ANY",
+        sig.genes = "list"
+    ),
+    validity = function(object) {
+        if (!is.list(object@sig.genes)) {
+            stop("sig.genes slot must be a list")
+        }
+    },
+    prototype = list(
+        summary = list(),
+        sig.genes = list()
+    )
+)
+
+setClass(
   "scMaSigProClass",
   representation(
     sce = "SingleCellExperiment",
@@ -28,6 +46,7 @@ setClass(
     compress.sce = "SingleCellExperiment",
     edesign = "edesignClass",
     addParams = "addParamClass",
+    sig.genes = "sigClass",
     distribution = "ANY"
   ),
   validity = function(object) {
@@ -60,11 +79,16 @@ setClass(
     if (!validObject(object@addParams)) {
       stop("addParams slot is not a valid addParamClass object.")
     }
+      # Check addParamClass slot
+      if (!validObject(object@addParams)) {
+          stop("'sig.genes' slot is not a valid addParamClass object.")
+      }
   },
   prototype = list(
     scPVector = new("scPVectorClass"), # Assuming you've defined scPVectorClass with its prototype
     scTFit = new("scTFitClass"), # Assuming you've defined scTFitClass with its prototype
     addParams = new("addParamClass"), # Assuming you've defined scTFitClass with its prototype
+    sig.genes = new("sigClass"),
     distribution = MASS::negative.binomial(theta = 1)
   )
 )
@@ -75,6 +99,7 @@ scMaSigProClass <- function(sce = new("SingleCellExperiment"), # Remove default 
                             compress.sce = new("SingleCellExperiment"),
                             edesign = new("edesignClass"),
                             addParams = new("addParamClass"),
+                            sig.genes = new("sigClass"),
                             distribution = MASS::negative.binomial(theta = 1)) {
   new("scMaSigProClass",
     sce = sce,
@@ -83,6 +108,7 @@ scMaSigProClass <- function(sce = new("SingleCellExperiment"), # Remove default 
     compress.sce = compress.sce,
     edesign = edesign,
     addParamClass = addParams,
+    sig.genes = new("sigClass"),
     distribution = distribution
   )
 }

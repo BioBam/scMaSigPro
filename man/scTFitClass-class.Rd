@@ -19,8 +19,6 @@ For each selected gene the following values are given:
     \item{p-value}{of the regression coefficients of the selected variables.}
   }}
 
-\item{\code{sig.profiles}}{A data frame with the expression values for the genes contained in sol.}
-
 \item{\code{coefficients}}{A data frame containing regression coefficients for the adjusted models.}
 
 \item{\code{group.coeffs}}{A matrix with the coefficients of the implicit models of each experimental group.}
@@ -28,16 +26,6 @@ For each selected gene the following values are given:
 \item{\code{t.score}}{A data frame containing tscores for each covariate in polynomial glm.}
 
 \item{\code{variables}}{A character vector containing the variables in the complete regression model.}
-
-\item{\code{G}}{An integer representing the total number of input genes.}
-
-\item{\code{g}}{An numeric value representing the number of genes taken in the regression fit.}
-
-\item{\code{dat}}{A matrix with the input analysis data.}
-
-\item{\code{dis}}{A data frame with the regression design.}
-
-\item{\code{step.method}}{A character specifying the imputed step method for stepwise regression.}
 
 \item{\code{groups.vector}}{A character vector containing the branching path.}
 

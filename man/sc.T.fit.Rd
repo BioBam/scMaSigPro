@@ -5,18 +5,19 @@
 \title{Makes a stepwise regression fit for time series gene expression experiments}
 \usage{
 sc.T.fit(
-  scmpObject,
+  scmpObj,
   step.method = "backward",
-  Q = scmpObject@addParams@Q,
+  Q = scmpObj@addParams@Q,
   nvar.correction = FALSE,
-  family = gaussian(),
-  epsilon = scmpObject@addParams@epsilon,
+  family = scmpObj@distribution,
+  epsilon = scmpObj@addParams@epsilon,
   offset = T,
-  verbose = TRUE
+  verbose = TRUE,
+  parallel = T
 )
 }
 \arguments{
-\item{scmpObject}{Can either be a \code{\link{p.vector}} object or a matrix containing expression scmpObject with the same requirements as for
+\item{scmpObj}{Can either be a \code{\link{p.vector}} object or a matrix containing expression scmpObj with the same requirements as for
 the \code{\link{p.vector}} function.}
 
 \item{step.method}{Argument to be passed to the step function. Can be either \code{"backward"}, \code{"forward"}, \code{"two.ways.backward"}, or \code{"two.ways.forward"}.}
@@ -32,6 +33,8 @@ the \code{\link{p.vector}} function.}
 \item{offset}{Whether ro use offset for normalization}
 
 \item{verbose}{Name of the analyzed item to show on the screen while \code{T.fit} is in process.}
+
+\item{parallel}{description}
 }
 \value{
 A list containing the following elements:
@@ -41,17 +44,16 @@ A list containing the following elements:
   \item R-squared of the model
   \item p-value of the regression coefficients of the selected variables
 }}
-\item{sig.profiles}{Expression values for the genes contained in \code{sol}.}
 \item{coefficients}{Matrix containing regression coefficients for the adjusted models.}
 \item{group.coeffs}{Matrix containing the coefficients of the implicit models of each experimental group.}
 \item{variables}{Variables in the complete regression model.}
 \item{G}{Total number of input genes.}
 \item{g}{Number of genes taken in the regression fit.}
-\item{dat}{Input analysis scmpObject matrix.}
+\item{dat}{Input analysis scmpObj matrix.}
 \item{dis}{Regression design matrix.}
 \item{step.method}{Imputed step method for stepwise regression.}
 \item{edesign}{Matrix of experimental design.}
-\item{influ.info}{scmpObject frame of genes containing influential scmpObject.}
+\item{influ.info}{scmpObj frame of genes containing influential scmpObj.}
 }
 \description{
 \code{T.fit} selects the best regression model for each gene using stepwise regression.

@@ -40,6 +40,8 @@ Class "addParamClass"
 \item{\code{MT.adjust}}{Pvalue correction}
 
 \item{\code{epsilon}}{convergence tolerance}
+
+\item{\code{step.method}}{A character specifying the imputed step method for stepwise regression.}
 }}
 
 \keyword{classes}

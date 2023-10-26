@@ -44,5 +44,10 @@ scmp <- sc.make.design.matrix(scmp, poly_degree = 2)
 scmp <- sc.p.vector(scmp, parallel = T, family = gaussian())
 
 # Step-6: Run T.fit
-test <- sc.T.fit(scmp, step.method = "backward",
-                 parallel = T, verbose = T)
+scmp <- sc.T.fit(scmp, parallel = T, verbose = T)
+
+# Step-7: Select with R2 
+scmp <- sc.get.siggenes(scmpObj = scmp,
+                        vars = "all",
+                        significant.intercept = "dummy"
+                        )

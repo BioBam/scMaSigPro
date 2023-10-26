@@ -129,8 +129,6 @@ sc.T.fit <- function(scmpObj,
       reg_scmpObj <- sc.stepback(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
       lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
       model.glm.0_scmpObj <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-      
-      
       if (parallel == F) {
           if (verbose_lapply) {
               if (verbose_lapply) {

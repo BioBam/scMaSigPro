@@ -28,7 +28,6 @@
 #' geometric mean is only calculated over positive counts per row
 #' (\code{"poscounts"})
 #' @return a vector with the estimates size factors, one element per column
-#' @seealso \code{\link{estimateSizeFactors}}
 #'
 #' @importFrom MatrixGenerics rowMeans rowSums
 #' @keywords internal
