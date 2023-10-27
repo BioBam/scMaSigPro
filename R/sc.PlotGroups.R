@@ -21,6 +21,11 @@ sc.PlotGroups <-
            smoothness = 0.01
            ) {
       
+      # Invoke Variables
+      pb.counts <- "pb.counts"
+      pooled.time <- "pooled.time"
+      path <- "path"
+      
       # Extract the bulk counts
       bulk.counts = scmpObj@compress.sce@assays@data@listData$bulk.counts
       
@@ -52,20 +57,10 @@ sc.PlotGroups <-
       colnames(line.df) <- c("x", "y", scmpObj@addParams@path_colname)
       colnames(line.df) <- c("x", "y", scmpObj@addParams@path_colname)
       curve_data <- NULL
-      path.names <- unique(scmpObj@compress.sce@colData[[scmp@addParams@path_colname]])
+      path.names <- unique(scmpObj@compress.sce@colData[[scmpObj@addParams@path_colname]])
       
       # Get x and y
       x <- y <- rep(0, nrow(scmpObj@edesign@edesign))
-      
-      PlotGroups(data = yy,
-                 edesign = scmp@edesign@edesign,
-                 show.lines = T,
-                 show.fit = T,
-                 dis = scmp@edesign@dis,
-                 groups.vector = scmp@scPVector@groups.vector,
-                 summary.mode = "median"
-                 
-      )
       
       # Create Point df
       points.df <- data.frame(
@@ -107,13 +102,13 @@ sc.PlotGroups <-
       curve.df <- curve.df[-1, ]
       
       # Calc limits
-      xlim <- c(min(points.df$pooled.time, na.rm = TRUE), max(points.df$pooled.time, na.rm = TRUE) * 1.3)
-      ylim <- c(min(as.numeric(points.df$pb.counts), na.rm = TRUE), max(as.numeric(points.df$pb.counts), na.rm = TRUE))
+      xlim <- c(min(points.df[[pooled.time]], na.rm = TRUE), max(points.df[[pooled.time]], na.rm = TRUE) * 1.3)
+      ylim <- c(min(as.numeric(points.df[[pb.counts]]), na.rm = TRUE), max(as.numeric(points.df[[pb.counts]]), na.rm = TRUE))
       
-      xlim[2] <- max(points.df$pooled.time)
+      xlim[2] <- max(points.df[[pooled.time]])
       
-      conesa_colors <- getConesaColors()[c(T, F)][c(1:length(unique(points.df$path)))]
-      names(conesa_colors) <- unique(points.df$path)
+      conesa_colors <- getConesaColors()[c(T, F)][c(1:length(unique(points.df[[path]])))]
+      names(conesa_colors) <- unique(points.df[[path]])
       
       p <- ggplot() +
           geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.5, size = 2, stroke = 1, shape = 21) +
@@ -130,7 +125,7 @@ sc.PlotGroups <-
               panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
               panel.grid.minor = element_blank()
           ) +
-          scale_x_continuous(breaks = seq(min(xlim), max(xlim), by = round(log10(length(points.df$pooled.time))))) +
+          scale_x_continuous(breaks = seq(min(xlim), max(xlim), by = round(log10(length(points.df[[pooled.time]]))))) +
           labs(color = "Paths") +
           coord_cartesian(xlim = xlim, ylim = ylim) +
           scale_color_manual(values = conesa_colors)

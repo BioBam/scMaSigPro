@@ -72,7 +72,6 @@ sc.get.siggenes <- function(scmpObj, rsq = 0.7,
                  only.names = FALSE, vars = vars,
                  significant.intercept = significant.intercept,
                  groups.vector = NULL, trat.repl.spots = "none",
-                 index = IDs[, (matchID.col + 1)], match = IDs[, matchID.col],
                  r = 0.7)
     
 # Call the maSigPro get sig
