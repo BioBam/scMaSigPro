@@ -12,7 +12,7 @@ Imports: maSigPro, ggplot2, SingleCellExperiment, methods, MASS, assertthat,
     entropy, parallel, dplyr, magrittr, stringr, stats, S4Vectors, e1071,
     monocle3, MatrixGenerics, igraph, data.table, RColorConesa, UpSetR, utils
 Encoding: UTF-8
-LazyData: false
+LazyData: true
 RoxygenNote: 7.2.3
 Suggests: testthat, roxygen2
 Config/testthat/edition: 3

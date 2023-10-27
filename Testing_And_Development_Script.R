@@ -1,14 +1,8 @@
-# This document tempreory and is inteneded for testing and debugging
+# This document is temporary and intended for testing and debugging
 # This will be removed from the final package
-
-# Use while debugging
-#load_package()
 
 # Set seed
 set.seed(123)
-
-save(sim.sce, file = "data/Sim2Path.RData", compress = "xz")
-
 
 # Load ScMaSigpro
 library(scMaSigPro)
@@ -54,3 +48,74 @@ scmp <- sc.get.siggenes(scmpObj = scmp,
 # Step-8: Plot Gene Trends
 sc.PlotGroups(scmpObj = scmp,
               feature_id = "Gene100", smoothness = 10)
+
+
+### Additional Function specific to scMaSigPro
+
+
+
+### Create test datasets for scMaSigPro
+
+## Test Reproducibility with MaSigPro
+
+# Load
+library(maSigPro)
+library(scMaSigPro)
+
+# Load data
+data("data.abiotic")
+data("edesign.abiotic")
+
+# MaSigPro: Make Design Matrix
+design <- make.design.matrix(edesign = edesign.abiotic, degree = 2)
+
+# Convert Design
+add_col <- function(x){
+    return(names(x[x==1]))
+}
+edesign.abiotic.in <- as.data.frame(edesign.abiotic[, 1, drop = F])
+Group <- c(unlist(apply(edesign.abiotic[, c(3:6)], 1, add_col, simplify = F), use.names = F))
+edesign.abiotic.in$Group <- Group
+
+# Create Design with scMaSigPro
+test.scmp <- create_scmpObj(counts = data.abiotic,
+            cell_data = edesign.abiotic.in,
+            pseudotime_colname = "Time",
+            path_colname = "Group",
+            use_as_bin = T)
+
+# Make Design
+test.scmp <- sc.make.design.matrix(test.scmp)
+
+# Set -Pvector
+gc <- capture.output(
+    fit <- p.vector(data.abiotic, design, Q = 0.05, MT.adjust = "BH", min.obs = 20)
+    )
+gc <- NULL
+
+test.scmp <- sc.p.vector(test.scmp,
+                         min.obs = 20,
+                         offset = F,
+                         parallel = T,
+                         family = gaussian())
+
+# T step
+gc <- capture.output(
+    tstep <- T.fit(fit, step.method = "backward", alfa = 0.05)
+)
+gc <- NULL
+
+test.scmp <- sc.T.fit(test.scmp,
+                         parallel = T, verbose = F, offset = F)
+
+
+
+names(test.scmp@scPVector@FDR) <- NULL
+testthat::expect_equal(expected = tstep$sol,
+                       object = test.scmp@scTFit@sol)
+
+testthat::expect_equal(expected = fit$groups.vector,
+                       object = dim(test.scmp@scPVector@groups.vector)[1])
+
+
+

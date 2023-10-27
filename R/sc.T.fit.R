@@ -75,7 +75,6 @@ sc.T.fit <- function(scmpObj,
   groups.vector <- c(groups.vector[nchar(groups.vector) == min(nchar(groups.vector))][1], groups.vector)
   edesign <- scmpObj@edesign@edesign
   G <- scmpObj@addParams@g
-  family <- scmpObj@scPVector@family
   
   dat <- scmpObj@scPVector@SELEC
   dat <- rbind(c(rep(1, ncol(dat))), dat)

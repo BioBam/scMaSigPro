@@ -65,9 +65,9 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   dis <- as.data.frame(scmpObj@edesign@dis)
   groups.vector <- scmpObj@edesign@groups.vector
   edesign <- scmpObj@edesign@edesign
-
+  
   # Convert 'scmpObj' to matrix and select relevant columns based on 'design' rows
-  dat <- scmpObj@compress.sce@assays@data@listData$bulk.counts
+  dat <- as.matrix(scmpObj@compress.sce@assays@data@listData$bulk.counts)
   dat <- dat[, as.character(rownames(dis))]
   G <- nrow(dat)
 
@@ -76,7 +76,8 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   dat <- dat[apply(dat, 1, count.na) >= min.obs, ]
 
   # Add check
-  assert_that((dat@Dim[1] > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
+  #assert_that((dat@Dim[1] > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
+  assert_that((nrow(dat) > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
 
   # if(verbose){
   #     message(paste("'min.obs' is set at", min.obs))
@@ -186,8 +187,8 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
 
     # Add Data to the class
     scPVector.obj <- new("scPVectorClass",
-      SELEC = SELEC,
-      sc.p.vector = sc.p.vector,
+      SELEC = as(SELEC, "dgCMatrix"),
+      p.vector = sc.p.vector,
       p.adjusted = p.adjusted,
       FDR = FDR,
       dis = dis,

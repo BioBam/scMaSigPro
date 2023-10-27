@@ -6,7 +6,7 @@
 #' microarray experiments and identifying significant differential expression profiles.
 #'
 #' @slot SELEC dgCMatrix containing the expression values for significant genes.
-#' @slot sc.p.vector Numeric vector containing the computed p-values.
+#' @slot p.vector Numeric vector containing the computed p-values.
 #' @slot p.adjusted Numeric vector of FDR-adjusted p-values.
 #' @slot FDR P-value at FDR \code{Q} control when Benjamini & Hochberg (BH) correction is used.
 #' @slot dis Data frame containing the matrix used in the regression fit.
@@ -38,7 +38,7 @@
 setClass("scPVectorClass",
   slots = c(
     SELEC = "dgCMatrix", # Matrix containing the expression values for significant genes
-    sc.p.vector = "numeric", # Matrix containing the computed p-values
+    p.vector = "numeric", # Matrix containing the computed p-values
     p.adjusted = "numeric", # Vector of FDR-adjusted p-values
     FDR = "numeric", # P-value at FDR Q control when Benjamini & Hochberg (BH) correction is used
     dis = "data.frame", # Design matrix used in the regression fit
@@ -52,7 +52,7 @@ setClass("scPVectorClass",
     }
 
     # Check for slot sc.p.vector
-    if (!is.numeric(object@sc.p.vector)) {
+    if (!is.numeric(object@p.vector)) {
       stop("Slot 'sc.p.vector' must be a numeric")
     }
 
@@ -85,7 +85,7 @@ setClass("scPVectorClass",
   },
   prototype = list(
     SELEC = as(matrix(NA, nrow = 0, ncol = 0), "dgCMatrix"), # Empty matrix for SELEC
-    sc.p.vector = numeric(0), # Empty matrix for sc.p.vector
+    p.vector = numeric(0), # Empty matrix for sc.p.vector
     p.adjusted = numeric(0), # Empty numeric vector for p.adjusted
     FDR = 0, # Default FDR value is 0
     dis = data.frame(), # Empty data frame for dis
