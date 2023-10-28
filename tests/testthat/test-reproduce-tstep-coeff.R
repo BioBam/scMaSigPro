@@ -2,7 +2,7 @@ suppressPackageStartupMessages(library(testthat))
 suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(maSigPro))
 
-test_that("Check-'fit$SELEC' Reproducibility: Match, Dimension, Name and Value", {
+test_that("Check-'tstep$SOL' Reproducibility: Match, Dimension, Name and Value", {
     
     # Step-1: Load Data
     data("data.abiotic")
@@ -16,12 +16,23 @@ test_that("Check-'fit$SELEC' Reproducibility: Match, Dimension, Name and Value",
     # Run-p-vector
     gc <- capture.output(
         fit2 <- p.vector(data.abiotic, design_2, Q = 0.05, MT.adjust = "BH", min.obs = 20)
-        )
+    )
     gc <- capture.output(
         fit3 <- p.vector(data.abiotic, design_3, Q = 0.05, MT.adjust = "BH", min.obs = 20)
     )
     gc <- capture.output(
         fit4 <- p.vector(data.abiotic, design_4, Q = 0.05, MT.adjust = "BH", min.obs = 20)
+    )
+    
+    # Run-tstep
+    gc <- capture.output(
+        tstep2 <- T.fit(fit2, step.method = "backward", alfa = 0.05)
+    )
+    gc <- capture.output(
+        tstep3 <- T.fit(fit3, step.method = "backward", alfa = 0.05)
+    )
+    gc <- capture.output(
+        tstep4 <- T.fit(fit4, step.method = "backward", alfa = 0.05)
     )
     
     # Convert the Design for scMaSigPro
@@ -46,8 +57,8 @@ test_that("Check-'fit$SELEC' Reproducibility: Match, Dimension, Name and Value",
     
     # Run sc pvectory
     test.scmp.2 <- sc.p.vector(test.scmp.2, min.obs = 20,
-                             offset = F, parallel = T,
-                             family = gaussian(), verbose = F)
+                               offset = F, parallel = T,
+                               family = gaussian(), verbose = F)
     
     test.scmp.3 <- sc.p.vector(test.scmp.3, min.obs = 20,
                                offset = F, parallel = T,
@@ -57,17 +68,31 @@ test_that("Check-'fit$SELEC' Reproducibility: Match, Dimension, Name and Value",
                                offset = F, parallel = T,
                                family = gaussian(), verbose = F)
     
+    # Run Tstep
+    test.scmp.2 <- sc.T.fit(test.scmp.2,
+                            parallel = T, verbose = F, offset = F)
+    test.scmp.3 <- sc.T.fit(test.scmp.3,
+                            parallel = T, verbose = F, offset = F)
+    test.scmp.4 <- sc.T.fit(test.scmp.4,
+                            parallel = T, verbose = F, offset = F)
+    
+    # Extract sol
+    coeff2 <- showCoeff(test.scmp.2, view = F, return = T)
+    coeff3 <- showCoeff(test.scmp.3, view = F, return = T)
+    coeff4 <- showCoeff(test.scmp.4, view = F, return = T)
+    
+    
     # Check
     # Poly-order-2
-    expect_equal(expected = fit2$SELEC,
-                           object = as.matrix(test.scmp.2@scPVector@SELEC)
-                 )
+    expect_equal(expected = tstep2$coefficients,
+                 object = coeff2
+    )
     # Poly-order-3
-    expect_equal(expected = fit3$SELEC,
-                 object = as.matrix(test.scmp.3@scPVector@SELEC)
+    expect_equal(expected = tstep3$coefficients,
+                 object = coeff3
     )
     # Poly-order-4
-    expect_equal(expected = fit4$SELEC,
-                 object = as.matrix(test.scmp.4@scPVector@SELEC)
+    expect_equal(expected = tstep4$coefficients,
+                 object = coeff4
     )
 })

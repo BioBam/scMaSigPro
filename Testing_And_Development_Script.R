@@ -67,7 +67,7 @@ data("data.abiotic")
 data("edesign.abiotic")
 
 # MaSigPro: Make Design Matrix
-design <- make.design.matrix(edesign = edesign.abiotic, degree = 2)
+design <- make.design.matrix(edesign = edesign.abiotic, degree = 4)
 
 # Convert Design
 add_col <- function(x){
@@ -85,7 +85,7 @@ test.scmp <- create_scmpObj(counts = data.abiotic,
             use_as_bin = T)
 
 # Make Design
-test.scmp <- sc.make.design.matrix(test.scmp)
+test.scmp <- sc.make.design.matrix(test.scmp,poly_degree = 4)
 
 # Set -Pvector
 gc <- capture.output(
@@ -110,12 +110,12 @@ test.scmp <- sc.T.fit(test.scmp,
 
 
 
-names(test.scmp@scPVector@FDR) <- NULL
 testthat::expect_equal(expected = tstep$sol,
                        object = test.scmp@scTFit@sol)
 
-testthat::expect_equal(expected = fit$groups.vector,
-                       object = dim(test.scmp@scPVector@groups.vector)[1])
 
+testthat::expect_equal(expected = tstep$coefficients,
+                       object = test.scmp@scTFit@coefficients)
 
-
+testthat::expect_equal(expected = tstep$group.coeffs,
+                       object = test.scmp@scTFit@group.coeffs)

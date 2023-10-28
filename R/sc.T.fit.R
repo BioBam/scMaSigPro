@@ -276,7 +276,9 @@ sc.T.fit <- function(scmpObj,
     }
   }
   if (ncol(influ.info) > 2) {
+      if (verbose){
     message(paste("\nInfluence:", ncol(influ.info), "genes with influential scmpObj at slot influ.info. Model validation for these genes is recommended"))
+      }
   }
   # influ.info <- influ.info[, -1]
 
