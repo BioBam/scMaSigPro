@@ -110,12 +110,15 @@ test.scmp <- sc.T.fit(test.scmp,
 
 
 
-testthat::expect_equal(expected = tstep$sol,
-                       object = test.scmp@scTFit@sol)
 
+# Sig Genes
+sigs <- get.siggenes(tstep, rsq = 0.6, vars = "groups")
 
-testthat::expect_equal(expected = tstep$coefficients,
-                       object = test.scmp@scTFit@coefficients)
+# Sc sig genes
+test.scmp <- sc.get.siggenes(test.scmp, rsq = 0.6, vars = "groups")
 
-testthat::expect_equal(expected = tstep$group.coeffs,
-                       object = test.scmp@scTFit@group.coeffs)
+testthat::expect_equal(expected = sigs$summary,
+                       object = test.scmp@sig.genes@summary)
+
+testthat::expect_equal(expected = sigs$sig.genes,
+                       object = test.scmp@sig.genes@sig.genes)
