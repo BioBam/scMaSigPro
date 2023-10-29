@@ -5,13 +5,7 @@
 #'
 #' @param obj An object of class `scMaSigProClass`. This object will be checked
 #'   to ensure it's the right type.
-#' @param sel.path A character vector indicating the paths to be selected.
-#' @param balance_paths Logical indicating if paths should be balanced. Default is TRUE.
-#' @param pathCol The column name in `colData(sceObj)` that indicates the path.
-#'   Defaults to "Path".
-#' @param plot_paths Logical indicating if paths should be plotted. Default is TRUE.
-#' @param pTimeCol The column name indicating the pseudotime. Default is "Pseudotime".
-#' @param verbose Logical indicating if verbose messages should be displayed. Default is TRUE.
+#' @param redDim A character vector indicating the paths to be selected.
 #'
 #' @return A `SingleCellExperiment` object subsetted based on the specified paths.
 #'
@@ -23,7 +17,8 @@
 #' 
 # 
 
-selectPath <- function(obj, redDim = "umap") {
+selectPath <- function(obj, redDim = "umap",
+                       annotation = "cell.type") {
 
     # Validate is supplied opject is a valid
     assert_that(class(obj)[1] == "cell_data_set",
@@ -37,6 +32,16 @@ selectPath <- function(obj, redDim = "umap") {
 
     # Get edge Data
     edges_df <- get.data.frame(pgraph, what = "edges")
+    
+    # Extract Cell 
+    anno.df <- data.frame(
+        cell = rownames(obj@colData),
+        anno = obj@colData[[annotation]]
+        )
+    
+    # Attach dim
+    anno.df <- cbind(dims, anno.df)
+    colnames(anno.df) <- c("x", "y", "cell", "anno")
 
     # Extract UMAP cordinates
     pgraph.coords <- obj@principal_graph_aux@listData[[toupper(redDim)]]$dp_mst
@@ -59,7 +64,7 @@ selectPath <- function(obj, redDim = "umap") {
                 sidebarPanel(
                     h2("Select Branching Paths"),
                     h3("Interactively select the two branching paths, to examine differential expression trends with scMaSigPro."),
-                    h5("Procedure: First select the points on in the plot and then use the following buttons to set labels."),
+                    h5("Procedure: First select the points on in the plot and then use the following buttons to set labels. Please make sure to follow steps as directed."),
                     HTML("<hr>"), 
                     h4("Step-1: Identify a root node."),
                     actionButton("rootNode", "Set as Root Node"),
@@ -83,66 +88,100 @@ selectPath <- function(obj, redDim = "umap") {
                 ),
                 mainPanel(
                     
-                    fluidRow(column(6, h3("Monocle3-Prinicpal Graph"),plotlyOutput("mainPlot"))),
-                    fluidRow(column(6,uiOutput("finalTitle"),plotlyOutput("finalPlot")))
+                    fluidRow(
+                        column(6, h3("Monocle3-Prinicpal Graph"), plotlyOutput("trajectoryPlot")),
+                        column(6, h3("Annotation on UMAP"), plotlyOutput("annoPlot"))
+                        ),
+                    fluidRow(column(6,uiOutput("m3PgrapSubPlotTitle"), plotlyOutput("subTrajectoryPlot")),
+                             column(6,uiOutput("m3AnnoSubPlotTitle"), plotlyOutput("subAnnoPlot")))
                 )
             )
-        )
-        ,
-
+        ),
+        
+        # Server
         server = function(input, output, session) {
             
             paths_selected <- reactiveVal(list())
             root_node <- reactiveVal(NULL)
             path1 <- reactiveVal(NULL)
             path2 <- reactiveVal(NULL)
-            show_final_plot <- reactiveVal(FALSE)
+            showSubTrPlot <- reactiveVal(FALSE)
             logs <- reactiveVal("")
             
             # Main Monocle3 Plot Rendering
-            output$mainPlot <- renderPlotly({
-                p <- ggplot() +
+            output$trajectoryPlot <- renderPlotly({
+                trajectory.map <- ggplot() +
                     geom_segment(data = edges_df, aes(x = x_from, y = y_from, xend = x_to, yend = y_to), size = 0.5) +
                     geom_point(data = coords_df, aes(x = x, y = y), size = 1.5, color = "black") +
                     geom_text(data = coords_df, aes(x = x, y = y, label = node), vjust = 1.5, hjust = 0.5) +
                     theme_minimal() + xlab("UMAP-1") + ylab("UMAP-2")
-                ggplotly(p, source = "mainPlot") %>% layout(dragmode = "lasso")
+                
+                # return
+                ggplotly(trajectory.map, source = "trajectoryPlot") %>% layout(dragmode = "lasso")
+            })
+            
+            output$annoPlot <- renderPlotly({
+                anno.map <- ggplot() +
+                    geom_point(data = anno.df, aes(x = x, y = y, color = anno), size = 1.5) +
+                    theme_minimal() + xlab("UMAP-1") + ylab("UMAP-2")
+                
+                # return
+                ggplotly(anno.map, source = "annoPlot")
             })
             
             # Set Root Node
             observeEvent(input$rootNode, {
-                lasso_data <- event_data("plotly_selected", source = "mainPlot")
-                pointNumber <- unique(lasso_data$pointNumber)
-                if (!is.null(lasso_data) && length(pointNumber) == 1) {
-                    selected_nodes <- pointNumber + 1
-                    root_node(paste(coords_df$node[selected_nodes], collapse = ", "))
+                
+                # Get Selected Data
+                lasso_data <- event_data("plotly_selected", source = "trajectoryPlot")
+                
+                # Get the selected point (Unique from layer-1)
+                pointNumber <- as.numeric(unique(lasso_data$pointNumber)) + 1
+                
+                # Attach the prefix for Monocle3
+                root_vector <- paste("Y", pointNumber, sep = "_")
+                
+                # Validate
+                if (!is.null(lasso_data) && length(root_vector) == 1) {
+                    
+                    # Return root vector 
+                    root_node(root_vector)
+                    
+                    # Set log message
                     logs(paste(logs(), "\nSelected Root Node:", root_node()))
+                    
                 } else {
-                    logs(paste(logs(), "\nPlease Select only one node as root node.")) 
+                    logs(paste(logs(), "\nPlease select only one node as root node.")) 
                 }
             })
             
             # Set Path-1
             observeEvent(input$Path1, {
-                lasso_data <- event_data("plotly_selected", source = "mainPlot")
-                pointNumber <- unique(lasso_data$pointNumber)
-                if (!is.null(lasso_data) && length(pointNumber) > 2) {
+                
+                # Get the lasso data
+                lasso_data <- event_data("plotly_selected", source = "trajectoryPlot")
+                
+                # Get the y nodes
+                pointNumber <- as.numeric(unique(lasso_data$pointNumber)) + 1
+                
+                # Attach Prefix
+                path1_vector <- paste("Y", pointNumber, sep = "_") 
+                
+                # Validate
+                if (!is.null(lasso_data) && length(path1_vector) > 2) {
                     if (is.null(root_node())){
                         logs(paste(logs(), "\nPlease Select root node first.")) 
                     }else{
                         
-                        # Select nodes
-                        selected_nodes <- pointNumber + 1
-                        
-                        if (root_node() %in% coords_df$node[selected_nodes]) {
-                            path1(paste(coords_df$node[selected_nodes], collapse = ", "))
-                            logs(paste(logs(), "\nSelected nodes for Path1:", path1()))
+                        # Check if exist in root
+                        if (root_node() %in% path1_vector) {
                             
-                            # logs(paste(logs(), "\n", path1))
-                            # 
-                            # if (length(paths_selected()) == 2) {
-                            #     show_final_plot(TRUE)
-                            # }
+                            # return
+                            path1(path1_vector)
+                            
+                            # Log
+                            logs(paste(logs(), "\nSelected nodes for Path1:", paste(path1(), collapse = ", ")))
+                            
                         }else{
                             logs(paste(logs(), "\nRoot node is not a part of selected Path1", root_node(), "should exist in Path1"))
                         }
@@ -152,37 +191,33 @@ selectPath <- function(obj, redDim = "umap") {
                 }
             })
             # Set Path-2
-            
             observeEvent(input$Path2, {
-                lasso_data <- event_data("plotly_selected", source = "mainPlot")
-                pointNumber <- unique(lasso_data$pointNumber)
-                if (!is.null(lasso_data) && length(pointNumber) > 2) {
+                
+                # Get the lasso data
+                lasso_data <- event_data("plotly_selected", source = "trajectoryPlot")
+                
+                # Get the y nodes
+                pointNumber <- as.numeric(unique(lasso_data$pointNumber)) + 1
+                
+                # Attach Prefix
+                path2_vector <- paste("Y", pointNumber, sep = "_") 
+                
+                # Validate
+                if (!is.null(lasso_data) && length(path2_vector) > 2) {
                     if (is.null(root_node())){
                         logs(paste(logs(), "\nPlease Select root node first.")) 
                     }else{
-                        if (is.null(path1())){
-                            logs(paste(logs(), "\nPlease select Path1 first.")) 
+                        
+                        # Check if exist in root
+                        if (root_node() %in% path2_vector) {
+                            
+                                # return
+                                path2(path2_vector)
+                                
+                                # Log
+                                logs(paste(logs(), "\nSelected nodes for Path2:", paste(path2(), collapse = ", ")))
                         }else{
-                            
-                            # Select nodes
-                            selected_nodes <- pointNumber + 1
-                            sel_nodes <- coords_df$node[selected_nodes]
-                            
-                            
-                            if (root_node() %in% sel_nodes) {
-                                
-                                print(path1())
-                                print(sel_nodes)
-                                
-                                if(path1() == sel_nodes){
-                                    logs(paste(logs(), "\nPath2 contains same nodes as path. (", path1()[path1() %in% sel_nodes], ") are common nodes"))
-                                }else{
-                                path2(paste("Selected Nodes:", paste(sel_nodes, collapse = ", ")))
-                                logs(paste(logs(), "\nSelected nodes for Path2:", path2()))
-                                }
-                            }else{
-                                logs(paste(logs(), "\nRoot node is not a part of selected Path2", root_node(), "should exist in Path2"))
-                            }
+                            logs(paste(logs(), "\nRoot node is not a part of selected Path2", root_node(), "should exist in Path2"))
                         }
                     }
                 } else {
@@ -193,7 +228,7 @@ selectPath <- function(obj, redDim = "umap") {
             
             # Subset the trajectory
             observeEvent(input$sub, {
-                show_final_plot(TRUE)
+                showSubTrPlot(TRUE)
             })
             
             # Log display
@@ -202,224 +237,91 @@ selectPath <- function(obj, redDim = "umap") {
             })
             
             # Conditional Final Plot Title
-            output$finalTitle <- renderUI({
-                if (show_final_plot()) {
+            output$m3PgrapSubPlotTitle <- renderUI({
+                if (showSubTrPlot()) {
                     h3("Monocle3-Principal Graph-Subset")
+                }
+            })
+            output$m3AnnoSubPlotTitle <- renderUI({
+                if (showSubTrPlot()) {
+                    h3("Monocle3-Annotations Subset")
                 }
             })
             
             # Final Plot rendering
-            output$finalPlot <- renderPlotly({
-                if (!show_final_plot()) return(NULL)
+            output$subTrajectoryPlot <- renderPlotly({
+                if (!showSubTrPlot()) return(NULL)
                 
                 # Assuming paths_selected has the paths
-                path1 <- strsplit(paths_selected()[[1]], "Selected Nodes: ")[[1]][2]
-                path2 <- strsplit(paths_selected()[[2]], "Selected Nodes: ")[[1]][2]
-                nodes <- unlist(c(strsplit(path1, ", "), strsplit(path2, ", ")))
+                path1 <- path1()
+                path2 <- path2()
                 
-                filtered_df <- coords_df[coords_df$node %in% nodes, ]
-                filtered_edges <- edges_df[edges_df$from %in% nodes & edges_df$to %in% nodes, ]
+                # Subset the plot
+                filtered_df <- coords_df[coords_df$node %in% unique(c(path1, path2)), ]
+                filtered_edges <- edges_df[edges_df$from %in% unique(c(path1, path2)) & edges_df$to %in% unique(c(path1, path2)), ]
                 
-                p <- ggplot() +
+                # Plot subset
+                sub.trajectory.map <- ggplot() +
                     geom_segment(data = filtered_edges, aes(x = x_from, y = y_from, xend = x_to, yend = y_to), size = 0.5) +
                     geom_point(data = filtered_df, aes(x = x, y = y), size = 1.5, color = "black") +
                     geom_text(data = filtered_df, aes(x = x, y = y, label = node), vjust = 1.5, hjust = 0.5) +
-                    theme_minimal()
+                    theme_minimal() + xlab("UMAP-1") + ylab("UMAP-2")
                 
-                ggplotly(p)
+                ggplotly(sub.trajectory.map)
+            })
+            
+            # Final Plot rendering
+            output$subAnnoPlot <- renderPlotly({
+                if (!showSubTrPlot()) return(NULL)
+                
+                # Assuming paths_selected has the paths
+                path1 <- path1()
+                path2 <- path2()
+                
+                # Get closest cells
+                close.frame <- data.frame(nodes = obj@principal_graph_aux@listData$UMAP$pr_graph_cell_proj_closest_vertex,
+                           cell = rownames(obj@principal_graph_aux@listData$UMAP$pr_graph_cell_proj_closest_vertex))
+                
+                # Attach Y
+                close.frame$nodes <- paste("Y", close.frame$nodes, sep = "_")
+                
+                View(close.frame)
+                
+                # Subset
+                close.frame <- close.frame[close.frame$nodes %in% unique(c(path1, path2)), , drop =F]
+                
+                sub.anno.df <- anno.df[anno.df$cell %in% close.frame$cell, ]
+                
+                
+                View(sub.anno.df)
+                anno.map.sub <- ggplot() +
+                    geom_point(data = sub.anno.df, aes(x = x, y = y, color = anno), size = 1.5) +
+                    theme_minimal() + xlab("UMAP-1") + ylab("UMAP-2")
+                
+                # return
+                ggplotly(anno.map.sub, source = "annoPlot")
             })
             
             # Save button behavior
             observeEvent(input$save, {
-                if (length(paths_selected()) != 2) return()
                 
-                saved_data <- list(root = root_node(), path1 = paths_selected()[[1]], path2 = paths_selected()[[2]])
-                # Here, you can perform operations to save the data, or print the saved_data list to see the saved nodes.
-                print(saved_data) 
+                # Get variables
+                if (length(path1()) > 2 & length(path2()) > 2 & length(root_node()) == 1){
+                    subset_variables <- list(root = root_node(), path1 = path1(), path2 = path2())
+                }else{
+                    logs("Please Select nodes")
+                }
             })
             
             # Redo Selection
             observeEvent(input$redo, {
-                paths_selected(list())
-                root_node(NULL)
-                current_path(NULL)
-                show_final_plot(FALSE)
-                logs("")
+                paths_selected <- reactiveVal(list())
+                root_node <- reactiveVal(NULL)
+                path1 <- reactiveVal(NULL)
+                path2 <- reactiveVal(NULL)
+                showSubTrPlot <- reactiveVal(FALSE)
+                logs <- reactiveVal("Please Select nodes")
             })
     
-        })}
-    #     server = function(input, output, session) {
-    #         paths_selected <- reactiveVal(list())
-    #         current_path <- reactiveVal(NULL)
-    #         show_final_plot <- reactiveVal(FALSE)
-    # 
-    #         output$mainPlot <- renderPlotly({
-    #             p <- ggplot() +
-    #                 geom_segment(data = edges_df, aes(x = x_from, y = y_from, xend = x_to, yend = y_to), size = 0.5) +
-    #                 geom_point(data = coords_df, aes(x = x, y = y), size = 1.5, color = "black") +
-    #                 geom_text(data = coords_df, aes(x = x, y = y, label = node), vjust = 1.5, hjust = 0.5) +
-    #                 theme_minimal() + xlab("UMAP-1") + ylab("UMAP-2")
-    # 
-    #             ggplotly(p, source = "mainPlot") %>% layout(dragmode = "lasso")
-    #         })
-    # 
-    #         observeEvent(input$Path1, {
-    #             if (is.null(current_path())) return()
-    # 
-    #             paths_selected(append(paths_selected(), list(current_path())))
-    #             current_path(NULL)
-    # 
-    #             if (length(paths_selected()) == 2) {
-    #                 show_final_plot(TRUE)
-    #             }
-    #         })
-    # 
-    #         observe({
-    #             lasso_data <- event_data("plotly_selected", source = "mainPlot")
-    #             if (!is.null(lasso_data)) {
-    #                 selected_nodes <- lasso_data$pointNumber + 1
-    #                 current_path(paste("Selected Nodes:", paste(coords_df$node[selected_nodes], collapse = ", ")))
-    #             }
-    #         })
-    # 
-    #         output$logtext <- renderText({
-    #             current_path()
-    #         })
-    #         
-    #         output$finalTitle <- renderUI({
-    #             if (show_final_plot()) {
-    #                 h3("Monocle3-Principal Graph-Subset")
-    #             }
-    #         })
-    #         
-    # 
-    #         output$finalPlot <- renderPlotly({
-    #             if (!show_final_plot()) return(NULL)
-    # 
-    #             path1 <- strsplit(paths_selected()[[1]], "Selected Nodes: ")[[1]][2]
-    #             path2 <- strsplit(paths_selected()[[2]], "Selected Nodes: ")[[1]][2]
-    #             nodes <- unlist(c(strsplit(path1, ", "), strsplit(path2, ", ")))
-    # 
-    #             filtered_df <- coords_df[coords_df$node %in% nodes, ]
-    #             filtered_edges <- edges_df[edges_df$from %in% nodes & edges_df$to %in% nodes, ]
-    # 
-    #             p <- ggplot() +
-    #                 geom_segment(data = filtered_edges, aes(x = x_from, y = y_from, xend = x_to, yend = y_to), size = 0.5) +
-    #                 geom_point(data = filtered_df, aes(x = x, y = y), size = 1.5, color = "black") +
-    #                 geom_text(data = filtered_df, aes(x = x, y = y, label = node), vjust = 1.5, hjust = 0.5) +
-    #                 theme_minimal()
-    # 
-    #             ggplotly(p)
-    #         })
-    #     }
-    # )
-    
-    
-
-    # 
-    # 
-    # 
-    # 
-    # 
-    # 
-    # 
-    # # Extract the sce class
-    # sceObj <- obj@sce
-    # 
-    # # Extract Cell MetaData
-    # cell.meta.raw <- as.data.frame(colData(sceObj))
-    # 
-    # # Extract Paths from the metadata
-    # cell.meta.sub <- cell.meta.raw[cell.meta.raw[[pathCol]] %in% sel.path, ]
-    # 
-    # # Plot
-    # if (plot_paths) {
-    #     before.plt <- ggplot(cell.meta.sub, aes(x = .data[[pathCol]], y = .data[[pTimeCol]])) +
-    #         geom_boxplot(color = "#f58a53") + # This creates the boxplots for each category
-    #         stat_summary(fun = median, geom = "line", aes(group = 1), color = "#e84258") +
-    #         stat_summary(fun = median, geom = "point", color = "#159287") +
-    #         labs(
-    #             title = "A. Before Balance",
-    #             x = "Available Paths", y = "Inferred Pseudotime"
-    #         ) +
-    #         theme_minimal(base_size = 15)
-    # }
-    # 
-    # # Balance
-    # if (balance_paths) {
-    #     # Get the avaibale paths
-    #     avail_paths <- unique(cell.meta.sub[[pathCol]])
-    #     
-    #     # Store original ranges
-    #     original_ranges <- lapply(avail_paths, function(path) {
-    #         return(
-    #             range(cell.meta.sub[cell.meta.sub[[pathCol]] == path, pTimeCol], na.rm = TRUE)
-    #         )
-    #     })
-    #     names(original_ranges) <- avail_paths
-    #     
-    #     # Get the span of the ranges
-    #     range_spans <- sapply(original_ranges, diff)
-    #     
-    #     # Order the ranges
-    #     sorted_paths <- names(range_spans[order(range_spans)])
-    #     
-    #     # First path is the smallest
-    #     smallest_path <- sorted_paths[1]
-    #     
-    #     if (!is.na(smallest_path)) {
-    #         # Get the range of the smallest path
-    #         smallest_range <- original_ranges[[smallest_path]]
-    #         
-    #         # Set rownames to columns
-    #         cell.meta.sub$row_id <- rownames(cell.meta.sub)
-    #         
-    #         # Get the list of cells to drop
-    #         drop_cells <- rownames(cell.meta.sub[!(cell.meta.sub[[pTimeCol]] >= smallest_range[1] &
-    #                                                    cell.meta.sub[[pTimeCol]] <= smallest_range[2]), ])
-    #         
-    #         # Subset
-    #         cell.meta.sub.sliced <- cell.meta.sub[!(cell.meta.sub$row_id %in% drop_cells), , drop = F]
-    #         
-    #         # Set the rownames
-    #         rownames(cell.meta.sub.sliced) <- cell.meta.sub.sliced$row_id
-    #         cell.meta.sub.sliced$row_id <- NULL
-    #         
-    #         if (verbose) {
-    #             removed_count <- nrow(cell.meta.sub) - nrow(cell.meta.sub.sliced)
-    #             message(paste(removed_count, "cells were removed to match the pseudotime range of", smallest_path))
-    #         }
-    #         
-    #         if (plot_paths) {
-    #             after.plt <- ggplot(cell.meta.sub.sliced, aes(x = .data[[pathCol]], y = .data[[pTimeCol]])) +
-    #                 geom_boxplot(color = "#e84258") + # This creates the boxplots for each category
-    #                 stat_summary(fun = median, geom = "line", aes(group = 1), color = "#f58a53") +
-    #                 stat_summary(fun = median, geom = "point", color = "#159287") +
-    #                 labs(
-    #                     title = "B. After Balance",
-    #                     x = "Available Paths", y = "Inferred Pseudotime"
-    #                 ) +
-    #                 theme_minimal(base_size = 15)
-    #         }
-    #         
-    #         
-    #         # Select Cells
-    #         sceObj_sub <- sceObj[, rownames(colData(sceObj)) %in% rownames(cell.meta.sub.sliced)]
-    #         
-    #         # Add the Object Back
-    #         obj@sce <- sceObj_sub
-    #         
-    #         # Plot
-    #         if (plot_paths) {
-    #             comb.plt <- ggarrange(before.plt, after.plt)
-    #             print(comb.plt)
-    #         }
-    #         
-    #         # return
-    #         return(obj)
-    #     } else {
-    #         message("Nothing to remove, paths correspond")
-    #         return(obj)
-    #     }
-    # }
-#}
+        })
+    }

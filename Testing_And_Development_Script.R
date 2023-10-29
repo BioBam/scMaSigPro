@@ -55,7 +55,15 @@ sc.PlotGroups(scmpObj = scmp,
 
 # Step-1: Load data and Monocle3 like function
 load("extdata/rep1_processed.RData")
-suppressPackageStartupMessages(library(monocle3))
+suppressPackageStartupMessages(library(shiny))
+suppressPackageStartupMessages(library(plotly))
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(igraph))
+suppressPackageStartupMessages(library(assertthat))
+suppressPackageStartupMessages(library(SingleCellExperiment))
+
+# Step-2: Select the Paths
+selectPath(obj = cds, annotation = "predicted.celltype.l2")
 
 
 # Create SCMP Object
