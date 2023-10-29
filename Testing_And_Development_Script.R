@@ -6,6 +6,7 @@ set.seed(123)
 
 # Load ScMaSigpro
 library(scMaSigPro)
+library(ggplot2)
 
 # Step-1: Load a dataset for testing
 data("Sim2Path", package = "scMaSigPro")
@@ -47,10 +48,146 @@ scmp <- sc.get.siggenes(scmpObj = scmp,
 
 # Step-8: Plot Gene Trends
 sc.PlotGroups(scmpObj = scmp,
-              feature_id = "Gene100", smoothness = 0.1)
+              feature_id = "Gene10", smoothness = 0.1)
 
 
-### Additional Function specific to scMaSigPro
+# Developing Methods for monocle3
+
+# Step-1: Load data and Monocle3 like function
+load("extdata/rep1_processed.RData")
+suppressPackageStartupMessages(library(monocle3))
+
+
+# Create SCMP Object
+scmp.cds <-  as_scmp(cds, "cds")
+
+# Select the Path
+scmp.cds <- selectPath(scmp.cds,
+           sel.path = c("Y_3", "Y_34"),
+           pathCol = "Path",balance_paths = T, 
+           pTimeCol = "Pseudotime", 
+           plot_paths = T, verbose = T)
+
+scmp.cds <- entropy_discretize(scmp.cds,drop.fac = 1,
+                           verbose = T,
+                           binning = "individual",
+                           additional_params = list(use_unique_time_points = TRUE))
+
+scmp.cds <- make.pseudobulk.design(scmp.cds,
+                               verbose= T)
+scmp.cds <- make.pseudobulk.counts(scmp.cds)
+
+# Step-4: Make Design-Matrix
+scmp.cds <- sc.make.design.matrix(scmp.cds, poly_degree = 2)
+
+# Step-5: Run P-vector
+scmp.cds <- sc.p.vector(scmp.cds, parallel = T)
+
+
+
+# Plot the trajectory
+pTime <- plot_cells(cds = cds,
+           color_cells_by = "pseudotime",
+           label_roots = T, cell_size = 2,
+           trajectory_graph_segment_size = 2,
+           label_principal_points = T) +
+    theme(legend.position = "bottom")
+cell.anno <- plot_cells(cds = cds,
+                    color_cells_by = "predicted.celltype.l2",
+                    label_roots = T, cell_size = 2,
+                    trajectory_graph_segment_size = 2,
+                    label_principal_points = T) +
+    theme(legend.position = "bottom")
+
+tr.graph <- plot_cells(cds = cds,
+                       label_branch_points = T, 
+                       label_leaves = T,
+                       group_label_size = 3,
+                        color_cells_by = "predicted.celltype.l2",
+                        label_roots = T, cell_size = 0,
+                        trajectory_graph_segment_size = 2,
+                        label_principal_points = T) +
+    theme(legend.position = "bottom")
+
+partitions <- plot_cells(cds = cds,
+                       color_cells_by = "partition",
+                       label_roots = T, cell_size = 2,
+                       trajectory_graph_segment_size = 1,
+                       label_principal_points = T) +
+    theme(legend.position = "bottom")
+
+#Plot all together
+ggpubr::ggarrange(pTime, cell.anno,
+                  tr.graph, partitions,
+                  ncol= 2, nrow =2)
+
+# Step-3: Extract fan like structures
+suppressPackageStartupMessages(library(igraph))
+
+# Extract graph from monocle3
+pgraph <- cds@principal_graph@listData$UMAP
+end_nodes <- V(pgraph)[degree(pgraph) == 1]$name
+
+extract_fans <- function(node) {
+    node_index <- which(node_names == node)
+    neighbors_indices <- neighbors(pgraph, node_index)
+    neighbors_names <- node_names[neighbors_indices]
+    
+    valid_neighbors <- neighbors_names[neighbors_names %in% end_nodes | neighbors_names %in% candidate_nodes]
+    
+    # Check if there are enough valid_neighbors to form a combination
+    if (length(valid_neighbors) < 3) {
+        return(list(center=paste0(node, " (center)"), edges=NULL))
+    }
+    
+    fans <- combn(valid_neighbors, 3, function(triplet) {
+        edges_named <- sapply(triplet, function(edge_node) paste0(edge_node, " (edge-", which(triplet == edge_node), ")"))
+        list(center=paste0(node, " (center)"), edges=edges_named)
+    }, simplify = FALSE)
+    
+    unlist(fans, recursive = FALSE)
+}
+
+
+
+selectPath(obj = cds)
+
+
+sample_node <- "Y_6"
+# sample_fans <- extract_fans(sample_node)
+
+cat("Central node:", sample_fans$center, "\n")
+cat("Edges:", sample_fans$edges, "\n")
+
+
+candidate_nodes <- V(pgraph)[degree(pgraph) >= 3]
+
+extract_fans <- function(node) {
+    node_index <- which(node_names == node)
+    neighbors_indices <- neighbors(pgraph, node_index)
+    neighbors_names <- node_names[neighbors_indices]
+    
+    fans <- combn(neighbors_names, 3, function(triplet) {
+        edges_named <- sapply(triplet, function(edge_node) paste0(edge_node, " (edge-", which(triplet == edge_node), ")"))
+        list(center=paste0(node, " (center)"), edges=edges_named)
+    }, simplify = FALSE)
+    
+    unlist(fans, recursive = FALSE)
+}
+
+
+sample_node <- "Y_6"
+sample_fans <- extract_fans(sample_node)
+
+cat("Central node:", sample_fans$center, "\n")
+cat("Edges:", sample_fans$edges, "\n")
+
+
+Loop through the filtered fans and print
+for (fan in filtered_fans) {
+    cat("Central node:", fan$center, "\n")
+    cat("Edges:", fan$edges, "\n\n")
+}
 
 
 
