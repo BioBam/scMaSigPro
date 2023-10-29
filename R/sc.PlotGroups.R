@@ -26,6 +26,9 @@ sc.PlotGroups <-
       pooled.time <- "pooled.time"
       path <- "path"
       
+      # Extract edisgn
+      edesign.frame <- scmpObj@edesign@edesign %>% as.data.frame()
+      
       # Extract the bulk counts
       bulk.counts = scmpObj@compress.sce@assays@data@listData$bulk.counts
       
@@ -37,7 +40,7 @@ sc.PlotGroups <-
       yy <- bulk.counts[rownames(bulk.counts) %in% feature_id, , drop = F]
       
       # Extract the bulk counts
-      edesign = scmpObj@edesign@edesign
+      edesign = edesign.frame
       
       # group Vector
       groups.vector = scmpObj@scPVector@groups.vector
@@ -60,11 +63,11 @@ sc.PlotGroups <-
       path.names <- unique(scmpObj@compress.sce@colData[[scmpObj@addParams@path_colname]])
       
       # Get x and y
-      x <- y <- rep(0, nrow(scmpObj@edesign@edesign))
+      x <- y <- rep(0, nrow(edesign.frame))
       
       # Create Point df
       points.df <- data.frame(
-          pooled.time = scmpObj@edesign@edesign[, scmpObj@addParams@bin_pseudotime_colname],
+          pooled.time = edesign.frame[, scmpObj@addParams@bin_pseudotime_colname],
           pb.counts = as.vector(yy),
           path = scmpObj@compress.sce@colData[[scmpObj@addParams@path_colname]]
       )
@@ -78,15 +81,13 @@ sc.PlotGroups <-
               group = i
           )
           a <- c(a, rep(0, (7 - length(a))))
-          
-          print(a)
-          
+
           # Extract the time
-          time <- scmpObj@edesign@edesign[scmpObj@edesign@edesign[[i]] == 1, scmpObj@addParams@bin_pseudotime_colname]
+          time <- edesign.frame[edesign.frame[[i]] == 1, scmpObj@addParams@bin_pseudotime_colname]
           
           # Create a data frame with time values
           x <- seq(from = min(time), to = max(time), by = smoothness)
-          
+
           # Compute the curve values
           y <- a[1] + a[2]*x + a[3]*(x^2) + a[4]*(x^3) +
               a[5]*(x^4) + a[6]*(x^5) + a[7]*(x^5)

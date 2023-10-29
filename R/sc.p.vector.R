@@ -105,7 +105,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
 
   # Calculate  offset
   if (offset) {
-    dat@x <- dat@x + 1
+    dat <- dat + 1
     offsetData <- log(scmp_estimateSizeFactorsForMatrix(dat))
     if (verbose) {
       message("Using DESeq2::estimateSizeFactorsForMatrix")

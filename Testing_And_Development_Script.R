@@ -47,7 +47,7 @@ scmp <- sc.get.siggenes(scmpObj = scmp,
 
 # Step-8: Plot Gene Trends
 sc.PlotGroups(scmpObj = scmp,
-              feature_id = "Gene100", smoothness = 10)
+              feature_id = "Gene100", smoothness = 0.1)
 
 
 ### Additional Function specific to scMaSigPro
@@ -117,7 +117,20 @@ sigs <- get.siggenes(tstep, rsq = 0.6, vars = "groups")
 # Sc sig genes
 test.scmp <- sc.get.siggenes(test.scmp, rsq = 0.6, vars = "groups")
 
-testthat::expect_equal(expected = sigs$summary,
+# See Genes
+see.genes(sigs$sig.genes$ColdvsControl, show.fit = T, dis =design$dis,
+          cluster.method="hclust" ,cluster.data = 1, k = 9, )
+
+STMDE66 <- data.abiotic[rownames(data.abiotic)=="STMDE66", ]
+PlotGroups (STMDE66, edesign = edesign.abiotic)
+
+PlotGroups (STMDE66, edesign = edesign.abiotic, show.fit = T,
+            dis = design$dis, groups.vector = design$groups.vector)
+
+PlotProfiles(data = data.abiotic
+             )
+
+atestthat::expect_equal(expected = sigs$summary,
                        object = test.scmp@sig.genes@summary)
 
 testthat::expect_equal(expected = sigs$sig.genes,
