@@ -86,16 +86,23 @@ selectPath <- function(obj, redDim = "umap",
                     HTML("<hr>"), 
                     h4("Additional Information"),
                 ),
-                mainPanel(
-                    
+            
+                mainPanel( 
                     fluidRow(
-                        column(6, h3("Monocle3-Prinicpal Graph"), plotlyOutput("trajectoryPlot")),
-                        column(6, h3("Annotation on UMAP"), plotlyOutput("annoPlot"))
-                        ),
-                    fluidRow(column(6,uiOutput("m3PgrapSubPlotTitle"), plotlyOutput("subTrajectoryPlot")),
-                             column(6,uiOutput("m3AnnoSubPlotTitle"), plotlyOutput("subAnnoPlot")))
+                        fluidRow(
+                            column(6, h3("Monocle3-Prinicpal Graph"), plotlyOutput("trajectoryPlot")),
+                            column(6, h3("Annotation on UMAP"), plotlyOutput("annoPlot"))
+                            ),
+                        fluidRow(
+                            column(6,  sliderInput("trPlotCellSize", "Node Size:", min = 0.1, max = 3, value = 1)),
+                            column(6, sliderInput("annoPlotCellSize", "Cell Size:", min = 0.1, max = 3,value = 1))
+                            )
+                ),
+                fluidRow(
+                    column(6,uiOutput("m3PgrapSubPlotTitle"), plotlyOutput("subTrajectoryPlot")),
+                    column(6,uiOutput("m3AnnoSubPlotTitle"), plotlyOutput("subAnnoPlot"))
+                    ))
                 )
-            )
         ),
         
         # Server
@@ -112,7 +119,7 @@ selectPath <- function(obj, redDim = "umap",
             output$trajectoryPlot <- renderPlotly({
                 trajectory.map <- ggplot() +
                     geom_segment(data = edges_df, aes(x = x_from, y = y_from, xend = x_to, yend = y_to), size = 0.5) +
-                    geom_point(data = coords_df, aes(x = x, y = y), size = 1.5, color = "black") +
+                    geom_point(data = coords_df, aes(x = x, y = y), size = input$trPlotCellSize, color = "black") +
                     geom_text(data = coords_df, aes(x = x, y = y, label = node), vjust = 1.5, hjust = 0.5) +
                     theme_minimal() + xlab("UMAP-1") + ylab("UMAP-2")
                 
@@ -122,7 +129,7 @@ selectPath <- function(obj, redDim = "umap",
             
             output$annoPlot <- renderPlotly({
                 anno.map <- ggplot() +
-                    geom_point(data = anno.df, aes(x = x, y = y, color = anno), size = 1.5) +
+                    geom_point(data = anno.df, aes(x = x, y = y, color = anno), size = input$annoPlotCellSize) +
                     theme_minimal() + xlab("UMAP-1") + ylab("UMAP-2")
                 
                 # return
