@@ -59,6 +59,7 @@ selectPath <- function(obj, redDim = "umap") {
                 sidebarPanel(
                     h2("Select Branching Paths"),
                     h3("Interactively select the two branching paths, to examine differential expression trends with scMaSigPro."),
+                    h5("Procedure: First select the points on in the plot and then use the following buttons to set labels."),
                     HTML("<hr>"), 
                     h4("Step-1: Identify a root node."),
                     actionButton("rootNode", "Set as Root Node"),
@@ -93,7 +94,8 @@ selectPath <- function(obj, redDim = "umap") {
             
             paths_selected <- reactiveVal(list())
             root_node <- reactiveVal(NULL)
-            current_path <- reactiveVal(NULL)
+            path1 <- reactiveVal(NULL)
+            path2 <- reactiveVal(NULL)
             show_final_plot <- reactiveVal(FALSE)
             logs <- reactiveVal("")
             
@@ -112,7 +114,7 @@ selectPath <- function(obj, redDim = "umap") {
                 lasso_data <- event_data("plotly_selected", source = "mainPlot")
                 pointNumber <- unique(lasso_data$pointNumber)
                 if (!is.null(lasso_data) && length(pointNumber) == 1) {
-                    selected_nodes <- lasso_data$pointNumber + 1
+                    selected_nodes <- pointNumber + 1
                     root_node(paste(coords_df$node[selected_nodes], collapse = ", "))
                     logs(paste(logs(), "\nSelected Root Node:", root_node()))
                 } else {
@@ -120,25 +122,69 @@ selectPath <- function(obj, redDim = "umap") {
                 }
             })
             
-            
-            # Set Path-1 and Path-2
-            observeEvent(c(input$Path1, input$Path2), {
+            # Set Path-1
+            observeEvent(input$Path1, {
                 lasso_data <- event_data("plotly_selected", source = "mainPlot")
-                if (!is.null(lasso_data)) {
-                    selected_nodes <- lasso_data$pointNumber + 1
-                    if (is.null(root_node())) return()
-                    
-                    if (root_node() %in% selected_nodes) {
-                        current_path(paste("Selected Nodes:", paste(coords_df$node[selected_nodes], collapse = ", ")))
-                        paths_selected(append(paths_selected(), list(current_path())))
-                        logs(paste(logs(), "\n", current_path()))
+                pointNumber <- unique(lasso_data$pointNumber)
+                if (!is.null(lasso_data) && length(pointNumber) > 2) {
+                    if (is.null(root_node())){
+                        logs(paste(logs(), "\nPlease Select root node first.")) 
+                    }else{
                         
-                        if (length(paths_selected()) == 2) {
-                            show_final_plot(TRUE)
+                        # Select nodes
+                        selected_nodes <- pointNumber + 1
+                        
+                        if (root_node() %in% coords_df$node[selected_nodes]) {
+                            path1(paste("Selected Nodes:", paste(coords_df$node[selected_nodes], collapse = ", ")))
+                            logs(paste(logs(), "\nSelected nodes for Path1:", path1()))
+                            
+                            # logs(paste(logs(), "\n", path1))
+                            # 
+                            # if (length(paths_selected()) == 2) {
+                            #     show_final_plot(TRUE)
+                            # }
+                        }else{
+                            logs(paste(logs(), "\nRoot node is not a part of selected Path1", root_node(), "should exist in Path1"))
                         }
                     }
+                } else {
+                    logs(paste(logs(), "\nPlease Select more than two nodes to make a path.")) 
                 }
             })
+            # Set Path-2
+            
+            observeEvent(input$Path2, {
+                lasso_data <- event_data("plotly_selected", source = "mainPlot")
+                pointNumber <- unique(lasso_data$pointNumber)
+                if (!is.null(lasso_data) && length(pointNumber) > 2) {
+                    if (is.null(root_node())){
+                        logs(paste(logs(), "\nPlease Select root node first.")) 
+                    }else{
+                        if (is.null(path1())){
+                            logs(paste(logs(), "\nPlease select Path1 first.")) 
+                        }else{
+                            
+                            # Select nodes
+                            selected_nodes <- pointNumber + 1
+                            
+                            if (root_node() %in% coords_df$node[selected_nodes]) {
+                                
+                                if(path1() %in% coords_df$node[selected_nodes]){
+                                    logs(paste(logs(), "\nPath2 contains same nodes as path. (", path1()[path1() %in% coords_df$node[selected_nodes]], ") are common nodes"))
+                                }else{
+                                path2(paste("Selected Nodes:", paste(coords_df$node[selected_nodes], collapse = ", ")))
+                                logs(paste(logs(), "\nSelected nodes for Path2:", path2()))
+                                }
+                            }else{
+                                logs(paste(logs(), "\nRoot node is not a part of selected Path2", root_node(), "should exist in Path2"))
+                            }
+                        }
+                    }
+                } else {
+                    logs(paste(logs(), "\nPlease Select more than two nodes to make a path.")) 
+                }
+            })
+            
             
             # Subset the trajectory
             observeEvent(input$sub, {
