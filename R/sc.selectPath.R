@@ -135,7 +135,7 @@ selectPath <- function(obj, redDim = "umap") {
                         selected_nodes <- pointNumber + 1
                         
                         if (root_node() %in% coords_df$node[selected_nodes]) {
-                            path1(paste("Selected Nodes:", paste(coords_df$node[selected_nodes], collapse = ", ")))
+                            path1(paste(coords_df$node[selected_nodes], collapse = ", "))
                             logs(paste(logs(), "\nSelected nodes for Path1:", path1()))
                             
                             # logs(paste(logs(), "\n", path1))
@@ -166,13 +166,18 @@ selectPath <- function(obj, redDim = "umap") {
                             
                             # Select nodes
                             selected_nodes <- pointNumber + 1
+                            sel_nodes <- coords_df$node[selected_nodes]
                             
-                            if (root_node() %in% coords_df$node[selected_nodes]) {
+                            
+                            if (root_node() %in% sel_nodes) {
                                 
-                                if(path1() %in% coords_df$node[selected_nodes]){
-                                    logs(paste(logs(), "\nPath2 contains same nodes as path. (", path1()[path1() %in% coords_df$node[selected_nodes]], ") are common nodes"))
+                                print(path1())
+                                print(sel_nodes)
+                                
+                                if(path1() == sel_nodes){
+                                    logs(paste(logs(), "\nPath2 contains same nodes as path. (", path1()[path1() %in% sel_nodes], ") are common nodes"))
                                 }else{
-                                path2(paste("Selected Nodes:", paste(coords_df$node[selected_nodes], collapse = ", ")))
+                                path2(paste("Selected Nodes:", paste(sel_nodes, collapse = ", ")))
                                 logs(paste(logs(), "\nSelected nodes for Path2:", path2()))
                                 }
                             }else{
