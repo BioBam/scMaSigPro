@@ -25,6 +25,5 @@ to ensure it's the right type.}
 A `scMaSigProClass` object, subsetted based on the specified paths.
 }
 \description{
-This function selects paths to be used in scMaSigPro. It extracts
-a sub-cdsObject based on the specified paths.
+Subset a CDS object interactively with Shiny
 }

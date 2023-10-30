@@ -1,8 +1,5 @@
 #' Subset a CDS object interactively with Shiny
 #'
-#' This function selects paths to be used in scMaSigPro. It extracts
-#' a sub-cdsObject based on the specified paths.
-#'
 #' @param cdsObj An cdsObject of class `scMaSigProClass`. This cdsObject will be checked
 #'   to ensure it's the right type.
 #' @param redDim Dimension to use for the plot
@@ -23,50 +20,116 @@
 selectPath.m3 <- function(cdsObj, redDim = "umap",
                           annotation = "cell.type",
                           returnType = "scmpObj") {
+    
   # Validate is supplied opject is a valid
   assert_that(class(cdsObj)[1] == "cell_data_set",
     msg = "Please supply a valid monocle3 cdsObject"
   )
+    # Check whether the lower dimensions are calculated
+    assert_that(nrow(as.data.frame(reducedDims(cdsObj)[[toupper(redDim)]])) > 1,
+                msg = paste(redDim, "not found, in the cdsObj")
+    )
+    
+    # Check whether the lower dimensions are calculated
+    assert_that(nrow(as.data.frame(reducedDims(cdsObj)[[toupper(redDim)]])) == ncol(cdsObj),
+                msg = paste("Dimensions of", redDim, "do not correspond to dimensions of counts")
+    )
 
   # Extract UMAP
   dims <- reducedDims(cdsObj)[[toupper(redDim)]] %>% as.data.frame()
-
-  # Extract the graph
+  
+  # Set rownames as cells
+  dims[["cell"]] <- rownames(dims)
+  
+  # Check whether the lower dimensions are calculated
+  assert_that(all(rownames(dims) == colnames(cdsObj)),
+              msg = paste("Cell Barcodes do not among", redDim, "and counts")
+  )
+  
+  # Check if supplied annotation exist in the cdsObj
+  assert_that(annotation %in% names(cds@colData),
+              msg = paste(annotation, "does not exist in the cell.level metadata")
+  )
+  
+  # Extract the vertex cell relationships
+  assert_that(!is.null(cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$pr_graph_cell_proj_closest_vertex),
+              msg = paste("Vertex information is missing")
+  )
+  
+  # Check pseudotime
+  assert_that(!is.null(cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$pseudotime),
+              msg = paste("No Pseudotime information found")
+  )
+  
+  # Create Pseudotime frame
+  pTime.frame <- data.frame(pTime = cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$pseudotime,
+                            cell = names(cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$pseudotime))
+  
+  # Create close vertex frames
+  vertex.relation.frame <- data.frame(
+      node = paste("Y", cds@principal_graph_aux[[toupper(redDim)]]$pr_graph_cell_proj_closest_vertex[,1], sep = "_"),
+      cell = names(cds@principal_graph_aux[[toupper(redDim)]]$pr_graph_cell_proj_closest_vertex[,1])
+  )
+  
+  # Create Annotation df
+  anno.df <- data.frame(
+      cell = rownames(cdsObj@colData),
+      anno = cdsObj@colData[[annotation]]
+  )
+  
+  # Check before merge
+  assert_that(all(anno.df[["cell"]] == dims[["cell"]]),
+              msg = paste("Cells in lower dimensions does not match with cells for which annotation is supplied")
+  )
+  
+  # Merge Anno.df with pseudotime
+  anno.df <-  merge(anno.df, pTime.frame, by = "cell")
+  
+  # Merge Anno.df with LD
+  anno.df <- merge(anno.df, dims, by = "cell")
+  
+  # Merge with the close vertex reference
+  anno.df <- merge(vertex.relation.frame, anno.df, by = "cell")
+  
+  # Set Columns
+  colnames(anno.df) <- c("cell", "node", "anno", "pTime", "x", "y")
+  
+  # Remove frame
+  pTime.frame <- vertex.relation.frame <- dims <- NULL
+  
+  # Extract the graph and MST
+  assert_that(!is.null(cdsObj@principal_graph@listData[[toupper(redDim)]]),
+              msg = paste("Principal Graph not found in cdsObj")
+  )
+  assert_that(!is.null(cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$dp_mst),
+              msg = paste("MST not found in the cdsObj")
+  )
+  
+  # Extract
+  pgraph.coords <- as.data.frame(t(cdsObj@principal_graph_aux@listData[[toupper(redDim)]][["dp_mst"]]))
+  pgraph.coords[["node"]] <- rownames(pgraph.coords)
+  names(pgraph.coords) <- c("x", "y", "node")
   pgraph <- cdsObj@principal_graph@listData[[toupper(redDim)]]
-
+  
   # Get edge Data
   edges_df <- get.data.frame(pgraph, what = "edges")
-
-  # Extract Cell
-  anno.df <- data.frame(
-    cell = rownames(cdsObj@colData),
-    anno = cdsObj@colData[[annotation]]
-  )
-
-  # Attach dim
-  anno.df <- cbind(dims, anno.df)
-  colnames(anno.df) <- c("x", "y", "cell", "anno")
-
-  # Extract UMAP cordinates
-  pgraph.coords <- cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$dp_mst
-
-  # Get the x-y
-  coords_df <- as.data.frame(t(pgraph.coords))
-  coords_df$node <- rownames(coords_df)
-  names(coords_df) <- c("x", "y", "node") # Rename columns for clarity
-
-  # Join the coordinates to the edges data frame
-  edges_df <- merge(edges_df, coords_df, by.x = "from", by.y = "node")
+  
+  # Merge with Edges
+  edges_df <- merge(edges_df, pgraph.coords, by.x = "from", by.y = "node")
   colnames(edges_df) <- c("from", "to", "weight", "x_from", "y_from")
-  edges_df <- merge(edges_df, coords_df, by.x = "to", by.y = "node")
-  colnames(edges_df) <- c("from", "to", "weight", "x_from", "y_from", "x_to", "y_to")
-
-  ui <- fluidPage( # useShinyalert(),
-    titlePanel("scMaSigPro-Monocle3"),
+  trajectory.df <- merge(edges_df, pgraph.coords, by.x = "to", by.y = "node")
+  colnames(trajectory.df) <- c("from", "to", "weight", "x_from", "y_from", "x_to", "y_to")
+  View(trajectory.df)
+  View(anno.df)
+  
+  stop("Expected Stop")
+  
+  ui <- fluidPage(
+    titlePanel("scMaSigPro"),
     sidebarLayout(
       sidebarPanel(
-        h3("Interactively Select Branching Paths"),
-        h5("Procedure: First select the points on in the plot and then use the following buttons to set labels. Please make sure to follow steps as directed."),
+        h3("Interactively Select Branching Paths from a Monocle3 Dataset"),
+        h5("Procedure: Start by selecting points on the plot, and then use the following buttons to set labels. Please ensure that you follow the steps as instructed."),
         HTML("<hr>"),
         h4("Step-1: Identify a root node."),
         actionButton("rootNode", "Set as Root Node"),
