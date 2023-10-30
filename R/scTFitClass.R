@@ -2,7 +2,7 @@
 #'
 #' @description A class for fitting a model.
 #'
-#' @slot sol A data frame for summary results of the stepwise regression. 
+#' @slot sol A data frame for summary results of the stepwise regression.
 #' For each selected gene the following values are given:
 #'   \itemize{
 #'     \item{p-value}{of the regression ANOVA.}

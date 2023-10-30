@@ -17,26 +17,26 @@
 #' }
 #' @export
 showGroupCoeff <- function(scmpObj, view = TRUE, return = FALSE) {
-    # Check Object Validity
-    assert_that(is(scmpObj, "scMaSigProClass"),
-                msg = "Please provide object of class 'scMaSigPro'"
-    )
-    
-    # Check if the sol exist
-    assert_that(!all(dim(scmpObj@scTFit@group.coeffs) == c(0, 0)),
-                msg = "group.coeffs is not computed yet"
-    )
-    
-    # Extract
-    grpCoeff <- scmpObj@scTFit@group.coeffs %>% as.data.frame()
-    
-    # If viewing is requested
-    if (view) {
-        View(grpCoeff)
-    }
-    
-    # If requested
-    if (return) {
-        return(grpCoeff)
-    }
+  # Check Object Validity
+  assert_that(is(scmpObj, "scMaSigProClass"),
+    msg = "Please provide object of class 'scMaSigPro'"
+  )
+
+  # Check if the sol exist
+  assert_that(!all(dim(scmpObj@scTFit@group.coeffs) == c(0, 0)),
+    msg = "group.coeffs is not computed yet"
+  )
+
+  # Extract
+  grpCoeff <- scmpObj@scTFit@group.coeffs %>% as.data.frame()
+
+  # If viewing is requested
+  if (view) {
+    View(grpCoeff)
+  }
+
+  # If requested
+  if (return) {
+    return(grpCoeff)
+  }
 }

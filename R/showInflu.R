@@ -17,26 +17,26 @@
 #' }
 #' @export
 showInflu <- function(scmpObj, view = TRUE, return = FALSE) {
-    # Check Object Validity
-    assert_that(is(scmpObj, "scMaSigProClass"),
-                msg = "Please provide object of class 'scMaSigPro'"
-    )
-    
-    # Check if the sol exist
-    assert_that(!all(dim(scmpObj@scTFit@influ.info) == c(0, 0)),
-                msg = "tscore is not computed yet"
-    )
-    
-    # Extract
-    influ <- scmpObj@scTFit@influ.info
-    
-    # If viewing is requested
-    if (view) {
-        View(influ)
-    }
-    
-    # If requested
-    if (return) {
-        return(influ)
-    }
+  # Check Object Validity
+  assert_that(is(scmpObj, "scMaSigProClass"),
+    msg = "Please provide object of class 'scMaSigPro'"
+  )
+
+  # Check if the sol exist
+  assert_that(!all(dim(scmpObj@scTFit@influ.info) == c(0, 0)),
+    msg = "tscore is not computed yet"
+  )
+
+  # Extract
+  influ <- scmpObj@scTFit@influ.info
+
+  # If viewing is requested
+  if (view) {
+    View(influ)
+  }
+
+  # If requested
+  if (return) {
+    return(influ)
+  }
 }

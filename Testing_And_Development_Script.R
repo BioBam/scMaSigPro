@@ -63,7 +63,7 @@ suppressPackageStartupMessages(library(assertthat))
 suppressPackageStartupMessages(library(SingleCellExperiment))
 
 # Step-2: Select the Paths
-selectPath(obj = cds, annotation = "predicted.celltype.l2")
+selectPath.m3(cdsObj = cds, annotation = "predicted.celltype.l2")
 
 
 # Create SCMP Object

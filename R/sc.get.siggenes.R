@@ -57,34 +57,35 @@ sc.get.siggenes <- function(scmpObj, rsq = 0.7,
   )
 
   # Create a named tstep
-    tstep <- list(
-        dis = scmpObj@edesign@dis,
-        edesign = scmpObj@edesign@edesign,
-        groups.vector = scmpObj@scTFit@groups.vector,
-        sol =  showSol(scmpObj, return = T, view = F),
-        coefficients = showCoeff(scmpObj, return = T, view = F),
-        sig.profiles = showSigProf(scmpObj, return = T, view = F),
-        group.coeffs = scmpObj@scTFit@group.coeffs
-    )
-    
-    
-    sig.genes.s3 <- get.siggenes(tstep, rsq = rsq, add.IDs = FALSE, IDs = NULL, matchID.col = 1,
-                 only.names = FALSE, vars = vars,
-                 significant.intercept = significant.intercept,
-                 groups.vector = NULL, trat.repl.spots = "none",
-                 r = 0.7)
-    
-# Call the maSigPro get sig
-    # Create Object
-    siggenes.object <- new("sigClass",
-      summary = sig.genes.s3$summary,
-      sig.genes = sig.genes.s3$sig.genes
-    )
+  tstep <- list(
+    dis = scmpObj@edesign@dis,
+    edesign = scmpObj@edesign@edesign,
+    groups.vector = scmpObj@scTFit@groups.vector,
+    sol = showSol(scmpObj, return = T, view = F),
+    coefficients = showCoeff(scmpObj, return = T, view = F),
+    sig.profiles = showSigProf(scmpObj, return = T, view = F),
+    group.coeffs = scmpObj@scTFit@group.coeffs
+  )
 
-    # Update the slot
-    scmpObj@sig.genes <- siggenes.object
 
-    # Return
-    return(scmpObj)
+  sig.genes.s3 <- get.siggenes(tstep,
+    rsq = rsq, add.IDs = FALSE, IDs = NULL, matchID.col = 1,
+    only.names = FALSE, vars = vars,
+    significant.intercept = significant.intercept,
+    groups.vector = NULL, trat.repl.spots = "none",
+    r = 0.7
+  )
 
+  # Call the maSigPro get sig
+  # Create Object
+  siggenes.object <- new("sigClass",
+    summary = sig.genes.s3$summary,
+    sig.genes = sig.genes.s3$sig.genes
+  )
+
+  # Update the slot
+  scmpObj@sig.genes <- siggenes.object
+
+  # Return
+  return(scmpObj)
 }

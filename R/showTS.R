@@ -17,26 +17,26 @@
 #' }
 #' @export
 showTS <- function(scmpObj, view = TRUE, return = FALSE) {
-    # Check Object Validity
-    assert_that(is(scmpObj, "scMaSigProClass"),
-                msg = "Please provide object of class 'scMaSigPro'"
-    )
-    
-    # Check if the sol exist
-    assert_that(!all(dim(scmpObj@scTFit@t.score) == c(0, 0)),
-                msg = "tscore is not computed yet"
-    )
-    
-    # Extract
-    tscore <- scmpObj@scTFit@t.score
-    
-    # If viewing is requested
-    if (view) {
-        View(tscore)
-    }
-    
-    # If requested
-    if (return) {
-        return(tscore)
-    }
+  # Check Object Validity
+  assert_that(is(scmpObj, "scMaSigProClass"),
+    msg = "Please provide object of class 'scMaSigPro'"
+  )
+
+  # Check if the sol exist
+  assert_that(!all(dim(scmpObj@scTFit@t.score) == c(0, 0)),
+    msg = "tscore is not computed yet"
+  )
+
+  # Extract
+  tscore <- scmpObj@scTFit@t.score
+
+  # If viewing is requested
+  if (view) {
+    View(tscore)
+  }
+
+  # If requested
+  if (return) {
+    return(tscore)
+  }
 }

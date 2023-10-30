@@ -21,20 +21,20 @@
 
 
 setClass(
-    "sigClass",
-    representation(
-        summary = "ANY",
-        sig.genes = "list"
-    ),
-    validity = function(object) {
-        if (!is.list(object@sig.genes)) {
-            stop("sig.genes slot must be a list")
-        }
-    },
-    prototype = list(
-        summary = list(),
-        sig.genes = list()
-    )
+  "sigClass",
+  representation(
+    summary = "ANY",
+    sig.genes = "list"
+  ),
+  validity = function(object) {
+    if (!is.list(object@sig.genes)) {
+      stop("sig.genes slot must be a list")
+    }
+  },
+  prototype = list(
+    summary = list(),
+    sig.genes = list()
+  )
 )
 
 setClass(
@@ -79,10 +79,10 @@ setClass(
     if (!validObject(object@addParams)) {
       stop("addParams slot is not a valid addParamClass object.")
     }
-      # Check addParamClass slot
-      if (!validObject(object@addParams)) {
-          stop("'sig.genes' slot is not a valid addParamClass object.")
-      }
+    # Check addParamClass slot
+    if (!validObject(object@addParams)) {
+      stop("'sig.genes' slot is not a valid addParamClass object.")
+    }
   },
   prototype = list(
     scPVector = new("scPVectorClass"), # Assuming you've defined scPVectorClass with its prototype

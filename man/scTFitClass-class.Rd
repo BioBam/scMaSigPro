@@ -11,7 +11,7 @@ A class for fitting a model.
 \section{Slots}{
 
 \describe{
-\item{\code{sol}}{A data frame for summary results of the stepwise regression. 
+\item{\code{sol}}{A data frame for summary results of the stepwise regression.
 For each selected gene the following values are given:
   \itemize{
     \item{p-value}{of the regression ANOVA.}

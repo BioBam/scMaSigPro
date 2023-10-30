@@ -18,29 +18,29 @@
 #' @importFrom utils View
 #' @export
 showSigProf <- function(scmpObj, view = TRUE, return = FALSE) {
-    # Check Object Validity
-    assert_that(is(scmpObj, "scMaSigProClass"),
-                msg = "Please provide object of class 'scMaSigPro'"
-    )
-    
-    # Check if the sol exist
-    assert_that(!all(dim(scmpObj@scTFit@sol) == c(0, 0)),
-                msg = "Sol is not computed yet"
-    )
-    
-    # Extract
-    sol <- scmpObj@scTFit@sol %>% as.data.frame()
-    # Extract rownames
-    bulk.counts <- scmpObj@compress.sce@assays@data@listData$bulk.counts
-    bulk.counts <- bulk.counts[rownames(bulk.counts) %in% rownames(sol), , drop = F]
-    
-    # If viewing is requested
-    if (view) {
-        View(as.matrix(bulk.counts))
-    }
-    
-    # If requested
-    if (return) {
-        return(bulk.counts)
-    }
+  # Check Object Validity
+  assert_that(is(scmpObj, "scMaSigProClass"),
+    msg = "Please provide object of class 'scMaSigPro'"
+  )
+
+  # Check if the sol exist
+  assert_that(!all(dim(scmpObj@scTFit@sol) == c(0, 0)),
+    msg = "Sol is not computed yet"
+  )
+
+  # Extract
+  sol <- scmpObj@scTFit@sol %>% as.data.frame()
+  # Extract rownames
+  bulk.counts <- scmpObj@compress.sce@assays@data@listData$bulk.counts
+  bulk.counts <- bulk.counts[rownames(bulk.counts) %in% rownames(sol), , drop = F]
+
+  # If viewing is requested
+  if (view) {
+    View(as.matrix(bulk.counts))
+  }
+
+  # If requested
+  if (return) {
+    return(bulk.counts)
+  }
 }

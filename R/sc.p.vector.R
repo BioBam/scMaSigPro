@@ -65,7 +65,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   dis <- as.data.frame(scmpObj@edesign@dis)
   groups.vector <- scmpObj@edesign@groups.vector
   edesign <- scmpObj@edesign@edesign
-  
+
   # Convert 'scmpObj' to matrix and select relevant columns based on 'design' rows
   dat <- as.matrix(scmpObj@compress.sce@assays@data@listData$bulk.counts)
   dat <- dat[, as.character(rownames(dis))]
@@ -76,7 +76,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   dat <- dat[apply(dat, 1, count.na) >= min.obs, ]
 
   # Add check
-  #assert_that((dat@Dim[1] > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
+  # assert_that((dat@Dim[1] > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
   assert_that((nrow(dat) > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
 
   # if(verbose){
