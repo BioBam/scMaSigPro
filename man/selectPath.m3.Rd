@@ -2,15 +2,24 @@
 % Please edit documentation in R/sc.selectPath.R
 \name{selectPath.m3}
 \alias{selectPath.m3}
-\title{Select Paths for scMaSigPro}
+\title{Subset a CDS object interactively with Shiny}
 \usage{
-selectPath.m3(cdsObj, redDim = "umap", annotation = "cell.type")
+selectPath.m3(
+  cdsObj,
+  redDim = "umap",
+  annotation = "cell.type",
+  returnType = "scmpObj"
+)
 }
 \arguments{
 \item{cdsObj}{An cdsObject of class `scMaSigProClass`. This cdsObject will be checked
 to ensure it's the right type.}
 
+\item{redDim}{Dimension to use for the plot}
+
 \item{annotation}{A character vector indicating the paths to be selected.}
+
+\item{returnType}{'scmpObj' or subseted 'cds'}
 }
 \value{
 A `scMaSigProClass` object, subsetted based on the specified paths.

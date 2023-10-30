@@ -1,12 +1,14 @@
 Package: scMaSigPro
 Type: Package
-Title: Application fof MaSigPro Bioconductor Package for scRNA-Data
+Title: Application of MaSigPro Bioconductor Package for scRNA Trajectory data.
 Version: 1.0.2
 Author: Ana Conesa, Maria Jose Nueda and Priyansh Srivastava
 Maintainer: Priyansh Srivastava <spriyansh29@gmail.com>
-Description: maSigPro is a regression based approach to find genes for which
-    there are significant gene expression profile differences between
-    experimental groups in time course microarray and RNA-Seq experiments.
+Description: scMaSigPro is a polynomial regression-based approach inspired by
+    the MaSigPro Bioconductor package. It discretizes the expression of
+    individual cells along pseudotime while preserving the order of cells.
+    Subsequently, it applies the maSigPro model to identify genes exhibiting
+    significant expression profile differences among branching paths.
 License: MIT + file LICENSE
 Imports: maSigPro, ggplot2, SingleCellExperiment, methods, MASS, assertthat,
     entropy, parallel, dplyr, magrittr, stringr, stats, S4Vectors, e1071,
