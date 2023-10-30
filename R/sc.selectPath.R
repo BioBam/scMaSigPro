@@ -87,22 +87,31 @@ selectPath <- function(obj, redDim = "umap",
                     h4("Additional Information"),
                 ),
             
-                mainPanel( 
+                mainPanel(
                     fluidRow(
-                        fluidRow(
-                            column(6, h3("Monocle3-Prinicpal Graph"), plotlyOutput("trajectoryPlot")),
-                            column(6, h3("Annotation on UMAP"), plotlyOutput("annoPlot"))
-                            ),
-                        fluidRow(
-                            column(6,  sliderInput("trPlotCellSize", "Node Size:", min = 0.1, max = 3, value = 1)),
-                            column(6, sliderInput("annoPlotCellSize", "Cell Size:", min = 0.1, max = 3,value = 1))
-                            )
-                ),
-                fluidRow(
-                    column(6,uiOutput("m3PgrapSubPlotTitle"), plotlyOutput("subTrajectoryPlot")),
-                    column(6,uiOutput("m3AnnoSubPlotTitle"), plotlyOutput("subAnnoPlot"))
-                    ))
-                )
+                        column(6, h3("Monocle3-Prinicpal Graph"), plotlyOutput("trajectoryPlot")),
+                        column(6,uiOutput("m3PgrapSubPlotTitle"), plotlyOutput("subTrajectoryPlot"))
+                        ),
+                    fluidRow(
+                        column(3,  sliderInput("trPlotNodeSize", "Node Size", min = 0.1, max = 3, value = 1)),
+                        column(3, sliderInput("trPlotCellSize", "Cell Size", min = 0.1, max = 2,value = 1)),
+                        column(3, sliderInput("trPlotCellAlpha", "Cell Alpha", min = 0.1, max = 1,value = 0.5)),
+                        column(3, sliderInput("trPlotSegSize", "Trajectory Width", min = 0.1, max = 1,value = 0.5))
+                        ),
+                    fluidRow(
+                        column(3,  sliderInput("trPlotNodeText", "Node Text Size", min = 0.5, max = 3, value = 1)),
+                        column(3, sliderInput("trPlotCellStroke", "Cell Stroke", min = 0.1, max = 2,value = 0.7)),
+                        # column(3, selectInput("trPlotCellColor", "Cell Color",
+                        #                       choices = list("Viridis Magma (Psudotime Color)" = "magma",
+                        #                                      "Native R" = "nativeR",
+                        #                                      "Dark2 (8 Pallets)" = "Dark2",
+                        #                                      "Color Blind (Okabe Ito's)" = "okabe",
+                        #                                      "Set1 (11 Pallets)" = "Set11"),
+                        #                       selected = "nativeR")),
+                        #column(3, sliderInput("trPlotSegSize", "Trajectory Width", min = 0.1, max = 1,value = 0.5))
+                    )
+                    )
+            )
         ),
         
         # Server
@@ -115,25 +124,42 @@ selectPath <- function(obj, redDim = "umap",
             showSubTrPlot <- reactiveVal(FALSE)
             logs <- reactiveVal("")
             
+            # Set colors
+            # get_palette <- reactive({
+            #     if (input$trPlotCellColor == "magma") {
+            #         return("magma")
+            #     } else if (input$trPlotCellColor == "nativeR") {
+            #         return("nativeR")
+            #     } else if (input$trPlotCellColor == "Dark2") {
+            #         return("Dark2")
+            #     } else if (input$trPlotCellColor == "okabe") {
+            #         return("okabe")
+            #     } else if (input$trPlotCellColor == "Set1") {
+            #         return("set1")
+            #     }
+            # })
+            
             # Main Monocle3 Plot Rendering
             output$trajectoryPlot <- renderPlotly({
+                
+                #colOption <- get_palette()
+            
                 trajectory.map <- ggplot() +
-                    geom_segment(data = edges_df, aes(x = x_from, y = y_from, xend = x_to, yend = y_to), size = 0.5) +
-                    geom_point(data = coords_df, aes(x = x, y = y), size = input$trPlotCellSize, color = "black") +
-                    geom_text(data = coords_df, aes(x = x, y = y, label = node), vjust = 1.5, hjust = 0.5) +
+                    geom_point(data = anno.df, aes(x = x, y = y, color = anno), size = input$trPlotCellSize, alpha = input$trPlotCellAlpha,
+                               stroke = input$trPlotCellStroke)+
+                    geom_segment(data = edges_df, aes(x = x_from, y = y_from, xend = x_to, yend = y_to), size = input$trPlotSegSize) +
+                    geom_point(data = coords_df, aes(x = x, y = y), size = input$trPlotNodeSize, color = "black") +
+                    geom_text(data = coords_df, aes(x = x, y = y, label = node), vjust = 1.5, hjust = 0.5, size = input$trPlotNodeText) +
                     theme_minimal() + xlab("UMAP-1") + ylab("UMAP-2")
+                # 
+                # if(colOption == "nativeR"){
+                #     trajectory.map <- trajectory.map
+                # }else if(colOption == "magma"){
+                #     trajectory.map <- trajectory.map + scale_color_viridis(discrete = TRUE)
+                # }
                 
                 # return
                 ggplotly(trajectory.map, source = "trajectoryPlot") %>% layout(dragmode = "lasso")
-            })
-            
-            output$annoPlot <- renderPlotly({
-                anno.map <- ggplot() +
-                    geom_point(data = anno.df, aes(x = x, y = y, color = anno), size = input$annoPlotCellSize) +
-                    theme_minimal() + xlab("UMAP-1") + ylab("UMAP-2")
-                
-                # return
-                ggplotly(anno.map, source = "annoPlot")
             })
             
             # Set Root Node
@@ -141,6 +167,7 @@ selectPath <- function(obj, redDim = "umap",
                 
                 # Get Selected Data
                 lasso_data <- event_data("plotly_selected", source = "trajectoryPlot")
+                lasso_data <- lasso_data[lasso_data$curveNumber == max(lasso_data$curveNumber),,drop = F]
                 
                 # Get the selected point (Unique from layer-1)
                 pointNumber <- as.numeric(unique(lasso_data$pointNumber)) + 1
@@ -167,6 +194,7 @@ selectPath <- function(obj, redDim = "umap",
                 
                 # Get the lasso data
                 lasso_data <- event_data("plotly_selected", source = "trajectoryPlot")
+                lasso_data <- lasso_data[lasso_data$curveNumber == max(lasso_data$curveNumber),,drop = F]
                 
                 # Get the y nodes
                 pointNumber <- as.numeric(unique(lasso_data$pointNumber)) + 1
@@ -202,6 +230,7 @@ selectPath <- function(obj, redDim = "umap",
                 
                 # Get the lasso data
                 lasso_data <- event_data("plotly_selected", source = "trajectoryPlot")
+                lasso_data <- lasso_data[lasso_data$curveNumber == max(lasso_data$curveNumber),,drop = F]
                 
                 # Get the y nodes
                 pointNumber <- as.numeric(unique(lasso_data$pointNumber)) + 1
@@ -249,11 +278,6 @@ selectPath <- function(obj, redDim = "umap",
                     h3("Monocle3-Principal Graph-Subset")
                 }
             })
-            output$m3AnnoSubPlotTitle <- renderUI({
-                if (showSubTrPlot()) {
-                    h3("Monocle3-Annotations Subset")
-                }
-            })
             
             # Final Plot rendering
             output$subTrajectoryPlot <- renderPlotly({
@@ -267,46 +291,27 @@ selectPath <- function(obj, redDim = "umap",
                 filtered_df <- coords_df[coords_df$node %in% unique(c(path1, path2)), ]
                 filtered_edges <- edges_df[edges_df$from %in% unique(c(path1, path2)) & edges_df$to %in% unique(c(path1, path2)), ]
                 
-                # Plot subset
-                sub.trajectory.map <- ggplot() +
-                    geom_segment(data = filtered_edges, aes(x = x_from, y = y_from, xend = x_to, yend = y_to), size = 0.5) +
-                    geom_point(data = filtered_df, aes(x = x, y = y), size = 1.5, color = "black") +
-                    geom_text(data = filtered_df, aes(x = x, y = y, label = node), vjust = 1.5, hjust = 0.5) +
-                    theme_minimal() + xlab("UMAP-1") + ylab("UMAP-2")
-                
-                ggplotly(sub.trajectory.map)
-            })
-            
-            # Final Plot rendering
-            output$subAnnoPlot <- renderPlotly({
-                if (!showSubTrPlot()) return(NULL)
-                
-                # Assuming paths_selected has the paths
-                path1 <- path1()
-                path2 <- path2()
-                
                 # Get closest cells
                 close.frame <- data.frame(nodes = obj@principal_graph_aux@listData$UMAP$pr_graph_cell_proj_closest_vertex,
-                           cell = rownames(obj@principal_graph_aux@listData$UMAP$pr_graph_cell_proj_closest_vertex))
-                
+                                          cell = rownames(obj@principal_graph_aux@listData$UMAP$pr_graph_cell_proj_closest_vertex))
                 # Attach Y
                 close.frame$nodes <- paste("Y", close.frame$nodes, sep = "_")
-                
-                View(close.frame)
                 
                 # Subset
                 close.frame <- close.frame[close.frame$nodes %in% unique(c(path1, path2)), , drop =F]
                 
                 sub.anno.df <- anno.df[anno.df$cell %in% close.frame$cell, ]
                 
-                
-                View(sub.anno.df)
-                anno.map.sub <- ggplot() +
-                    geom_point(data = sub.anno.df, aes(x = x, y = y, color = anno), size = 1.5) +
+                # Plot subset
+                sub.trajectory.map <- ggplot() +
+                    geom_point(data = sub.anno.df, aes(x = x, y = y, color = anno), size = input$trPlotCellSize, alpha = input$trPlotCellAlpha,
+                               stroke = input$trPlotCellStroke)+
+                    geom_segment(data = filtered_edges, aes(x = x_from, y = y_from, xend = x_to, yend = y_to), size = input$trPlotSegSize) +
+                    geom_point(data = filtered_df, aes(x = x, y = y), size = input$trPlotNodeSize, size = 1.5, color = "black") +
+                    geom_text(data = filtered_df, aes(x = x, y = y, label = node), vjust = 1.5, hjust = 0.5, size = input$trPlotNodeText) +
                     theme_minimal() + xlab("UMAP-1") + ylab("UMAP-2")
                 
-                # return
-                ggplotly(anno.map.sub, source = "annoPlot")
+                ggplotly(sub.trajectory.map)
             })
             
             # Save button behavior
