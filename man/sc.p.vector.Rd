@@ -9,9 +9,7 @@ sc.p.vector(
   Q = 0.05,
   MT.adjust = "BH",
   min.obs = 6,
-  counts = FALSE,
-  family = NULL,
-  theta = 10,
+  family = MASS::negative.binomial(theta = 1),
   epsilon = 1e-05,
   verbose = TRUE,
   offset = T,
@@ -28,13 +26,9 @@ sc.p.vector(
 \item{min.obs}{genes with less than this number of true numerical values will be excluded from the analysis.
 Minimum value to estimate the model is (degree+1) x Groups + 1. Default is 6.}
 
-\item{counts}{a logical indicating whether your data are counts.}
-
 \item{family}{the distribution function to be used in the glm model.
 It must be specified as a function: \code{gaussian()}, \code{poisson()}, \code{negative.binomial(theta)}...
 If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = TRUE} or \code{gaussian()} when \code{counts = FALSE}.}
-
-\item{theta}{theta parameter for negative.binomial family.}
 
 \item{epsilon}{argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.}
 

@@ -14,38 +14,38 @@
 #'
 #'
 #' @export
-sc.plot.bins <- function(scmpObj, add_tile = T, bar.title = "Bin size across binned pseudotime",
-                         tile.title = "Bin size across paths along binned pseudotime") {
-  # Extract the compressed data
-  compression.info <- as.data.frame(colData(scmpObj@compress.sce))
-
-  conesa_colors <- getConesaColors()[c(T, F)][c(1:length(unique(compression.info[["path"]])))]
-  names(conesa_colors) <- unique(unique(compression.info[["path"]]))
-
-
-  bar <- ggplot(compression.info, aes(x = factor(binnedTime), y = bin.size)) +
-    geom_bar(stat = "identity", aes(fill = path), position = "dodge") +
-    geom_line(aes(group = path, color = path), position = position_dodge(0.9)) +
-    geom_point(aes(color = path), position = position_dodge(0.9)) +
-    ggtitle(bar.title) +
-    scale_fill_manual(values = conesa_colors) +
-    xlab("Binned Time") +
-    ylab("Bin Size") +
-    theme_minimal()
-
-  if (add_tile) {
-    tile <- ggplot(compression.info, aes(x = factor(binnedTime), y = path)) +
-      geom_tile(aes(fill = bin.size)) +
-      scale_fill_gradient(low = "#FDA3D1", high = "#FDC659") +
-      geom_text(aes(label = sprintf("%d", round(bin.size, 1))), vjust = 1) +
-      ggtitle(tile.title) +
-      xlab("Binned Time") +
-      ylab("Path") +
-      theme_minimal()
-
-
-    ggarrange(bar, tile, nrow = 2)
-  } else {
-    print(bar)
-  }
-}
+# sc.plot.bins <- function(scmpObj, add_tile = T, bar.title = "Bin size across binned pseudotime",
+#                          tile.title = "Bin size across paths along binned pseudotime") {
+#   # Extract the compressed data
+#   compression.info <- as.data.frame(colData(scmpObj@compress.sce))
+#
+#   conesa_colors <- getConesaColors()[c(T, F)][c(1:length(unique(compression.info[["path"]])))]
+#   names(conesa_colors) <- unique(unique(compression.info[["path"]]))
+#
+#
+#   bar <- ggplot(compression.info, aes(x = factor(binnedTime), y = bin.size)) +
+#     geom_bar(stat = "identity", aes(fill = path), position = "dodge") +
+#     geom_line(aes(group = path, color = path), position = position_dodge(0.9)) +
+#     geom_point(aes(color = path), position = position_dodge(0.9)) +
+#     ggtitle(bar.title) +
+#     scale_fill_manual(values = conesa_colors) +
+#     xlab("Binned Time") +
+#     ylab("Bin Size") +
+#     theme_minimal()
+#
+#   if (add_tile) {
+#     tile <- ggplot(compression.info, aes(x = factor(binnedTime), y = path)) +
+#       geom_tile(aes(fill = bin.size)) +
+#       scale_fill_gradient(low = "#FDA3D1", high = "#FDC659") +
+#       geom_text(aes(label = sprintf("%d", round(bin.size, 1))), vjust = 1) +
+#       ggtitle(tile.title) +
+#       xlab("Binned Time") +
+#       ylab("Path") +
+#       theme_minimal()
+#
+#
+#     ggarrange(bar, tile, nrow = 2)
+#   } else {
+#     print(bar)
+#   }
+# }

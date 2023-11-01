@@ -15,6 +15,7 @@
 #' @slot g Integer. Number of genes taken in the regression fit.
 #' @slot MT.adjust Pvalue correction
 #' @slot epsilon convergence tolerance
+#' @slot step.method A character specifying the imputed step method for stepwise regression.
 #'
 #' @name addParamClass
 #' @aliases addParamClass-class
@@ -31,6 +32,7 @@ setClass(
     root_label = "character",
     pseudotime_colname = "character",
     binning = "character",
+    step.method = "character",
     bin_method = "character",
     path_colname = "character",
     bin_colname = "character",
@@ -50,7 +52,7 @@ setClass(
       "bin_pseudotime_colname", "path_prefix", "root_label",
       "pseudotime_colname", "binning", "bin_method",
       "path_colname", "bin_colname", "bin_size_colname",
-      "bin_members_colname", "MT.adjust"
+      "bin_members_colname", "MT.adjust", "step.method"
     )
 
     for (slot_name in char_slots) {
@@ -105,6 +107,7 @@ setClass(
     bin_size_colname = "scmp_bin_size",
     bin_members_colname = "scmp_bin_members",
     MT.adjust = "BH",
+    step.method = "backward",
     epsilon = 0.00001
   )
 )

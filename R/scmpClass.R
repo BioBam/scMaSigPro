@@ -8,8 +8,9 @@
 #' @slot scTFit Object of Class scTFitClass. See \code{\link{scTFitClass}} for more details.
 #' @slot compress.sce ABC
 #' @slot edesign Object of Class edesignClass. See \code{\link{edesignClass}} for more details.
-#' @slot siggenes ABC
 #' @slot addParams Object of Class addParamClass. See \code{\link{addParamClass}} for more details.
+#' @slot sig.genes ABC
+#' @slot distribution The distribution function to be used in the glm model.
 #'
 #' @name scMaSigProClass
 #' @aliases scMaSigProClass-class
@@ -20,6 +21,23 @@
 
 
 setClass(
+  "sigClass",
+  representation(
+    summary = "ANY",
+    sig.genes = "list"
+  ),
+  validity = function(object) {
+    if (!is.list(object@sig.genes)) {
+      stop("sig.genes slot must be a list")
+    }
+  },
+  prototype = list(
+    summary = list(),
+    sig.genes = list()
+  )
+)
+
+setClass(
   "scMaSigProClass",
   representation(
     sce = "SingleCellExperiment",
@@ -27,8 +45,9 @@ setClass(
     scTFit = "scTFitClass",
     compress.sce = "SingleCellExperiment",
     edesign = "edesignClass",
-    siggenes = "sigClass",
-    addParams = "addParamClass"
+    addParams = "addParamClass",
+    sig.genes = "sigClass",
+    distribution = "ANY"
   ),
   validity = function(object) {
     # Check sce slot
@@ -56,21 +75,21 @@ setClass(
       stop("edesign slot is not a valid edesignClass object.")
     }
 
-    # Check sigClass slot
-    if (!validObject(object@siggenes)) {
-      stop("siggenes slot is not a valid sigClass object.")
-    }
-
     # Check addParamClass slot
     if (!validObject(object@addParams)) {
       stop("addParams slot is not a valid addParamClass object.")
+    }
+    # Check addParamClass slot
+    if (!validObject(object@addParams)) {
+      stop("'sig.genes' slot is not a valid addParamClass object.")
     }
   },
   prototype = list(
     scPVector = new("scPVectorClass"), # Assuming you've defined scPVectorClass with its prototype
     scTFit = new("scTFitClass"), # Assuming you've defined scTFitClass with its prototype
-    siggenes = new("sigClass"), # Assuming you've defined scTFitClass with its prototype
-    addParams = new("addParamClass") # Assuming you've defined scTFitClass with its prototype
+    addParams = new("addParamClass"), # Assuming you've defined scTFitClass with its prototype
+    sig.genes = new("sigClass"),
+    distribution = MASS::negative.binomial(theta = 1)
   )
 )
 
@@ -79,16 +98,18 @@ scMaSigProClass <- function(sce = new("SingleCellExperiment"), # Remove default 
                             scTFit = new("scTFitClass"),
                             compress.sce = new("SingleCellExperiment"),
                             edesign = new("edesignClass"),
-                            siggenes = new("sigClass"),
-                            addParams = new("addParamClass")) {
+                            addParams = new("addParamClass"),
+                            sig.genes = new("sigClass"),
+                            distribution = MASS::negative.binomial(theta = 1)) {
   new("scMaSigProClass",
     sce = sce,
     scPVector = scPVector,
     scTFit = scTFit,
     compress.sce = compress.sce,
     edesign = edesign,
-    siggenes = siggenes,
-    addParamClass = addParams
+    addParamClass = addParams,
+    sig.genes = new("sigClass"),
+    distribution = distribution
   )
 }
 

@@ -27,7 +27,6 @@
 #' @return Annotated CDS object with end-point/path information:
 #'
 #' @seealso
-#' \code{\link[monocle3]{principal_graph_aux}}, \code{\link[monocle3]{principal_graph}},
 #' \code{\link[igraph]{shortest_paths}}, `colData` from the \pkg{SingleCellExperiment} package
 #'
 #' @examples
@@ -44,7 +43,6 @@
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @importFrom monocle3 principal_graph principal_graph_aux pseudotime
 #' @importFrom igraph degree shortest_paths
 #' @importFrom SingleCellExperiment colData
 #' @importFrom magrittr %>%
@@ -62,13 +60,13 @@ annotate_monocle3_cds <- function(cds, reduction_method = "umap",
   reduction_method <- toupper(reduction_method)
 
   # Extract principal points and convert to a data frame
-  y_to_cells.df <- principal_graph_aux(cds)[[reduction_method]][["pr_graph_cell_proj_closest_vertex"]] %>%
+  y_to_cells.df <- cds@principal_graph_aux@listData[[reduction_method]][["pr_graph_cell_proj_closest_vertex"]] %>%
     as.data.frame()
 
   # Add a new column 'barcode' with the row names and a new column 'Y' with V1 values prefixed with 'Y_'
   y_to_cells <- y_to_cells.df %>%
     mutate(barcode = rownames(y_to_cells.df), Y = paste0("Y_", y_to_cells.df$V1)) %>%
-    select(-V1)
+    select(-.data$V1)
 
   # Extract the root cells
   root <- cds@principal_graph_aux[[reduction_method]][["root_pr_nodes"]]
@@ -113,7 +111,7 @@ annotate_monocle3_cds <- function(cds, reduction_method = "umap",
   rownames(cellWeights) <- colnames(cds)
 
   # Get pseudotime for each path
-  pseudotime.path.frame <- matrix(pseudotime(cds),
+  pseudotime.path.frame <- matrix(cds@principal_graph_aux@listData[[reduction_method]][["pseudotime"]],
     ncol = ncol(cellWeights),
     nrow = ncol(cds), byrow = FALSE
   )

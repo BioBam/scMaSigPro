@@ -13,6 +13,7 @@
 #' # Assuming 'scmp_object' is a pre-processed SCMP object with the relevant slots filled
 #' sc.path.intersection(scmp_object)
 #' }
+#' @importFrom UpSetR fromList upset
 #'
 sc.path.intersection <- function(scmpObj) {
   # Extract the list of significant genes for each pathway

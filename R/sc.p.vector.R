@@ -8,11 +8,9 @@
 #' @param MT.adjust argument to pass to \code{p.adjust} function indicating the method for multiple testing adjustment of p.value.
 #' @param min.obs genes with less than this number of true numerical values will be excluded from the analysis.
 #'   Minimum value to estimate the model is (degree+1) x Groups + 1. Default is 6.
-#' @param counts a logical indicating whether your data are counts.
 #' @param family the distribution function to be used in the glm model.
 #'   It must be specified as a function: \code{gaussian()}, \code{poisson()}, \code{negative.binomial(theta)}...
 #'   If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = TRUE} or \code{gaussian()} when \code{counts = FALSE}.
-#' @param theta theta parameter for negative.binomial family.
 #' @param epsilon argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.
 #' @param verbose Name of the analyzed item to show on the screen while \code{T.fit} is in process.
 #' @param offset Whether ro use offset for normalization
@@ -56,7 +54,7 @@
 #' @export
 #'
 sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
-                        counts = FALSE, family = NULL, theta = 10, epsilon = 0.00001,
+                        family = MASS::negative.binomial(theta = 1), epsilon = 0.00001,
                         verbose = TRUE, offset = T, parallel = F) {
   # Check the type of the 'design' parameter and set the corresponding variables
   assert_that(is(scmpObj, "scMaSigProClass"),
@@ -68,18 +66,8 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   groups.vector <- scmpObj@edesign@groups.vector
   edesign <- scmpObj@edesign@edesign
 
-  # If 'family' is NULL, determine the distribution function based on 'counts' parameter
-  if (is.null(family)) {
-    if (!counts) {
-      family <- gaussian()
-    }
-    if (counts) {
-      family <- negative.binomial(theta)
-    }
-  }
-
   # Convert 'scmpObj' to matrix and select relevant columns based on 'design' rows
-  dat <- scmpObj@compress.sce@assays@data@listData$bulk.counts
+  dat <- as.matrix(scmpObj@compress.sce@assays@data@listData$bulk.counts)
   dat <- dat[, as.character(rownames(dis))]
   G <- nrow(dat)
 
@@ -88,7 +76,8 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   dat <- dat[apply(dat, 1, count.na) >= min.obs, ]
 
   # Add check
-  assert_that((dat@Dim[1] > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
+  # assert_that((dat@Dim[1] > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
+  assert_that((nrow(dat) > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
 
   # if(verbose){
   #     message(paste("'min.obs' is set at", min.obs))
@@ -116,7 +105,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
 
   # Calculate  offset
   if (offset) {
-    dat@x <- dat@x + 1
+    dat <- dat + 1
     offsetData <- log(scmp_estimateSizeFactorsForMatrix(dat))
     if (verbose) {
       message("Using DESeq2::estimateSizeFactorsForMatrix")
@@ -198,8 +187,8 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
 
     # Add Data to the class
     scPVector.obj <- new("scPVectorClass",
-      SELEC = SELEC,
-      sc.p.vector = sc.p.vector,
+      SELEC = as(SELEC, "dgCMatrix"),
+      p.vector = sc.p.vector,
       p.adjusted = p.adjusted,
       FDR = FDR,
       dis = dis,
@@ -216,6 +205,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     scmpObj@addParams@g <- g
     scmpObj@addParams@MT.adjust <- MT.adjust
     scmpObj@addParams@epsilon <- epsilon
+    scmpObj@distribution <- family
 
     return(scmpObj)
   }

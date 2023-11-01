@@ -75,9 +75,9 @@ sc.make.design.matrix <- function(scmpObject,
 
   # Create Object
   edesignObj <- new("edesignClass",
-    dis = edesignList$dis,
+    dis = as.matrix(edesignList$dis),
     groups.vector = edesignList$groups.vector,
-    edesign = edesignList$edesign,
+    edesign = as.matrix(edesignList$edesign),
     poly_degree = as.integer(poly_degree)
   )
 

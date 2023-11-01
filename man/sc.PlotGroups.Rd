@@ -7,30 +7,9 @@
 sc.PlotGroups(
   scmpObj,
   feature_id,
-  edesign = NULL,
-  time = edesign[, 1],
-  groups = edesign[, c(3:ncol(edesign))],
-  repvect = edesign[, 2],
-  dis = NULL,
-  step.method = "backward",
-  min.obs = 2,
-  alfa = 0.05,
-  nvar.correction = FALSE,
-  summary.mode = "median",
-  groups.vector = NULL,
-  main = NULL,
-  sub = NULL,
   xlab = "Pooled Pseudotime",
   ylab = "Pseudobulk Expression",
-  item = NULL,
-  ylim = NULL,
-  pch = 21,
-  col = NULL,
-  legend = TRUE,
-  cex.legend = 1,
-  show.umap = T,
-  lty.legend = NULL,
-  plot.bins = FALSE
+  smoothness = 0.01
 )
 }
 \arguments{
@@ -38,51 +17,11 @@ sc.PlotGroups(
 
 \item{feature_id}{A vector of maximum length 6 or a single feature of ID}
 
-\item{edesign}{Experimental design matrix.}
-
-\item{time}{Vector indicating time points.}
-
-\item{groups}{A matrix representing the groups.}
-
-\item{repvect}{Repetition vector.}
-
-\item{dis}{Distance matrix.}
-
-\item{step.method}{Method for backward elimination. Default is "backward".}
-
-\item{min.obs}{Minimum number of observations. Default is 2.}
-
-\item{alfa}{Significance level for statistical tests. Default is 0.05.}
-
-\item{nvar.correction}{Logical, should variance correction be applied? Default is FALSE.}
-
-\item{summary.mode}{Mode of summary. Either "representative" or "median". Default is "median".}
-
-\item{groups.vector}{Additional group vectors.}
-
-\item{sub}{Subtitle of the plot.}
-
 \item{xlab}{X-axis label. Default is "Pooled Pseudotime".}
 
 \item{ylab}{Y-axis label. Default is "Pseudobulk Expression".}
 
-\item{item}{Optional items to be included.}
-
-\item{ylim}{Y-axis limits.}
-
-\item{pch}{Plotting symbol to be used.}
-
-\item{col}{Colors for plot elements.}
-
-\item{legend}{Logical, should legend be displayed? Default is TRUE.}
-
-\item{cex.legend}{Size of legend text. Default is 1.}
-
-\item{lty.legend}{Line type for the legend.}
-
-\item{plot.bins}{Additionally Plot bins}
-
-\item{...}{Additional plotting parameters.}
+\item{smoothness}{abc}
 }
 \value{
 Generates a plot.

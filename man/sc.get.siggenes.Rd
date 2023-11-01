@@ -7,17 +7,8 @@
 sc.get.siggenes(
   scmpObj,
   rsq = 0.7,
-  add.IDs = FALSE,
-  IDs = NULL,
-  matchID.col = 1,
-  only.names = FALSE,
   vars = c("all", "each", "groups"),
-  significant.intercept = "dummy",
-  groups.vector = NULL,
-  trat.repl.spots = "none",
-  index = IDs[, (matchID.col + 1)],
-  match = IDs[, matchID.col],
-  r = 0.7
+  significant.intercept = "dummy"
 )
 }
 \arguments{
@@ -27,17 +18,6 @@ sc.get.siggenes(
 \item{rsq}{Cut-off level at the R-squared value for the stepwise regression fit.
 Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).}
 
-\item{add.IDs}{Logical indicating whether to include additional gene id's in
-the result. (Default = FALSE)}
-
-\item{IDs}{Matrix containing additional gene id information (required when \code{add.IDs = TRUE}).}
-
-\item{matchID.col}{Number of the matching column in the matrix \code{IDs} for
-adding gene ids. (Default = 1)}
-
-\item{only.names}{Logical. If \code{TRUE}, expression values are omitted in
-the results. (Default = FALSE)}
-
 \item{vars}{Variables for which to extract significant genes. There are 3 possible values:
 \itemize{
   \item \code{"all"}: generates one single matrix or gene list with all significant genes.
@@ -46,16 +26,6 @@ the results. (Default = FALSE)}
 }}
 
 \item{significant.intercept}{Experimental groups for which significant intercept coefficients are considered.}
-
-\item{groups.vector}{Required when \code{vars = "groups"}.}
-
-\item{trat.repl.spots}{Treatment given to replicate spots. Possible values are \code{"none"} and \code{"average"}.}
-
-\item{index}{Argument of the \code{\link{average.rows}} function to use when \code{trat.repl.spots = "average"}.}
-
-\item{match}{Argument of the \code{\link{average.rows}} function to use when \code{trat.repl.spots = "average"}.}
-
-\item{r}{Minimum Pearson correlation coefficient for replicated spots profiles to be averaged. (Default = 0.7).}
 }
 \value{
 A list with two elements:

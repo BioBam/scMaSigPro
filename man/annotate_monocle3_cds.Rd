@@ -62,7 +62,6 @@ result <- annotate_monocle3_cds(cds,
 
 }
 \seealso{
-\code{\link[monocle3]{principal_graph_aux}}, \code{\link[monocle3]{principal_graph}},
 \code{\link[igraph]{shortest_paths}}, `colData` from the \pkg{SingleCellExperiment} package
 }
 \author{

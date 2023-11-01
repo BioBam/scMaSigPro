@@ -16,7 +16,7 @@ microarray experiments and identifying significant differential expression profi
 \describe{
 \item{\code{SELEC}}{dgCMatrix containing the expression values for significant genes.}
 
-\item{\code{sc.p.vector}}{Numeric vector containing the computed p-values.}
+\item{\code{p.vector}}{Numeric vector containing the computed p-values.}
 
 \item{\code{p.adjusted}}{Numeric vector of FDR-adjusted p-values.}
 

@@ -42,9 +42,6 @@ rows. The median (or, if requested, another location estimator) of these
 ratios (skipping the genes with a geometric mean of zero) is used as the size
 factor for this column.
 }
-\seealso{
-\code{\link{estimateSizeFactors}}
-}
 \author{
 Simon Anders
 Please cite as
