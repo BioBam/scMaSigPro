@@ -12,8 +12,7 @@ library(ggplot2)
 data("Sim2Path", package = "scMaSigPro")
 
 # Step-2: Convert to ScMaSigpro Object
-scmp <- as_scmp(object = sim.sce,
-                from = "sce", 
+scmp <- as_scmp(object = sim.sce, from = "sce",
                 additional_params = list(labels_exist = TRUE,
                                          existing_pseudotime_colname = "Step",
                                          existing_path_colname = "Group")
@@ -65,24 +64,8 @@ suppressPackageStartupMessages(library(SingleCellExperiment))
 # Step-2: Select the Paths
 scmp.cds  <- selectPath.m3(cdsObj = cds, annotation = "predicted.celltype.l2")
 
-
-
-
-subsetter <- unique(unlist(cds.test, use.names = F))
-
-close_nodes <- as.data.frame(cds@principal_graph_aux@listData$UMAP$pr_graph_cell_proj_closest_vertex)
-close_nodes <- close_nodes[close_nodes$V1 %in% str_remove(subsetter, "Y_"), ,drop = F]
-cds.sub <- cds[, rownames(close_nodes)] 
-
 # Create SCMP Object
-scmp.cds.sub <-  as_scmp(cds.sub, "cds")
-
-# Select the Path
-scmp.cds <- selectPath(scmp.cds.sub,
-           sel.path = c("Y_3", "Y_34"),
-           pathCol = "Path",balance_paths = T, 
-           pTimeCol = "Pseudotime", 
-           plot_paths = T, verbose = T)
+test <-  as_scmp(cds, "cds")
 
 scmp.cds <- entropy_discretize(scmp.cds,drop.fac = 0.4,
                            verbose = T,
@@ -103,82 +86,9 @@ scmp.cds <- sc.p.vector(scmp.cds, parallel = T)
 scmp.cds <- sc.T.fit(scmpObj = scmp.cds,
                      parallel = T)
 
-## Test Reproducibility with MaSigPro
+# Step-7: Get significant genes
+scmp.cds <- sc.get.siggenes(scmpObj = scmp.cds, vars = "groups")
 
-# Load
-library(maSigPro)
-library(scMaSigPro)
-
-# Load data
-data("data.abiotic")
-data("edesign.abiotic")
-
-# MaSigPro: Make Design Matrix
-design <- make.design.matrix(edesign = edesign.abiotic, degree = 4)
-
-# Convert Design
-add_col <- function(x){
-    return(names(x[x==1]))
-}
-edesign.abiotic.in <- as.data.frame(edesign.abiotic[, 1, drop = F])
-Group <- c(unlist(apply(edesign.abiotic[, c(3:6)], 1, add_col, simplify = F), use.names = F))
-edesign.abiotic.in$Group <- Group
-
-# Create Design with scMaSigPro
-test.scmp <- create_scmpObj(counts = data.abiotic,
-            cell_data = edesign.abiotic.in,
-            pseudotime_colname = "Time",
-            path_colname = "Group",
-            use_as_bin = T)
-
-# Make Design
-test.scmp <- sc.make.design.matrix(test.scmp,poly_degree = 4)
-
-# Set -Pvector
-gc <- capture.output(
-    fit <- p.vector(data.abiotic, design, Q = 0.05, MT.adjust = "BH", min.obs = 20)
-    )
-gc <- NULL
-
-test.scmp <- sc.p.vector(test.scmp,
-                         min.obs = 20,
-                         offset = F,
-                         parallel = T,
-                         family = gaussian())
-
-# T step
-gc <- capture.output(
-    tstep <- T.fit(fit, step.method = "backward", alfa = 0.05)
-)
-gc <- NULL
-
-test.scmp <- sc.T.fit(test.scmp,
-                         parallel = T, verbose = F, offset = F)
-
-
-
-
-# Sig Genes
-sigs <- get.siggenes(tstep, rsq = 0.6, vars = "groups")
-
-# Sc sig genes
-test.scmp <- sc.get.siggenes(test.scmp, rsq = 0.6, vars = "groups")
-
-# See Genes
-see.genes(sigs$sig.genes$ColdvsControl, show.fit = T, dis =design$dis,
-          cluster.method="hclust" ,cluster.data = 1, k = 9, )
-
-STMDE66 <- data.abiotic[rownames(data.abiotic)=="STMDE66", ]
-PlotGroups (STMDE66, edesign = edesign.abiotic)
-
-PlotGroups (STMDE66, edesign = edesign.abiotic, show.fit = T,
-            dis = design$dis, groups.vector = design$groups.vector)
-
-PlotProfiles(data = data.abiotic
-             )
-
-atestthat::expect_equal(expected = sigs$summary,
-                       object = test.scmp@sig.genes@summary)
-
-testthat::expect_equal(expected = sigs$sig.genes,
-                       object = test.scmp@sig.genes@sig.genes)
+# Step-8: Plot
+sc.PlotGroups(scmpObj = scmp.cds,
+              feature_id = "IRF8")

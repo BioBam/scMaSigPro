@@ -49,7 +49,7 @@
 #' @seealso \code{\link{calc_bin_size}}
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#' 
+#'
 #' @importFrom rlang :=
 #'
 #' @export

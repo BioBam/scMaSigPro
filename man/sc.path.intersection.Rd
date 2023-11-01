@@ -22,5 +22,4 @@ significant genes for each pathway, and performs an UpSet plot to visualize thei
 # Assuming 'scmp_object' is a pre-processed SCMP object with the relevant slots filled
 sc.path.intersection(scmp_object)
 }
-
 }
