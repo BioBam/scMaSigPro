@@ -3,21 +3,18 @@
 #' @param cdsObj An cdsObject of class `scMaSigProClass`. This cdsObject will be checked
 #'   to ensure it's the right type.
 #' @param redDim Dimension to use for the plot
-#' @param annotation_col A character vector indicating the paths to be selected.
-#' @param pseudotime_col Name of the column with Pseudotime
-#' @param path_col Name of the column with Path
+#' @param annotation A character vector indicating the paths to be selected.
+#' @param returnType 'scmpObj' or subseted 'cds'
 #'
 #' @return A `scMaSigProClass` object, subsetted based on the specified paths.
 #'
 #' @importFrom igraph get.data.frame
-#' 
+#'
 #' @export
 #'
-#'
 selectPath.m3 <- function(cdsObj, redDim = "umap",
-                          annotation_col = "cell.type",
-                          pseudotime_col = "Pseudotime",
-                          path_col = "Path") {
+                          annotation = "cell.type",
+                          returnType = "scmpObj") {
   # Validate is supplied opject is a valid
   assert_that(class(cdsObj)[1] == "cell_data_set",
     msg = "Please supply a valid monocle3 cdsObject"
@@ -43,9 +40,9 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     msg = paste("Cell Barcodes do not among", redDim, "and counts")
   )
 
-  # Check if supplied annotation_col exist in the cdsObj
-  assert_that(annotation_col %in% names(cdsObj@colData),
-    msg = paste(annotation_col, "does not exist in the cell.level metadata")
+  # Check if supplied annotation exist in the cdsObj
+  assert_that(annotation %in% names(cdsObj@colData),
+    msg = paste(annotation, "does not exist in the cell.level metadata")
   )
 
   # Extract the vertex cell relationships
@@ -60,8 +57,8 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
 
   # Create Pseudotime frame
   pTime.frame <- data.frame(
-      Pseudotime = cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$pseudotime,
-      cell = names(cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$pseudotime)
+    pTime = cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$pseudotime,
+    cell = names(cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$pseudotime)
   )
 
   # Create close vertex frames
@@ -70,15 +67,15 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     cell = names(cdsObj@principal_graph_aux[[toupper(redDim)]]$pr_graph_cell_proj_closest_vertex[, 1])
   )
 
-  # Create annotation_col df
+  # Create Annotation df
   anno.df <- data.frame(
     cell = rownames(cdsObj@colData),
-    anno = cdsObj@colData[[annotation_col]]
+    anno = cdsObj@colData[[annotation]]
   )
 
   # Check before merge
   assert_that(all(anno.df[["cell"]] == dims[["cell"]]),
-    msg = paste("Cells in lower dimensions does not match with cells for which annotation_col is supplied")
+    msg = paste("Cells in lower dimensions does not match with cells for which annotation is supplied")
   )
 
   # Merge Anno.df with pseudotime
@@ -91,7 +88,7 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
   anno.df <- merge(vertex.relation.frame, anno.df, by = "cell")
 
   # Set Columns
-  colnames(anno.df) <- c("cell", "node", "anno", pseudotime_col, "x", "y")
+  colnames(anno.df) <- c("cell", "node", "anno", "pTime", "x", "y")
 
   # Remove frame
   pTime.frame <- dims <- NULL
@@ -120,17 +117,16 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
   colnames(trajectory.df) <- c("from", "to", "weight", "x_from", "y_from", "x_to", "y_to")
 
   # Run Shiny
-  # selection.list <- list(
-  #   root = "Y_41",
-  #   path1 = c("Y_11", "Y_14", "Y_23", "Y_35", "Y_41"),
-  #   path2 = c("Y_11", "Y_13", "Y_14", "Y_39", "Y_41")
-  # )
-  selection.list <- shinySelect(trajectory_data = trajectory.df,
-          annotation_data = anno.df,
-          label_coords = pgraph.coords,
-          inputType = "Monocle3",
-          pseudotime_col = pseudotime_col)
-
+  selection.list <- list(
+    root = "Y_41",
+    path1 = c("Y_11", "Y_14", "Y_23", "Y_35", "Y_41"),
+    path2 = c("Y_11", "Y_13", "Y_14", "Y_39", "Y_41")
+  )
+  # shinySelect(trajectory_data = trajectory.df,
+  #         annotation_data = anno.df,
+  #         label_coords = pgraph.coords,
+  #         inputType = "Monocle3")
+  #
 
   if (is.null(selection.list)) {
     warning("Nothing Returned")
@@ -149,8 +145,9 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     # Subset the cell-meta
     cell.metadata.sub <- cell.metadata[rownames(cell.metadata) %in% vertex.relation.frame.sub$cell, , drop = F]
 
-    # Add annotation_col in the frame
-    #cell.metadata.sub[[path_col]] <- NA
+    # Add Annotation in the frame
+    cell.metadata.sub$path <- NA
+
 
     # Extract nodes
     path1_nodes <- selection.list$path1
@@ -164,19 +161,17 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     # Generate subset vectors
     path1_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% path1_nodes, , drop = F]
     path2_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% path2_nodes, , drop = F]
-    #root_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% root_nodes, , drop = F]
+    root_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% root_nodes, , drop = F]
 
     # Add Root
-    cell.metadata.sub[rownames(cell.metadata.sub) %in% path1_cells$cell, path_col] <- "Path1"
-    cell.metadata.sub[rownames(cell.metadata.sub) %in% path2_cells$cell, path_col] <- "Path2"
-    
-    cell.metadata.sub <- cell.metadata.sub[!is.na(cell.metadata.sub[[path_col]]), , drop = F]
-    #cell.metadata.sub[rownames(cell.metadata.sub) %in% root_cells$cell, path_col] <- "Root"
+    cell.metadata.sub[rownames(cell.metadata.sub) %in% path1_cells$cell, "path"] <- "Path1"
+    cell.metadata.sub[rownames(cell.metadata.sub) %in% path2_cells$cell, "path"] <- "Path2"
+    cell.metadata.sub[rownames(cell.metadata.sub) %in% root_cells$cell, "path"] <- "Root"
 
     # Attach Pseudotime Info
     anno.df.sub <- anno.df[anno.df$cell %in% rownames(cell.metadata.sub), , drop = F]
     cell.metadata.sub <- cbind(cell.metadata.sub, anno.df.sub)
-    
+
     # Extract Counts
     rawCounts <- cdsObj@assays@data@listData$counts
     rawCounts <- rawCounts[, colnames(rawCounts) %in% rownames(cell.metadata.sub), drop = F]
@@ -185,8 +180,8 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     scmpObj <- create_scmpObj(
       counts = rawCounts,
       cell_data = cell.metadata.sub,
-      pseudotime_colname = pseudotime_col,
-      path_colname = path_col,
+      pseudotime_colname = "pTime",
+      path_colname = "path",
       use_as_bin = F
     )
     return(scmpObj)

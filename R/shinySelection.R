@@ -17,6 +17,7 @@
 shinySelect <- function(trajectory_data,
                         annotation_data,
                         label_coords,
+                        pseudotime_colname,
                         inputType = "Monocle3") {
   # SetUI
   ui <- fluidPage(

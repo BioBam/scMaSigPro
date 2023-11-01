@@ -15,6 +15,8 @@
 #' @param path_colname Name of the column in `cell.metadata` storing information
 #' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
 #' (Default is `path_prefix`)
+#' @param interactive use shiny 
+#' @param annotation_colname annotations from cell level metadata
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #' @param additional_params A named list of additional parameters. See details.
 #'
@@ -46,7 +48,9 @@ as_scmp <- function(object, from = "cds",
                     root_label = "root",
                     pseudotime_colname = "Pseudotime",
                     path_colname = path_prefix,
+                    annotation_colname = "cell_type",
                     verbose = TRUE,
+                    interactive = TRUE,
                     additional_params = list(labels_exist = FALSE)) {
   # Check Conversion Type
   assert_that(from %in% c("cds", "sce"),
@@ -139,26 +143,23 @@ as_scmp <- function(object, from = "cds",
     }
 
     # Annotate the monocel3 Object
-    annotated_cds <- annotate_monocle3_cds(object,
-      reduction_method = additional_params[["reduction_method"]],
-      path_prefix = path_prefix,
-      root_label = root_label,
-      path_colname = path_colname,
-      pseudotime_colname = pseudotime_colname,
-      verbose = verbose
-    )
-
-    # Convert to sce abd then to scMaSigPro Class
-    scmpObj <- new("scMaSigProClass",
-      sce = annotated_cds,
-      compress.sce = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
-    )
-
-    # Update Slots
-    scmpObj@addParams@pseudotime_colname <- pseudotime_colname
-    scmpObj@addParams@root_label <- root_label
-    scmpObj@addParams@path_prefix <- path_prefix
-    scmpObj@addParams@path_colname <- path_colname
+    # annotated_cds <- annotate_monocle3_cds(object,
+    #   reduction_method = additional_params[["reduction_method"]],
+    #   path_prefix = path_prefix,
+    #   root_label = root_label,
+    #   path_colname = path_colname,
+    #   pseudotime_colname = pseudotime_colname,
+    #   verbose = verbose
+    # )
+      if(interactive){
+          scmpObj <- selectPath.m3(cdsObj = cds,
+                                   annotation_col = annotation_colname,
+                                   pseudotime_col = pseudotime_colname,
+                                   path_col = path_colname,
+                                   redDim = additional_params[["reduction_method"]])
+      }else{
+          stop("Only support for interactive for now")
+      }
 
     # Print
     if (verbose) {
