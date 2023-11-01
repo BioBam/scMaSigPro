@@ -1,20 +1,23 @@
 #' Function to interactively select nodes from shiny
 #' 
+#' @param trajectory_data Dataframe for trajectory
+#' @param annotation_data Dataframe for cell UMAP
+#' @param label_coords Datatframe for labels
+#' @param inputType Input type
+#' 
 #' @importFrom shiny observeEvent renderUI renderText h3 h4 h5 showModal fluidPage 
 #' @importFrom shiny reactiveVal titlePanel sidebarPanel HTML actionButton mainPanel
 #' @importFrom shiny fluidRow column uiOutput sliderInput showNotification modalDialog
 #' @importFrom shiny modalButton tagList removeModal runApp shinyApp sidebarLayout stopApp
 #' @importFrom plotly ggplotly layout plotlyOutput renderPlotly event_data
 #' 
+#' @keywords internal
+#' 
 
 shinySelect <- function(trajectory_data,
                         annotation_data,
                         label_coords,
                         inputType = "Monocle3"){
-    
-    
-    View(trajectory_data)
-    View(annotation_data)
     
     # SetUI
     ui <- fluidPage(
@@ -54,14 +57,6 @@ shinySelect <- function(trajectory_data,
                 fluidRow(
                     column(3, sliderInput("trPlotNodeText", "Node Text Size", min = 0.5, max = 3, value = 1)),
                     column(3, sliderInput("trPlotCellStroke", "Cell Stroke", min = 0.1, max = 2, value = 0.7)),
-                    # column(3, selectInput("trPlotCellColor", "Cell Color",
-                    #                       choices = list("Viridis Magma (Psudotime Color)" = "magma",
-                    #                                      "Native R" = "nativeR",
-                    #                                      "Dark2 (8 Pallets)" = "Dark2",
-                    #                                      "Color Blind (Okabe Ito's)" = "okabe",
-                    #                                      "Set1 (11 Pallets)" = "Set11"),
-                    #                       selected = "nativeR")),
-                    # column(3, sliderInput("trPlotSegSize", "Trajectory Width", min = 0.1, max = 1,value = 0.5))
                 )
             )
         )
@@ -104,16 +99,16 @@ shinySelect <- function(trajectory_data,
                 if (all(c("path1_high", "path2_high", "root_high") %in% colnames(label_coords))) {
                     trajectory.map <- ggplot() +
                         geom_point(
-                            data = annotation_data, aes(x = x, y = y, color = anno), size = input$trPlotCellSize, alpha = input$trPlotCellAlpha,
+                            data = annotation_data, aes(x = .data$x, y = .data$y, color = .data$anno), size = input$trPlotCellSize, alpha = input$trPlotCellAlpha,
                             stroke = input$trPlotCellStroke
                         ) +
-                        geom_segment(data = trajectory_data, aes(x = x_from, y = y_from, xend = x_to, yend = y_to), linewidth = input$trPlotSegSize) +
-                        geom_point(data = label_coords, aes(x = x, y = y), size = input$trPlotNodeSize,
+                        geom_segment(data = trajectory_data, aes(x = .data$x_from, y = .data$y_from, xend = .data$x_to, yend = .data$y_to), linewidth = input$trPlotSegSize) +
+                        geom_point(data = label_coords, aes(x = .data$x, y = .data$y), size = input$trPlotNodeSize,
                                    color = ifelse(label_coords$root_high == "Yes", "red",
                                                   ifelse(label_coords$path1_high == "Yes" & label_coords$path2_high == "Yes", "purple",
                                                          ifelse(label_coords$path1_high == "Yes", "green",
                                                                 ifelse(label_coords$path2_high == "Yes", "blue", "black"))))) +
-                        geom_text(data = label_coords, aes(x = x, y = y, label = node), vjust = 1.5, hjust = 0.5, size = input$trPlotNodeText) +
+                        geom_text(data = label_coords, aes(x = .data$x, y = .data$y, label = .data$node), vjust = 1.5, hjust = 0.5, size = input$trPlotNodeText) +
                         theme_minimal() +
                         xlab("UMAP-1") +
                         ylab("UMAP-2")
@@ -261,16 +256,16 @@ shinySelect <- function(trajectory_data,
                 
                 sub.trajectory.map <- ggplot() +
                     geom_point(
-                        data = annotation_data_sub, aes(x = x, y = y, color = anno), size = input$trPlotCellSize, alpha = input$trPlotCellAlpha,
+                        data = annotation_data_sub, aes(x = .data$x, y = .data$y, color = .data$anno), size = input$trPlotCellSize, alpha = input$trPlotCellAlpha,
                         stroke = input$trPlotCellStroke
                     ) +
-                    geom_segment(data = trajectory_data_sub, aes(x = x_from, y = y_from, xend = x_to, yend = y_to), linewidth = input$trPlotSegSize) +
-                    geom_point(data = label_coords_sub, aes(x = x, y = y), size = input$trPlotNodeSize,
+                    geom_segment(data = trajectory_data_sub, aes(x = .data$x_from, y = .data$y_from, xend = .data$x_to, yend = .data$y_to), linewidth = input$trPlotSegSize) +
+                    geom_point(data = label_coords_sub, aes(x = .data$x, y = .data$y), size = input$trPlotNodeSize,
                                color = ifelse(label_coords_sub$root_high == "Yes", "red",
                                               ifelse(label_coords_sub$path1_high == "Yes" & label_coords_sub$path2_high == "Yes", "purple",
                                                      ifelse(label_coords_sub$path1_high == "Yes", "green",
                                                             ifelse(label_coords_sub$path2_high == "Yes", "blue", "black"))))) +
-                    geom_text(data = label_coords_sub, aes(x = x, y = y, label = node), vjust = 1.5, hjust = 0.5, size = input$trPlotNodeText) +
+                    geom_text(data = label_coords_sub, aes(x = .data$x, y = .data$y, label = .data$node), vjust = 1.5, hjust = 0.5, size = input$trPlotNodeText) +
                     theme_minimal() +
                     xlab("UMAP-1") +
                     ylab("UMAP-2")

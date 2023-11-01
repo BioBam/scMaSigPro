@@ -63,19 +63,28 @@ suppressPackageStartupMessages(library(assertthat))
 suppressPackageStartupMessages(library(SingleCellExperiment))
 
 # Step-2: Select the Paths
-cds.test  <- selectPath.m3(cdsObj = cds, annotation = "predicted.celltype.l2")
+scmp.cds  <- selectPath.m3(cdsObj = cds, annotation = "predicted.celltype.l2")
+
+
+
+
+subsetter <- unique(unlist(cds.test, use.names = F))
+
+close_nodes <- as.data.frame(cds@principal_graph_aux@listData$UMAP$pr_graph_cell_proj_closest_vertex)
+close_nodes <- close_nodes[close_nodes$V1 %in% str_remove(subsetter, "Y_"), ,drop = F]
+cds.sub <- cds[, rownames(close_nodes)] 
 
 # Create SCMP Object
-scmp.cds <-  as_scmp(cds, "cds")
+scmp.cds.sub <-  as_scmp(cds.sub, "cds")
 
 # Select the Path
-scmp.cds <- selectPath(scmp.cds,
+scmp.cds <- selectPath(scmp.cds.sub,
            sel.path = c("Y_3", "Y_34"),
            pathCol = "Path",balance_paths = T, 
            pTimeCol = "Pseudotime", 
            plot_paths = T, verbose = T)
 
-scmp.cds <- entropy_discretize(scmp.cds,drop.fac = 1,
+scmp.cds <- entropy_discretize(scmp.cds,drop.fac = 0.4,
                            verbose = T,
                            binning = "individual",
                            additional_params = list(use_unique_time_points = TRUE))
@@ -89,6 +98,10 @@ scmp.cds <- sc.make.design.matrix(scmp.cds, poly_degree = 2)
 
 # Step-5: Run P-vector
 scmp.cds <- sc.p.vector(scmp.cds, parallel = T)
+
+# Step-6: RunT-step
+scmp.cds <- sc.T.fit(scmpObj = scmp.cds,
+                     parallel = T)
 
 ## Test Reproducibility with MaSigPro
 

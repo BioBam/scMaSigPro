@@ -90,7 +90,7 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
   colnames(anno.df) <- c("cell", "node", "anno", "pTime", "x", "y")
   
   # Remove frame
-  pTime.frame <- vertex.relation.frame <- dims <- NULL
+  pTime.frame <- dims <- NULL
   
   # Extract the graph and MST
   assert_that(!is.null(cdsObj@principal_graph@listData[[toupper(redDim)]]),
@@ -115,16 +115,72 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
   trajectory.df <- merge(edges_df, pgraph.coords, by.x = "to", by.y = "node")
   colnames(trajectory.df) <- c("from", "to", "weight", "x_from", "y_from", "x_to", "y_to")
   
-  # RUn Shiny
-  selection.list <- shinySelect(trajectory_data = trajectory.df, 
-              annotation_data = anno.df,
-              label_coords = pgraph.coords, 
-              inputType = "Monocle3")
-  
+  # Run Shiny
+  selection.list <- list(root = "Y_41",
+                         path1 = c("Y_11", "Y_14", "Y_23", "Y_35", "Y_41"),
+                         path2 = c("Y_11", "Y_13", "Y_14", "Y_39","Y_41"))
+      # shinySelect(trajectory_data = trajectory.df, 
+      #         annotation_data = anno.df,
+      #         label_coords = pgraph.coords, 
+      #         inputType = "Monocle3")
+      # 
   
   if(is.null(selection.list)){
       warning("Nothing Returned")
   }else{
-      return(selection.list)
+      
+      
+      # Create Cell Metadata
+      cell.metadata <- cdsObj@colData %>% as.data.frame()
+      
+      # Subset the vertex relation frame
+      vertex.relation.frame.sub <- vertex.relation.frame[vertex.relation.frame$node %in% unique(
+          unlist(
+              selection.list, use.names = F
+              )
+          ), , drop = F]
+      
+      # Subset the cell-meta
+      cell.metadata.sub <- cell.metadata[rownames(cell.metadata) %in% vertex.relation.frame.sub$cell,, drop=F]
+      
+      # Add Annotation in the frame
+      cell.metadata.sub$path <- NA
+      
+      
+      # Extract nodes
+      path1_nodes <- selection.list$path1
+      path2_nodes <- selection.list$path2
+      root_nodes <- selection.list$root
+      
+      # Remove roots
+      path1_nodes <- path1_nodes[path1_nodes != root_nodes]
+      path2_nodes <- path2_nodes[path2_nodes != root_nodes]
+      
+      # Generate subset vectors
+      path1_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% path1_nodes, , drop = F]
+      path2_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% path2_nodes, , drop = F]
+      root_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% root_nodes, , drop = F]
+     
+       # Add Root
+      cell.metadata.sub[rownames(cell.metadata.sub) %in% path1_cells$cell, "path"] <- "Path1"
+      cell.metadata.sub[rownames(cell.metadata.sub) %in% path2_cells$cell, "path"] <- "Path2"
+      cell.metadata.sub[rownames(cell.metadata.sub) %in% root_cells$cell, "path"] <- "Root"
+      
+      # Attach Pseudotime Info
+      anno.df.sub <- anno.df[anno.df$cell %in% rownames(cell.metadata.sub), , drop=F]
+      cell.metadata.sub <- cbind(cell.metadata.sub, anno.df.sub) 
+      
+      # Extract Counts
+      rawCounts <- cdsObj@assays@data@listData$counts
+      rawCounts <- rawCounts[, colnames(rawCounts) %in% rownames(cell.metadata.sub), drop = F]
+      
+      # Call the ScMaSigPro Creator
+      scmpObj <- create_scmpObj(
+          counts = rawCounts,
+                     cell_data = cell.metadata.sub,
+                     pseudotime_colname = "pTime",
+                     path_colname = "path",
+                     use_as_bin = F)
+      return(scmpObj)
   }
 }

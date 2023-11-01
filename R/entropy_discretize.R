@@ -59,7 +59,7 @@
 #' @importFrom assertthat assert_that
 #' @importFrom parallel mclapply detectCores
 #' @importFrom entropy discretize
-#' @importFrom dplyr left_join join_by mutate select bind_rows group_by_at summarise rename_with
+#' @importFrom dplyr left_join join_by mutate select bind_rows group_by_at summarise rename_with closest
 #' @importFrom magrittr %>%
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
