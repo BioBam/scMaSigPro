@@ -101,7 +101,7 @@ sc.PlotGroups <-
 
     # Calc limits
     xlim <- c(min(points.df[[pooled.time]], na.rm = TRUE), max(points.df[[pooled.time]], na.rm = TRUE) * 1.3)
-    ylim <- c(min(as.numeric(points.df[[pb.counts]]), na.rm = TRUE), max(as.numeric(points.df[[pb.counts]]), na.rm = TRUE))
+    #ylim <- c(min(as.numeric(points.df[[pb.counts]]), na.rm = TRUE), max(as.numeric(points.df[[pb.counts]]), na.rm = TRUE))
 
     xlim[2] <- max(points.df[[pooled.time]])
 
@@ -126,7 +126,7 @@ sc.PlotGroups <-
       ) +
       scale_x_continuous(breaks = seq(min(xlim), max(xlim), by = round(log10(length(points.df[[pooled.time]]))))) +
       labs(color = "Paths") +
-      coord_cartesian(xlim = xlim, ylim = ylim) +
+      #coord_cartesian(xlim = xlim, ylim = ylim) +
       scale_color_manual(values = conesa_colors)
     #
     print(p)

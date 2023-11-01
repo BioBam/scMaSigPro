@@ -27,7 +27,6 @@
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #' @param binning A character string. When set to "individual", the bins are calculated
 #' per path iteratively. Options: "universal", "individual. (Default = "universal").
-#' @param homogenize_bins TRUE
 #' @param additional_params Pass additional parameters as a named list. See Details.
 #'
 #' @return
@@ -79,7 +78,6 @@ discretize <- function(scmpObject,
                                bin_colname = "scmp_bin",
                                bin_size_colname = "scmp_bin_size",
                                bin_pseudotime_colname = "scmp_binned_pseudotime",
-                       homogenize_bins = TRUE,
                                additional_params = list(use_unique_time_points = FALSE)) {
   # Initiate Variable
   scmp_bin_lower_bound <- "scmp_l_bound"
@@ -92,13 +90,6 @@ discretize <- function(scmpObject,
 
   # Extract cell metadata
   cell_metadata <- as.data.frame(colData(scmpObject@sce))
-  
-  # Drop Columns if exist
-  cols_to_drop <- c(scmpObject@addParams@bin_size_colname,
-                    scmpObject@addParams@bin_pseudotime_colname,
-                    "scmp_u_bound", "scmp_l_bound")
-  cell_metadata <- cell_metadata[, !colnames(cell_metadata) %in% cols_to_drop, drop = FALSE]
-  
 
   # Checks
   assert_that(pseudotime_colname %in% colnames(cell_metadata),
@@ -191,7 +182,7 @@ discretize <- function(scmpObject,
       }
 
       # Calculate Bin intervals with entropy
-      bin_intervals <- as.data.frame(entropy::discretize(time_vector, numBins = estBins, r = range(time_vector)))
+      bin_intervals <- as.data.frame(discretize(time_vector, numBins = estBins, r = range(time_vector)))
 
       # Clean the table before merge
       colnames(bin_intervals) <- c(bin_colname, bin_size_colname)
@@ -207,49 +198,17 @@ discretize <- function(scmpObject,
       if (verbose) {
         message(paste("Estimating bin intervals"))
       }
-      
-      # Homogenize bins
-      if(homogenize_bins){
-      bin_table <- homogenize_bins(df = bin_table,
-                      l_bound_col = scmp_bin_lower_bound,
-                      u_bound_col = scmp_bin_upper_bound,
-                      bin_size_col = bin_size_colname,
-                      binPTime_col = bin_pseudotime_colname,
-                      verbose = verbose)
-      }
-      # # # Combine Tables
-      # processed_cell_metadata <- as.data.frame(
-      #   left_join(cell_metadata, bin_table,
-      #     by = join_by(
-      #       closest(!!pseudotime_colname >= !!scmp_bin_lower_bound),
-      #       closest(!!pseudotime_colname <= !!scmp_bin_upper_bound)
-      #     )
-      #   )
-      # )
-      
-      # Create an empty data frame to store the results
-      processed_cell_metadata <- data.frame()
-      
-      # Loop over each row of cell_metadata
-      for (i in 1:nrow(cell_metadata)) {
-          pseudotime_value <- cell_metadata[i, pseudotime_colname]
-          
-          # Filter bin_table based on pseudotime_value
-          matching_bins <- bin_table[
-              pseudotime_value >= bin_table[, scmp_bin_lower_bound] & 
-                  pseudotime_value <= bin_table[, scmp_bin_upper_bound], 
-          ]
-          
-          # Combine the cell_metadata row with each matching bin
-          combined_rows <- merge(cell_metadata[i, ], matching_bins, all.x = TRUE, by = character(0))
-          
-          # Bind combined_rows to results data frame
-          processed_cell_metadata <- rbind(processed_cell_metadata, combined_rows)
-      }
-      
-      # Convert result to a data frame
-      processed_cell_metadata <- as.data.frame(processed_cell_metadata)
-      
+
+      # Combine Tables
+      processed_cell_metadata <- as.data.frame(
+        left_join(cell_metadata, bin_table,
+          by = join_by(
+            closest(!!pseudotime_colname >= !!scmp_bin_lower_bound),
+            closest(!!pseudotime_colname <= !!scmp_bin_upper_bound)
+          )
+        )
+      )
+
       # Set the 'cell' column as rownames
       rownames(processed_cell_metadata) <- processed_cell_metadata$cell
     },
@@ -260,7 +219,6 @@ discretize <- function(scmpObject,
                                                     bin.size = bin_size_colname, bin = bin_colname,
                                                     time.col = pseudotime_colname, method.bin = bin_method,
                                                     bin.time.col = bin_pseudotime_colname,
-                                                    hom_bin = homogenize_bins,
                                                     v = verbose, use.unique.time.points = additional_params$use_unique_time_points,
                                                     lbound = scmp_bin_lower_bound, ubound = scmp_bin_upper_bound) {
         # Get the cells belonging to path
@@ -306,7 +264,7 @@ discretize <- function(scmpObject,
         )
 
         # Calculate Bin intervals with entropy
-        bin_intervals <- as.data.frame(entropy::discretize(time_vector, numBins = estBins, r = range(time_vector)))
+        bin_intervals <- as.data.frame(discretize(time_vector, numBins = estBins, r = range(time_vector)))
 
         # Client-Verbose
         if (verbose) {
@@ -325,51 +283,16 @@ discretize <- function(scmpObject,
           bin_size_colname = bin.size, bin_colname = bin, verbose = v
         ))))
         colnames(bin_table) <- c(lbound, ubound, bin.size, bin.time.col)
-        
-        if(hom_bin){
-        bin_table <- homogenize_bins(df = bin_table,
-                                     l_bound_col = lbound,
-                                     u_bound_col = ubound,
-                                     bin_size_col = bin.size,
-                                     binPTime_col = bin.time.col,
-                                     verbose = v)
-        }
-        
+
         # Combine Tables
-        # processed_cell_metadata <- as.data.frame(
-        #   left_join(path.frame, bin_table,
-        #     by = join_by(
-        #       closest(!!time.col >= !!lbound),
-        #       closest(!!time.col <= !!ubound)
-        #     )
-        #   )
-        # )
-        
-        # Create an empty data frame to store the results
-        processed_cell_metadata <- data.frame()
-        
-        # Loop over each row of cell_metadata
-        for (i in 1:nrow(path.frame)) {
-            pseudotime_value <- path.frame[i, pseudotime_colname]
-            
-            # Filter bin_table based on pseudotime_value
-            matching_bins <- bin_table[
-                pseudotime_value >= bin_table[, lbound] & 
-                    pseudotime_value <= bin_table[, ubound], 
-            ]
-            
-            # Combine the cell_metadata row with each matching bin
-            combined_rows <- merge(path.frame[i, ], matching_bins, all.x = TRUE, by = character(0))
-            
-            # Bind combined_rows to results data frame
-            processed_cell_metadata <- rbind(processed_cell_metadata, combined_rows)
-        }
-        
-        # Convert result to a data frame
-        processed_cell_metadata <- as.data.frame(processed_cell_metadata)
-        
-        # Set the 'cell' column as rownames
-        rownames(processed_cell_metadata) <- processed_cell_metadata$cell
+        processed_cell_metadata <- as.data.frame(
+          left_join(path.frame, bin_table,
+            by = join_by(
+              closest(!!time.col >= !!lbound),
+              closest(!!time.col <= !!ubound)
+            )
+          )
+        )
 
         return(processed_cell_metadata)
       })
@@ -386,12 +309,9 @@ discretize <- function(scmpObject,
 
   # Now, you can remove the 'cell' column
   processed_cell_metadata <- processed_cell_metadata %>% select(-"cell")
-  
+
   ## Add Processed Cell Matadata back with slot update
   scmpObject@sce@colData <- DataFrame(processed_cell_metadata)
-  
-  
-  print(colnames(processed_cell_metadata))
 
   # Update Slots
   scmpObject@addParams@pseudotime_colname <- pseudotime_colname

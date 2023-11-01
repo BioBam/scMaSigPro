@@ -13,6 +13,7 @@ data("Sim2Path", package = "scMaSigPro")
 
 # Step-2: Convert to ScMaSigpro Object
 scmp <- as_scmp(object = sim.sce, from = "sce",
+                align.pseudotime = F,
                 additional_params = list(labels_exist = TRUE,
                                          existing_pseudotime_colname = "Step",
                                          existing_path_colname = "Group")
@@ -56,16 +57,110 @@ sc.PlotGroups(scmpObj = scmp,
 load("extdata/rep1_processed.RData")
 
 # Create SCMP Object
-scmp.cds <- as_scmp(cds,
+scmp.cds.test <- scmp.cds.org
+
+
+# test real Data
+library(assertthat)
+library(tidyverse)
+library(SingleCellExperiment)
+library(entropy)
+
+scmp.cds.test <- as_scmp(cds,
                     "cds",
                     interactive = T,
                     annotation_colname = "predicted.celltype.l2")
 
+scmp.cds.test <- discretize(scmp.cds.test, binning = "individual",homogenize_bins = T,
+                        additional_params = list(use_unique_time_points = T), verbose = T,
+                        drop.fac = 0.3)
+
+scmp.cds.test <- make.pseudobulk.design(scmp.cds.test,
+                                   verbose= T)
+scmp.cds.test <- make.pseudobulk.counts(scmp.cds.test)
+
+# Step-4: Make Design-Matrix
+scmp.cds.test <- sc.make.design.matrix(scmp.cds.test, poly_degree = 2)
+
+# Step-5: Run P-vector
+scmp.cds.test <- sc.p.vector(scmp.cds.test, parallel = T,
+                             min.obs = 0, offset = F)
+
+# Step-6: RunT-step
+scmp.cds.test <- sc.T.fit(scmpObj = scmp.cds.test,
+                     parallel = T,offset = T)
+
+# Step-7: Get significant genes
+scmp.cds.test <- sc.get.siggenes(scmpObj = scmp.cds.test, vars = "groups")
+
+
+sc.PlotGroups(scmpObj = scmp.cds.test,
+              feature_id = "KHDRBS1",
+              smoothness = 0.05)
+
+View(showSol(scmp.cds.test, return = T, view = F))
+stop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+scmp.cds <- as_scmp(cds,
+                    "cds",
+                    interactive = T,
+                    annotation_colname = "predicted.celltype.l2")
+#scmp.cds.org <- 
+scmp.cds <- scmp.cds.org
+
 scmp.cds <- entropy_discretize(scmp.cds,
-                               drop.fac = 0.4,
+                               drop.fac = 0.3,
                                verbose = T,
-                               binning = "individual",
-                               additional_params = list(use_unique_time_points = TRUE))
+                               binning = "universal",
+                               additional_params = list(use_unique_time_points = FALSE))
 
 scmp.cds <- make.pseudobulk.design(scmp.cds,
                                verbose= T)

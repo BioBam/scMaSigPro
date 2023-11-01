@@ -9,7 +9,8 @@
 #' @importFrom shiny reactiveVal titlePanel sidebarPanel HTML actionButton mainPanel
 #' @importFrom shiny fluidRow column uiOutput sliderInput showNotification modalDialog
 #' @importFrom shiny modalButton tagList removeModal runApp shinyApp sidebarLayout stopApp
-#' @importFrom plotly ggplotly layout plotlyOutput renderPlotly event_data
+#' @importFrom shiny verbatimTextOutput radioButtons
+#' @importFrom plotly ggplotly layout plotlyOutput renderPlotly event_data config
 #'
 #' @keywords internal
 #'
@@ -42,6 +43,9 @@ shinySelect <- function(trajectory_data,
         actionButton("save", "Save & Close Session"),
         actionButton("redo", "Redo Selection"),
         HTML("<hr>"),
+        verbatimTextOutput("verbatRoot", placeholder = FALSE),
+        verbatimTextOutput("verbatPath1", placeholder = FALSE),
+        verbatimTextOutput("verbatPath2", placeholder = FALSE)
       ),
       mainPanel(
         fluidRow(
@@ -57,10 +61,16 @@ shinySelect <- function(trajectory_data,
         fluidRow(
           column(3, sliderInput("trPlotNodeText", "Node Text Size", min = 0.5, max = 3, value = 1)),
           column(3, sliderInput("trPlotCellStroke", "Cell Stroke", min = 0.1, max = 2, value = 0.7)),
+          column(3, radioButtons("trPlotCellColor", "Set color",
+                      choices = list("Pseudotime"= "pTime",
+                           "Cell Annotations" = "anno"
+                           ), selected = "pTime"
+                      )
+                 )
+          )
         )
       )
     )
-  )
 
 
   if (inputType == "Monocle3") {
@@ -95,11 +105,17 @@ shinySelect <- function(trajectory_data,
         } else {
           label_coords$root_high <- "No"
         }
+        
+        if(input$trPlotCellColor == "pTime"){
+            colName <- pseudotime_colname
+        }else if(input$trPlotCellColor == "anno"){
+            colName <- "anno"
+        }
 
         if (all(c("path1_high", "path2_high", "root_high") %in% colnames(label_coords))) {
           trajectory.map <- ggplot() +
             geom_point(
-              data = annotation_data, aes(x = .data$x, y = .data$y, color = .data$anno), size = input$trPlotCellSize, alpha = input$trPlotCellAlpha,
+              data = annotation_data, aes(x = .data$x, y = .data$y, color = .data[[colName]]), size = input$trPlotCellSize, alpha = input$trPlotCellAlpha,
               stroke = input$trPlotCellStroke
             ) +
             geom_segment(data = trajectory_data, aes(x = .data$x_from, y = .data$y_from, xend = .data$x_to, yend = .data$y_to), linewidth = input$trPlotSegSize) +
@@ -118,7 +134,7 @@ shinySelect <- function(trajectory_data,
             xlab("UMAP-1") +
             ylab("UMAP-2")
 
-          ggplotly(trajectory.map, source = "trajectoryPlot") %>% plotly::layout(dragmode = "lasso")
+          ggplotly(trajectory.map, source = "trajectoryPlot") %>% plotly::layout(dragmode = "lasso") %>% config(displaylogo = FALSE)
         }
       })
 
@@ -145,6 +161,24 @@ shinySelect <- function(trajectory_data,
         } else {
           showNotification(paste("Please select only one node as root node."))
         }
+      })
+      
+      output$verbatRoot <- renderText({
+          root_node_value <- root_node()
+          
+          return(paste0("Selected Root Nodes: ", root_node_value))
+          
+      })
+      output$verbatPath1 <- renderText({
+          path1_highlight <- path1()
+          
+          return(paste0("Selected Path1 Nodes:", paste(path1_highlight, collapse = ",")))
+          
+      })
+      output$verbatPath2 <- renderText({
+          path2_highlight <- path2()
+          return(paste0("Selected Path2 Nodes:", paste(path2_highlight, collapse = ",")))
+          
       })
 
       # Set Path-1
@@ -258,10 +292,16 @@ shinySelect <- function(trajectory_data,
           label_coords_sub$path2_high <- ifelse(label_coords_sub$node %in% path2_highlight, "Yes", "No")
           label_coords_sub$root_high <- ifelse(label_coords_sub$node == root_node_value, "Yes", "No")
         }
+        
+        if(input$trPlotCellColor == "pTime"){
+            colName <- pseudotime_colname
+        }else if(input$trPlotCellColor == "anno"){
+            colName <- "anno"
+        }
 
         sub.trajectory.map <- ggplot() +
           geom_point(
-            data = annotation_data_sub, aes(x = .data$x, y = .data$y, color = .data$anno), size = input$trPlotCellSize, alpha = input$trPlotCellAlpha,
+            data = annotation_data_sub, aes(x = .data$x, y = .data$y, color = .data[[colName]]), size = input$trPlotCellSize, alpha = input$trPlotCellAlpha,
             stroke = input$trPlotCellStroke
           ) +
           geom_segment(data = trajectory_data_sub, aes(x = .data$x_from, y = .data$y_from, xend = .data$x_to, yend = .data$y_to), linewidth = input$trPlotSegSize) +
@@ -280,7 +320,7 @@ shinySelect <- function(trajectory_data,
           xlab("UMAP-1") +
           ylab("UMAP-2")
 
-        ggplotly(sub.trajectory.map)
+        ggplotly(sub.trajectory.map) %>% config(displaylogo = FALSE)
       })
 
       # Save button behavior

@@ -15,6 +15,7 @@
 #' @param path_colname Name of the column in `cell.metadata` storing information
 #' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
 #' (Default is `path_prefix`)
+#' @param align_pseudotime if two pseudotimes are different whether to align them
 #' @param interactive use shiny 
 #' @param annotation_colname annotations from cell level metadata
 #' @param verbose Print detailed output in the console. (Default is TRUE)
@@ -47,11 +48,13 @@ as_scmp <- function(object, from = "cds",
                     path_prefix = "Path",
                     root_label = "root",
                     pseudotime_colname = "Pseudotime",
+                    align_pseudotime = TRUE,
                     path_colname = path_prefix,
                     annotation_colname = "cell_type",
                     verbose = TRUE,
                     interactive = TRUE,
-                    additional_params = list(labels_exist = FALSE)) {
+                    additional_params = list(
+                        labels_exist = FALSE)) {
   # Check Conversion Type
   assert_that(from %in% c("cds", "sce"),
     msg = ("Currently, accepted options in the 'from' parameter are 'cds'
@@ -73,9 +76,9 @@ as_scmp <- function(object, from = "cds",
     )
     # Check additional parameters
     if (from == "cds") {
-      assert_that(names(additional_params) %in% c("reduction_method", "labels_exist"),
+      assert_that(names(additional_params) %in% c("reduction_method", "labels_exist", "align_pseudotime_method"),
         msg = "Allowed additional parameters for 'cds' (cds/CellDataSet) are
-        'reduction_method', and 'labels_exist'."
+        'reduction_method', and 'labels_exist','align_pseudotime_method'."
       )
     } else if (from == "sce") {
       assert_that(all(names(additional_params) %in% c("existing_pseudotime_colname", "existing_path_colname", "labels_exist")),
@@ -152,13 +155,19 @@ as_scmp <- function(object, from = "cds",
     #   verbose = verbose
     # )
       if(interactive){
-          scmpObj <- selectPath.m3(cdsObj = cds,
+          scmpObj <- selectPath.m3(cdsObj = object,
                                    annotation_col = annotation_colname,
                                    pseudotime_col = pseudotime_colname,
                                    path_col = path_colname,
                                    redDim = additional_params[["reduction_method"]])
       }else{
           stop("Only support for interactive for now")
+      }
+      if(align_pseudotime){
+          scmpObj <- align.pseudotime(scmpObj = scmpObj,
+                            method = "dtw",
+                            pseudotime_col = pseudotime_colname,
+                            path_col = path_colname)
       }
 
     # Print
