@@ -9,7 +9,7 @@ Implementation of MaSigPro for scRNA-Seq Data
 
 ## Introduction
 
-ScMaSigPro is an adaptation of [MaSigPro](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html) written R, specifically engineered to analyze single-cell trajectory data. It utilizes the inferred Pseudotime as a temporal covariate in the polynomial Generalized Linear Model (GLM) of MaSigPro, enabling the exploration of differential genes across trajectory branches over pseudotime.
+ScMaSigPro is an R package designed to analyze single-cell trajectory data, acting as an adaptation of [MaSigPro](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html). This package incorporates pseudotime as a temporal covariate into the polynomial Generalized Linear Model (GLM) used by MaSigPro. This feature empowers users to investigate differentially expressed genes across trajectory branches over pseudotime.
 
 ## Installation
 
