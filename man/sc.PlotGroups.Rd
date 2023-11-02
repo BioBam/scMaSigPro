@@ -9,7 +9,9 @@ sc.PlotGroups(
   feature_id,
   xlab = "Pooled Pseudotime",
   ylab = "Pseudobulk Expression",
-  smoothness = 0.01
+  smoothness = 0.01,
+  logs = TRUE,
+  logType = "log10"
 )
 }
 \arguments{
@@ -22,6 +24,10 @@ sc.PlotGroups(
 \item{ylab}{Y-axis label. Default is "Pseudobulk Expression".}
 
 \item{smoothness}{abc}
+
+\item{logs}{Whether to plot log of counts}
+
+\item{logType}{Log type required}
 }
 \value{
 Generates a plot.

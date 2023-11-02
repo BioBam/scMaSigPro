@@ -18,6 +18,7 @@
 #' storing information about the members of the bins. (Default is 'scmp_bin_members').
 #' @param bin_pseudotime_colname Name of the column in the 'compressed_cell_metadata'
 #' storing information about the binned pseudotime. (Default is 'scmp_binned_pseudotime').
+#' @param fill_gaps description
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #'
 #' @return
@@ -51,6 +52,7 @@
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @importFrom rlang :=
+#' @importFrom dplyr group_by filter row_number ungroup
 #'
 #' @export
 make.pseudobulk.design <- function(scmpObject,
@@ -59,7 +61,8 @@ make.pseudobulk.design <- function(scmpObject,
                                    bin_size_colname = scmpObject@addParams@bin_size_colname,
                                    bin_members_colname = "scmp_bin_members",
                                    bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname,
-                                   verbose = TRUE) {
+                                   verbose = TRUE,
+                                   fill_gaps = FALSE) {
   # Check Object Validity
   assert_that(is(scmpObject, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'."
@@ -82,7 +85,7 @@ make.pseudobulk.design <- function(scmpObject,
 
   # Add helper-col
   compressed_cell_metadata[[scmp_bar]] <- rownames(compressed_cell_metadata)
-
+  
   # Check for path
   assert_that(length(avail.paths) >= 2,
     msg = "Invalid number of paths detected. Please make sure that dataset has atleast two paths"
@@ -113,8 +116,8 @@ make.pseudobulk.design <- function(scmpObject,
     # Group by time
     path.time.cell <- path.time.cell %>%
       group_by_at(binned.col) %>%
-      summarise(!!bin_members_colname := paste0(scmp_bar, collapse = "|"))
-
+      summarise(!!sym(bin_members_colname) := paste0(scmp_bar, collapse = "|"))
+    
     # Add Cluster Label
     tmp.bin.name <- paste0(path, "_bin_", seq(1, nrow(path.time.cell)))
     path.time.cell[[bin_colname]] <- tmp.bin.name
@@ -152,7 +155,15 @@ make.pseudobulk.design <- function(scmpObject,
 
   # Remove extra column
   # pB.frame <- pB.frame %>% select(-"scmp_bar")
-
+  
+  if(fill_gaps){
+      message("Doing nothing under construction")
+      
+  }
+  
+  # Add rownames
+  rownames(pB.frame) <- pB.frame[[bin_colname]]
+  
   ## Add Processed Cell Matadata back with slot update
   compressed.sce <- SingleCellExperiment(assays = list(bulk.counts = as(matrix(NA, nrow = 0, ncol = nrow(pB.frame)), "dgCMatrix")))
   compressed.sce@colData <- DataFrame(pB.frame)

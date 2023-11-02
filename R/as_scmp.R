@@ -164,8 +164,9 @@ as_scmp <- function(object, from = "cds",
           stop("Only support for interactive for now")
       }
       if(align_pseudotime){
+          
           scmpObj <- align.pseudotime(scmpObj = scmpObj,
-                            method = "dtw",
+                            method = "rescale",
                             pseudotime_col = pseudotime_colname,
                             path_col = path_colname)
       }

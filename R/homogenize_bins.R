@@ -15,8 +15,8 @@
 # 
 homogenize_bins <- function(df, l_bound_col, u_bound_col, bin_size_col, binPTime_col, verbose = TRUE) {
     # Calculate mean and standard deviation of bin sizes
-    mean_size <- mean(df[[bin_size_col]])
-    sd_size <- sd(df[[bin_size_col]])
+    mean_size <- round(mean(df[[bin_size_col]])/2)
+    sd_size <- round(sd(df[[bin_size_col]]) - sd(df[[bin_size_col]])/2)
     
     optimize_bins <- function(df) {
         new_df <- data.frame(matrix(ncol = ncol(df), nrow = 0))

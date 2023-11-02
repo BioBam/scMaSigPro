@@ -41,7 +41,7 @@ extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, a
     coeff <- rep(0, (length(vars.in) + 1))
     if (length(novar) != 0) {
       for (m in 1:length(novar)) {
-        coeff[position(dis, novar[m]) + 1] <- 0#NA
+        coeff[position(dis, novar[m]) + 1] <- NA
       }
     }
     p.valor <- t <- as.numeric(rep(NA, (length(vars.in) + 1)))

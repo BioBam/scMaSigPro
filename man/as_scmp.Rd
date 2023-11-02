@@ -10,6 +10,7 @@ as_scmp(
   path_prefix = "Path",
   root_label = "root",
   pseudotime_colname = "Pseudotime",
+  align_pseudotime = TRUE,
   path_colname = path_prefix,
   annotation_colname = "cell_type",
   verbose = TRUE,
@@ -30,6 +31,8 @@ as_scmp(
 \item{pseudotime_colname}{Name of the column in `cell.metadata` storing
 Pseudotime values. It is generated using `colData` from the \pkg{SingleCellExperiment}
 package. (Default is "Pseudotime").}
+
+\item{align_pseudotime}{if two pseudotimes are different whether to align them}
 
 \item{path_colname}{Name of the column in `cell.metadata` storing information
 for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.

@@ -57,7 +57,7 @@ sc.PlotGroups(scmpObj = scmp,
 load("extdata/rep1_processed.RData")
 
 # Create SCMP Object
-scmp.cds.test <- scmp.cds.org
+scmp.cds.test <- cds
 
 
 # test real Data
@@ -66,17 +66,26 @@ library(tidyverse)
 library(SingleCellExperiment)
 library(entropy)
 
+
 scmp.cds.test <- as_scmp(cds,
                     "cds",
                     interactive = T,
-                    annotation_colname = "predicted.celltype.l2")
+                    annotation_colname = "predicted.celltype.l2",
+                    align_pseudotime = T)
 
-scmp.cds.test <- discretize(scmp.cds.test, binning = "individual",homogenize_bins = T,
+
+# Get errors
+scmp.cds.test <- sc.discretize(scmp.cds.test, binning = "individual",homogenize_bins = T,
                         additional_params = list(use_unique_time_points = T), verbose = T,
-                        drop.fac = 0.3)
+                        drop.fac = 0.4)
 
 scmp.cds.test <- make.pseudobulk.design(scmp.cds.test,
-                                   verbose= T)
+                                   verbose= T, fill_gaps = T)
+
+# Sc Plot.bins
+sc.plot.bins.bar(scmpObj = scmp.cds.test)
+sc.plot.bins.tile(scmpObj = scmp.cds.test)
+
 scmp.cds.test <- make.pseudobulk.counts(scmp.cds.test)
 
 # Step-4: Make Design-Matrix
@@ -84,7 +93,7 @@ scmp.cds.test <- sc.make.design.matrix(scmp.cds.test, poly_degree = 2)
 
 # Step-5: Run P-vector
 scmp.cds.test <- sc.p.vector(scmp.cds.test, parallel = T,
-                             min.obs = 0, offset = F)
+                             min.obs = 0, offset = T)
 
 # Step-6: RunT-step
 scmp.cds.test <- sc.T.fit(scmpObj = scmp.cds.test,
@@ -95,8 +104,10 @@ scmp.cds.test <- sc.get.siggenes(scmpObj = scmp.cds.test, vars = "groups")
 
 
 sc.PlotGroups(scmpObj = scmp.cds.test,
-              feature_id = "KHDRBS1",
-              smoothness = 0.05)
+              feature_id = "MPO",
+              smoothness = 0.1,
+              logs = F,
+              logType = "log")
 
 View(showSol(scmp.cds.test, return = T, view = F))
 stop()

@@ -1,4 +1,6 @@
-align.pseudotime <- function(scmpObj, pseudotime_col, path_col, method = "dtw", verbose=TRUE){
+#' @importFrom scales rescale
+
+align.pseudotime <- function(scmpObj, pseudotime_col, path_col, method = "rescale", verbose=TRUE){
     
     # Extract Cell metadata
     cell.metadata <- scmpObj@sce@colData %>% as.data.frame()
@@ -7,85 +9,46 @@ align.pseudotime <- function(scmpObj, pseudotime_col, path_col, method = "dtw", 
     cell.metadata.sub <- cell.metadata[, c(pseudotime_col, path_col), drop=FALSE]
     cell.metadata.sub$cell <- rownames(cell.metadata.sub)
     
-    # Extract unique paths
-    paths <- unique(cell.metadata.sub[, path_col])
-    if (length(paths) != 2) {
-        stop("The function currently supports exactly 2 paths.")
-    }
+    # Get paths
+    path.vec <- unique(cell.metadata.sub[[path_col]])
     
-    pseudotime_path1 <- cell.metadata.sub[cell.metadata.sub[, path_col] == paths[1], pseudotime_col]
-    pseudotime_path2 <- cell.metadata.sub[cell.metadata.sub[, path_col] == paths[2], pseudotime_col]
+    # Get paths
+    path1_time <- cell.metadata.sub[cell.metadata.sub[[path_col]] == path.vec[1], pseudotime_col]
+    names(path1_time) <- cell.metadata.sub[cell.metadata.sub[[path_col]] == path.vec[1], "cell"]
+    path2_time <- cell.metadata.sub[cell.metadata.sub[[path_col]] == path.vec[2], pseudotime_col]
+    names(path2_time) <- cell.metadata.sub[cell.metadata.sub[[path_col]] == path.vec[2], "cell"]
     
-    if (method == "simple_rescale") {
-        # Use the simple rescale method
-        rescaled_values <- rescale_pseudotime(pseudotime_path1, pseudotime_path2, verbose)
-        cell.metadata.sub[cell.metadata.sub[, path_col] == paths[1], pseudotime_col] <- rescaled_values$path1
-        cell.metadata.sub[cell.metadata.sub[, path_col] == paths[2], pseudotime_col] <- rescaled_values$path2
-    } else {
-        # Compute the range difference for each path
-        diff_range_path1 <- diff(range(pseudotime_path1))
-        diff_range_path2 <- diff(range(pseudotime_path2))
-        
-        # Rescale the pseudotimes of the path with the larger range
-        if (diff_range_path1 > diff_range_path2) {
-            if (verbose) cat("Rescaling pseudotime of", paths[1], "to match the range of", paths[2], "\n")
-            # Rescale pseudotime of path1 to fit into the range of path2
-            scaling_factor <- diff_range_path2 / diff_range_path1
-            rescaled_pseudotime_path1 <- min(pseudotime_path2) + scaling_factor * (pseudotime_path1 - min(pseudotime_path1))
-            cell.metadata.sub[cell.metadata.sub[, path_col] == paths[1], pseudotime_col] <- rescaled_pseudotime_path1
-        } else {
-            if (verbose) cat("Rescaling pseudotime of", paths[2], "to match the range of", paths[1], "\n")
-            # Rescale pseudotime of path2 to fit into the range of path1
-            scaling_factor <- diff_range_path1 / diff_range_path2
-            rescaled_pseudotime_path2 <- min(pseudotime_path1) + scaling_factor * (pseudotime_path2 - min(pseudotime_path2))
-            cell.metadata.sub[cell.metadata.sub[, path_col] == paths[2], pseudotime_col] <- rescaled_pseudotime_path2
-        }
-    }
+    # Get list
+    pTimeVectors <- select_longer_vector(vector1 = path1_time, vector1_label = path.vec[1],
+                                         vector2 = path2_time, vector2_label = path.vec[2])
     
-    # Add to the metadata
-    new_pseudotime <- paste(pseudotime_col, "dtw", sep = "_")
-    colnames(cell.metadata.sub) <- c(new_pseudotime, path_col, "cell")
+    if(length(pTimeVectors) == 4){
+    # Update
+    pTimeVectors$long_vec <- rescale(pTimeVectors$long_vec, to = c(min(pTimeVectors$short_vec), max(pTimeVectors$short_vec)),)
     
-    # leftjoin over two columns
-    cell.metadata$cell <- rownames(cell.metadata)
-    cell.metadata.dtw <- merge(cell.metadata.sub, cell.metadata, by.x = c("cell", path_col), by.y = c("cell", path_col), all.x = TRUE)
-    rownames(cell.metadata.dtw) <- cell.metadata.dtw$cell
-    cell.metadata.dtw <- cell.metadata.dtw[, !colnames(cell.metadata.dtw) %in% "cell"]
+    short_tmp <- data.frame(time = pTimeVectors$short_vec,
+                            cell = names(pTimeVectors$short_vec))
+    colnames(short_tmp) <- c(paste(pseudotime_col, "rescaled", sep = "_"), "cell")
+    long_tmp <- data.frame(time = pTimeVectors$long_vec,
+                           cell = names(pTimeVectors$long_vec))
+    colnames(long_tmp) <- c(paste(pseudotime_col, "rescaled", sep = "_"), "cell")
+    new_time  <- rbind(short_tmp, long_tmp)
     
-    scmpObj@sce@colData <- DataFrame(cell.metadata.dtw)
-    scmpObj@addParams@pseudotime_colname <- new_pseudotime
+    # Merge
+    cell.metadata <- merge(cell.metadata, new_time, by = "cell")
+    rownames(cell.metadata) <- cell.metadata[["cell"]]
     
-    # Return the modified data
+    # Drop cell
+    cell.metadata <- cell.metadata[, colnames(cell.metadata) != "cell", drop = F]
+    
+    # Add
+    scmpObj@sce@colData <- DataFrame(cell.metadata)
+    
+    # Update Pseudotime
+    scmpObj@addParams@pseudotime_colname <- paste(pseudotime_col, "rescaled", sep = "_")
+    
     return(scmpObj)
-}
-
-rescale_pseudotime <- function(path1, path2, verbose = TRUE) {
-    # Step 1: Calculate the range for both paths
-    range_path1 <- range(path1)
-    range_path2 <- range(path2)
-    
-    # Step 2: Check which path has a smaller range
-    if (verbose) {
-        cat("Range of path1:", range_path1, "\n")
-        cat("Range of path2:", range_path2, "\n")
+    }else{
+        return(scmpObj)
     }
-    
-    if (diff(range_path1) < diff(range_path2)) {
-        # Rescale path2 to range of path1
-        if (verbose) cat("Rescaling path2 to range of path1.\n")
-        rescaled_path2 <- rescale_to_range(path2, range_path1)
-        return(list(path1 = path1, path2 = rescaled_path2))
-    } else {
-        # Rescale path1 to range of path2
-        if (verbose) cat("Rescaling path1 to range of path2.\n")
-        rescaled_path1 <- rescale_to_range(path1, range_path2)
-        return(list(path1 = rescaled_path1, path2 = path2))
-    }
-}
-
-rescale_to_range <- function(data, new_range) {
-    old_range <- range(data)
-    scale_factor <- diff(new_range) / diff(old_range)
-    rescaled_data <- (data - old_range[1]) * scale_factor + new_range[1]
-    return(rescaled_data)
 }
