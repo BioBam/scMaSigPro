@@ -120,16 +120,16 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     colnames(trajectory.df) <- c("from", "to", "weight", "x_from", "y_from", "x_to", "y_to")
     
     #Run Shiny
-    selection.list <- list(
-      root = "Y_41",
-      path1 = c("Y_11", "Y_14", "Y_23", "Y_35", "Y_41"),
-      path2 = c("Y_11", "Y_13", "Y_14", "Y_39", "Y_41")
-    )
-    # selection.list <- shinySelect(trajectory_data = trajectory.df,
-    #                               annotation_data = anno.df,
-    #                               label_coords = pgraph.coords,
-    #                               inputType = "Monocle3",
-    #                               pseudotime_colname = pseudotime_col)
+    # selection.list <- list(
+    #   root = "Y_41",
+    #   path1 = c("Y_11", "Y_14", "Y_23", "Y_35", "Y_41"),
+    #   path2 = c("Y_11", "Y_13", "Y_14", "Y_39", "Y_41")
+    # )
+    selection.list <- shinySelect(trajectory_data = trajectory.df,
+                                  annotation_data = anno.df,
+                                  label_coords = pgraph.coords,
+                                  inputType = "Monocle3",
+                                  pseudotime_colname = pseudotime_col)
 
     
     if (is.null(selection.list)) {

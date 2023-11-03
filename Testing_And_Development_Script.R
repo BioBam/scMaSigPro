@@ -52,40 +52,38 @@ sc.PlotGroups(scmpObj = scmp,
 
 
 # Developing Methods for monocle3
-
-# Step-1: Load data and Monocle3 like function
-load("extdata/rep1_processed.RData")
-
-# Create SCMP Object
-scmp.cds.test <- cds
-
-
 # test real Data
 library(assertthat)
 library(tidyverse)
 library(SingleCellExperiment)
 library(entropy)
 
+# Step-1: Load data and Monocle3 like function
+load("extdata/rep1_processed.RData")
 
+# Convert to scmp object
 scmp.cds.test <- as_scmp(cds,
                     "cds",
                     interactive = T,
                     annotation_colname = "predicted.celltype.l2",
                     align_pseudotime = T)
 
-
-# Get errors
-scmp.cds.test <- sc.discretize(scmp.cds.test, binning = "individual",homogenize_bins = T,
+# Bin
+scmp.cds.test <- sc.discretize(scmp.cds.test,
+                               binning = "individual",
+                               homogenize_bins = T,
                         additional_params = list(use_unique_time_points = T), verbose = T,
                         drop.fac = 0.4)
 
+# Pseudobulk the Cell level metadata
 scmp.cds.test <- make.pseudobulk.design(scmp.cds.test,
                                    verbose= T, fill_gaps = T)
 
-# Sc Plot.bins
+# Validation Plots
 sc.plot.bins.bar(scmpObj = scmp.cds.test)
 sc.plot.bins.tile(scmpObj = scmp.cds.test)
 
+# Pseudobulk Counts
 scmp.cds.test <- make.pseudobulk.counts(scmp.cds.test)
 
 # Step-4: Make Design-Matrix
@@ -103,13 +101,21 @@ scmp.cds.test <- sc.T.fit(scmpObj = scmp.cds.test,
 scmp.cds.test <- sc.get.siggenes(scmpObj = scmp.cds.test, vars = "groups")
 
 
+# View Sig genes
+View(showSol(scmp.cds.test, return = T, view = F))
+
+# Plots
 sc.PlotGroups(scmpObj = scmp.cds.test,
-              feature_id = "MPO",
+              feature_id = "RFX8",
               smoothness = 0.1,
-              logs = F,
+              logs = T,
               logType = "log")
 
-View(showSol(scmp.cds.test, return = T, view = F))
+sc.PlotGroups(scmpObj = scmp.cds.test,
+              feature_id = "CDK14",
+              smoothness = 0.1,
+              logs = T,
+              logType = "log")
 stop()
 
 

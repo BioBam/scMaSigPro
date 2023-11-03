@@ -98,7 +98,7 @@ make.pseudobulk.design <- function(scmpObject,
   # pB.list <- mclapply(avail.paths, function(path, design.frame = compressed_cell_metadata,
   pB.list <- lapply(avail.paths, function(path, design.frame = compressed_cell_metadata,
                                           binned.col = bin_pseudotime_colname, path.col = path_colname,
-                                          v = verbose) {
+                                          v = verbose, fill.gaps = fill_gaps) {
     if (v) {
       message("Running for", path)
     }
@@ -141,12 +141,17 @@ make.pseudobulk.design <- function(scmpObject,
       diff(bin_range) >= 100,
       paste("Differences among bin sizes are greater than 100 units for", path)
     )
-
+    
+    if(fill.gaps){
+    # if fill groups are true 
+    path.time.cell[[binned.col]] <- rownames(path.time.cell)
+    }
+    
     # Return frame
     return(path.time.cell)
     # }, mc.cores = num_cores)
   })
-
+  
   # Bind rows
   pB.frame <- bind_rows(pB.list) %>% as.data.frame()
 
@@ -157,12 +162,37 @@ make.pseudobulk.design <- function(scmpObject,
   # pB.frame <- pB.frame %>% select(-"scmp_bar")
   
   if(fill_gaps){
-      message("Doing nothing under construction")
       
+      # Find the maximum 'scmp_binned_pseudotime' for each 'Path'
+      pB.frame_tmp <- pB.frame %>%
+          group_by(!!sym(path_colname)) %>%
+          summarize(max_time = max(!!sym(bin_pseudotime_colname))) %>%
+          ungroup()
+      
+      # Find the minimum of the max 'scmp_binned_pseudotime' across all 'Path'
+      min_max_time <- min(pB.frame_tmp$max_time)
+      
+      # Identify rows to be removed
+      rows_to_remove <- pB.frame %>%
+          filter(!!sym(bin_pseudotime_colname) > min_max_time)
+      
+      # Print a message about the rows that will be removed
+      if(verbose){
+          if(nrow(rows_to_remove) > 0) {
+              message(paste("Dropped trailing bin", rows_to_remove[[bin_pseudotime_colname]], "from",rows_to_remove[[path_colname]]))
+          }
+          }
+      
+      # Filter out rows where 'scmp_binned_pseudotime' is greater than 'min_max_time'
+      pB.frame <- pB.frame %>%
+          filter(!!sym(bin_pseudotime_colname) <= min_max_time)
   }
   
   # Add rownames
   rownames(pB.frame) <- pB.frame[[bin_colname]]
+  
+  # Covert columns to mumeric
+  pB.frame[[bin_pseudotime_colname]] <- as.numeric(pB.frame[[bin_pseudotime_colname]])
   
   ## Add Processed Cell Matadata back with slot update
   compressed.sce <- SingleCellExperiment(assays = list(bulk.counts = as(matrix(NA, nrow = 0, ncol = nrow(pB.frame)), "dgCMatrix")))
