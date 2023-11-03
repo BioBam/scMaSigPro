@@ -77,7 +77,7 @@ annotate_monocle3_cds <- function(cds, reduction_method = "umap",
   }
 
   # Extract the minimum spanning tree
-  mst <- principal_graph(cds)[[reduction_method]]
+  mst <- cds@principal_graph_aux@listData[[reduction_method]]$dp_mst
 
   # Get the endpoint nodes (degree 1 nodes) of the tree and remove the root nodes
   endpoints <- names(which(degree(mst) == 1))

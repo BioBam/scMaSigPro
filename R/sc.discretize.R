@@ -269,6 +269,8 @@ sc.discretize <- function(scmpObject,
         # Extract the time information as a vector
         time_vector <- path.frame[, time.col]
         length_n <- length(time_vector)
+
+
         if (use.unique.time.points) {
           time_vector <- unique(time_vector)
           length_n <- length(time_vector)
@@ -289,7 +291,7 @@ sc.discretize <- function(scmpObject,
               time_vector = time_vector, nPoints = length_n,
               drop_fac = drop.fac, bin_method = method.bin
             )
-            
+
             if (verbose) {
               message(paste(
                 "Estimated Bin Sizes =", estBins, "with",
@@ -333,6 +335,16 @@ sc.discretize <- function(scmpObject,
                                      verbose = v)
         }
         
+        # Combine Tables
+        # processed_cell_metadata <- as.data.frame(
+        #   left_join(path.frame, bin_table,
+        #     by = join_by(
+        #       closest(!!time.col >= !!lbound),
+        #       closest(!!time.col <= !!ubound)
+        #     )
+        #   )
+        # )
+        
         # Create an empty data frame to store the results
         processed_cell_metadata <- data.frame()
         
@@ -373,7 +385,6 @@ sc.discretize <- function(scmpObject,
   )
 
   # Now, you can remove the 'cell' column
-  rownames(processed_cell_metadata) <- processed_cell_metadata[["cell"]]
   processed_cell_metadata <- processed_cell_metadata %>% select(-"cell")
   
   ## Add Processed Cell Matadata back with slot update

@@ -13,6 +13,7 @@ data("Sim2Path", package = "scMaSigPro")
 
 # Step-2: Convert to ScMaSigpro Object
 scmp <- as_scmp(object = sim.sce, from = "sce",
+                align.pseudotime = F,
                 additional_params = list(labels_exist = TRUE,
                                          existing_pseudotime_colname = "Step",
                                          existing_path_colname = "Group")
@@ -51,26 +52,132 @@ sc.PlotGroups(scmpObj = scmp,
 
 
 # Developing Methods for monocle3
+# test real Data
+library(assertthat)
+library(tidyverse)
+library(SingleCellExperiment)
+library(entropy)
 
 # Step-1: Load data and Monocle3 like function
 load("extdata/rep1_processed.RData")
-suppressPackageStartupMessages(library(shiny))
-suppressPackageStartupMessages(library(plotly))
-suppressPackageStartupMessages(library(tidyverse))
-suppressPackageStartupMessages(library(igraph))
-suppressPackageStartupMessages(library(assertthat))
-suppressPackageStartupMessages(library(SingleCellExperiment))
 
-# Step-2: Select the Paths
-scmp.cds  <- selectPath.m3(cdsObj = cds, annotation = "predicted.celltype.l2")
+# Convert to scmp object
+scmp.cds.test <- as_scmp(cds,
+                    "cds",
+                    interactive = T,
+                    annotation_colname = "predicted.celltype.l2",
+                    align_pseudotime = T)
 
-# Create SCMP Object
-test <-  as_scmp(cds, "cds")
+# Bin
+scmp.cds.test <- sc.discretize(scmp.cds.test,
+                               binning = "individual",
+                               homogenize_bins = T,
+                        additional_params = list(use_unique_time_points = T), verbose = T,
+                        drop.fac = 0.4)
 
-scmp.cds <- entropy_discretize(scmp.cds,drop.fac = 0.4,
-                           verbose = T,
-                           binning = "individual",
-                           additional_params = list(use_unique_time_points = TRUE))
+# Pseudobulk the Cell level metadata
+scmp.cds.test <- make.pseudobulk.design(scmp.cds.test,
+                                   verbose= T, fill_gaps = T)
+
+# Validation Plots
+sc.plot.bins.bar(scmpObj = scmp.cds.test)
+sc.plot.bins.tile(scmpObj = scmp.cds.test)
+
+# Pseudobulk Counts
+scmp.cds.test <- make.pseudobulk.counts(scmp.cds.test)
+
+# Step-4: Make Design-Matrix
+scmp.cds.test <- sc.make.design.matrix(scmp.cds.test, poly_degree = 2)
+
+# Step-5: Run P-vector
+scmp.cds.test <- sc.p.vector(scmp.cds.test, parallel = T,
+                             min.obs = 0, offset = T)
+
+# Step-6: RunT-step
+scmp.cds.test <- sc.T.fit(scmpObj = scmp.cds.test,
+                     parallel = T,offset = T)
+
+# Step-7: Get significant genes
+scmp.cds.test <- sc.get.siggenes(scmpObj = scmp.cds.test, vars = "groups")
+
+
+# View Sig genes
+View(showSol(scmp.cds.test, return = T, view = F))
+
+# Plots
+sc.PlotGroups(scmpObj = scmp.cds.test,
+              feature_id = "RFX8",
+              smoothness = 0.1,
+              logs = T,
+              logType = "log")
+
+sc.PlotGroups(scmpObj = scmp.cds.test,
+              feature_id = "CDK14",
+              smoothness = 0.1,
+              logs = T,
+              logType = "log")
+stop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+scmp.cds <- as_scmp(cds,
+                    "cds",
+                    interactive = T,
+                    annotation_colname = "predicted.celltype.l2")
+#scmp.cds.org <- 
+scmp.cds <- scmp.cds.org
+
+scmp.cds <- entropy_discretize(scmp.cds,
+                               drop.fac = 0.3,
+                               verbose = T,
+                               binning = "universal",
+                               additional_params = list(use_unique_time_points = FALSE))
 
 scmp.cds <- make.pseudobulk.design(scmp.cds,
                                verbose= T)

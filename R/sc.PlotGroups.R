@@ -7,6 +7,8 @@
 #' @param xlab X-axis label. Default is "Pooled Pseudotime".
 #' @param ylab Y-axis label. Default is "Pseudobulk Expression".
 #' @param smoothness abc
+#' @param logs Whether to plot log of counts
+#' @param logType Log type required
 #'
 #' @import ggplot2
 #' @importFrom RColorConesa getConesaColors
@@ -18,7 +20,9 @@ sc.PlotGroups <-
            feature_id,
            xlab = "Pooled Pseudotime",
            ylab = "Pseudobulk Expression",
-           smoothness = 0.01) {
+           smoothness = 0.01,
+           logs = TRUE,
+           logType = "log10") {
     # Invoke Variables
     pb.counts <- "pb.counts"
     pooled.time <- "pooled.time"
@@ -101,20 +105,40 @@ sc.PlotGroups <-
 
     # Calc limits
     xlim <- c(min(points.df[[pooled.time]], na.rm = TRUE), max(points.df[[pooled.time]], na.rm = TRUE) * 1.3)
-    ylim <- c(min(as.numeric(points.df[[pb.counts]]), na.rm = TRUE), max(as.numeric(points.df[[pb.counts]]), na.rm = TRUE))
+    #ylim <- c(min(as.numeric(points.df[[pb.counts]]), na.rm = TRUE), max(as.numeric(points.df[[pb.counts]]), na.rm = TRUE))
 
     xlim[2] <- max(points.df[[pooled.time]])
 
     conesa_colors <- getConesaColors()[c(T, F)][c(1:length(unique(points.df[[path]])))]
     names(conesa_colors) <- unique(points.df[[path]])
 
+    # Extract sol
+    data.sol <- showSol(scmpObj, view = FALSE, return = TRUE)
+    data.sol <- data.sol[feature_id, , drop=FALSE]
+    
+    # if log is requestion
+    if(logs){
+        if(logType == "log2"){
+            points.df$pb.counts <- log2(points.df$pb.counts)
+            ylab <- paste0("log2(", ylab, ")")
+        }else if(logType == "log"){
+            points.df$pb.counts <- log(points.df$pb.counts)
+            ylab <- paste0("log(", ylab, ")")
+        }else if(logType == "log10"){
+            points.df$pb.counts <- log10(points.df$pb.counts)
+            ylab <- paste0("log10(", ylab, ")")
+        }else{
+            stop("'logType' should be one of 'log2', 'log10', 'log'")
+        }
+    }
+
     p <- ggplot() +
-      geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.5, size = 2, stroke = 1, shape = 21) +
-      geom_line(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), linetype = "dotted", linewidth = 1) +
-      geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "solid", linewidth = 1.5) +
+        geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.5, size = 2, stroke = 1, shape = 21) +
+        geom_line(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), linetype = "dotted", linewidth = 1) +
+        geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "solid", linewidth = 1.5) +
       ggtitle(
         paste("Feature Id:", feature_id),
-        #   subtitle = paste("R2:", round(data.sol[, 2], 3), "| p-Value:", round(data.sol[, 1], 3))
+           subtitle = paste("R2:", round(data.sol[, 2], 3), "| p-Value:", round(data.sol[, 1], 3))
       ) +
       xlab(xlab) +
       ylab(ylab) +
@@ -126,7 +150,7 @@ sc.PlotGroups <-
       ) +
       scale_x_continuous(breaks = seq(min(xlim), max(xlim), by = round(log10(length(points.df[[pooled.time]]))))) +
       labs(color = "Paths") +
-      coord_cartesian(xlim = xlim, ylim = ylim) +
+      #coord_cartesian(xlim = xlim, ylim = ylim) +
       scale_color_manual(values = conesa_colors)
     #
     print(p)
