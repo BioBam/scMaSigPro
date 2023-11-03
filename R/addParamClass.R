@@ -4,7 +4,6 @@
 #' @slot path_prefix A character representing the prefix for path labeling.
 #' @slot root_label A character representing the label for the root of the tree.
 #' @slot pseudotime_colname A character representing the name of the column for pseudotime values.
-#' @slot per_path A logical vector.
 #' @slot bin_method A character representing the algorithm used for binning.
 #' @slot path_colname A character representing the name of the column for path values.
 #' @slot bin_colname A character representing the name of the column for bin values.
@@ -31,7 +30,6 @@ setClass(
     path_prefix = "character",
     root_label = "character",
     pseudotime_colname = "character",
-    per_path = "logical",
     step.method = "character",
     bin_method = "character",
     path_colname = "character",
@@ -97,7 +95,6 @@ setClass(
     path_prefix = "Path",
     root_label = "root",
     pseudotime_colname = "Pseudotime",
-    per_path = TRUE,
     path_colname = "Path",
     bin_method = "Sturges",
     bin_colname = "scmp_bin",

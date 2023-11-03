@@ -70,10 +70,10 @@ scmp.cds.test <- as_scmp(cds,
                     align_pseudotime = T)
 
 # Bin
-scmp.cds.test <- sc.discretize(scmp.cds.test,
-                               per_path = T,
+scmp.cds.test <- squeeze(scmp.cds.test,
                                homogenize_bins = F,
-                        additional_params = list(use_unique_time_points = T), verbose = T,
+                        additional_params = list(use_unique_time_points = T),
+                        verbose = T,
                         drop.fac = 0.4)
 
 sc.plot.bins.tile(scmpObj = scmp.cds.test)
