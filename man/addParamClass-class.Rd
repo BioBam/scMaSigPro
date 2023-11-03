@@ -19,7 +19,7 @@ Class "addParamClass"
 
 \item{\code{pseudotime_colname}}{A character representing the name of the column for pseudotime values.}
 
-\item{\code{binning}}{A character representing the binning method.}
+\item{\code{per_path}}{A logical vector.}
 
 \item{\code{bin_method}}{A character representing the algorithm used for binning.}
 

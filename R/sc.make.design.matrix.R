@@ -64,7 +64,7 @@ sc.make.design.matrix <- function(scmpObject,
 
   # Reorder columns
   com.cell.meta <- as.matrix(com.cell.meta[, ord])
-  
+
   # Run Original MaSigPro make.matrix.design
   edesignList <- make.design.matrix(com.cell.meta,
     degree = poly_degree,

@@ -4,7 +4,7 @@
 #' @slot path_prefix A character representing the prefix for path labeling.
 #' @slot root_label A character representing the label for the root of the tree.
 #' @slot pseudotime_colname A character representing the name of the column for pseudotime values.
-#' @slot binning A character representing the binning method.
+#' @slot per_path A logical vector.
 #' @slot bin_method A character representing the algorithm used for binning.
 #' @slot path_colname A character representing the name of the column for path values.
 #' @slot bin_colname A character representing the name of the column for bin values.
@@ -31,7 +31,7 @@ setClass(
     path_prefix = "character",
     root_label = "character",
     pseudotime_colname = "character",
-    binning = "character",
+    per_path = "logical",
     step.method = "character",
     bin_method = "character",
     path_colname = "character",
@@ -50,7 +50,7 @@ setClass(
     # Check if any character slots are empty or not of type character
     char_slots <- c(
       "bin_pseudotime_colname", "path_prefix", "root_label",
-      "pseudotime_colname", "binning", "bin_method",
+      "pseudotime_colname", "bin_method",
       "path_colname", "bin_colname", "bin_size_colname",
       "bin_members_colname", "MT.adjust", "step.method"
     )
@@ -97,7 +97,7 @@ setClass(
     path_prefix = "Path",
     root_label = "root",
     pseudotime_colname = "Pseudotime",
-    binning = "universal",
+    per_path = TRUE,
     path_colname = "Path",
     bin_method = "Sturges",
     bin_colname = "scmp_bin",

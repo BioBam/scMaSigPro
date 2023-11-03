@@ -11,7 +11,8 @@ make.pseudobulk.design(
   bin_size_colname = scmpObject@addParams@bin_size_colname,
   bin_members_colname = "scmp_bin_members",
   bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname,
-  verbose = TRUE
+  verbose = TRUE,
+  fill_gaps = FALSE
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ storing information about the members of the bins. (Default is 'scmp_bin_members
 storing information about the binned pseudotime. (Default is 'scmp_binned_pseudotime').}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
+
+\item{fill_gaps}{description}
 }
 \value{
 A data.frame containing the pseudobulk profile. The data frame includes the following columns:

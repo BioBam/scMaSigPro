@@ -65,22 +65,24 @@ load("extdata/rep1_processed.RData")
 scmp.cds.test <- as_scmp(cds,
                     "cds",
                     interactive = T,
+                    verbose = T,
                     annotation_colname = "predicted.celltype.l2",
                     align_pseudotime = T)
 
 # Bin
 scmp.cds.test <- sc.discretize(scmp.cds.test,
-                               binning = "individual",
-                               homogenize_bins = T,
+                               per_path = T,
+                               homogenize_bins = F,
                         additional_params = list(use_unique_time_points = T), verbose = T,
                         drop.fac = 0.4)
+
+sc.plot.bins.tile(scmpObj = scmp.cds.test)
 
 # Pseudobulk the Cell level metadata
 scmp.cds.test <- make.pseudobulk.design(scmp.cds.test,
                                    verbose= T, fill_gaps = T)
 
 # Validation Plots
-sc.plot.bins.bar(scmpObj = scmp.cds.test)
 sc.plot.bins.tile(scmpObj = scmp.cds.test)
 
 # Pseudobulk Counts

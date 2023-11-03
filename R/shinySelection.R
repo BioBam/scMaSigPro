@@ -62,15 +62,15 @@ shinySelect <- function(trajectory_data,
           column(3, sliderInput("trPlotNodeText", "Node Text Size", min = 0.5, max = 3, value = 1)),
           column(3, sliderInput("trPlotCellStroke", "Cell Stroke", min = 0.1, max = 2, value = 0.7)),
           column(3, radioButtons("trPlotCellColor", "Set color",
-                      choices = list("Pseudotime"= "pTime",
-                           "Cell Annotations" = "anno"
-                           ), selected = "pTime"
-                      )
-                 )
-          )
+            choices = list(
+              "Pseudotime" = "pTime",
+              "Cell Annotations" = "anno"
+            ), selected = "pTime"
+          ))
         )
       )
     )
+  )
 
 
   if (inputType == "Monocle3") {
@@ -105,11 +105,11 @@ shinySelect <- function(trajectory_data,
         } else {
           label_coords$root_high <- "No"
         }
-        
-        if(input$trPlotCellColor == "pTime"){
-            colName <- pseudotime_colname
-        }else if(input$trPlotCellColor == "anno"){
-            colName <- "anno"
+
+        if (input$trPlotCellColor == "pTime") {
+          colName <- pseudotime_colname
+        } else if (input$trPlotCellColor == "anno") {
+          colName <- "anno"
         }
 
         if (all(c("path1_high", "path2_high", "root_high") %in% colnames(label_coords))) {
@@ -134,7 +134,9 @@ shinySelect <- function(trajectory_data,
             xlab("UMAP-1") +
             ylab("UMAP-2")
 
-          ggplotly(trajectory.map, source = "trajectoryPlot") %>% plotly::layout(dragmode = "lasso") %>% config(displaylogo = FALSE)
+          ggplotly(trajectory.map, source = "trajectoryPlot") %>%
+            plotly::layout(dragmode = "lasso") %>%
+            config(displaylogo = FALSE)
         }
       })
 
@@ -162,23 +164,20 @@ shinySelect <- function(trajectory_data,
           showNotification(paste("Please select only one node as root node."))
         }
       })
-      
+
       output$verbatRoot <- renderText({
-          root_node_value <- root_node()
-          
-          return(paste0("Selected Root Nodes: ", root_node_value))
-          
+        root_node_value <- root_node()
+
+        return(paste0("Selected Root Nodes: ", root_node_value))
       })
       output$verbatPath1 <- renderText({
-          path1_highlight <- path1()
-          
-          return(paste0("Selected Path1 Nodes:", paste(path1_highlight, collapse = ",")))
-          
+        path1_highlight <- path1()
+
+        return(paste0("Selected Path1 Nodes:", paste(path1_highlight, collapse = ",")))
       })
       output$verbatPath2 <- renderText({
-          path2_highlight <- path2()
-          return(paste0("Selected Path2 Nodes:", paste(path2_highlight, collapse = ",")))
-          
+        path2_highlight <- path2()
+        return(paste0("Selected Path2 Nodes:", paste(path2_highlight, collapse = ",")))
       })
 
       # Set Path-1
@@ -292,11 +291,11 @@ shinySelect <- function(trajectory_data,
           label_coords_sub$path2_high <- ifelse(label_coords_sub$node %in% path2_highlight, "Yes", "No")
           label_coords_sub$root_high <- ifelse(label_coords_sub$node == root_node_value, "Yes", "No")
         }
-        
-        if(input$trPlotCellColor == "pTime"){
-            colName <- pseudotime_colname
-        }else if(input$trPlotCellColor == "anno"){
-            colName <- "anno"
+
+        if (input$trPlotCellColor == "pTime") {
+          colName <- pseudotime_colname
+        } else if (input$trPlotCellColor == "anno") {
+          colName <- "anno"
         }
 
         sub.trajectory.map <- ggplot() +

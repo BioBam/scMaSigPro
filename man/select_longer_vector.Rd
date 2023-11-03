@@ -29,4 +29,7 @@ If both vectors are of the same length, the function returns 1.
 This function compares the lengths of two vectors and returns the longer one.
 If both vectors have the same length, the function returns 1.
 }
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
+}
 \keyword{internal}

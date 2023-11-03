@@ -17,19 +17,21 @@
 #' }
 #' If both vectors are of the same length, the function returns 1.
 #'
-#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #' @keywords internal
 select_longer_vector <- function(vector1, vector2,
                                  vector1_label, vector2_label) {
-    if (length(vector1) > length(vector2)) {
-        return(list(long_vec = vector1, long_vec_label = vector1_label,
-                    short_vec = vector2, short_vec_label = vector2_label
-        ))
-    } else if (length(vector2) > length(vector1)) {
-        return(list(long_vec = vector2, long_vec_label = vector2_label,
-                    short_vec = vector1, short_vec_label = vector1_label
-        ))
-    } else {
-        return(list(empty = 1))
-    }
+  if (length(vector1) > length(vector2)) {
+    return(list(
+      long_vec = vector1, long_vec_label = vector1_label,
+      short_vec = vector2, short_vec_label = vector2_label
+    ))
+  } else if (length(vector2) > length(vector1)) {
+    return(list(
+      long_vec = vector2, long_vec_label = vector2_label,
+      short_vec = vector1, short_vec_label = vector1_label
+    ))
+  } else {
+    return(list(empty = 1))
+  }
 }

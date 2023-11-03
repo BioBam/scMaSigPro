@@ -15,45 +15,48 @@
 #'
 #' @export
 sc.plot.bins.tile <- function(scmpObj,
-                             path_colname = scmpObj@addParams@path_colname,
-                             bin_size_colname = scmpObj@addParams@bin_size_colname,
-                             bin_pseudotime_colname = scmpObj@addParams@bin_pseudotime_colname) {
-    
-    # Check Object Validity
-    assert_that(is(scmpObj, "scMaSigProClass"),
-                msg = "Please provide object of class 'scMaSigPro'."
-    )
-    
-    # Check whether the compression data exist or not
-    compression.info <- as.data.frame(colData(scmpObj@compress.sce))
-    
-    # Check if values are binned
-    assert_that(nrow(compression.info) >= 1,
-                msg = "Please run 'sc.discretize' and 'make.pseudobulk.design' first."
-    )
-    
-    # get conesa colors
-    conesa_colors <- getConesaColors()[c(T, F)][c(1:length(unique(compression.info[[path_colname]])))]
-    names(conesa_colors) <- unique(unique(compression.info[[path_colname]]))
-    
-    # Create plot data
-    plt.data <- data.frame(
-        pTime = as.factor(compression.info[[bin_pseudotime_colname]]),
-        bin = compression.info[[bin_pseudotime_colname]],
-        path = compression.info[[path_colname]],
-        binSize = compression.info[[bin_size_colname]]
-        
-    )
-    
-    # Create plot
-    tile <- ggplot(plt.data, aes(x = .data$pTime, y = .data$path)) +
-        geom_tile(aes(fill = .data$binSize)) +
-        scale_fill_gradient(low = "#FDA3D1", high = "#FDC659") +
-        geom_text(aes(label = sprintf("%d", round(.data$binSize, 1))), vjust = 1) +
-        ggtitle("") +
-        xlab(bin_pseudotime_colname) +
-        ylab(path_colname) +
-        theme_minimal()
-    
-    print(tile)
+                              path_colname = scmpObj@addParams@path_colname,
+                              bin_size_colname = scmpObj@addParams@bin_size_colname,
+                              bin_pseudotime_colname = scmpObj@addParams@bin_pseudotime_colname) {
+  # Check Object Validity
+  assert_that(is(scmpObj, "scMaSigProClass"),
+    msg = "Please provide object of class 'scMaSigPro'."
+  )
+
+  # Check whether the compression data exist or not
+  compression.info <- as.data.frame(colData(scmpObj@compress.sce))
+  
+  # Check for extended data
+  if(nrow(compression.info) < 1){
+      compression.info <- as.data.frame(colData(scmpObj@sce))
+  }
+
+  # Check if values are binned
+  assert_that(nrow(compression.info) >= 1,
+    msg = "Please run 'sc.discretize' and 'make.pseudobulk.design' first."
+  )
+
+  # get conesa colors
+  conesa_colors <- getConesaColors()[c(T, F)][c(1:length(unique(compression.info[[path_colname]])))]
+  names(conesa_colors) <- unique(unique(compression.info[[path_colname]]))
+
+  # Create plot data
+  plt.data <- data.frame(
+    pTime = as.factor(compression.info[[bin_pseudotime_colname]]),
+    bin = compression.info[[bin_pseudotime_colname]],
+    path = compression.info[[path_colname]],
+    binSize = compression.info[[bin_size_colname]]
+  )
+
+  # Create plot
+  tile <- ggplot(plt.data, aes(x = .data$pTime, y = .data$path)) +
+    geom_tile(aes(fill = .data$binSize)) +
+    scale_fill_gradient(low = "#FDA3D1", high = "#FDC659") +
+    geom_text(aes(label = sprintf("%d", round(.data$binSize, 1))), vjust = 1) +
+    ggtitle("") +
+    xlab(bin_pseudotime_colname) +
+    ylab(path_colname) +
+    theme_minimal()
+
+  print(tile)
 }
