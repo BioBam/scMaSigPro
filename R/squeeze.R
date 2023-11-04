@@ -232,8 +232,8 @@ squeeze <- function(scmpObject,
     }
 
     # Get Mean and SD
-    mean_value <- round(mean(bin_table[[bin.size]]) / 2)
-    sd_value <- round(sd(bin_table[[bin.size]]) / 2)
+    mean_value <- round(mean(bin_table[[bin.size]]))
+    sd_value <- round(sd(bin_table[[bin.size]]))
 
     # Get thresholds
     max.allowed <- abs(mean_value + sd_value)
@@ -250,7 +250,7 @@ squeeze <- function(scmpObject,
       }
 
       # Adjust maximum Size
-      while (new_max >= max.allowed) {
+      while (new_max > max.allowed) {
         if (verbose) {
           message("Iteration ", it)
         }
@@ -295,37 +295,64 @@ squeeze <- function(scmpObject,
     rownames(bin_table) <- NULL
     bin_table[[bin_pseudotime_colname]] <- as.numeric(rownames(bin_table))
 
-    # Create an empty data frame to store the results
-    processed_cell_metadata <- data.frame()
-
     # Loop over each row of raw_cell_metadata
     for (i in 1:nrow(path.frame)) {
-      pseudotime_value <- path.frame[i, pseudotime_colname]
-
-      # Filter bin_table based on pseudotime_value
-      matching_bins <- bin_table[
-        pseudotime_value >= bin_table[, lbound] &
-          pseudotime_value <= bin_table[, ubound],
-      ]
-
-      # Combine the raw_cell_metadata row with each matching bin
-      combined_rows <- merge(path.frame[i, ], matching_bins, all.x = TRUE, by = character(0))
-
-      # Bind combined_rows to results data frame
-      processed_cell_metadata <- rbind(processed_cell_metadata, combined_rows)
+        
+    # Get row from the Path frame
+      raw_i <- path.frame[i, , drop = F]
+      #print(paste("Completed raw_i <- path.frame[i, , drop = F] for", path))
+      
+      pseudotime_i <- raw_i[[pseudotime_colname]]
+      #print(paste("Completed pseudotime_i <- raw_i[[pseudotime_colname]] for", path))
+      
+      # Check limits
+      if(pseudotime_i >= min(bin_table[, lbound]) & pseudotime_i <= max(bin_table[, ubound])){
+          
+          # Check if the last elemenst (Last interval close both)
+          if (max(path.frame[[pseudotime_colname]] == pseudotime_i)){
+              matching_bins <- bin_table[(
+                  pseudotime_i >= bin_table[, lbound] &
+                      pseudotime_i <= bin_table[, ubound]),, drop = FALSE]
+              }else{
+                  # Filter bin_table based on pseudotime_value (right open left close)
+                  matching_bins <- bin_table[(
+                      pseudotime_i >= bin_table[, lbound] &
+                  pseudotime_i < bin_table[, ubound]),
+              , drop = FALSE]
+              }
+          
+          if(nrow(matching_bins) > 0){
+              # If two match present take the first one
+              if(nrow(matching_bins) == 2){
+                  path.frame[i, bin_pseudotime_colname] <- as.numeric(matching_bins[[bin_pseudotime_colname]][1])
+              }else{
+                  path.frame[i, bin_pseudotime_colname] <- as.numeric(matching_bins[[bin_pseudotime_colname]])
+              }
+          }
+      }
     }
+      
+     
     # Convert result to a data frame
-    processed_cell_metadata <- as.data.frame(processed_cell_metadata)
+    processed.path.frame <- as.data.frame(path.frame)
+    processed.path.frame <- processed.path.frame[!is.na(processed.path.frame[[bin_pseudotime_colname]]), , drop =F]
+    
+    #print(paste("processed.path.frame <- as.data.frame(path.frame)", path))
 
     # Set the 'cell' column as rownames
-    rownames(processed_cell_metadata) <- processed_cell_metadata$cell
-
-    return(processed_cell_metadata)
+    rownames(processed.path.frame) <- processed.path.frame$cell
+    
+    #print(paste("rownames(processed.path.frame) <- processed.path.frame$cell", path))
+    
+    #print(paste("setted rownames for", path))
+    
+    return(processed.path.frame)
   })
-
+  
   # Bind rows and convert to data frame, then drop 'cell' column
   processed_cell_metadata <- bind_rows(discrete.list) %>%
     as.data.frame()
+  
 
   # Set the 'cell' column as rownames
   rownames(processed_cell_metadata) <- processed_cell_metadata$cell

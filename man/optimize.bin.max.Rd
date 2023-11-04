@@ -46,8 +46,8 @@ with updated values for the bin size and bounds.
 \description{
 Adjust the bins of a dataframe based on a specified maximum bin size threshold.
 It checks if the bin size is too large relative to this threshold.
-If a bin is too large, it will be split into two equal parts until all bins are 
-below the maximum allowed size. Optionally, bins too small can be merged with 
+If a bin is too large, it will be split into two equal parts until all bins are
+below the maximum allowed size. Optionally, bins too small can be merged with
 adjacent bins based on the provided method.
 }
 \keyword{internal}
