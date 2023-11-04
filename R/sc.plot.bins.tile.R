@@ -25,10 +25,10 @@ sc.plot.bins.tile <- function(scmpObj,
 
   # Check whether the compression data exist or not
   compression.info <- as.data.frame(colData(scmpObj@compress.sce))
-  
+
   # Check for extended data
-  if(nrow(compression.info) < 1){
-      compression.info <- as.data.frame(colData(scmpObj@sce))
+  if (nrow(compression.info) < 1) {
+    compression.info <- as.data.frame(colData(scmpObj@sce))
   }
 
   # Check if values are binned

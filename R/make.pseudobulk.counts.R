@@ -35,7 +35,7 @@
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @export
+#' @keywords internal
 
 make.pseudobulk.counts <- function(scmpObject,
                                    bin_members_colname = scmpObject@addParams@bin_members_colname,

@@ -6,31 +6,26 @@ set.seed(123)
 
 # Load ScMaSigpro
 library(scMaSigPro)
-library(ggplot2)
 
 # Step-1: Load a dataset for testing
 data("Sim2Path", package = "scMaSigPro")
 
 # Step-2: Convert to ScMaSigpro Object
-scmp <- as_scmp(object = sim.sce, from = "sce",
-                align.pseudotime = F,
+scmp.sce <- as_scmp(object = sim.sce, from = "sce",
+                align_pseudotime = F,
                 additional_params = list(labels_exist = TRUE,
                                          existing_pseudotime_colname = "Step",
                                          existing_path_colname = "Group")
                 )
 
-# Step-3-A: Perform Binning
-scmp <- entropy_discretize(scmp,drop.fac = 1,
-                           verbose = T,
-                           binning = "individual",
-                           additional_params = list(use_unique_time_points = TRUE))
-
-# Step-3-B: Create Pseudo-Bulk Cell Metadata
-scmp <- make.pseudobulk.design(scmp,
-                               verbose= T)
-
-# Step-3-C: Pseudo-bulk the counts
-scmp <- make.pseudobulk.counts(scmp)
+# Step-3: Pseudo-Bulk
+scmp.sce <- squeeze(scmp.sce,
+                         split_bins = T,
+                         prune_bins = T,
+                         additional_params = list(use_unique_time_points = T),
+                         verbose = T,
+                         drop.fac = 0.4,
+                         drop_trails = FALSE)
 
 # Step-4: Make Design-Matrix
 scmp <- sc.make.design.matrix(scmp, poly_degree = 2)
@@ -71,22 +66,17 @@ scmp.cds.test <- as_scmp(cds,
 
 # Bin
 scmp.cds.test <- squeeze(scmp.cds.test,
-                               homogenize_bins = F,
+                         split_bins = T,
+                         prune_bins = F,
                         additional_params = list(use_unique_time_points = T),
                         verbose = T,
-                        drop.fac = 0.4)
+                        drop.fac = 0.4,
+                        drop_trails = TRUE)
 
 sc.plot.bins.tile(scmpObj = scmp.cds.test)
-
-# Pseudobulk the Cell level metadata
-scmp.cds.test <- make.pseudobulk.design(scmp.cds.test,
-                                   verbose= T, fill_gaps = T)
 
 # Validation Plots
-sc.plot.bins.tile(scmpObj = scmp.cds.test)
-
-# Pseudobulk Counts
-scmp.cds.test <- make.pseudobulk.counts(scmp.cds.test)
+sc.plot.bins.bar(scmpObj = scmp.cds.test)
 
 # Step-4: Make Design-Matrix
 scmp.cds.test <- sc.make.design.matrix(scmp.cds.test, poly_degree = 2)
@@ -108,14 +98,14 @@ View(showSol(scmp.cds.test, return = T, view = F))
 
 # Plots
 sc.PlotGroups(scmpObj = scmp.cds.test,
-              feature_id = "RFX8",
-              smoothness = 0.1,
+              feature_id = "MEF2A",
+              smoothness = 2,
               logs = T,
               logType = "log")
 
 sc.PlotGroups(scmpObj = scmp.cds.test,
               feature_id = "CDK14",
-              smoothness = 0.1,
+              smoothness = 0.01,
               logs = T,
               logType = "log")
 stop()

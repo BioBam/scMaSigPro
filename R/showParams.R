@@ -15,39 +15,41 @@
 #' # with a computed solution:
 #' showSol(scmpObj, view = TRUE, return = FALSE)
 #' }
+#' @importFrom methods slot slotNames
 #' @export
 showParams <- function(scmpObj, view = TRUE, return = FALSE) {
-    # Check Object Validity
-    assert_that(is(scmpObj, "scMaSigProClass"),
-                msg = "Please provide object of class 'scMaSigPro'"
-    )
-    
-    # Get slot names, assuming 'addParams' is a slot within 'scmpObj'
-    all_slots <- slotNames(scmpObj)
-    
-    # Get 'addParams' slot data using the correct S4 accessor method
-    addParamsData <- slot(scmpObj, "addParams")
-    
-    # Get all slots of 'addParams', assuming 'addParams' itself is an S4 object with slots
-    params <- lapply(slotNames(addParamsData), function(parameter) {
-        slot(addParamsData, parameter)
-    })
-    
-    # Get the data
-    params <- data.frame(
-        parameters = slotNames(addParamsData),
-        value = unlist(params))
-    
-    # If viewing is requested and the 'View' function is available
-    if (view && exists("View")) {
-        View(params)
-    }
-    
-    # If requested, return the parameters
-    if (return) {
-        return(params)
-    }
+  # Check Object Validity
+  assert_that(is(scmpObj, "scMaSigProClass"),
+    msg = "Please provide object of class 'scMaSigPro'"
+  )
+
+  # Get slot names, assuming 'addParams' is a slot within 'scmpObj'
+  all_slots <- slotNames(scmpObj)
+
+  # Get 'addParams' slot data using the correct S4 accessor method
+  addParamsData <- slot(scmpObj, "addParams")
+
+  # Get all slots of 'addParams', assuming 'addParams' itself is an S4 object with slots
+  params <- lapply(slotNames(addParamsData), function(parameter) {
+    slot(addParamsData, parameter)
+  })
+
+  # Get the data
+  params <- data.frame(
+    parameters = slotNames(addParamsData),
+    value = unlist(params)
+  )
+
+  # If viewing is requested and the 'View' function is available
+  if (view && exists("View")) {
+    View(params)
+  }
+
+  # If requested, return the parameters
+  if (return) {
+    return(params)
+  }
 }
 
-# You might need to load necessary packages or define any additional required functions 
+# You might need to load necessary packages or define any additional required functions
 # like 'assert_that' if not already defined.

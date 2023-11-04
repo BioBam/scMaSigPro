@@ -16,6 +16,7 @@
 #' package. (Default is `path_prefix`).
 #' @param bin_pseudotime_colname Name of the column to store the computed Pseudotime
 #' bins.
+#' @param bin_members_colname Name of the column in the 'annotated_cell_metadata'
 #' @param bin_colname Name of the bin column name
 #' @param bin_size_colname Setting the name of the bin size column.
 #' @param bin_method A character string specifying the method to use in order to
@@ -26,10 +27,14 @@
 #' number of bins if the initial binning results in too many bins. (Default = 0.5).
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #' per path iteratively. Options: "universal", "individual. (Default = "universal").
-#' @param homogenize_bins TRUE
 #' @param additional_params Pass additional parameters as a named list. See Details.
 #' @param assay_name Name of the Assay in the assay_name object from which retrieve the counts.
 #' (Default = "counts").
+#' @param split_bins If bin sizes are greater than
+#' @param prune_bins description
+#' @param drop_trails description
+#' @param cluster_count_by A character string specifying the method to use to
+#' aggregate counts within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").
 #'
 #' @return
 #' A data.frame that contains the original data plus additional columns:
@@ -76,11 +81,15 @@ squeeze <- function(scmpObject,
                     bin_method = "Sturges",
                     drop.fac = 0.5,
                     verbose = TRUE,
+                    bin_members_colname = "scmp_bin_members",
                     bin_colname = "scmp_bin",
                     bin_size_colname = "scmp_bin_size",
                     bin_pseudotime_colname = "scmp_binned_pseudotime",
-                    homogenize_bins = TRUE,
+                    split_bins = TRUE,
+                    prune_bins = TRUE,
                     assay_name = "counts",
+                    drop_trails = TRUE,
+                    cluster_count_by = "sum",
                     additional_params = list(use_unique_time_points = FALSE)) {
   # Initiate Variable
   scmp_bin_lower_bound <- "scmp_l_bound"
@@ -92,7 +101,7 @@ squeeze <- function(scmpObject,
   )
 
   # Extract cell metadata
-  cell_metadata <- as.data.frame(colData(scmpObject@sce))
+  raw_cell_metadata <- as.data.frame(colData(scmpObject@sce))
 
   # Drop Columns if exist
   cols_to_drop <- c(
@@ -100,7 +109,7 @@ squeeze <- function(scmpObject,
     scmpObject@addParams@bin_pseudotime_colname,
     "scmp_u_bound", "scmp_l_bound"
   )
-  cell_metadata <- cell_metadata[, !colnames(cell_metadata) %in% cols_to_drop, drop = FALSE]
+  raw_cell_metadata <- raw_cell_metadata[, !colnames(raw_cell_metadata) %in% cols_to_drop, drop = FALSE]
 
   # Count slot
   assert_that(
@@ -111,11 +120,11 @@ squeeze <- function(scmpObject,
   )
 
   # Checks
-  assert_that(pseudotime_colname %in% colnames(cell_metadata),
-    msg = paste0("'", pseudotime_colname, "' does not exist in cell_metadata. Please review the 'pseudotime_colname' parameter.")
+  assert_that(pseudotime_colname %in% colnames(raw_cell_metadata),
+    msg = paste0("'", pseudotime_colname, "' does not exist in cell.level.metadata Please review the 'pseudotime_colname' parameter.")
   )
-  assert_that(path_colname %in% colnames(cell_metadata),
-    msg = paste0("'", path_colname, "' does not exist in cell_metadata. Please review the 'path_colname' parameter.")
+  assert_that(path_colname %in% colnames(raw_cell_metadata),
+    msg = paste0("'", path_colname, "' does not exist in cell.level.metadata. Please review the 'path_colname' parameter.")
   )
   assert_that(drop.fac >= 0.3,
     msg = "Invalid value for 'drop.fac'. It should be between 0.3 and 1."
@@ -138,10 +147,10 @@ squeeze <- function(scmpObject,
   }
 
   # Add a column
-  cell_metadata$cell <- rownames(cell_metadata)
+  raw_cell_metadata$cell <- rownames(raw_cell_metadata)
 
   # Get the avaible paths
-  avail.paths <- as.vector(unique(cell_metadata[[path_colname]]))
+  avail.paths <- as.vector(unique(raw_cell_metadata[[path_colname]]))
 
   # Check for path
   assert_that(length(avail.paths) >= 2,
@@ -156,12 +165,13 @@ squeeze <- function(scmpObject,
   }
 
   # Apply transformations on data
-  discrete.list <- lapply(avail.paths, function(path, design.frame = cell_metadata,
+  discrete.list <- lapply(avail.paths, function(path, design.frame = raw_cell_metadata,
                                                 drop_fac = drop.fac, path.col = path_colname,
                                                 bin.size = bin_size_colname, bin = bin_colname,
                                                 time.col = pseudotime_colname, method.bin = bin_method,
                                                 bin.time.col = bin_pseudotime_colname,
-                                                hom_bin = homogenize_bins,
+                                                split = split_bins,
+                                                prune = prune_bins,
                                                 v = verbose, use.unique.time.points = additional_params$use_unique_time_points,
                                                 lbound = scmp_bin_lower_bound, ubound = scmp_bin_upper_bound) {
     # Get the cells belonging to path
@@ -188,10 +198,10 @@ squeeze <- function(scmpObject,
     # Calculate Optimal Number of Bins
     tryCatch(
       expr = {
-        estBins <- estBinSize(
+        estBins <- ceiling(estBinSize(
           time_vector = time_vector, nPoints = length_n,
           drop_fac = drop.fac, bin_method = method.bin
-        )
+        ))
 
         if (verbose) {
           message(paste(
@@ -206,196 +216,89 @@ squeeze <- function(scmpObject,
       }
     )
 
-    # Calculate Bin intervals with entropy
-    bin_intervals <- as.data.frame(discretize(time_vector, numBins = estBins, r = range(time_vector)))
-    
+    # Get Bin Table
+    bin_table <- extract.intervals(
+      time.vector = time_vector,
+      nBins = estBins,
+      bin = bin, bin.size = bin.size, lbound = lbound,
+      ubound = ubound
+    )
+
     # Client-Verbose
     if (verbose) {
       message(paste(
-        "For", path, ",", length_n, "time points has been compressed to", nrow(bin_intervals), "bins"
+        "For", path, ",", length_n, "time points has been compressed to", nrow(bin_table), "bins"
       ))
     }
 
-    # Clean the table before merge
-    colnames(bin_intervals) <- c(bin, bin.size)
-    
-    # Create the bin table
-    bin_table <- as.data.frame(
-        t(
-            as.data.frame(
-                apply(
-                    bin_intervals, 1, create_range,
-                    bin_size_colname = bin.size,
-                    bin_colname = bin, verbose = v
-    ))))
-    
-    # Set column names
-    colnames(bin_table) <- c(lbound, ubound, bin.size)
-    
     # Get Mean and SD
-    mean_value <- round(mean(bin_table[[bin.size]])/2)
-    sd_value <- round(sd(bin_table[[bin.size]])/4)
-    
+    mean_value <- round(mean(bin_table[[bin.size]]) / 2)
+    sd_value <- round(sd(bin_table[[bin.size]]) / 2)
+
     # Get thresholds
-    max_allowed <- abs(mean_value + sd_value)
-    min_allowed <- abs(mean_value - sd_value)
-    
-    print(paste("max_allowed:", max_allowed))
-    print(paste("min_allowed:", min_allowed))
-    
-    # New Bin Map
-    bin_table_uniform <- data.frame(matrix(NA, ncol = ncol(bin_table)))
-    colnames(bin_table_uniform) <- colnames(bin_table)
-    
-    
-    print("_-------------Raw----bin_table")
-    
-    print(bin_table)
-    
-    # Binning one-by one
-    for (i in c(1:nrow(bin_table))){
-        
-        # histo_bin
-        hist_bin <- c(unlist(bin_table[i,,drop = FALSE]))
-        
-        # Get size of the bins
-        current_bin_size <- hist_bin[[bin.size]]
-        
-        print(paste("Current Size:", current_bin_size))
-        
-        # Check if the bin size is big or small
-        if(current_bin_size > max_allowed){
-            print("Greater than the max_allowed limit")
-            
-            potential_splits <- round(current_bin_size/max_allowed)
-            print(paste("Number of potential bins to split", potential_splits))
-            
-            # get pseudotime
-            pTime.per.interval <- time_vector[(time_vector >= hist_bin[[lbound]] & time_vector <= hist_bin[[ubound]])]
-            
-            # New Range
-            new_range <- as.data.frame(entropy::discretize(pTime.per.interval, numBins = potential_splits, r = range(pTime.per.interval)))
-            colnames(new_range) <- c(bin, bin.size)
-            # Convert to table
-            new_bin_table <- as.data.frame(
-                t(as.data.frame(
-                    apply(
-                        new_range, 1, create_range,
-                        bin_size_colname = bin.size,
-                        bin_colname = bin, 
-                        verbose = F
-                    ))))
-            # Set column names
-            colnames(new_bin_table) <- c(lbound, ubound, bin.size)
-            # Combine
-            bin_table_uniform <- rbind(bin_table_uniform, new_bin_table)
-        }else if(current_bin_size < min_allowed){
-            print("Smaller than the max_allowed limit")
-            
-            # Get the prev and next bin
-            prev_bin_size <- bin_table[i-1, ][[bin.size]]
-            next_bin_size <- bin_table[i+1, ][[bin.size]]
-            
-            # Evaluate
-            if(i <= 1 && prev_bin_size > next_bin_size & prev_bin_size >= min_allowed){
-                print("Fuse from the previous bin")
-            }else if(i > 1 & next_bin_size > prev_bin_size & next_bin_size >= min_allowed){
-                print("Fuse from the next bin")
-                
-                print(hist_bin)
-                next_bin_time_vector <- time_vector[(time_vector >= hist_bin[[lbound]])]
-                next_bin_time_vector <- next_bin_time_vector[(next_bin_time_vector >= hist_bin[[ubound]])]
-                
-                print("------ordered_next_bin_time_vector-------")
-                
-                ordered_next_bin_time_vector <- sort(next_bin_time_vector)
-                
-                print(ordered_next_bin_time_vector)
-                
-                slice_first <- min_allowed + 1
-                
-                current_bin_new_elements <- ordered_next_bin_time_vector[c(1:slice_first)]
-                
-                print("------current_bin_new_elements-------")
-                
-                print(current_bin_new_elements)
-                
-                next_bin_new_elements <- ordered_next_bin_time_vector[c(slice_first:length(ordered_next_bin_time_vector))]
-                
-                
-                print("------next_bin_new_elements-------")
-                print(next_bin_new_elements)
-                
-                # Add to the dataframe
-                new_range_current <- as.data.frame(entropy::discretize(current_bin_new_elements, numBins = 1, r = range(current_bin_new_elements)))
-                new_range_next <- as.data.frame(entropy::discretize(next_bin_new_elements, numBins = 1, r = range(next_bin_new_elements)))
-                colnames(new_range_current) <- c(bin, bin.size)
-                colnames(new_range_next) <- c(bin, bin.size)
-                # Convert to table
-                new_bin_table_current <- as.data.frame(
-                    t(as.data.frame(
-                        apply(
-                            new_range_current, 1, create_range,
-                            bin_size_colname = bin.size,
-                            bin_colname = bin, 
-                            verbose = F
-                        ))))
-                # Set column names
-                colnames(new_bin_table_current) <- c(lbound, ubound, bin.size)
-                new_bin_table_next <- as.data.frame(
-                    t(as.data.frame(
-                        apply(
-                            new_range_next, 1, create_range,
-                            bin_size_colname = bin.size,
-                            bin_colname = bin, 
-                            verbose = F
-                        ))))
-                # Set column names
-                colnames(new_bin_table_next) <- c(lbound, ubound, bin.size)
-                
-                print("------current_bin_new_elements-------")
-                print(new_bin_table_current)
-                
-                
-                print("------next_bin_new_elements-------")
-                print(new_bin_table_next)
-                
-                
-                bin_table_uniform <- rbind(bin_table_uniform, new_bin_table_current)
-                
-                bin_table[i+1,] <- new_bin_table_next
-                
-                print(bin_table_uniform)
-                
-                
-                print("_-------------Replaced----bin_table")
-                
-                print(bin_table)
-                }
-            
-        }else if(current_bin_size <= max_allowed & current_bin_size >= min_allowed){
-            bin_table_uniform <- rbind(bin_table_uniform, hist_bin)
-            print("Bin Size exist within the limits")
+    max.allowed <- abs(mean_value + sd_value)
+    min.allowed <- abs(mean_value - sd_value)
+
+    # Initate Runners
+    new_max <- max.allowed + 1
+    it <- 1
+
+    # Split bins
+    if (split) {
+      if (verbose) {
+        message(paste("Optimizing bin sizes, with maximum allowed bin size as", max.allowed))
+      }
+
+      # Adjust maximum Size
+      while (new_max >= max.allowed) {
+        if (verbose) {
+          message("Iteration ", it)
         }
+
+        # Call your 'optimize.bin.width' function
+        bin_table <- optimize.bin.max(
+          bin_table = bin_table,
+          max_allowed = max.allowed,
+          verbose = verbose,
+          time_vector = time_vector,
+          lbound = lbound,
+          ubound = ubound,
+          bin = bin,
+          drop = drop.fac,
+          bin.size = bin.size,
+          method = method.bin
+        )
+
+        # Update new_max and new_min after the optimization step
+        new_max <- as.numeric(max(bin_table[[bin.size]]))
+
+        # Increment the iteration counter
+        it <- it + 1
+      }
     }
-    bin_table_uniform <- bin_table_uniform[-1, ]
-    
-    if (path == "Path2"){
-        print(bin_table)
-        print(bin_table_uniform)
-        stop()
+
+    if (verbose) {
+      message(paste("Optimizing bin sizes, with maximum allowed bin size as", max.allowed))
     }
-    
+
+    # Pruning bins with min.allowed
+    if (prune) {
+      bin_table <- bin_table[bin_table[[bin.size]] >= min.allowed, , drop = F]
+    }
+
     if (verbose) {
       message(paste(
-        "Finally, for", path, ",", length_n, "time points has been compressed to", nrow(bin_table), "bins"
+        "Finally, for", path, ",", length_n, "time points has been compressed to", nrow(bin_table), "bins and the sum is ", sum(bin_table[[bin.size]])
       ))
     }
+
+    rownames(bin_table) <- NULL
+    bin_table[[bin_pseudotime_colname]] <- as.numeric(rownames(bin_table))
 
     # Create an empty data frame to store the results
     processed_cell_metadata <- data.frame()
 
-    # Loop over each row of cell_metadata
+    # Loop over each row of raw_cell_metadata
     for (i in 1:nrow(path.frame)) {
       pseudotime_value <- path.frame[i, pseudotime_colname]
 
@@ -405,7 +308,7 @@ squeeze <- function(scmpObject,
           pseudotime_value <= bin_table[, ubound],
       ]
 
-      # Combine the cell_metadata row with each matching bin
+      # Combine the raw_cell_metadata row with each matching bin
       combined_rows <- merge(path.frame[i, ], matching_bins, all.x = TRUE, by = character(0))
 
       # Bind combined_rows to results data frame
@@ -427,12 +330,43 @@ squeeze <- function(scmpObject,
   # Set the 'cell' column as rownames
   rownames(processed_cell_metadata) <- processed_cell_metadata$cell
 
-
   # Now, you can remove the 'cell' column
   processed_cell_metadata <- processed_cell_metadata %>% select(-"cell")
 
+  if (split_bins | prune_bins) {
+    # Get SCE
+    sceObject <- scmpObject@sce
+
+    # Subset the sce
+    sceObject_sub <- sceObject[, rownames(sceObject@colData) %in% row.names(processed_cell_metadata)]
+
+    # Add
+    scmpObject@sce <- sceObject_sub
+  }
+
   ## Add Processed Cell Matadata back with slot update
   scmpObject@sce@colData <- DataFrame(processed_cell_metadata)
+
+  # Get compressed Cell Metadata
+  scmpObject <- make.pseudobulk.design(scmpObject,
+    path_colname = path_colname,
+    bin_colname = bin_colname,
+    bin_size_colname = bin_size_colname,
+    bin_members_colname = bin_members_colname,
+    bin_pseudotime_colname = bin_pseudotime_colname,
+    verbose = verbose,
+    fill_gaps = drop_trails
+  )
+
+  # Get Counts
+  scmpObject <- make.pseudobulk.counts(
+    scmpObject = scmpObject,
+    bin_members_colname = bin_members_colname,
+    bin_colname = bin_colname,
+    assay_name = assay_name,
+    cluster_count_by = cluster_count_by
+  )
+
 
   # Update Slots
   scmpObject@addParams@pseudotime_colname <- pseudotime_colname
@@ -440,6 +374,7 @@ squeeze <- function(scmpObject,
   scmpObject@addParams@bin_method <- bin_method
   scmpObject@addParams@bin_pseudotime_colname <- bin_pseudotime_colname
   scmpObject@addParams@bin_colname <- bin_colname
+  scmpObject@addParams@bin_members_colname <- bin_members_colname
   scmpObject@addParams@bin_size_colname <- bin_size_colname
   return(scmpObject)
 }

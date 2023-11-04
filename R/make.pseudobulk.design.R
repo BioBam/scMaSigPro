@@ -10,13 +10,13 @@
 #' @param path_colname Name of the column in `cell.metadata` storing information
 #' for Path. Generated using pkg{SingleCellExperiment}. (Default
 #' is `path_prefix`).
-#' @param bin_colname Name of the column in the 'compressed_cell_metadata',
+#' @param bin_colname Name of the column in the 'annotated_cell_metadata',
 #' storing information about the bin labels. (Default is 'scmp_bin').
-#' @param bin_size_colname Name of the column in the 'compressed_cell_metadata'
+#' @param bin_size_colname Name of the column in the 'annotated_cell_metadata'
 #' storing information about the size of the bins. (Default is 'scmp_bin_size').
-#' @param bin_members_colname Name of the column in the 'compressed_cell_metadata'
+#' @param bin_members_colname Name of the column in the 'annotated_cell_metadata'
 #' storing information about the members of the bins. (Default is 'scmp_bin_members').
-#' @param bin_pseudotime_colname Name of the column in the 'compressed_cell_metadata'
+#' @param bin_pseudotime_colname Name of the column in the 'annotated_cell_metadata'
 #' storing information about the binned pseudotime. (Default is 'scmp_binned_pseudotime').
 #' @param fill_gaps description
 #' @param verbose Print detailed output in the console. (Default is TRUE)
@@ -42,7 +42,7 @@
 #' @examples
 #' \dontrun{
 #' make.pseudobulk.design(
-#'   compressed_cell_metadata = df,
+#'   annotated_cell_metadata = df,
 #'   path_colname = "path1", binned_pseudotime_column = "binnedTime"
 #' )
 #' }
@@ -54,7 +54,7 @@
 #' @importFrom rlang :=
 #' @importFrom dplyr group_by filter row_number ungroup summarise summarize
 #'
-#' @export
+#' @keywords internal
 make.pseudobulk.design <- function(scmpObject,
                                    path_colname = scmpObject@addParams@path_colname,
                                    bin_colname = scmpObject@addParams@bin_colname,
@@ -69,22 +69,22 @@ make.pseudobulk.design <- function(scmpObject,
   )
 
   # Extract cell metadata
-  compressed_cell_metadata <- as.data.frame(colData(scmpObject@sce))
-  assert_that(bin_pseudotime_colname %in% colnames(compressed_cell_metadata),
-    msg = paste0("'", bin_pseudotime_colname, "' does not exist in compressed_cell_metadata, please run entropy_discretize()")
+  annotated_cell_metadata <- as.data.frame(colData(scmpObject@sce))
+  assert_that(bin_pseudotime_colname %in% colnames(annotated_cell_metadata),
+    msg = paste0("'", bin_pseudotime_colname, "' does not exist in annotated_cell_metadata, please run entropy_discretize()")
   )
-  assert_that(path_colname %in% colnames(compressed_cell_metadata),
-    msg = paste0("'", path_colname, "' does not exist in compressed_cell_metadata. Please review 'path_colname' parameter.")
+  assert_that(path_colname %in% colnames(annotated_cell_metadata),
+    msg = paste0("'", path_colname, "' does not exist in annotated_cell_metadata. Please review 'path_colname' parameter.")
   )
 
   # Initate Variable
   scmp_bar <- "scmp_bar"
 
   # Get the avaible paths
-  avail.paths <- as.vector(unique(compressed_cell_metadata[[path_colname]]))
+  avail.paths <- as.vector(unique(annotated_cell_metadata[[path_colname]]))
 
   # Add helper-col
-  compressed_cell_metadata[[scmp_bar]] <- rownames(compressed_cell_metadata)
+  annotated_cell_metadata[[scmp_bar]] <- rownames(annotated_cell_metadata)
 
   # Check for path
   assert_that(length(avail.paths) >= 2,
@@ -95,8 +95,8 @@ make.pseudobulk.design <- function(scmpObject,
   # num_cores <- detectCores() - 1 # leave one core free for other tasks
 
   # Apply transformations on data
-  # pB.list <- mclapply(avail.paths, function(path, design.frame = compressed_cell_metadata,
-  pB.list <- lapply(avail.paths, function(path, design.frame = compressed_cell_metadata,
+  # pB.list <- mclapply(avail.paths, function(path, design.frame = annotated_cell_metadata,
+  pB.list <- lapply(avail.paths, function(path, design.frame = annotated_cell_metadata,
                                           binned.col = bin_pseudotime_colname, path.col = path_colname,
                                           v = verbose, fill.gaps = fill_gaps) {
     if (v) {
@@ -157,6 +157,7 @@ make.pseudobulk.design <- function(scmpObject,
 
   # Add rownames
   rownames(pB.frame) <- pB.frame[[bin_colname]]
+
 
   # Remove extra column
   # pB.frame <- pB.frame %>% select(-"scmp_bar")

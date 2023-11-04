@@ -27,10 +27,10 @@ sc.plot.bins.bar <- function(scmpObj,
   compression.info <- as.data.frame(colData(scmpObj@compress.sce))
 
   # Check for extended data
-  if(nrow(compression.info) < 1){
-      compression.info <- as.data.frame(colData(scmpObj@sce))
+  if (nrow(compression.info) < 1) {
+    compression.info <- as.data.frame(colData(scmpObj@sce))
   }
-  
+
   # Check if values are binned
   assert_that(nrow(compression.info) >= 1,
     msg = "Please run 'sc.discretize' and 'make.pseudobulk.design' first."
