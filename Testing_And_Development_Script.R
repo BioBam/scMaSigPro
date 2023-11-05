@@ -20,13 +20,16 @@ scmp.sce <- as_scmp(object = sim.sce, from = "sce",
                 )
 
 # Step-3: Pseudo-Bulk
-scmp.sce <- scMaSigPro::squeeze(scmp.sce,
-                         split_bins = F,
-                         prune_bins = F,
-                    drop_trails = F,
-                         additional_params = list(use_unique_time_points = F),
+scmp.sce <- squeeze(scmp.sce,
+                         split_bins = T,
+                         prune_bins = T,
+                    drop_trails = T,
+                         additional_params = list(use_unique_time_points = T),
                          verbose = F,
-                         drop.fac = 0.7)
+                    fill_gaps = T,
+                         drop.fac = 1)
+
+showParams(scmp.sce, view = F, return = T)
 
 # Validation Plots
 sc.plot.bins.tile(scmp.sce)

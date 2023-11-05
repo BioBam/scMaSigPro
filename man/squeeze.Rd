@@ -20,6 +20,7 @@ squeeze(
   assay_name = "counts",
   drop_trails = TRUE,
   cluster_count_by = "sum",
+  fill_gaps = TRUE,
   additional_params = list(use_unique_time_points = FALSE)
 )
 }
@@ -66,6 +67,8 @@ bins.}
 
 \item{cluster_count_by}{A character string specifying the method to use to
 aggregate counts within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").}
+
+\item{fill_gaps}{description}
 
 \item{additional_params}{Pass additional parameters as a named list. See Details.}
 }

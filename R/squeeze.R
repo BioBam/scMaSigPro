@@ -33,6 +33,7 @@
 #' @param split_bins If bin sizes are greater than
 #' @param prune_bins description
 #' @param drop_trails description
+#' @param fill_gaps description
 #' @param cluster_count_by A character string specifying the method to use to
 #' aggregate counts within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").
 #'
@@ -68,6 +69,8 @@
 #' @importFrom entropy discretize
 #' @importFrom dplyr left_join join_by mutate select bind_rows group_by_at summarise rename_with
 #' @importFrom magrittr %>%
+#' @importFrom rlang :=
+#' @importFrom dplyr group_by filter row_number ungroup summarise summarize
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
@@ -90,10 +93,12 @@ squeeze <- function(scmpObject,
                     assay_name = "counts",
                     drop_trails = TRUE,
                     cluster_count_by = "sum",
+                    fill_gaps = TRUE,
                     additional_params = list(use_unique_time_points = FALSE)) {
   # Initiate Variable
   scmp_bin_lower_bound <- "scmp_l_bound"
   scmp_bin_upper_bound <- "scmp_u_bound"
+  cell <- "cell"
 
   # Check Object Validity
   assert_that(is(scmpObject, "scMaSigProClass"),
@@ -170,8 +175,7 @@ squeeze <- function(scmpObject,
                                                 bin.size = bin_size_colname, bin = bin_colname,
                                                 time.col = pseudotime_colname, method.bin = bin_method,
                                                 bin.time.col = bin_pseudotime_colname,
-                                                split = split_bins,
-                                                prune = prune_bins,
+                                                split = split_bins, bin.members.colname = bin_members_colname,
                                                 v = verbose, use.unique.time.points = additional_params$use_unique_time_points,
                                                 lbound = scmp_bin_lower_bound, ubound = scmp_bin_upper_bound) {
     # Get the cells belonging to path
@@ -237,7 +241,6 @@ squeeze <- function(scmpObject,
 
     # Get thresholds
     max.allowed <- abs(mean_value + sd_value)
-    min.allowed <- abs(mean_value - sd_value)
 
     # Initate Runners
     new_max <- max.allowed + 1
@@ -279,11 +282,6 @@ squeeze <- function(scmpObject,
 
     if (verbose) {
       message(paste("Optimizing bin sizes, with maximum allowed bin size as", max.allowed))
-    }
-
-    # Pruning bins with min.allowed
-    if (prune) {
-      bin_table <- bin_table[bin_table[[bin.size]] >= min.allowed, , drop = F]
     }
 
     if (verbose) {
@@ -346,55 +344,132 @@ squeeze <- function(scmpObject,
     
     #print(paste("setted rownames for", path))
     
-    return(processed.path.frame)
+    # Create Binned Path Frame
+    binned.path.frame <- processed.path.frame %>%
+        group_by_at(bin.time.col) %>%
+        summarise(!!sym(bin.members.colname) := paste0(!!sym(cell), collapse = "|"))
+    
+    # Missing columns
+    tmp.bin.name <- paste0(path, "_bin_", seq(1, nrow(binned.path.frame)))
+    binned.path.frame[[bin]] <- tmp.bin.name
+    binned.path.frame[[path.col]] <- path
+    
+    
+    tmp.bin.size <- apply(binned.path.frame, 1, calc_bin_size, clus_mem_col = bin.members.colname)
+    binned.path.frame[[bin.size]] <- tmp.bin.size
+    
+    
+    binned.path.frame[[lbound]] <- bin_table[[lbound]]
+    binned.path.frame[[ubound]] <- bin_table[[ubound]]
+    
+    return(list(sce = processed.path.frame,
+                compressed = binned.path.frame))
   })
   
   # Bind rows and convert to data frame, then drop 'cell' column
-  processed_cell_metadata <- bind_rows(discrete.list) %>%
-    as.data.frame()
+  processed_cell_metadata.list <- lapply(discrete.list, function(element){
+      return(element[["sce"]])
+  })
+  processed_binned_cell_metadata.list <- lapply(discrete.list, function(element){
+      return(element[["compressed"]])
+  })
   
-
-  # Set the 'cell' column as rownames
-  rownames(processed_cell_metadata) <- processed_cell_metadata$cell
-
-  # Now, you can remove the 'cell' column
+  # List to frame
+  processed_cell_metadata <- bind_rows(processed_cell_metadata.list) %>%
+    as.data.frame()
+  processed_binned_cell_metadata <- bind_rows(processed_binned_cell_metadata.list) %>%
+      as.data.frame()
+  
+  # Remove the 'cell' column
   processed_cell_metadata <- processed_cell_metadata %>% select(-"cell")
-
-  if (split_bins | prune_bins) {
-    # Get SCE
-    sceObject <- scmpObject@sce
-
-    # Subset the sce
-    sceObject_sub <- sceObject[, rownames(sceObject@colData) %in% row.names(processed_cell_metadata)]
-
-    # Add
-    scmpObject@sce <- sceObject_sub
-  }
-
+  
   ## Add Processed Cell Matadata back with slot update
   scmpObject@sce@colData <- DataFrame(processed_cell_metadata)
-
-  # Get compressed Cell Metadata
-  scmpObject <- make.pseudobulk.design(scmpObject,
-    path_colname = path_colname,
-    bin_colname = bin_colname,
-    bin_size_colname = bin_size_colname,
-    bin_members_colname = bin_members_colname,
-    bin_pseudotime_colname = bin_pseudotime_colname,
-    verbose = verbose,
-    fill_gaps = drop_trails
-  )
-
+  
+  # Set the 'cell' column as rownames
+  rownames(processed_cell_metadata) <- processed_cell_metadata$cell
+  rownames(processed_binned_cell_metadata) <- processed_binned_cell_metadata[[bin_colname]]
+  
+  # Prune and Trails
+  if(prune_bins){
+      mean_bin_size <- mean(processed_binned_cell_metadata[[bin_size_colname]])
+      sd_bin_size <- sd(processed_binned_cell_metadata[[bin_size_colname]])
+      min_size_allowed <- abs(mean_bin_size - sd_bin_size)
+      processed_binned_cell_metadata <- processed_binned_cell_metadata[processed_binned_cell_metadata[[bin_size_colname]] >= min_size_allowed, , drop = F]
+  }
+  
+  if(fill_gaps){
+      
+      processed_binned_cell_metadata_tmp <- data.frame()
+      
+      for (path in unique(processed_binned_cell_metadata[[path_colname]])){
+          
+          # Get path
+          binned.path.frame <- processed_binned_cell_metadata[processed_binned_cell_metadata[[path_colname]] == path, ,drop = F]
+          
+          # Generate refernce
+          ref_time <- c(1: nrow(binned.path.frame))
+          
+          # Align with the binned Pseudotime
+          binned.pseudotime <- binned.path.frame[[bin_pseudotime_colname]]
+          
+          # Check
+          if(!all(ref_time == binned.pseudotime)){
+              binned.path.frame[[bin_pseudotime_colname]] <- ref_time
+              tmp.bin.name <- paste0(path, "_bin_", ref_time)
+              binned.path.frame[[bin_colname]] <- tmp.bin.name
+              rownames(binned.path.frame) <- tmp.bin.name
+          }
+          
+          processed_binned_cell_metadata_tmp <- rbind(processed_binned_cell_metadata_tmp,
+                                                          binned.path.frame)
+      }
+      processed_binned_cell_metadata <- processed_binned_cell_metadata_tmp
+  }
+  
+  if(drop_trails){
+      pB.frame <- processed_binned_cell_metadata
+      # Find the maximum 'scmp_binned_pseudotime' for each 'Path'
+      pB.frame_tmp <- pB.frame %>%
+          group_by(!!sym(path_colname)) %>%
+          summarize(max_time = max(!!sym(bin_pseudotime_colname))) %>%
+          ungroup()
+      
+      # Find the minimum of the max 'scmp_binned_pseudotime' across all 'Path'
+      min_max_time <- min(pB.frame_tmp$max_time)
+      
+      # Identify rows to be removed
+      rows_to_remove <- pB.frame %>%
+          filter(!!sym(bin_pseudotime_colname) > min_max_time)
+      
+      # Print a message about the rows that will be removed
+      if (verbose) {
+          if (nrow(rows_to_remove) > 0) {
+              message(paste("Dropped trailing bin", rows_to_remove[[bin_pseudotime_colname]], "from", rows_to_remove[[path_colname]]))
+          }
+      }
+      
+      # Filter out rows where 'scmp_binned_pseudotime' is greater than 'min_max_time'
+      pB.frame <- pB.frame %>%
+          filter(!!sym(bin_pseudotime_colname) <= min_max_time)
+      
+      processed_binned_cell_metadata <- pB.frame
+      
+  }
+  
+  compressed.sce <- SingleCellExperiment(assays = list(bulk.counts = as(matrix(NA, nrow = 0, ncol = nrow(processed_binned_cell_metadata)), "dgCMatrix")))
+  compressed.sce@colData <- DataFrame(processed_binned_cell_metadata)
+  scmpObject@compress.sce <- compressed.sce
+  
   # Get Counts
   scmpObject <- make.pseudobulk.counts(
-    scmpObject = scmpObject,
-    bin_members_colname = bin_members_colname,
-    bin_colname = bin_colname,
-    assay_name = assay_name,
-    cluster_count_by = cluster_count_by
+      scmpObject = scmpObject,
+      bin_members_colname = bin_members_colname,
+      bin_colname = bin_colname,
+      assay_name = assay_name,
+      cluster_count_by = cluster_count_by
   )
-
-
+  
   # Update Slots
   scmpObject@addParams@pseudotime_colname <- pseudotime_colname
   scmpObject@addParams@path_colname <- path_colname

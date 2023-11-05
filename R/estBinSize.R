@@ -67,7 +67,7 @@ estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
 
 
   # Scale the estimated bin size by the drop factor.
-  estBins <- round(drop_fac * estBins, 4)
+  estBins <- drop_fac * estBins
 
   return(estBins)
 }
