@@ -63,7 +63,7 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     Pseudotime = cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$pseudotime,
     cell = names(cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$pseudotime)
   )
-
+  
   # Create close vertex frames
   vertex.relation.frame <- data.frame(
     node = paste("Y", cdsObj@principal_graph_aux[[toupper(redDim)]]$pr_graph_cell_proj_closest_vertex[, 1], sep = "_"),
@@ -110,30 +110,48 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
   names(pgraph.coords) <- c("x", "y", "node")
   pgraph <- cdsObj@principal_graph@listData[[toupper(redDim)]]
 
+  # Check for inf time
+  if(any(is.infinite(anno.df[[pseudotime_col]]))){
+      
+      # Check number of partitions
+      numPartitions <- c(1:(length(unique(as.vector(cdsObj@clusters@listData[[toupper(redDim)]]$partitions)))-1))
+      
+      # Create weight columns
+      weight_colnames <- c(paste("weight", numPartitions, sep = "_"), "weight")
+  }else{
+      weight_colnames <- "weight"
+  }
+  
   # Get edge Data
   edges_df <- get.data.frame(pgraph, what = "edges")
-
+  
   # Merge with Edges
   edges_df <- merge(edges_df, pgraph.coords, by.x = "from", by.y = "node")
-  colnames(edges_df) <- c("from", "to", "weight", "x_from", "y_from")
+  colnames(edges_df) <- c("from", "to", weight_colnames, "x_from", "y_from")
+  
+  # Create trajectory DF
   trajectory.df <- merge(edges_df, pgraph.coords, by.x = "to", by.y = "node")
-  colnames(trajectory.df) <- c("from", "to", "weight", "x_from", "y_from", "x_to", "y_to")
-
-  # Run Shiny
-  selection.list <- list(
-    root = "Y_41",
-    path1 = c("Y_11", "Y_14", "Y_23", "Y_35", "Y_41"),
-    path2 = c("Y_11", "Y_13", "Y_14", "Y_39", "Y_41")
-  )
-  # selection.list <- shinySelect(
-  #   trajectory_data = trajectory.df,
-  #   annotation_data = anno.df,
-  #   label_coords = pgraph.coords,
-  #   inputType = "Monocle3",
-  #   pseudotime_colname = pseudotime_col
+  colnames(trajectory.df) <- c("from", "to", weight_colnames, "x_from", "y_from", "x_to", "y_to")
+  
+  # # Run Shiny
+  # selection.list <- list(
+  #   root = "Y_41",
+  #   path1 = c("Y_11", "Y_14", "Y_23", "Y_35", "Y_41"),
+  #   path2 = c("Y_11", "Y_13", "Y_14", "Y_39", "Y_41")
   # )
-
-
+  
+  # View(trajectory.df)
+  # View(anno.df)
+  # View(pgraph.coords)
+  
+  selection.list <- shinySelect(
+    trajectory_data = trajectory.df,
+    annotation_data = anno.df,
+    label_coords = pgraph.coords,
+    inputType = "Monocle3",
+    pseudotime_colname = pseudotime_col
+  )
+  
   if (is.null(selection.list)) {
     warning("Nothing Returned")
   } else {
@@ -183,6 +201,9 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     rawCounts <- cdsObj@assays@data@listData$counts
     rawCounts <- rawCounts[, colnames(rawCounts) %in% rownames(cell.metadata.sub), drop = F]
 
+    # return(list(rawCounts=rawCounts,
+    #             cell.metadata.sub=cell.metadata.sub)
+    #        )
     # Call the ScMaSigPro Creator
     scmpObj <- create_scmpObj(
       counts = rawCounts,

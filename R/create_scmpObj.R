@@ -38,10 +38,10 @@ create_scmpObj <- function(counts,
                            use_as_bin = FALSE) {
     
     # Validation Checks
-    assert_that(nrow(counts) == norw(cell_data),
+    assert_that(ncol(counts) == nrow(cell_data),
                 msg = paste("Number of cells in raw-counts and cell-level-metadata are different."))
     
-    assert_that(all(rownames(counts) == rownames(cell_data)),
+    assert_that(all(colnames(counts) == rownames(cell_data)),
                 msg = paste("Rownames of raw-counts and cell-level-metadata are different."))
     
     if(!is.null(bin_counts) | !is.null(bin_cell_data)){

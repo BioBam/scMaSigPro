@@ -59,16 +59,19 @@ sc.PlotGroups(scmpObj = scmp,
 
 # Developing Methods for monocle3
 # test real Data
+library(shiny)
+library(plotly)
 library(assertthat)
 library(tidyverse)
 library(SingleCellExperiment)
 library(entropy)
+library(igraph)
 
 # Step-1: Load data and Monocle3 like function
-load("extdata/rep1_processed.RData")
+load("../scMaSigPro_Supp/Analysis_Public_Data/data/rep2/rep2_processed.RData")
 
 # Convert to scmp object
-scmp.cds.test <- as_scmp(cds,
+scmp.cds.test.again <- as_scmp(cds,
                     "cds",
                     interactive = T,
                     verbose = F,
@@ -76,10 +79,10 @@ scmp.cds.test <- as_scmp(cds,
                     align_pseudotime = T)
 
 # Bin
-scmp.cds.test <- squeeze(scmp.cds.test,
+scmp.cds.test <- squeeze(scmp.cds.test.again,
                          split_bins = F,
                          prune_bins = F,
-                         drop_trails = T,
+                         drop_trails = F,
                         additional_params = list(use_unique_time_points = T),
                         verbose = F,
                         drop.fac = 0.7)
