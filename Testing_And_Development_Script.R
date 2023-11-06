@@ -36,22 +36,22 @@ sc.plot.bins.tile(scmp.sce)
 sc.plot.bins.bar(scmp.sce)
 
 # Step-4: Make Design-Matrix
-scmp <- sc.make.design.matrix(scmp.sce, poly_degree = 2)
+scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 2)
 
 # Step-5: Run P-vector
-scmp <- sc.p.vector(scmp, parallel = T, family = gaussian())
+scmp.sce <- sc.p.vector(scmp.sce, parallel = T, family = gaussian())
 
 # Step-6: Run T.fit
-scmp <- sc.T.fit(scmp, parallel = T, verbose = T)
+scmp.sce <- sc.T.fit(scmp.sce, parallel = T, verbose = T)
 
 # Step-7: Select with R2 
-scmp <- sc.get.siggenes(scmpObj = scmp,
+scmp.sce <- sc.get.siggenes(scmpObj = scmp.sce,
                         vars = "all",
                         significant.intercept = "dummy")
 
-nrow(showSol(scmp, view = F, return = T))
+nrow(showSol(scmp.sce, view = F, return = T, influ = T))
 # Step-8: Plot Gene Trends
-sc.PlotGroups(scmpObj = scmp,
+sc.PlotGroups(scmpObj = scmp.sce,
               feature_id = "Gene435", smoothness = 0.1,
               logs = F,
               logType = "log10")
@@ -71,7 +71,7 @@ library(igraph)
 load("../scMaSigPro_Supp/Analysis_Public_Data/data/rep2/rep2_processed.RData")
 
 # Convert to scmp object
-scmp.cds.test.again <- as_scmp(cds,
+scmp.cds.test <- as_scmp(cds,
                     "cds",
                     interactive = T,
                     verbose = F,
@@ -79,7 +79,7 @@ scmp.cds.test.again <- as_scmp(cds,
                     align_pseudotime = T)
 
 # Bin
-scmp.cds.test <- squeeze(scmp.cds.test.again,
+scmp.cds.test <- squeeze(scmp.cds.test,
                          split_bins = F,
                          prune_bins = F,
                          drop_trails = F,
