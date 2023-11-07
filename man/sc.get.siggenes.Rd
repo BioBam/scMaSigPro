@@ -16,8 +16,7 @@ sc.get.siggenes(
 \item{scmpObj}{Object of Class \code{\link{scMaSigProClass}} in which the
 \code{sc.T.fit} has been run.}
 
-\item{rsq}{Cut-off level at the R-squared value for the stepwise regression fit.
-Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).}
+\item{rsq}{Cut-off level at the R-squared value for the stepwise regression fit.}
 
 \item{vars}{Variables for which to extract significant genes. There are 3 possible values:
 \itemize{
@@ -27,6 +26,9 @@ Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).}
 }}
 
 \item{significant.intercept}{Experimental groups for which significant intercept coefficients are considered.}
+
+\item{use_Influ}{description
+Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).}
 }
 \value{
 A list with two elements:

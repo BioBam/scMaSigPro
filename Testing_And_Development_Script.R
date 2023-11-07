@@ -126,3 +126,18 @@ sc.PlotGroups(scmpObj = scmp.cds.test,
               logs = T,
               logType = "log")
 stop()
+
+
+
+### Testing for Parameterization of Negative Binomial
+
+# Get Matrix
+data <- scmp.sce@scPVector@dis
+
+# Get response
+y_matrix <- scmp.sce@compress.sce@assays@data@listData$bulk.counts
+
+# Extract genes
+
+
+# Fit mode
