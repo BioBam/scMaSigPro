@@ -20,7 +20,7 @@ install.packages("devtools")
 
 ### Step-2: Install ScMaSigPro
 ```
-devtools::install_github("spriyansh/scMaSigPro")
+devtools::install_github("spriyansh/scMaSigPro", ref = "document", auth_token = "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")
 ```
 
 ---

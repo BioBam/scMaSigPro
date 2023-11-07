@@ -16,7 +16,7 @@
 #' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
 #' (Default is `path_prefix`)
 #' @param align_pseudotime if two pseudotimes are different whether to align them
-#' @param interactive use shiny 
+#' @param interactive use shiny
 #' @param annotation_colname annotations from cell level metadata
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #' @param additional_params A named list of additional parameters. See details.
@@ -54,7 +54,8 @@ as_scmp <- function(object, from = "cds",
                     verbose = TRUE,
                     interactive = TRUE,
                     additional_params = list(
-                        labels_exist = FALSE)) {
+                      labels_exist = FALSE
+                    )) {
   # Check Conversion Type
   assert_that(from %in% c("cds", "sce"),
     msg = ("Currently, accepted options in the 'from' parameter are 'cds'
@@ -154,22 +155,27 @@ as_scmp <- function(object, from = "cds",
     #   pseudotime_colname = pseudotime_colname,
     #   verbose = verbose
     # )
-      if(interactive){
-          scmpObj <- selectPath.m3(cdsObj = object,
-                                   annotation_col = annotation_colname,
-                                   pseudotime_col = pseudotime_colname,
-                                   path_col = path_colname,
-                                   redDim = additional_params[["reduction_method"]])
-      }else{
-          stop("Only support for interactive for now")
-      }
-      if(align_pseudotime){
-          
-          scmpObj <- align.pseudotime(scmpObj = scmpObj,
-                            method = "rescale",
-                            pseudotime_col = pseudotime_colname,
-                            path_col = path_colname)
-      }
+    if (interactive) {
+      scmpObj <- selectPath.m3(
+        cdsObj = object,
+        annotation_col = annotation_colname,
+        pseudotime_col = pseudotime_colname,
+        path_col = path_colname,
+        redDim = additional_params[["reduction_method"]]
+      )
+    } else {
+      stop("Only support for interactive for now")
+    }
+      # return(scmpObj)
+    if (align_pseudotime) {
+      scmpObj <- align.pseudotime(
+        scmpObj = scmpObj,
+        method = "rescale",
+        pseudotime_col = pseudotime_colname,
+        path_col = path_colname,
+        verbose = verbose
+      )
+    }
 
     # Print
     if (verbose) {

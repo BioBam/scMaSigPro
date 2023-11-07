@@ -8,7 +8,8 @@ sc.get.siggenes(
   scmpObj,
   rsq = 0.7,
   vars = c("all", "each", "groups"),
-  significant.intercept = "dummy"
+  significant.intercept = "dummy",
+  use_Influ = TRUE
 )
 }
 \arguments{

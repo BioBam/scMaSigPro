@@ -16,7 +16,7 @@
 #' showCoeff(scmpObj, view = TRUE, return = FALSE)
 #' }
 #' @export
-showCoeff <- function(scmpObj, view = TRUE, return = FALSE) {
+showCoeff <- function(scmpObj, view = TRUE, return = FALSE, influ = FALSE) {
   # Check Object Validity
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'"
@@ -29,6 +29,11 @@ showCoeff <- function(scmpObj, view = TRUE, return = FALSE) {
 
   # Extract
   coefficients <- scmpObj@scTFit@coefficients %>% as.data.frame()
+  
+  if(!influ){
+      influ.gene <- colnames(showInflu(scmpObj,return = T, view = F))
+      coefficients <- coefficients[!(rownames(coefficients) %in% influ.gene),]
+  }
 
   # If viewing is requested
   if (view) {

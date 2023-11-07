@@ -4,7 +4,7 @@
 \alias{showCoeff}
 \title{Show or Return the Solution}
 \usage{
-showCoeff(scmpObj, view = TRUE, return = FALSE)
+showCoeff(scmpObj, view = TRUE, return = FALSE, influ = FALSE)
 }
 \arguments{
 \item{scmpObj}{an object of class 'scMaSigProClass'. This object should contain the computed solution.}

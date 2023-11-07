@@ -87,9 +87,9 @@ test_that("Check-'tstep$SOL' Reproducibility: Match, Dimension, Name and Value",
   )
 
   # Extract sol
-  sol2 <- showSol(test.scmp.2, view = F, return = T)
-  sol3 <- showSol(test.scmp.3, view = F, return = T)
-  sol4 <- showSol(test.scmp.4, view = F, return = T)
+  sol2 <- showSol(test.scmp.2, view = F, return = T, influ = T)
+  sol3 <- showSol(test.scmp.3, view = F, return = T, influ = T)
+  sol4 <- showSol(test.scmp.4, view = F, return = T, influ = T)
 
 
   # Check

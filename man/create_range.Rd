@@ -6,7 +6,6 @@
 \usage{
 create_range(
   x,
-  bin_pseudotime_colname = "scmp_binned_pseudotime",
   bin_size_colname = "scmp_bin_size",
   bin_colname = "scmp_bin",
   verbose = TRUE

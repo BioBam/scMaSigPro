@@ -4,7 +4,7 @@
 \alias{showTS}
 \title{Show or Return the Solution}
 \usage{
-showTS(scmpObj, view = TRUE, return = FALSE)
+showTS(scmpObj, view = TRUE, return = FALSE, influ = FALSE)
 }
 \arguments{
 \item{scmpObj}{an object of class 'scMaSigProClass'. This object should contain the computed solution.}
@@ -12,6 +12,8 @@ showTS(scmpObj, view = TRUE, return = FALSE)
 \item{view}{logical, whether to view the solution. If TRUE (default), the solution is displayed.}
 
 \item{return}{logical, whether to return the solution. If FALSE (default), the solution is not returned.}
+
+\item{influ}{logical, whether to add gene with influential data in the solution.}
 }
 \value{
 The computed solution as a data.frame if return is set to TRUE.

@@ -25,33 +25,40 @@ shinySelect <- function(trajectory_data,
     titlePanel("scMaSigPro"),
     sidebarLayout(
       sidebarPanel(
-        h3(paste("Interactively Select Branching Paths from a", inputType, "Dataset")),
-        h5("Procedure: Start by selecting points on the plot, and then use the following buttons to set labels. Please ensure that you follow the steps as instructed."),
-        HTML("<hr>"),
+        h4(paste("Interactively Select Branching Paths from a", inputType, "Dataset")),
+        #h5("Please ensure that you follow the steps as instructed."),
         h4("Step-1: Identify a root node."),
+        h5("Select only one node as the root."),
         actionButton("rootNode", "Set as Root Node"),
         HTML("<br>"),
         h4("Step-2: Identify branching Path-1"),
+        h5("Select atleast 3 nodes (including the root node)"),
         actionButton("Path1", "Set as Path-1"),
         HTML("<br>"),
         h4("Step-3: Identify branching Path-2"),
+        h5("Select atleast 3 nodes (including the root node, excluding path-1 nodes)"),
         actionButton("Path2", "Set as Path-2"),
         HTML("<br>"),
         h4("Step-4: Subset the trajectory"),
-        actionButton("sub", "Subset"),
-        h4("Step-5: Save Selection"),
-        actionButton("save", "Save & Close Session"),
-        actionButton("redo", "Redo Selection"),
-        HTML("<hr>"),
-        verbatimTextOutput("verbatRoot", placeholder = FALSE),
-        verbatimTextOutput("verbatPath1", placeholder = FALSE),
-        verbatimTextOutput("verbatPath2", placeholder = FALSE)
-      ),
+        h5("Validate before save"),
+        actionButton("sub", "Subset")
+        ),
       mainPanel(
+          fluidRow(
+              column(6),
+              column(3,  actionButton("save", "Save & Close Session")),
+              column(3, actionButton("redo", "Redo Selection"))
+          ),
         fluidRow(
           column(6, h3("Monocle3-Prinicpal Graph"), plotlyOutput("trajectoryPlot")),
           column(6, uiOutput("m3PgrapSubPlotTitle"), plotlyOutput("subTrajectoryPlot"))
         ),
+        fluidRow(
+            column(4, verbatimTextOutput("verbatRoot", placeholder = FALSE)),
+            column(4, verbatimTextOutput("verbatPath1", placeholder = FALSE)),
+            column(4, verbatimTextOutput("verbatPath2", placeholder = FALSE))
+        ),
+        h4("Adjust Visualization"),
         fluidRow(
           column(3, sliderInput("trPlotNodeSize", "Node Size", min = 0.1, max = 3, value = 1)),
           column(3, sliderInput("trPlotCellSize", "Cell Size", min = 0.1, max = 2, value = 1)),
@@ -61,16 +68,16 @@ shinySelect <- function(trajectory_data,
         fluidRow(
           column(3, sliderInput("trPlotNodeText", "Node Text Size", min = 0.5, max = 3, value = 1)),
           column(3, sliderInput("trPlotCellStroke", "Cell Stroke", min = 0.1, max = 2, value = 0.7)),
-          column(3, radioButtons("trPlotCellColor", "Set color",
-                      choices = list("Pseudotime"= "pTime",
-                           "Cell Annotations" = "anno"
-                           ), selected = "pTime"
-                      )
-                 )
-          )
+          column(3, radioButtons("trPlotCellColor", "Color Cells",
+            choices = list(
+              "Pseudotime" = "pTime",
+              "Cell Annotations" = "anno"
+            ), selected = "pTime"
+          ))
         )
       )
     )
+  )
 
 
   if (inputType == "Monocle3") {
@@ -81,6 +88,7 @@ shinySelect <- function(trajectory_data,
       path1 <- reactiveVal(NULL)
       path2 <- reactiveVal(NULL)
       showSubTrPlot <- reactiveVal(FALSE)
+      nodepTime <- reactiveVal(NULL)
 
       # Main Monocle3 Plot Rendering
       output$trajectoryPlot <- renderPlotly({
@@ -105,11 +113,20 @@ shinySelect <- function(trajectory_data,
         } else {
           label_coords$root_high <- "No"
         }
+
+        if (input$trPlotCellColor == "pTime") {
+          colName <- pseudotime_colname
+          legendTitle <- "Inferred Pseudotime"
+        } else if (input$trPlotCellColor == "anno") {
+          colName <- "anno"
+          legendTitle <- "Supplied Annotation"
+        }
         
-        if(input$trPlotCellColor == "pTime"){
-            colName <- pseudotime_colname
-        }else if(input$trPlotCellColor == "anno"){
-            colName <- "anno"
+        # Check for infinite pseudotime
+        helptext <- ""
+        if(any(is.infinite(annotation_data[[pseudotime_colname]]))){
+            helptext <- "Inf Pseudotime detected (Grey)" 
+            showNotification("This dataset contains 'Inf' pseudotime. Cells are coloured in Grey", duration = 10, type = "warning")
         }
 
         if (all(c("path1_high", "path2_high", "root_high") %in% colnames(label_coords))) {
@@ -130,11 +147,12 @@ shinySelect <- function(trajectory_data,
               )
             ) +
             geom_text(data = label_coords, aes(x = .data$x, y = .data$y, label = .data$node), vjust = 1.5, hjust = 0.5, size = input$trPlotNodeText) +
-            theme_minimal() +
-            xlab("UMAP-1") +
-            ylab("UMAP-2")
+            theme_minimal() + theme(legend.position = "none")+
+            labs(x = "UMAP-1", y = "UMAP-2")
 
-          ggplotly(trajectory.map, source = "trajectoryPlot") %>% plotly::layout(dragmode = "lasso") %>% config(displaylogo = FALSE)
+          ggplotly(trajectory.map, source = "trajectoryPlot", tooltip = colName) %>%
+            plotly::layout(dragmode = "lasso") %>%
+            config(displaylogo = FALSE)
         }
       })
 
@@ -150,37 +168,35 @@ shinySelect <- function(trajectory_data,
 
         # Attach the prefix for Monocle3
         root_vector <- paste("Y", pointNumber, sep = "_")
-
+        
         # Validate
         if (!is.null(lasso_data) && length(root_vector) == 1) {
-          # Return root vector
-          root_node(root_vector)
-
-          # Set log message
-          showNotification(paste("Selected Root Node:", root_node()))
+            
+                root_node(root_vector)
+                
+                # Set log message
+                showNotification(paste("Selected Root Node:", root_node()), type = "message")
+            
         } else {
-          showNotification(paste("Please select only one node as root node."))
+          showNotification(paste("Please select only one node as root node."), type = "error")
         }
       })
-      
+
       output$verbatRoot <- renderText({
-          root_node_value <- root_node()
-          
-          return(paste0("Selected Root Nodes: ", root_node_value))
-          
+        root_node_value <- root_node()
+
+        return(paste0("Selected Root Nodes: ", root_node_value))
       })
       output$verbatPath1 <- renderText({
-          path1_highlight <- path1()
-          
-          return(paste0("Selected Path1 Nodes:", paste(path1_highlight, collapse = ",")))
-          
+        path1_highlight <- path1()
+
+        return(paste0("Selected Path1 Nodes:", paste(path1_highlight, collapse = ",")))
       })
       output$verbatPath2 <- renderText({
-          path2_highlight <- path2()
-          return(paste0("Selected Path2 Nodes:", paste(path2_highlight, collapse = ",")))
-          
+        path2_highlight <- path2()
+        return(paste0("Selected Path2 Nodes:", paste(path2_highlight, collapse = ",")))
       })
-
+      
       # Set Path-1
       observeEvent(input$Path1, {
         # Get the lasso data
@@ -196,7 +212,7 @@ shinySelect <- function(trajectory_data,
         # Validate
         if (!is.null(lasso_data) && length(path1_vector) > 2) {
           if (is.null(root_node())) {
-            showNotification(paste("Please Select root node first."))
+            showNotification(paste("Please Select root node first."), type = "warning")
           } else {
             # Check if exist in root
             if (root_node() %in% path1_vector) {
@@ -204,13 +220,13 @@ shinySelect <- function(trajectory_data,
               path1(path1_vector)
 
               # Log
-              showNotification(paste("Selected nodes for Path1:", paste(path1(), collapse = ", ")))
+              showNotification(paste("Selected nodes for Path1:", paste(path1(), collapse = ", ")), type = "message")
             } else {
-              showNotification(paste("Root node is not a part of selected Path1", root_node(), "should exist in Path1"))
+              showNotification(paste("Root node is not a part of selected Path1", root_node(), "should exist in Path1"), type = "error")
             }
           }
         } else {
-          showNotification(paste("Please Select more than two nodes to make a path."))
+          showNotification(paste("Please Select more than two nodes to make a path."), type = "warning")
         }
       })
       # Set Path-2
@@ -228,21 +244,24 @@ shinySelect <- function(trajectory_data,
         # Validate
         if (!is.null(lasso_data) && length(path2_vector) > 2) {
           if (is.null(root_node())) {
-            showNotification(paste("Please Select root node first."))
+            showNotification(paste("Please Select root node first."), type = "warning")
           } else {
             # Check if exist in root
             if (root_node() %in% path2_vector) {
-              # return
-              path2(path2_vector)
-
+                
+                if (length(path2_vector[path1() %in% path2_vector]) <= 1){
+                    path2(path2_vector)
               # Log
-              showNotification(paste("Selected nodes for Path2:", paste(path2(), collapse = ", ")))
+              showNotification(paste("Selected nodes for Path2:", paste(path2(), collapse = ", ")), type = "message")
+                }else{
+                    showNotification(paste("Path2 cannot share nodes with Path1, other than root node", root_node()), type = "error")
+              }
             } else {
-              showNotification(paste("Root node is not a part of selected Path2", root_node(), "should exist in Path2"))
+              showNotification(paste("Root node is not a part of selected Path2", root_node(), "should exist in Path2"), type = "error")
             }
           }
         } else {
-          showNotification(paste("Please Select more than two nodes to make a path."))
+          showNotification(paste("Please Select more than two nodes to make a path."), type = "warning")
         }
       })
 
@@ -292,11 +311,11 @@ shinySelect <- function(trajectory_data,
           label_coords_sub$path2_high <- ifelse(label_coords_sub$node %in% path2_highlight, "Yes", "No")
           label_coords_sub$root_high <- ifelse(label_coords_sub$node == root_node_value, "Yes", "No")
         }
-        
-        if(input$trPlotCellColor == "pTime"){
-            colName <- pseudotime_colname
-        }else if(input$trPlotCellColor == "anno"){
-            colName <- "anno"
+
+        if (input$trPlotCellColor == "pTime") {
+          colName <- pseudotime_colname
+        } else if (input$trPlotCellColor == "anno") {
+          colName <- "anno"
         }
 
         sub.trajectory.map <- ggplot() +

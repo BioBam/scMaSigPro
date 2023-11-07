@@ -50,7 +50,8 @@
 #' @export
 sc.get.siggenes <- function(scmpObj, rsq = 0.7,
                             vars = c("all", "each", "groups"),
-                            significant.intercept = "dummy") {
+                            significant.intercept = "dummy",
+                            use_Influ = TRUE) {
   # Check Validity of the object
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
@@ -61,9 +62,9 @@ sc.get.siggenes <- function(scmpObj, rsq = 0.7,
     dis = scmpObj@edesign@dis,
     edesign = scmpObj@edesign@edesign,
     groups.vector = scmpObj@scTFit@groups.vector,
-    sol = showSol(scmpObj, return = T, view = F),
-    coefficients = showCoeff(scmpObj, return = T, view = F),
-    sig.profiles = showSigProf(scmpObj, return = T, view = F),
+    sol = showSol(scmpObj, return = T, view = F, influ = use_Influ),
+    coefficients = showCoeff(scmpObj, return = T, view = F, influ = use_Influ),
+    sig.profiles = showSigProf(scmpObj, return = T, view = F, influ = use_Influ),
     group.coeffs = scmpObj@scTFit@group.coeffs
   )
 

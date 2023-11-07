@@ -4,6 +4,7 @@
 #'
 #' @param scmpObj an object of class 'scMaSigProClass'. This object should contain the computed solution.
 #' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
+#' @param influ logical, whether to add gene with influential data in the solution.
 #' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
 #'
 #' @return The computed solution as a data.frame if return is set to TRUE.
@@ -16,7 +17,7 @@
 #' showSol(scmpObj, view = TRUE, return = FALSE)
 #' }
 #' @export
-showSol <- function(scmpObj, view = TRUE, return = FALSE) {
+showSol <- function(scmpObj, view = TRUE, return = FALSE, influ = FALSE) {
   # Check Object Validity
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'"
@@ -29,6 +30,11 @@ showSol <- function(scmpObj, view = TRUE, return = FALSE) {
 
   # Extract
   sol <- scmpObj@scTFit@sol %>% as.data.frame()
+  
+  if(!influ){
+      influ.gene <- colnames(showInflu(scmpObj,return = T, view = F))
+      sol <- sol[!(rownames(sol) %in% influ.gene),]
+  }
 
   # If viewing is requested
   if (view) {
