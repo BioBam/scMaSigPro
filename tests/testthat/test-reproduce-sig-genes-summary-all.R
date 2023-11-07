@@ -92,9 +92,9 @@ test_that("Check-'tstep$SOL' Reproducibility: Match, Dimension, Name and Value",
   )
 
   # Extract sigs
-  test.scmp.2 <- sc.get.siggenes(test.scmp.2, rsq = 0.6, vars = "all")
-  test.scmp.3 <- sc.get.siggenes(test.scmp.3, rsq = 0.6, vars = "all")
-  test.scmp.4 <- sc.get.siggenes(test.scmp.4, rsq = 0.6, vars = "all")
+  test.scmp.2 <- sc.get.siggenes(test.scmp.2, rsq = 0.6, vars = "all",use_Influ = T)
+  test.scmp.3 <- sc.get.siggenes(test.scmp.3, rsq = 0.6, vars = "all",use_Influ = T)
+  test.scmp.4 <- sc.get.siggenes(test.scmp.4, rsq = 0.6, vars = "all",use_Influ = T)
 
   # Check
   # Poly-order-2

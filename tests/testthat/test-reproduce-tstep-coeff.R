@@ -87,9 +87,9 @@ test_that("Check-'tstep$SOL' Reproducibility: Match, Dimension, Name and Value",
   )
 
   # Extract sol
-  coeff2 <- showCoeff(test.scmp.2, view = F, return = T)
-  coeff3 <- showCoeff(test.scmp.3, view = F, return = T)
-  coeff4 <- showCoeff(test.scmp.4, view = F, return = T)
+  coeff2 <- showCoeff(test.scmp.2, view = F, return = T, influ = T)
+  coeff3 <- showCoeff(test.scmp.3, view = F, return = T, influ = T)
+  coeff4 <- showCoeff(test.scmp.4, view = F, return = T, influ = T)
 
 
   # Check

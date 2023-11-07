@@ -30,7 +30,7 @@ showSigProf <- function(scmpObj, view = TRUE, return = FALSE, influ = FALSE) {
   )
 
   # Extract
-  sol <- scmpObj@scTFit@sol %>% as.data.frame()
+  sol <- showSol(scmpObj, view = F, return = T, influ = influ) %>% as.data.frame()
   # Extract rownames
   bulk.counts <- scmpObj@compress.sce@assays@data@listData$bulk.counts
   bulk.counts <- bulk.counts[rownames(bulk.counts) %in% rownames(sol), , drop = F]
