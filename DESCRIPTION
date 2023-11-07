@@ -17,7 +17,7 @@ License: MIT + file LICENSE
 Imports: maSigPro, ggplot2, SingleCellExperiment, methods, MASS, assertthat,
     entropy, parallel, dplyr, magrittr, stringr, stats, S4Vectors, e1071,
     MatrixGenerics, igraph, data.table, RColorConesa, UpSetR, utils,
-    shiny, plotly, rlang, scales
+    shiny, plotly, rlang, scales, parallelly
 Depends: R (>= 4.0)
 Encoding: UTF-8
 LazyData: true
