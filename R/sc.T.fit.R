@@ -298,7 +298,6 @@ sc.T.fit <- function(scmpObj,
   # Update Parameter Slot
   scmpObj@addParams@Q <- Q
   scmpObj@addParams@epsilon <- epsilon
-  scmpObj@addParams@g <- integer(g)
   scmpObj@addParams@step.method <- step.method
   scmpObj@distribution <- family
 

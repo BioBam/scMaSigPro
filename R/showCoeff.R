@@ -4,6 +4,7 @@
 #'
 #' @param scmpObj an object of class 'scMaSigProClass'. This object should contain the computed solution.
 #' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
+#' @param influ description
 #' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
 #'
 #' @return The computed solution as a data.frame if return is set to TRUE.

@@ -21,6 +21,7 @@ scmp.sce <- as_scmp(object = sim.sce, from = "sce",
                                              existing_path_colname = "Group")
 )
 
+showParams(scmp.sce, return = T, view = F)
 # Step-3: Pseudo-Bulk
 # This is the main stp
 scmp.sce <- squeeze(scmp.sce,
@@ -31,6 +32,7 @@ scmp.sce <- squeeze(scmp.sce,
                     verbose = F,
                     fill_gaps = T,
                     drop.fac = 1)
+showParams(scmp.sce, return = T, view = F)
 
 showParams(scmp.sce, view = F, return = T)
 
@@ -40,22 +42,26 @@ sc.plot.bins.bar(scmp.sce)
 
 # Step-4: Make Design-Matrix
 scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 2)
+showParams(scmp.sce, return = T, view = F)
 
 # Step-5: Run P-vector
 scmp.sce <- sc.p.vector(scmp.sce, parallel = T, family = gaussian())
+showParams(scmp.sce, return = T, view = F)
 
 # Step-6: Run T.fit
 scmp.sce <- sc.T.fit(scmp.sce, parallel = T, verbose = T)
+showParams(scmp.sce, return = T, view = F)
 
 # Step-7: Select with R2 
 scmp.sce <- sc.get.siggenes(scmpObj = scmp.sce,
                             vars = "all",
                             significant.intercept = "dummy")
+showParams(scmp.sce, return = T, view = F)
 
 nrow(showSol(scmp.sce, view = F, return = T, influ = T))
 # Step-8: Plot Gene Trends
 sc.PlotGroups(scmpObj = scmp.sce,
-              feature_id = "Gene435", smoothness = 0.1,
+              feature_id = "Gene138", smoothness = 0.1,
               logs = F,
               logType = "log10")
 
@@ -126,3 +132,63 @@ sc.PlotGroups(scmpObj = scmp.cds.test,
               logs = T,
               logType = "log")
 stop()
+
+
+
+### Testing for Parameterization of Negative Binomial
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(VGAM))
+suppressPackageStartupMessages(library(DESeq2))
+
+
+
+# Get gene metadata
+gene.metadata <- SingleCellExperiment::rowData(scmp.sce@sce) %>% as.data.frame()
+
+# Get Matrix
+data <- scmp.sce@scPVector@dis
+
+# Get response
+y_matrix <- as.matrix(scmp.sce@compress.sce@assays@data@listData$bulk.counts)
+
+# Select certain kinds of genes
+y_sel_df <- data.frame(geneName = c("Gene476", "Gene1","Gene391","Gene261", "Gene85", "Gene138", "Gene99"),
+                       outlier = c(FALSE, FALSE, TRUE, TRUE, FALSE, FALSE, TRUE),
+                       mean = c("High", "High", "High", "Low", "Low", "Low", "Low"),
+                       pathChange = c("DownPath2", "NoChange", "UpPath2",
+                                      "UpPath1", "NoChange", "DownPath2",
+                                      "NoChange"))
+
+# Extract genes
+y_sel_matrix <- y_matrix[y_sel_df$geneName,]
+
+offsets_data <- estimateSizeFactorsForMatrix(y_sel_matrix)
+
+# Fit one by one
+model.list <- lapply(y_sel_df$geneName, function(gene_i, y_mat = y_sel_matrix, covars_df = data){
+    
+    # Set up data
+    covars_df[["y"]] <- as.numeric(y_mat[gene_i, ])
+    
+    # # Full Model Poisson
+    full_model_poisson <- glm(y~., data = covars_df,
+                         family = MASS::negative.binomial(theta = 0.1),
+                         offset = offsets_data)
+    intercept_model_poisson <- glm(y~1, data = covars_df,
+                              family = MASS::negative.binomial(theta = 0.1),
+                              offset = offsets_data)
+
+    test <- anova(intercept_model_poisson, full_model_poisson, test = "Chisq") %>% as.data.frame()
+
+    if(test[2, 5] < 0.05){
+        print("sig")
+    }
+})
+
+
+MASS::theta.md(y_sel_matrix[1,], mean(y_sel_matrix[1,]), dfr = 12)
+
+x <- log(mean(y_sel_matrix[1,]))
+y <- var(log(mean(y_sel_matrix[,])))
+
+plot(x = x, y = y)

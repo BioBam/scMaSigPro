@@ -12,6 +12,8 @@ showCoeff(scmpObj, view = TRUE, return = FALSE, influ = FALSE)
 \item{view}{logical, whether to view the solution. If TRUE (default), the solution is displayed.}
 
 \item{return}{logical, whether to return the solution. If FALSE (default), the solution is not returned.}
+
+\item{influ}{description}
 }
 \value{
 The computed solution as a data.frame if return is set to TRUE.
