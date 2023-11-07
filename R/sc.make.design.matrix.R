@@ -26,7 +26,7 @@ sc.make.design.matrix <- function(scmpObject,
   )
 
   # Extract cell metadata
-  comp.cell.metadata <- as.data.frame(colData(scmpObject@compress.sce))
+  comp.cell.metadata <- as.data.frame(scmpObject@compress.sce@colData)
 
   # pseudotime_colname
   assert_that((bin_pseudotime_colname %in% colnames(comp.cell.metadata)),

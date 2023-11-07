@@ -50,6 +50,7 @@
 #'
 #' @importFrom stats anova dist glm median na.omit p.adjust
 #' @importFrom utils setTxtProgressBar txtProgressBar
+#' @importFrom parallelly availableCores
 #'
 #' @export
 #'
@@ -116,7 +117,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   }
 
   if (parallel) {
-    numCores <- detectCores()
+    numCores <- availableCores()
     if (verbose) {
       message(paste("Running with", numCores, "cores..."))
     }

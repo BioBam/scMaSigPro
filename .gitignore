@@ -4,3 +4,4 @@
 .Ruserdata
 test/testthat/sce.test.RDS
 extdata/
+inst/doc

@@ -100,7 +100,7 @@ sc.T.fit <- function(scmpObj,
 
   # If parallel is requested
   if (parallel) {
-    numCores <- detectCores()
+    numCores <- availableCores()
     if (verbose) {
       message(paste("Running with", numCores, "cores..."))
     }
@@ -112,7 +112,6 @@ sc.T.fit <- function(scmpObj,
       pb <- txtProgressBar(min = 0, max = g, style = 3)
     }
   }
-  numCores <- detectCores()
 
   # Collect all the y
   y_input <- parallel::mclapply(2:(g + 1), function(i, dat_lapply = dat) {
