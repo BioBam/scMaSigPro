@@ -2,8 +2,12 @@ Package: scMaSigPro
 Type: Package
 Title: Application of MaSigPro Bioconductor Package for scRNA Trajectory data
 Version: 1.0.2
-Author: Ana Conesa, Maria Jose Nueda and Priyansh Srivastava
-Maintainer: Priyansh Srivastava <spriyansh29@gmail.com>
+Authors@R: c(
+    person("Ana", "Conesa", role = c("aut"), email = "ana@example.com"),
+    person("Maria Jose", "Nueda", role = c("aut"), email = "mjnueda@example.com"),
+    person("Priyansh", "Srivastava", role = c("aut", "cre"), email = "spriyansh29@gmail.com",
+    comment=c(OCRID="0000-0003-2618-5296"))
+    )
 Description: scMaSigPro is a polynomial regression-based approach inspired by
     the MaSigPro Bioconductor package. It discretizes the expression of
     individual cells along pseudotime while preserving the order of cells.
@@ -14,7 +18,7 @@ Imports: maSigPro, ggplot2, SingleCellExperiment, methods, MASS, assertthat,
     entropy, parallel, dplyr, magrittr, stringr, stats, S4Vectors, e1071,
     MatrixGenerics, igraph, data.table, RColorConesa, UpSetR, utils,
     shiny, plotly, rlang, scales
-Depends: R (>= 3.6)
+Depends: R (>= 4.0)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.3
