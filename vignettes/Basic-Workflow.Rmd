@@ -1,0 +1,67 @@
+---
+title: "scMaSigPro: Workflow"
+subtitle: "Basic Steps"
+author: "Priyansh Srivastava"
+package: "scMaSigPro"
+abstract: |
+  `scMaSigPro` is a Bioconductor package designed for the analysis of single-cell RNA-seq data along pseudotime. 
+  It builds upon the `maSigPro` package to identify genes with significant expression changes across different 
+  branching paths in a pseudotime-ordered single-cell dataset. This vignette illustrates the basic workflow 
+  of `scMaSigPro`, providing a step-by-step guide for users.
+output: BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{scMaSigPro Basic Workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(scMaSigPro)
+```
+
+## Introduction
+`scMaSigPro` is a polynomial regression-based approach inspired by the maSigPro package tailored for single-cell RNA-seq data. It discretizes cell expression along pseudotime while preserving cellular order, then applies the maSigPro model to pinpoint genes exhibiting significant expression profile differences among branching paths.
+
+## Installation
+To install scMaSigPro from Github, use the following commands:
+
+```{r, eval=FALSE}
+# Install devtools if not already installed
+if (!requireNamespace("devtools", quietly = TRUE))
+    install.packages("devtools")
+
+# Install scMaSigPro (token will be removed once the directory is public)
+devtools::install_github("spriyansh/scMaSigPro",
+                         ref = "main",
+                         auth_token = "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"
+                         )
+```
+
+## Basic Workflow
+Here we demonstrate the basic workflow of scMaSigPro using a simulated dataset included in the package.
+
+### Set Seed for Reproducibility
+```{r, eval=FALSE}
+set.seed(123)
+```
+
+### Step 1: Load the scMaSigPro package and the dataset
+```{r, eval=FALSE}
+library(scMaSigPro)
+data("Sim2Path", package = "scMaSigPro")
+```
+
+### Step 2: Convert to scMaSigPro Object
+Convert the SingleCellExperiment object to an scMaSigPro object.
+
+```{r, eval=FALSE}
+scmp.sce <- as_scmp(object = sim.sce, from = "sce",
+                    align_pseudotime = TRUE,
+                    verbose = FALSE,
+                    additional_params = list(labels_exist = TRUE,
+                                             existing_pseudotime_colname = "Step",
+                                             existing_path_colname = "Group")
+)
+showParams(scmp.sce, return = TRUE, view = FALSE)
+```
