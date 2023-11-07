@@ -4,7 +4,6 @@ extract.intervals <- function(time.vector, nBins = 1, bin, bin.size, lbound, ubo
     time.vector,
     numBins = nBins, r = range(time.vector)
   ))
-
   # Set columns
   colnames(new_range_current) <- c(bin, bin.size)
 
@@ -21,7 +20,6 @@ extract.intervals <- function(time.vector, nBins = 1, bin, bin.size, lbound, ubo
   )
   # Set column names
   colnames(new_bin_table_current) <- c(lbound, ubound, bin.size)
-
 
   # Return
   return(new_bin_table_current)

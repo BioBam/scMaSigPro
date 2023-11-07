@@ -300,12 +300,14 @@ squeeze <- function(scmpObject,
       raw_i <- path.frame[i, , drop = F]
       #print(paste("Completed raw_i <- path.frame[i, , drop = F] for", path))
       
+      
+      #View(raw_i)
+      #stop()
       pseudotime_i <- raw_i[[pseudotime_colname]]
       #print(paste("Completed pseudotime_i <- raw_i[[pseudotime_colname]] for", path))
       
       # Check limits
       if(pseudotime_i >= min(bin_table[, lbound]) & pseudotime_i <= max(bin_table[, ubound])){
-          
           # Check if the last elemenst (Last interval close both)
           if (max(path.frame[[pseudotime_colname]] == pseudotime_i)){
               matching_bins <- bin_table[(
@@ -318,19 +320,22 @@ squeeze <- function(scmpObject,
                   pseudotime_i < bin_table[, ubound]),
               , drop = FALSE]
               }
-          
-          if(nrow(matching_bins) > 0){
-              # If two match present take the first one
-              if(nrow(matching_bins) == 2){
-                  path.frame[i, bin_pseudotime_colname] <- as.numeric(matching_bins[[bin_pseudotime_colname]][1])
-              }else{
-                  path.frame[i, bin_pseudotime_colname] <- as.numeric(matching_bins[[bin_pseudotime_colname]])
-              }
+          }else if(pseudotime_i > max(bin_table[, ubound])){
+          matching_bins <- bin_table[bin_table[, ubound] == max(bin_table[, ubound]),, drop = FALSE]
+      }else if(pseudotime_i < min(bin_table[, lbound])){
+          matching_bins <- bin_table[bin_table[, lbound] == min(bin_table[, lbound]),, drop = FALSE]
+      }
+      
+      if(nrow(matching_bins) > 0){
+          # If two match present take the first one
+          if(nrow(matching_bins) == 2){
+              path.frame[i, bin_pseudotime_colname] <- as.numeric(matching_bins[[bin_pseudotime_colname]][1])
+          }else{
+              path.frame[i, bin_pseudotime_colname] <- as.numeric(matching_bins[[bin_pseudotime_colname]])
           }
       }
     }
-      
-     
+    
     # Convert result to a data frame
     processed.path.frame <- as.data.frame(path.frame)
     processed.path.frame <- processed.path.frame[!is.na(processed.path.frame[[bin_pseudotime_colname]]), , drop =F]
@@ -358,9 +363,11 @@ squeeze <- function(scmpObject,
     tmp.bin.size <- apply(binned.path.frame, 1, calc_bin_size, clus_mem_col = bin.members.colname)
     binned.path.frame[[bin.size]] <- tmp.bin.size
     
+    # Subset the bin tables
+    bin_table_sub <-  bin_table[, c(lbound, ubound, bin.time.col)]
     
-    binned.path.frame[[lbound]] <- bin_table[[lbound]]
-    binned.path.frame[[ubound]] <- bin_table[[ubound]]
+    # Merge
+    binned.path.frame <- merge(binned.path.frame, bin_table_sub, by = bin.time.col)
     
     return(list(sce = processed.path.frame,
                 compressed = binned.path.frame))
