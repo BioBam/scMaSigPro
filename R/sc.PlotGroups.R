@@ -39,7 +39,7 @@ sc.PlotGroups <-
       msg = "Feature Id doesn't exist please select another one"
     )
     # gene_i
-    yy <- bulk.counts[rownames(bulk.counts) %in% feature_id, , drop = F]
+    yy <- bulk.counts[rownames(bulk.counts) %in% feature_id, , drop = FALSE]
 
     # Extract the bulk counts
     edesign <- edesign.frame
@@ -53,8 +53,8 @@ sc.PlotGroups <-
     colnames(rm) <- rownames(scmpObj@edesign@dis)
 
     # Extract the beta
-    betas.table <- showCoeff(scmpObj, view = F, return = T)
-    betas <- betas.table[rownames(betas.table) %in% feature_id, , drop = F]
+    betas.table <- showCoeff(scmpObj, view = FALSE, return = TRUE)
+    betas <- betas.table[rownames(betas.table) %in% feature_id, , drop = FALSE]
 
     # Set Data
     curve.df <- data.frame(x = 0, y = 0, path = scmpObj@addParams@path_prefix)
@@ -109,7 +109,7 @@ sc.PlotGroups <-
 
     xlim[2] <- max(points.df[[pooled.time]])
 
-    conesa_colors <- getConesaColors()[c(T, F)][c(1:length(unique(points.df[[path]])))]
+    conesa_colors <- getConesaColors()[c(TRUE, FALSE)][c(1:length(unique(points.df[[path]])))]
     names(conesa_colors) <- unique(points.df[[path]])
 
     # Extract sol

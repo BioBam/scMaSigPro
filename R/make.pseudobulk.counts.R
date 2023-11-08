@@ -83,7 +83,7 @@ make.pseudobulk.counts <- function(scmpObject,
     col_indices <- which(colnames(counts) %in% cell.vector)
 
     # Subset the matrix using these indices
-    bin_matrix <- as.matrix(counts[, col_indices, drop = F])
+    bin_matrix <- as.matrix(counts[, col_indices, drop = FALSE])
 
     # Get Pseudobulked-counts
     pb.vector <- switch(cluster_count_by,

@@ -166,7 +166,7 @@ as_scmp <- function(object, from = "cds",
     } else {
       stop("Only support for interactive for now")
     }
-      # return(scmpObj)
+    # return(scmpObj)
     if (align_pseudotime) {
       scmpObj <- align.pseudotime(
         scmpObj = scmpObj,

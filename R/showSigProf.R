@@ -30,16 +30,16 @@ showSigProf <- function(scmpObj, view = TRUE, return = FALSE, influ = FALSE) {
   )
 
   # Extract
-  sol <- showSol(scmpObj, view = F, return = T, influ = influ) %>% as.data.frame()
+  sol <- showSol(scmpObj, view = FALSE, return = TRUE, influ = influ) %>% as.data.frame()
   # Extract rownames
   bulk.counts <- scmpObj@compress.sce@assays@data@listData$bulk.counts
-  bulk.counts <- bulk.counts[rownames(bulk.counts) %in% rownames(sol), , drop = F]
-  
-  if(!influ){
-      influ.gene <- colnames(showInflu(scmpObj,return = T, view = F))
-      bulk.counts <- bulk.counts[!(rownames(bulk.counts) %in% influ.gene),]
+  bulk.counts <- bulk.counts[rownames(bulk.counts) %in% rownames(sol), , drop = FALSE]
+
+  if (!influ) {
+    influ.gene <- colnames(showInflu(scmpObj, return = T, view = F))
+    bulk.counts <- bulk.counts[!(rownames(bulk.counts) %in% influ.gene), ]
   }
-  
+
 
   # If viewing is requested
   if (view) {

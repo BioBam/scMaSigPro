@@ -75,7 +75,7 @@ align.pseudotime <- function(scmpObj, pseudotime_col, path_col, method = "rescal
       rownames(cell.metadata) <- cell.metadata[["cell"]]
 
       # Drop cell
-      cell.metadata <- cell.metadata[, colnames(cell.metadata) != "cell", drop = F]
+      cell.metadata <- cell.metadata[, colnames(cell.metadata) != "cell", drop = FALSE]
 
       # Add
       scmpObj@sce@colData <- DataFrame(cell.metadata)

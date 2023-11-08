@@ -30,10 +30,10 @@ showCoeff <- function(scmpObj, view = TRUE, return = FALSE, influ = FALSE) {
 
   # Extract
   coefficients <- scmpObj@scTFit@coefficients %>% as.data.frame()
-  
-  if(!influ){
-      influ.gene <- colnames(showInflu(scmpObj,return = T, view = F))
-      coefficients <- coefficients[!(rownames(coefficients) %in% influ.gene),]
+
+  if (!influ) {
+    influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
+    coefficients <- coefficients[!(rownames(coefficients) %in% influ.gene), ]
   }
 
   # If viewing is requested

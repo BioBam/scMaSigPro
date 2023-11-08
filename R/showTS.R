@@ -30,10 +30,10 @@ showTS <- function(scmpObj, view = TRUE, return = FALSE, influ = FALSE) {
 
   # Extract
   tscore <- scmpObj@scTFit@t.score
-  
-  if(!influ){
-      influ.gene <- colnames(showInflu(scmpObj,return = T, view = F))
-      tscore <- tscore[!(rownames(tscore) %in% influ.gene),]
+
+  if (!influ) {
+    influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
+    tscore <- tscore[!(rownames(tscore) %in% influ.gene), ]
   }
 
   # If viewing is requested

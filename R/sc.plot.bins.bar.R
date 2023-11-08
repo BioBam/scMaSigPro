@@ -37,7 +37,7 @@ sc.plot.bins.bar <- function(scmpObj,
   )
 
   # get conesa colors
-  conesa_colors <- getConesaColors()[c(T, F)][c(1:length(unique(compression.info[[path_colname]])))]
+  conesa_colors <- getConesaColors()[c(TRUE, FALSE)][c(1:length(unique(compression.info[[path_colname]])))]
   names(conesa_colors) <- unique(unique(compression.info[[path_colname]]))
 
   # Create plot data

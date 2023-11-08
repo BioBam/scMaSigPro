@@ -63,9 +63,9 @@ sc.get.siggenes <- function(scmpObj, rsq = 0.7,
     dis = scmpObj@edesign@dis,
     edesign = scmpObj@edesign@edesign,
     groups.vector = scmpObj@scTFit@groups.vector,
-    sol = showSol(scmpObj, return = T, view = F, influ = use_Influ),
-    coefficients = showCoeff(scmpObj, return = T, view = F, influ = use_Influ),
-    sig.profiles = showSigProf(scmpObj, return = T, view = F, influ = use_Influ),
+    sol = showSol(scmpObj, return = TRUE, view = FALSE, influ = use_Influ),
+    coefficients = showCoeff(scmpObj, return = TRUE, view = FALSE, influ = use_Influ),
+    sig.profiles = showSigProf(scmpObj, return = TRUE, view = FALSE, influ = use_Influ),
     group.coeffs = scmpObj@scTFit@group.coeffs
   )
 

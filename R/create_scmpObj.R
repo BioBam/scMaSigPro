@@ -5,7 +5,7 @@
 #'
 #' @param counts A matrix containing the raw expression counts.
 #' @param cell_data A data frame containing the cell metadata.
-#' @param feature_data A data frame containing the feature level metadata. 
+#' @param feature_data A data frame containing the feature level metadata.
 #' @param bin_counts A matrix containing the binned counts.
 #' @param bin_cell_data A data frame containing the binned cell level metadata.
 #' @param pseudotime_colname A character string specifying the column name for Pseudotime in the cell level metadata.
@@ -28,7 +28,7 @@
 #'
 
 # Create scmp
-create_scmpObj <- function(counts, 
+create_scmpObj <- function(counts,
                            cell_data,
                            feature_data,
                            bin_counts = NULL,
@@ -36,21 +36,24 @@ create_scmpObj <- function(counts,
                            pseudotime_colname,
                            path_colname,
                            use_as_bin = FALSE) {
-    
-    # Validation Checks
-    assert_that(ncol(counts) == nrow(cell_data),
-                msg = paste("Number of cells in raw-counts and cell-level-metadata are different."))
-    
-    assert_that(all(colnames(counts) == rownames(cell_data)),
-                msg = paste("Rownames of raw-counts and cell-level-metadata are different."))
-    
-    if(!is.null(bin_counts) | !is.null(bin_cell_data)){
-        assert_that(nrow(bin_counts) == nrow(bin_cell_data),
-                    msg = paste("Number of cells in bin_counts and bin_cell_data are different."))
-        assert_that(all(rownames(bin_counts) == rownames(bin_cell_data)),
-                    msg = paste("Rownames of bin_counts and bin_cell_data are different."))
-    }
-    
+  # Validation Checks
+  assert_that(ncol(counts) == nrow(cell_data),
+    msg = paste("Number of cells in raw-counts and cell-level-metadata are different.")
+  )
+
+  assert_that(all(colnames(counts) == rownames(cell_data)),
+    msg = paste("Rownames of raw-counts and cell-level-metadata are different.")
+  )
+
+  if (!is.null(bin_counts) | !is.null(bin_cell_data)) {
+    assert_that(nrow(bin_counts) == nrow(bin_cell_data),
+      msg = paste("Number of cells in bin_counts and bin_cell_data are different.")
+    )
+    assert_that(all(rownames(bin_counts) == rownames(bin_cell_data)),
+      msg = paste("Rownames of bin_counts and bin_cell_data are different.")
+    )
+  }
+
   # Create Single-Cell Experiment Object
   sce_tmp <- SingleCellExperiment(
     list(counts = counts),

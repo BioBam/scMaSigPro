@@ -56,7 +56,7 @@
 #'
 sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
                         family = MASS::negative.binomial(theta = 1), epsilon = 0.00001,
-                        verbose = TRUE, offset = T, parallel = F) {
+                        verbose = TRUE, offset = T, parallel = FALSE) {
   # Check the type of the 'design' parameter and set the corresponding variables
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"

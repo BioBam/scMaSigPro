@@ -179,7 +179,7 @@ squeeze <- function(scmpObject,
                                                 v = verbose, use.unique.time.points = additional_params$use_unique_time_points,
                                                 lbound = scmp_bin_lower_bound, ubound = scmp_bin_upper_bound) {
     # Get the cells belonging to path
-    path.frame <- design.frame[design.frame[[path.col]] == path, , drop = F]
+    path.frame <- design.frame[design.frame[[path.col]] == path, , drop = FALSE]
 
     # Extract the time information as a vector
     time_vector <- path.frame[, time.col]
@@ -295,188 +295,190 @@ squeeze <- function(scmpObject,
 
     # Loop over each row of raw_cell_metadata
     for (i in 1:nrow(path.frame)) {
-        
-    # Get row from the Path frame
-      raw_i <- path.frame[i, , drop = F]
-      #print(paste("Completed raw_i <- path.frame[i, , drop = F] for", path))
-      
-      
-      #View(raw_i)
-      #stop()
+      # Get row from the Path frame
+      raw_i <- path.frame[i, , drop = FALSE]
+      # print(paste("Completed raw_i <- path.frame[i, , drop = FALSE] for", path))
+
+
+      # View(raw_i)
+      # stop()
       pseudotime_i <- raw_i[[pseudotime_colname]]
-      #print(paste("Completed pseudotime_i <- raw_i[[pseudotime_colname]] for", path))
-      
+      # print(paste("Completed pseudotime_i <- raw_i[[pseudotime_colname]] for", path))
+
       # Check limits
-      if(pseudotime_i >= min(bin_table[, lbound]) & pseudotime_i <= max(bin_table[, ubound])){
-          # Check if the last elemenst (Last interval close both)
-          if (max(path.frame[[pseudotime_colname]] == pseudotime_i)){
-              matching_bins <- bin_table[(
-                  pseudotime_i >= bin_table[, lbound] &
-                      pseudotime_i <= bin_table[, ubound]),, drop = FALSE]
-              }else{
-                  # Filter bin_table based on pseudotime_value (right open left close)
-                  matching_bins <- bin_table[(
-                      pseudotime_i >= bin_table[, lbound] &
-                  pseudotime_i < bin_table[, ubound]),
-              , drop = FALSE]
-              }
-          }else if(pseudotime_i > max(bin_table[, ubound])){
-          matching_bins <- bin_table[bin_table[, ubound] == max(bin_table[, ubound]),, drop = FALSE]
-      }else if(pseudotime_i < min(bin_table[, lbound])){
-          matching_bins <- bin_table[bin_table[, lbound] == min(bin_table[, lbound]),, drop = FALSE]
+      if (pseudotime_i >= min(bin_table[, lbound]) & pseudotime_i <= max(bin_table[, ubound])) {
+        # Check if the last elemenst (Last interval close both)
+        if (max(path.frame[[pseudotime_colname]] == pseudotime_i)) {
+          matching_bins <- bin_table[(
+            pseudotime_i >= bin_table[, lbound] &
+              pseudotime_i <= bin_table[, ubound]), , drop = FALSE]
+        } else {
+          # Filter bin_table based on pseudotime_value (right open left close)
+          matching_bins <- bin_table[
+            (
+              pseudotime_i >= bin_table[, lbound] &
+                pseudotime_i < bin_table[, ubound]), ,
+            drop = FALSE
+          ]
+        }
+      } else if (pseudotime_i > max(bin_table[, ubound])) {
+        matching_bins <- bin_table[bin_table[, ubound] == max(bin_table[, ubound]), , drop = FALSE]
+      } else if (pseudotime_i < min(bin_table[, lbound])) {
+        matching_bins <- bin_table[bin_table[, lbound] == min(bin_table[, lbound]), , drop = FALSE]
       }
-      
-      if(nrow(matching_bins) > 0){
-          # If two match present take the first one
-          if(nrow(matching_bins) == 2){
-              path.frame[i, bin_pseudotime_colname] <- as.numeric(matching_bins[[bin_pseudotime_colname]][1])
-          }else{
-              path.frame[i, bin_pseudotime_colname] <- as.numeric(matching_bins[[bin_pseudotime_colname]])
-          }
+
+      if (nrow(matching_bins) > 0) {
+        # If two match present take the first one
+        if (nrow(matching_bins) == 2) {
+          path.frame[i, bin_pseudotime_colname] <- as.numeric(matching_bins[[bin_pseudotime_colname]][1])
+        } else {
+          path.frame[i, bin_pseudotime_colname] <- as.numeric(matching_bins[[bin_pseudotime_colname]])
+        }
       }
     }
-    
+
     # Convert result to a data frame
     processed.path.frame <- as.data.frame(path.frame)
-    processed.path.frame <- processed.path.frame[!is.na(processed.path.frame[[bin_pseudotime_colname]]), , drop =F]
-    
-    #print(paste("processed.path.frame <- as.data.frame(path.frame)", path))
+    processed.path.frame <- processed.path.frame[!is.na(processed.path.frame[[bin_pseudotime_colname]]), , drop = FALSE]
+
+    # print(paste("processed.path.frame <- as.data.frame(path.frame)", path))
 
     # Set the 'cell' column as rownames
     rownames(processed.path.frame) <- processed.path.frame$cell
-    
-    #print(paste("rownames(processed.path.frame) <- processed.path.frame$cell", path))
-    
-    #print(paste("setted rownames for", path))
-    
+
+    # print(paste("rownames(processed.path.frame) <- processed.path.frame$cell", path))
+
+    # print(paste("setted rownames for", path))
+
     # Create Binned Path Frame
     binned.path.frame <- processed.path.frame %>%
-        group_by_at(bin.time.col) %>%
-        summarise(!!sym(bin.members.colname) := paste0(!!sym(cell), collapse = "|"))
-    
+      group_by_at(bin.time.col) %>%
+      summarise(!!sym(bin.members.colname) := paste0(!!sym(cell), collapse = "|"))
+
     # Missing columns
     tmp.bin.name <- paste0(path, "_bin_", seq(1, nrow(binned.path.frame)))
     binned.path.frame[[bin]] <- tmp.bin.name
     binned.path.frame[[path.col]] <- path
-    
-    
+
+
     tmp.bin.size <- apply(binned.path.frame, 1, calc_bin_size, clus_mem_col = bin.members.colname)
     binned.path.frame[[bin.size]] <- tmp.bin.size
-    
+
     # Subset the bin tables
-    bin_table_sub <-  bin_table[, c(lbound, ubound, bin.time.col)]
-    
+    bin_table_sub <- bin_table[, c(lbound, ubound, bin.time.col)]
+
     # Merge
     binned.path.frame <- merge(binned.path.frame, bin_table_sub, by = bin.time.col)
-    
-    return(list(sce = processed.path.frame,
-                compressed = binned.path.frame))
+
+    return(list(
+      sce = processed.path.frame,
+      compressed = binned.path.frame
+    ))
   })
-  
+
   # Bind rows and convert to data frame, then drop 'cell' column
-  processed_cell_metadata.list <- lapply(discrete.list, function(element){
-      return(element[["sce"]])
+  processed_cell_metadata.list <- lapply(discrete.list, function(element) {
+    return(element[["sce"]])
   })
-  processed_binned_cell_metadata.list <- lapply(discrete.list, function(element){
-      return(element[["compressed"]])
+  processed_binned_cell_metadata.list <- lapply(discrete.list, function(element) {
+    return(element[["compressed"]])
   })
-  
+
   # List to frame
   processed_cell_metadata <- bind_rows(processed_cell_metadata.list) %>%
     as.data.frame()
   processed_binned_cell_metadata <- bind_rows(processed_binned_cell_metadata.list) %>%
-      as.data.frame()
-  
+    as.data.frame()
+
   # Remove the 'cell' column
   processed_cell_metadata <- processed_cell_metadata %>% select(-"cell")
-  
+
   ## Add Processed Cell Matadata back with slot update
   scmpObject@sce@colData <- DataFrame(processed_cell_metadata)
-  
+
   # Set the 'cell' column as rownames
   rownames(processed_cell_metadata) <- processed_cell_metadata$cell
   rownames(processed_binned_cell_metadata) <- processed_binned_cell_metadata[[bin_colname]]
-  
+
   # Prune and Trails
-  if(prune_bins){
-      mean_bin_size <- mean(processed_binned_cell_metadata[[bin_size_colname]])
-      sd_bin_size <- sd(processed_binned_cell_metadata[[bin_size_colname]])
-      min_size_allowed <- abs(mean_bin_size - sd_bin_size)
-      processed_binned_cell_metadata <- processed_binned_cell_metadata[processed_binned_cell_metadata[[bin_size_colname]] >= min_size_allowed, , drop = F]
+  if (prune_bins) {
+    mean_bin_size <- mean(processed_binned_cell_metadata[[bin_size_colname]])
+    sd_bin_size <- sd(processed_binned_cell_metadata[[bin_size_colname]])
+    min_size_allowed <- abs(mean_bin_size - sd_bin_size)
+    processed_binned_cell_metadata <- processed_binned_cell_metadata[processed_binned_cell_metadata[[bin_size_colname]] >= min_size_allowed, , drop = FALSE]
   }
-  
-  if(fill_gaps){
-      
-      processed_binned_cell_metadata_tmp <- data.frame()
-      
-      for (path in unique(processed_binned_cell_metadata[[path_colname]])){
-          
-          # Get path
-          binned.path.frame <- processed_binned_cell_metadata[processed_binned_cell_metadata[[path_colname]] == path, ,drop = F]
-          
-          # Generate refernce
-          ref_time <- c(1: nrow(binned.path.frame))
-          
-          # Align with the binned Pseudotime
-          binned.pseudotime <- binned.path.frame[[bin_pseudotime_colname]]
-          
-          # Check
-          if(!all(ref_time == binned.pseudotime)){
-              binned.path.frame[[bin_pseudotime_colname]] <- ref_time
-              tmp.bin.name <- paste0(path, "_bin_", ref_time)
-              binned.path.frame[[bin_colname]] <- tmp.bin.name
-              rownames(binned.path.frame) <- tmp.bin.name
-          }
-          
-          processed_binned_cell_metadata_tmp <- rbind(processed_binned_cell_metadata_tmp,
-                                                          binned.path.frame)
+
+  if (fill_gaps) {
+    processed_binned_cell_metadata_tmp <- data.frame()
+
+    for (path in unique(processed_binned_cell_metadata[[path_colname]])) {
+      # Get path
+      binned.path.frame <- processed_binned_cell_metadata[processed_binned_cell_metadata[[path_colname]] == path, , drop = FALSE]
+
+      # Generate refernce
+      ref_time <- c(1:nrow(binned.path.frame))
+
+      # Align with the binned Pseudotime
+      binned.pseudotime <- binned.path.frame[[bin_pseudotime_colname]]
+
+      # Check
+      if (!all(ref_time == binned.pseudotime)) {
+        binned.path.frame[[bin_pseudotime_colname]] <- ref_time
+        tmp.bin.name <- paste0(path, "_bin_", ref_time)
+        binned.path.frame[[bin_colname]] <- tmp.bin.name
+        rownames(binned.path.frame) <- tmp.bin.name
       }
-      processed_binned_cell_metadata <- processed_binned_cell_metadata_tmp
+
+      processed_binned_cell_metadata_tmp <- rbind(
+        processed_binned_cell_metadata_tmp,
+        binned.path.frame
+      )
+    }
+    processed_binned_cell_metadata <- processed_binned_cell_metadata_tmp
   }
-  
-  if(drop_trails){
-      pB.frame <- processed_binned_cell_metadata
-      # Find the maximum 'scmp_binned_pseudotime' for each 'Path'
-      pB.frame_tmp <- pB.frame %>%
-          group_by(!!sym(path_colname)) %>%
-          summarize(max_time = max(!!sym(bin_pseudotime_colname))) %>%
-          ungroup()
-      
-      # Find the minimum of the max 'scmp_binned_pseudotime' across all 'Path'
-      min_max_time <- min(pB.frame_tmp$max_time)
-      
-      # Identify rows to be removed
-      rows_to_remove <- pB.frame %>%
-          filter(!!sym(bin_pseudotime_colname) > min_max_time)
-      
-      # Print a message about the rows that will be removed
-      if (verbose) {
-          if (nrow(rows_to_remove) > 0) {
-              message(paste("Dropped trailing bin", rows_to_remove[[bin_pseudotime_colname]], "from", rows_to_remove[[path_colname]]))
-          }
+
+  if (drop_trails) {
+    pB.frame <- processed_binned_cell_metadata
+    # Find the maximum 'scmp_binned_pseudotime' for each 'Path'
+    pB.frame_tmp <- pB.frame %>%
+      group_by(!!sym(path_colname)) %>%
+      summarize(max_time = max(!!sym(bin_pseudotime_colname))) %>%
+      ungroup()
+
+    # Find the minimum of the max 'scmp_binned_pseudotime' across all 'Path'
+    min_max_time <- min(pB.frame_tmp$max_time)
+
+    # Identify rows to be removed
+    rows_to_remove <- pB.frame %>%
+      filter(!!sym(bin_pseudotime_colname) > min_max_time)
+
+    # Print a message about the rows that will be removed
+    if (verbose) {
+      if (nrow(rows_to_remove) > 0) {
+        message(paste("Dropped trailing bin", rows_to_remove[[bin_pseudotime_colname]], "from", rows_to_remove[[path_colname]]))
       }
-      
-      # Filter out rows where 'scmp_binned_pseudotime' is greater than 'min_max_time'
-      pB.frame <- pB.frame %>%
-          filter(!!sym(bin_pseudotime_colname) <= min_max_time)
-      
-      processed_binned_cell_metadata <- pB.frame
-      
+    }
+
+    # Filter out rows where 'scmp_binned_pseudotime' is greater than 'min_max_time'
+    pB.frame <- pB.frame %>%
+      filter(!!sym(bin_pseudotime_colname) <= min_max_time)
+
+    processed_binned_cell_metadata <- pB.frame
   }
-  
+
   compressed.sce <- SingleCellExperiment(assays = list(bulk.counts = as(matrix(NA, nrow = 0, ncol = nrow(processed_binned_cell_metadata)), "dgCMatrix")))
   compressed.sce@colData <- DataFrame(processed_binned_cell_metadata)
   scmpObject@compress.sce <- compressed.sce
-  
+
   # Get Counts
   scmpObject <- make.pseudobulk.counts(
-      scmpObject = scmpObject,
-      bin_members_colname = bin_members_colname,
-      bin_colname = bin_colname,
-      assay_name = assay_name,
-      cluster_count_by = cluster_count_by
+    scmpObject = scmpObject,
+    bin_members_colname = bin_members_colname,
+    bin_colname = bin_colname,
+    assay_name = assay_name,
+    cluster_count_by = cluster_count_by
   )
-  
+
   # Update Slots
   scmpObject@addParams@pseudotime_colname <- pseudotime_colname
   scmpObject@addParams@path_colname <- path_colname
