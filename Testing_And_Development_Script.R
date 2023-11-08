@@ -21,36 +21,38 @@ scmp.sce <- as_scmp(object = sim.sce, from = "sce",
                                              existing_path_colname = "Group")
 )
 
-showParams(scmp.sce, return = T, view = F)
 # Step-3: Pseudo-Bulk
 # This is the main stp
-scmp.sce <- squeeze(scmp.sce,
-                    split_bins = T,
-                    prune_bins = T,
-                    drop_trails = T,
-                    additional_params = list(use_unique_time_points = T),
-                    verbose = F,
-                    fill_gaps = T,
-                    drop.fac = 1)
-showParams(scmp.sce, return = T, view = F)
-
-showParams(scmp.sce, view = F, return = T)
+scmp.sce <-  squeeze(
+    scmpObject = scmp.sce,
+    bin_method = "Sturges",
+    drop.fac = 1,
+    verbose = F,
+    cluster_count_by = "sum",
+    split_bins = FALSE,
+    prune_bins = F,
+    drop_trails = F,
+    fill_gaps = F
+)
 
 # Validation Plots
-sc.plot.bins.tile(scmp.sce)
-sc.plot.bins.bar(scmp.sce)
+#sc.plot.bins.tile(scmp.sce)
+#sc.plot.bins.bar(scmp.sce)
 
 # Step-4: Make Design-Matrix
 scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 2)
-showParams(scmp.sce, return = T, view = F)
 
 # Step-5: Run P-vector
+# offset_F_UseWeights_F_UseInverseWeights_F_UseBinWeightAsOffset_T 
 scmp.sce <- sc.p.vector(scmp.sce, parallel = T, family = gaussian(),
-                        useWeights = T)
-showParams(scmp.sce, return = T, view = F)
+                        useWeights = F, useBinWeightAsOffset = T,
+                        offset = F, useInverseWeights = F, min.obs = 1,
+                        logOffset = F)
 
 # Step-6: Run T.fit
 scmp.sce <- sc.T.fit(scmp.sce, parallel = T, verbose = T)
+
+
 showParams(scmp.sce, return = T, view = F)
 
 # Step-7: Select with R2 

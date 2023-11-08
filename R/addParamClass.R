@@ -17,6 +17,10 @@
 #' @slot step.method A character specifying the imputed step method for stepwise regression.
 #' @slot useWeights A logical specifying whether to use weights during model fitting
 #' @slot offset Whether to use offset during model fitting
+#' @slot useInverseWeights Take inverse of the weights
+#' @slot useBinWeightAsOffset Use bin size as Offset
+#' @slot logOffset description
+#' @slot max_it description
 #'
 #' @name addParamClass
 #' @aliases addParamClass-class
@@ -44,7 +48,11 @@ setClass(
     MT.adjust = "character",
     epsilon = "numeric",
     useWeights = "logical",
-    offset = "logical"
+    offset = "logical",
+    useInverseWeights = "logical",
+    useBinWeightAsOffset = "logical",
+    logOffset = "logical",
+    max_it = "integer"
   ),
   validity = function(object) {
     errors <- character(0)
@@ -111,6 +119,10 @@ setClass(
     step.method = "backward",
     epsilon = 0.00001,
     useWeights = TRUE,
-    offset = TRUE
+    offset = TRUE,
+    useInverseWeights = TRUE,
+    useBinWeightAsOffset = FALSE,
+    logOffset = FALSE,
+    max_it = 1000L
   )
 )

@@ -44,6 +44,10 @@ Class "addParamClass"
 \item{\code{useWeights}}{A logical specifying whether to use weights during model fitting}
 
 \item{\code{offset}}{Whether to use offset during model fitting}
+
+\item{\code{useInverseWeights}}{Take inverse of the weights}
+
+\item{\code{useBinWeightAsOffset}}{Use bin size as Offset}
 }}
 
 \keyword{classes}

@@ -14,7 +14,9 @@ sc.T.fit(
   offset = scmpObj@addParams@offset,
   verbose = TRUE,
   parallel = TRUE,
-  useWeights = scmpObj@addParams@useWeights
+  useWeights = scmpObj@addParams@useWeights,
+  useInverseWeights = scmpObj@addParams@useInverseWeights,
+  useBinWeightAsOffset = scmpObj@addParams@useBinWeightAsOffset
 )
 }
 \arguments{

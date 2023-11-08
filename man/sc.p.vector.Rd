@@ -12,9 +12,11 @@ sc.p.vector(
   family = MASS::negative.binomial(theta = 1),
   epsilon = 1e-05,
   verbose = TRUE,
-  offset = T,
+  offset = TRUE,
   parallel = FALSE,
-  useWeights = TRUE
+  useWeights = TRUE,
+  useInverseWeights = TRUE,
+  useBinWeightAsOffset = TRUE
 )
 }
 \arguments{
