@@ -109,7 +109,6 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   if (offset) {
     dat <- dat + 1
     offsetData <- log(scmp_estimateSizeFactorsForMatrix(dat))
-    print(offsetData)
     if (verbose) {
       message("Using DESeq2::estimateSizeFactorsForMatrix")
       message("Please cite DESeq2 as 'Love, M.I., Huber, W., Anders, S. Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2 Genome Biology 15(12):550 (2014)'")
@@ -130,7 +129,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   # Check for weight usage
   if (useWeights) {
     # Get the pathframe
-    compressed.data <- as.data.frame(scmp.sce@compress.sce@colData)
+    compressed.data <- as.data.frame(scmpObj@compress.sce@colData)
 
     # Get bin_name and bin size
     weight_df <- compressed.data[, c(scmpObj@addParams@bin_size_colname), drop = TRUE]

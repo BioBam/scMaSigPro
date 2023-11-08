@@ -96,7 +96,7 @@ sc.T.fit <- function(scmpObj,
   # Check for weight usage
   if (useWeights) {
     # Get the pathframe
-    compressed.data <- as.data.frame(scmp.sce@compress.sce@colData)
+    compressed.data <- as.data.frame(scmpObj@compress.sce@colData)
 
     # Get bin_name and bin size
     weight_df <- compressed.data[, c(scmpObj@addParams@bin_size_colname), drop = TRUE]
