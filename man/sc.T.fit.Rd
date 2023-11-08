@@ -11,9 +11,10 @@ sc.T.fit(
   nvar.correction = FALSE,
   family = scmpObj@distribution,
   epsilon = scmpObj@addParams@epsilon,
-  offset = T,
+  offset = scmpObj@addParams@offset,
   verbose = TRUE,
-  parallel = T
+  parallel = TRUE,
+  useWeights = scmpObj@addParams@useWeights
 )
 }
 \arguments{
@@ -35,6 +36,8 @@ the \code{\link{p.vector}} function.}
 \item{verbose}{Name of the analyzed item to show on the screen while \code{T.fit} is in process.}
 
 \item{parallel}{description}
+
+\item{useWeights}{Use bin size as weights}
 }
 \value{
 A list containing the following elements:

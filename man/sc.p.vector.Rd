@@ -13,7 +13,8 @@ sc.p.vector(
   epsilon = 1e-05,
   verbose = TRUE,
   offset = T,
-  parallel = F
+  parallel = FALSE,
+  useWeights = TRUE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = 
 \item{offset}{Whether ro use offset for normalization}
 
 \item{parallel}{description}
+
+\item{useWeights}{Use bin size as weights}
 }
 \value{
 A list containing:

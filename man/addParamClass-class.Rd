@@ -40,6 +40,10 @@ Class "addParamClass"
 \item{\code{epsilon}}{convergence tolerance}
 
 \item{\code{step.method}}{A character specifying the imputed step method for stepwise regression.}
+
+\item{\code{useWeights}}{A logical specifying whether to use weights during model fitting}
+
+\item{\code{offset}}{Whether to use offset during model fitting}
 }}
 
 \keyword{classes}

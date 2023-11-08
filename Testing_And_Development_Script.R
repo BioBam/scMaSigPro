@@ -45,7 +45,8 @@ scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 2)
 showParams(scmp.sce, return = T, view = F)
 
 # Step-5: Run P-vector
-scmp.sce <- sc.p.vector(scmp.sce, parallel = T, family = gaussian())
+scmp.sce <- sc.p.vector(scmp.sce, parallel = T, family = gaussian(),
+                        useWeights = T)
 showParams(scmp.sce, return = T, view = F)
 
 # Step-6: Run T.fit
@@ -58,12 +59,12 @@ scmp.sce <- sc.get.siggenes(scmpObj = scmp.sce,
                             significant.intercept = "dummy")
 showParams(scmp.sce, return = T, view = F)
 
-nrow(showSol(scmp.sce, view = F, return = T, influ = T))
+nrow(showSol(scmp.sce, view = F, return = T, influ = F))
 # Step-8: Plot Gene Trends
 sc.PlotGroups(scmpObj = scmp.sce,
-              feature_id = "Gene138", smoothness = 0.1,
+              feature_id = "Gene121", smoothness = 0.1,
               logs = F,
-              logType = "log10")
+              logType = "log2")
 
 
 # Developing Methods for monocle3

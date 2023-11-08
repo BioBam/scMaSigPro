@@ -12,6 +12,7 @@
 #' @param verbose Name of the analyzed item to show on the screen while \code{T.fit} is in process.
 #' @param offset Whether ro use offset for normalization
 #' @param parallel description
+#' @param useWeights Use bin size as weights
 #'
 #' @details
 #' In the maSigPro approach, \code{\link{p.vector}} and \code{\link{T.fit}} are subsequent steps, meaning that significant genes are
@@ -60,9 +61,10 @@ sc.T.fit <- function(scmpObj,
                      nvar.correction = FALSE,
                      family = scmpObj@distribution,
                      epsilon = scmpObj@addParams@epsilon,
-                     offset = TRUE,
+                     offset = scmpObj@addParams@offset,
                      verbose = TRUE,
-                     parallel = T) {
+                     parallel = TRUE,
+                     useWeights = scmpObj@addParams@useWeights) {
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
   )
@@ -89,6 +91,20 @@ sc.T.fit <- function(scmpObj,
 
   if (nvar.correction) {
     Q <- Q / ncol(dis)
+  }
+
+  # Check for weight usage
+  if (useWeights) {
+    # Get the pathframe
+    compressed.data <- as.data.frame(scmp.sce@compress.sce@colData)
+
+    # Get bin_name and bin size
+    weight_df <- compressed.data[, c(scmpObj@addParams@bin_size_colname), drop = TRUE]
+
+    # Set names
+    names(weight_df) <- rownames(weight_df)
+  } else {
+    weight_df <- NULL
   }
 
   # Calculate  offset
@@ -121,12 +137,12 @@ sc.T.fit <- function(scmpObj,
 
   # Select the covariates
   if (step.method == "backward") {
-    result_list <- parallel::mclapply(names(y_input), function(gene_name, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info) {
+    result_list <- parallel::mclapply(names(y_input), function(gene_name, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info, weights_lapply = weight_df) {
       # result_list <- lapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info) {
       y <- y_input[[gene_name]]
-      reg_scmpObj <- sc.stepback(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-      lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-      model.glm.0_scmpObj <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+      reg_scmpObj <- sc.stepback(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply, useWeight = weights_lapply)
+      lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply, weights = weights_lapply)
+      model.glm.0_scmpObj <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply, weights = weights_lapply)
       if (parallel == FALSE) {
         if (verbose_lapply) {
           if (verbose_lapply) {
@@ -146,9 +162,9 @@ sc.T.fit <- function(scmpObj,
   } else if (step.method == "forward") {
     result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info) {
       y <- y_input[[gene_name]]
-      reg_scmpObj <- sc.stepfor(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-      lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-      model.glm.0_scmpObj <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+      reg_scmpObj <- sc.stepfor(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply, useWeight = weights_lapply)
+      lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply, weights = weights_lapply)
+      model.glm.0_scmpObj <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply, weights = weights_lapply)
       div <- c(1:round(g / 100)) * 100
       if (parallel == FALSE) {
         if (is.element(y, div) && verbose_lapply) {
@@ -162,9 +178,9 @@ sc.T.fit <- function(scmpObj,
   } else if (step.method == "two.ways.backward") {
     result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info) {
       y <- y_input[[gene_name]]
-      reg_scmpObj <- sc.two.ways.stepback(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-      lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-      model.glm.0_scmpObj <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+      reg_scmpObj <- sc.two.ways.stepback(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply, useWeight = weights_lapply)
+      lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply, weights = weights_lapply)
+      model.glm.0_scmpObj <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply, weights = weights_lapply)
       div <- c(1:round(g / 100)) * 100
       if (parallel == FALSE) {
         if (is.element(y, div) && verbose_lapply) {
@@ -179,9 +195,9 @@ sc.T.fit <- function(scmpObj,
   } else if (step.method == "two.ways.forward") {
     result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info) {
       y <- y_input[[gene_name]]
-      reg_scmpObj <- sc.two.ways.stepfor(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply)
-      lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
-      model.glm.0_scmpObj <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply)
+      reg_scmpObj <- sc.two.ways.stepfor(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply, useWeight = weights_lapply)
+      lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply, weights = weights_lapply)
+      model.glm.0_scmpObj <- glm(y ~ 1, family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply, weights = weights_lapply)
       div <- c(1:round(g / 100)) * 100
       if (parallel == FALSE) {
         if (is.element(y, div) && verbose_lapply) {
@@ -296,6 +312,8 @@ sc.T.fit <- function(scmpObj,
 
   # Update Parameter Slot
   scmpObj@addParams@Q <- Q
+  scmpObj@addParams@useWeights <- useWeights
+  scmpObj@addParams@offset <- offset
   scmpObj@addParams@epsilon <- epsilon
   scmpObj@addParams@step.method <- step.method
   scmpObj@distribution <- family

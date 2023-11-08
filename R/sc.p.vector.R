@@ -15,6 +15,7 @@
 #' @param verbose Name of the analyzed item to show on the screen while \code{T.fit} is in process.
 #' @param offset Whether ro use offset for normalization
 #' @param parallel description
+#' @param useWeights Use bin size as weights
 #'
 #' @details \code{rownames(design)} and \code{colnames(data)} must be identical vectors
 #'   and indicate array naming. \code{rownames(data)} should contain unique gene IDs.
@@ -56,7 +57,7 @@
 #'
 sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
                         family = MASS::negative.binomial(theta = 1), epsilon = 0.00001,
-                        verbose = TRUE, offset = T, parallel = FALSE) {
+                        verbose = TRUE, offset = T, parallel = FALSE, useWeights = TRUE) {
   # Check the type of the 'design' parameter and set the corresponding variables
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
@@ -108,6 +109,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   if (offset) {
     dat <- dat + 1
     offsetData <- log(scmp_estimateSizeFactorsForMatrix(dat))
+    print(offsetData)
     if (verbose) {
       message("Using DESeq2::estimateSizeFactorsForMatrix")
       message("Please cite DESeq2 as 'Love, M.I., Huber, W., Anders, S. Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2 Genome Biology 15(12):550 (2014)'")
@@ -125,7 +127,21 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     numCores <- 1
   }
 
-  p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetdata_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose) {
+  # Check for weight usage
+  if (useWeights) {
+    # Get the pathframe
+    compressed.data <- as.data.frame(scmp.sce@compress.sce@colData)
+
+    # Get bin_name and bin size
+    weight_df <- compressed.data[, c(scmpObj@addParams@bin_size_colname), drop = TRUE]
+
+    # Set names
+    names(weight_df) <- rownames(weight_df)
+  } else {
+    weight_df <- NULL
+  }
+
+  p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetdata_lapply = offsetData, pb_lapply = pb, weights_lapply = weight_df, verbose_lapply = verbose) {
     y <- as.numeric(dat_lapply[i, ])
 
     # Print prog_lapplyress every 100 g_lapplyenes
@@ -140,7 +156,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     }
     model.glm <- glm(y ~ .,
       data = dis_lapply, family = family_lapply, epsilon = epsilon_lapply,
-      offset = offsetdata_lapply
+      offset = offsetdata_lapply, weights = weights_lapply
     )
 
     sc_p_val <- NA
@@ -149,7 +165,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     } else {
       model.glm.0 <- glm(y ~ 1,
         family = family_lapply, epsilon = epsilon_lapply,
-        offset = offsetdata_lapply
+        offset = offsetdata_lapply, weights = weights_lapply
       )
 
       # Perform ANOVA or Chi-square test based on the dis_lapplytribution
@@ -201,6 +217,8 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     scmpObj@scPVector <- scPVector.obj
 
     # Update Parameter Slot
+    scmpObj@addParams@useWeights <- useWeights
+    scmpObj@addParams@offset <- offset
     scmpObj@addParams@Q <- Q
     scmpObj@addParams@min.obs <- min.obs
     scmpObj@addParams@g <- g
