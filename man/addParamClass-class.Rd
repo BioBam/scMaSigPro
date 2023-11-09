@@ -47,7 +47,13 @@ Class "addParamClass"
 
 \item{\code{useInverseWeights}}{Take inverse of the weights}
 
-\item{\code{useBinWeightAsOffset}}{Use bin size as Offset}
+\item{\code{logOffset}}{description}
+
+\item{\code{logWeights}}{description}
+
+\item{\code{max_it}}{description}
+
+\item{\code{globalTheta}}{Only works when negative binimoal is enabled}
 }}
 
 \keyword{classes}

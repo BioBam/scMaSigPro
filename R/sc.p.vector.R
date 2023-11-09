@@ -17,9 +17,10 @@
 #' @param parallel description
 #' @param useWeights Use bin size as weights
 #' @param logOffset description
-#' @param useBinWeightAsOffset description
 #' @param useInverseWeights description
 #' @param max_it description
+#' @param logWeights description
+#' @param globalTheta description
 #' @details \code{rownames(design)} and \code{colnames(data)} must be identical vectors
 #'   and indicate array naming. \code{rownames(data)} should contain unique gene IDs.
 #'   \code{colnames(design)} are the given names for the variables in the regression model.
@@ -55,14 +56,16 @@
 #' @importFrom stats anova dist glm median na.omit p.adjust
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom parallelly availableCores
+#' @importFrom MASS negative.binomial glm.nb
 #'
 #' @export
 #'
 sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
-                        family = MASS::negative.binomial(theta = 1), epsilon = 0.00001,
+                        family = negative.binomial(theta = 1), epsilon = 0.00001,
                         verbose = TRUE, offset = TRUE, parallel = FALSE, useWeights = TRUE,
-                        useInverseWeights = TRUE, useBinWeightAsOffset = TRUE, logOffset = TRUE,
-                        max_it = 1000) {
+                        useInverseWeights = TRUE, logWeights = TRUE,
+                        logOffset = TRUE, computeTheta = TRUE,
+                        max_it = 100, globalTheta = FALSE) {
   # Check the type of the 'design' parameter and set the corresponding variables
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
@@ -112,27 +115,10 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
 
   # Calculate  offset
   if (offset) {
-      if(useBinWeightAsOffset){
-          # Get the pathframe
-          compressed.data <- as.data.frame(scmpObj@compress.sce@colData)
-
-          # Get bin_name and bin size
-          offsetData <- compressed.data[, c(scmpObj@addParams@bin_size_colname), drop = TRUE]
-
-          # Set names
-          names(offsetData) <- rownames(compressed.data)
-          
-      }else{
-      
     dat <- dat + 1
     offsetData <- scmp_estimateSizeFactorsForMatrix(dat)
-      }
-      if(logOffset){
-          offsetData <- log(offsetData)
-      }
-    if (verbose) {
-      message("Using DESeq2::estimateSizeFactorsForMatrix")
-      message("Please cite DESeq2 as 'Love, M.I., Huber, W., Anders, S. Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2 Genome Biology 15(12):550 (2014)'")
+    if (logOffset) {
+      offsetData <- log(offsetData)
     }
   } else {
     offsetData <- NULL
@@ -157,16 +143,21 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
 
     # Set names
     names(weight_df) <- rownames(compressed.data)
-    
+
+    # Log of weights
+    if (logWeights) {
+      weight_df <- log(weight_df)
+    }
+
     # Take inverse weights
-    if(useInverseWeights){
-        weight_df <- 1/ weight_df
+    if (useInverseWeights) {
+      weight_df <- 1 / weight_df
     }
   } else {
     weight_df <- NULL
   }
 
-  p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetdata_lapply = offsetData, pb_lapply = pb, weights_lapply = weight_df, verbose_lapply = verbose, max_it_lapply = max_it) {
+  p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetdata_lapply = offsetData, pb_lapply = pb, weights_lapply = weight_df, verbose_lapply = verbose, max_it_lapply = max_it, computeTheta_lapply = globalTheta) {
     y <- as.numeric(dat_lapply[i, ])
 
     # Print prog_lapplyress every 100 g_lapplyenes
@@ -179,12 +170,31 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
         }
       }
     }
+
+    if (length(grep(x = family_lapply$family, pattern = "Negative Binomial")) == 1) {
+      if (!computeTheta_lapply) {
+        theta.glm <- glm.nb(y ~ .,
+          data = dis_lapply,
+          weights = weights_lapply,
+          control = glm.control(maxit = max_it_lapply)
+        )
+        auto.theta <- theta.glm$theta
+        family_lapply <- negative.binomial(theta = auto.theta)
+      } else {
+        if (verbose_lapply) {
+          message(paste(
+            "Using global theta value of",
+            grep(x = family_lapply$family, pattern = "Negative Binomial", value = T)
+          ))
+        }
+      }
+    }
+
     model.glm <- glm(y ~ .,
       data = dis_lapply, family = family_lapply, epsilon = epsilon_lapply,
       offset = offsetdata_lapply, weights = weights_lapply,
       maxit = max_it_lapply
     )
-
     sc_p_val <- NA
     if (model.glm$null.deviance == 0) {
       sc_p_val <- 1
@@ -245,16 +255,18 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
 
     # Update Parameter Slot useInverseWeights
     scmpObj@addParams@useWeights <- useWeights
-    scmpObj@addParams@useInverseWeights <- useInverseWeights
-    scmpObj@addParams@useBinWeightAsOffset <- useBinWeightAsOffset
-    scmpObj@addParams@offset <- offset
+    scmpObj@addParams@logOffset <- logOffset
+    scmpObj@addParams@logWeights <- logWeights
     scmpObj@addParams@max_it <- as.integer(max_it)
+    scmpObj@addParams@useInverseWeights <- useInverseWeights
+    scmpObj@addParams@offset <- offset
     scmpObj@addParams@Q <- Q
     scmpObj@addParams@min.obs <- min.obs
     scmpObj@addParams@g <- g
     scmpObj@addParams@MT.adjust <- MT.adjust
     scmpObj@addParams@epsilon <- epsilon
     scmpObj@distribution <- family
+    scmpObj@addParams@globalTheta <- globalTheta
 
     return(scmpObj)
   }

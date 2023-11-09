@@ -18,9 +18,10 @@
 #' @slot useWeights A logical specifying whether to use weights during model fitting
 #' @slot offset Whether to use offset during model fitting
 #' @slot useInverseWeights Take inverse of the weights
-#' @slot useBinWeightAsOffset Use bin size as Offset
 #' @slot logOffset description
+#' @slot logWeights description
 #' @slot max_it description
+#' @slot globalTheta Only works when negative binimoal is enabled
 #'
 #' @name addParamClass
 #' @aliases addParamClass-class
@@ -50,9 +51,10 @@ setClass(
     useWeights = "logical",
     offset = "logical",
     useInverseWeights = "logical",
-    useBinWeightAsOffset = "logical",
     logOffset = "logical",
-    max_it = "integer"
+    logWeights = "logical",
+    max_it = "integer",
+    globalTheta = "logical"
   ),
   validity = function(object) {
     errors <- character(0)
@@ -121,8 +123,9 @@ setClass(
     useWeights = TRUE,
     offset = TRUE,
     useInverseWeights = TRUE,
-    useBinWeightAsOffset = FALSE,
     logOffset = FALSE,
-    max_it = 1000L
+    max_it = 100L,
+    logWeights = FALSE,
+    globalTheta = FALSE
   )
 )

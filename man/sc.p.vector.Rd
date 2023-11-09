@@ -9,14 +9,18 @@ sc.p.vector(
   Q = 0.05,
   MT.adjust = "BH",
   min.obs = 6,
-  family = MASS::negative.binomial(theta = 1),
+  family = negative.binomial(theta = 1),
   epsilon = 1e-05,
   verbose = TRUE,
   offset = TRUE,
   parallel = FALSE,
   useWeights = TRUE,
   useInverseWeights = TRUE,
-  useBinWeightAsOffset = TRUE
+  logWeights = TRUE,
+  logOffset = TRUE,
+  computeTheta = TRUE,
+  max_it = 100,
+  globalTheta = TRUE
 )
 }
 \arguments{
@@ -42,6 +46,16 @@ If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = 
 \item{parallel}{description}
 
 \item{useWeights}{Use bin size as weights}
+
+\item{useInverseWeights}{description}
+
+\item{logWeights}{description}
+
+\item{logOffset}{description}
+
+\item{max_it}{description}
+
+\item{globalTheta}{description}
 }
 \value{
 A list containing:

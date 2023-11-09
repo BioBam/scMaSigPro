@@ -16,7 +16,9 @@ sc.T.fit(
   parallel = TRUE,
   useWeights = scmpObj@addParams@useWeights,
   useInverseWeights = scmpObj@addParams@useInverseWeights,
-  useBinWeightAsOffset = scmpObj@addParams@useBinWeightAsOffset
+  logWeights = scmpObj@addParams@logWeights,
+  logOffset = scmpObj@addParams@logOffset,
+  max_it = scmpObj@addParams@max_it
 )
 }
 \arguments{
@@ -40,6 +42,14 @@ the \code{\link{p.vector}} function.}
 \item{parallel}{description}
 
 \item{useWeights}{Use bin size as weights}
+
+\item{useInverseWeights}{description}
+
+\item{logWeights}{description}
+
+\item{logOffset}{description}
+
+\item{max_it}{description}
 }
 \value{
 A list containing the following elements:
