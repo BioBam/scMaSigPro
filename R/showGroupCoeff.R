@@ -10,13 +10,13 @@
 #' If return is FALSE, the function does not return anything.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Assuming 'scmpObj' is an object of class 'scMaSigProClass'
 #' # with a computed solution:
 #' showSol(scmpObj, view = TRUE, return = FALSE)
 #' }
 #' @export
-showGroupCoeff <- function(scmpObj, view = TRUE, return = FALSE) {
+showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE) {
   # Check Object Validity
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'"
@@ -29,6 +29,11 @@ showGroupCoeff <- function(scmpObj, view = TRUE, return = FALSE) {
 
   # Extract
   grpCoeff <- scmpObj@scTFit@group.coeffs %>% as.data.frame()
+
+  if (!includeInflu) {
+    influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
+    grpCoeff <- grpCoeff[!(rownames(grpCoeff) %in% influ.gene), ]
+  }
 
   # If viewing is requested
   if (view) {

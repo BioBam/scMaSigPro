@@ -18,7 +18,8 @@ sc.T.fit(
   useInverseWeights = scmpObj@addParams@useInverseWeights,
   logWeights = scmpObj@addParams@logWeights,
   logOffset = scmpObj@addParams@logOffset,
-  max_it = scmpObj@addParams@max_it
+  max_it = scmpObj@addParams@max_it,
+  globalTheta = scmpObj@addParams@globalTheta
 )
 }
 \arguments{
@@ -50,6 +51,8 @@ the \code{\link{p.vector}} function.}
 \item{logOffset}{description}
 
 \item{max_it}{description}
+
+\item{globalTheta}{description}
 }
 \value{
 A list containing the following elements:

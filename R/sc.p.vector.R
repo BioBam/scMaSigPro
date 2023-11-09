@@ -53,7 +53,7 @@
 #'
 #' @keywords regression
 #'
-#' @importFrom stats anova dist glm median na.omit p.adjust
+#' @importFrom stats anova dist glm median na.omit p.adjust glm.control
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom parallelly availableCores
 #' @importFrom MASS negative.binomial glm.nb
@@ -61,11 +61,10 @@
 #' @export
 #'
 sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
-                        family = negative.binomial(theta = 1), epsilon = 0.00001,
+                        family = negative.binomial(theta = 1), epsilon = 1e-8,
                         verbose = TRUE, offset = TRUE, parallel = FALSE, useWeights = TRUE,
                         useInverseWeights = TRUE, logWeights = TRUE,
-                        logOffset = TRUE, computeTheta = TRUE,
-                        max_it = 100, globalTheta = FALSE) {
+                        logOffset = TRUE, max_it = 100, globalTheta = FALSE) {
   # Check the type of the 'design' parameter and set the corresponding variables
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
@@ -107,7 +106,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   p <- dim(dis)[2]
   sc.p.vector <- vector(mode = "numeric", length = g)
 
-  if (parallel == F) {
+  if (parallel == FALSE) {
     if (verbose) {
       pb <- txtProgressBar(min = 0, max = g, style = 3)
     }
@@ -163,7 +162,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     # Print prog_lapplyress every 100 g_lapplyenes
     div <- c(1:round(g_lapply / 100)) * 100
 
-    if (parallel == F) {
+    if (parallel == FALSE) {
       if (is.element(i, div) && verbose_lapply) {
         if (verbose) {
           setTxtProgressBar(pb_lapply, i)
@@ -176,7 +175,10 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
         theta.glm <- glm.nb(y ~ .,
           data = dis_lapply,
           weights = weights_lapply,
-          control = glm.control(maxit = max_it_lapply)
+          control = glm.control(
+            maxit = max_it_lapply,
+            epsilon = epsilon_lapply
+          )
         )
         auto.theta <- theta.glm$theta
         family_lapply <- negative.binomial(theta = auto.theta)

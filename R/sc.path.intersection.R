@@ -9,7 +9,7 @@
 #' @return An UpSet plot visualizing the intersections of significant genes across pathways.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Assuming 'scmp_object' is a pre-processed SCMP object with the relevant slots filled
 #' sc.path.intersection(scmp_object)
 #' }

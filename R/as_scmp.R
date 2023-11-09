@@ -29,7 +29,7 @@
 #' function in \pkg{monocle3}
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' scmpObj <- as_scmp(object,
 #'   from = "cds", path_prefix = "Path",
 #'   root_label = "root",
@@ -130,10 +130,6 @@ as_scmp <- function(object, from = "cds",
     scmpObj@addParams@path_prefix <- path_prefix
     scmpObj@addParams@path_colname <- path_colname
 
-    if (verbose) {
-      print(scmpObj)
-    }
-
     # Return Object
     return(scmpObj)
   } else if (is(object)[1] == "cell_data_set") {
@@ -178,9 +174,7 @@ as_scmp <- function(object, from = "cds",
     }
 
     # Print
-    if (verbose) {
-      print(scmpObj)
-    }
+
     return(scmpObj)
   }
 }

@@ -58,5 +58,5 @@ sc.plot.bins.tile <- function(scmpObj,
     ylab(path_colname) +
     theme_minimal()
 
-  print(tile)
+  return(tile)
 }

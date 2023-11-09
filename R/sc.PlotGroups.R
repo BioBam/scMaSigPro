@@ -153,5 +153,5 @@ sc.PlotGroups <-
       # coord_cartesian(xlim = xlim, ylim = ylim) +
       scale_color_manual(values = conesa_colors)
     #
-    print(p)
+    return(p)
   }

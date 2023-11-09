@@ -30,7 +30,7 @@
 #' \code{\link[igraph]{shortest_paths}}, `colData` from the \pkg{SingleCellExperiment} package
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' # Assuming 'cds' is a Monocle3 CellDataSet (CDS)
 #' result <- annotate_monocle3_cds(cds,
 #'   reduction_method = "umap",

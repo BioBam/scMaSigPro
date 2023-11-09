@@ -59,5 +59,5 @@ sc.plot.bins.bar <- function(scmpObj,
     ylab("Bin Size") +
     theme_minimal()
 
-  print(bar)
+  return(bar)
 }

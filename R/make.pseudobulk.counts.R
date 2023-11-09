@@ -25,7 +25,7 @@
 #' The result is a pseudo bulk counts data frame where each row is a gene and each column is a bin.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' make.pseudobulk.counts(
 #'   counts = sc_counts,
 #'   pseudo_bulk_profile = pb_profile,

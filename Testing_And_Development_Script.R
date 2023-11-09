@@ -48,10 +48,9 @@ scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 2)
 # Step-5: Run P-vector
 # offset_F_UseWeights_F_UseInverseWeights_F_UseBinWeightAsOffset_T
 scmp.sce <- sc.p.vector(scmp.sce,
-  parallel = F, family = negative.binomial(theta = 1),
-  useWeights = F,
+  parallel = F, useWeights = F,
   offset = F, useInverseWeights = F, min.obs = 1,
-  logOffset = F, computeTheta = T
+  logOffset = F, globalTheta = F
 )
 
 # Step-6: Run T.fit

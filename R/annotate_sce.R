@@ -30,7 +30,7 @@
 #'
 #' @examples
 #' # Annotate a SingleCellExperiment object with pseudotime and path information
-#' \dontrun{
+#' \donttest{
 #' annotated_sce <- annotate_sce(sce,
 #'   pseudotime_colname = "Pseudotime",
 #'   path_colname = "Path"

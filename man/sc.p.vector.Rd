@@ -10,7 +10,7 @@ sc.p.vector(
   MT.adjust = "BH",
   min.obs = 6,
   family = negative.binomial(theta = 1),
-  epsilon = 1e-05,
+  epsilon = 1e-08,
   verbose = TRUE,
   offset = TRUE,
   parallel = FALSE,
@@ -18,9 +18,8 @@ sc.p.vector(
   useInverseWeights = TRUE,
   logWeights = TRUE,
   logOffset = TRUE,
-  computeTheta = TRUE,
   max_it = 100,
-  globalTheta = TRUE
+  globalTheta = FALSE
 )
 }
 \arguments{

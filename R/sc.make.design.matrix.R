@@ -49,7 +49,7 @@ sc.make.design.matrix <- function(scmpObject,
   }
 
   # Drop path columns
-  com.cell.meta <- com.cell.meta[, colnames(com.cell.meta) != path_colname, drop = F]
+  com.cell.meta <- com.cell.meta[, colnames(com.cell.meta) != path_colname, drop = FALSE]
 
   # Get colvec
   col.vec <- colnames(com.cell.meta)[colnames(com.cell.meta) != bin_pseudotime_colname]

@@ -171,7 +171,11 @@ sc.T.fit <- function(scmpObj,
         if (!computeTheta_lapply) {
           theta.glm <- glm.nb(y ~ .,
             data = as.data.frame(dis_lapply),
-            weights = weights_lapply
+            weights = weights_lapply,
+            control = glm.control(
+              maxit = max_it_lapply,
+              epsilon = epsilon_lapply
+            )
           )
           auto.theta <- theta.glm$theta
           family_lapply <- negative.binomial(theta = auto.theta)
@@ -214,7 +218,11 @@ sc.T.fit <- function(scmpObj,
         if (!computeTheta_lapply) {
           theta.glm <- glm.nb(y ~ .,
             data = as.data.frame(dis_lapply),
-            weights = weights_lapply
+            weights = weights_lapply,
+            control = glm.control(
+              maxit = max_it_lapply,
+              epsilon = epsilon_lapply
+            )
           )
           auto.theta <- theta.glm$theta
           family_lapply <- negative.binomial(theta = auto.theta)
@@ -251,7 +259,11 @@ sc.T.fit <- function(scmpObj,
         if (!computeTheta_lapply) {
           theta.glm <- glm.nb(y ~ .,
             data = as.data.frame(dis_lapply),
-            weights = weights_lapply
+            weights = weights_lapply,
+            control = glm.control(
+              maxit = max_it_lapply,
+              epsilon = epsilon_lapply
+            )
           )
           auto.theta <- theta.glm$theta
           family_lapply <- negative.binomial(theta = auto.theta)
@@ -289,7 +301,11 @@ sc.T.fit <- function(scmpObj,
         if (!computeTheta_lapply) {
           theta.glm <- glm.nb(y ~ .,
             data = as.data.frame(dis_lapply),
-            weights = weights_lapply
+            weights = weights_lapply,
+            control = glm.control(
+              maxit = max_it_lapply,
+              epsilon = epsilon_lapply
+            )
           )
           auto.theta <- theta.glm$theta
           family_lapply <- negative.binomial(theta = auto.theta)
@@ -344,7 +360,7 @@ sc.T.fit <- function(scmpObj,
   influ.info.list <- influ.info.list[!sapply(influ.info.list, function(x) is.logical(x))]
   # Lapply to remove column 1
   influ.info.list <- lapply(influ.info.list, function(element) {
-    return(element[, -1, drop = F])
+    return(element[, -1, drop = FALSE])
   })
   # Create scmpObjframe
   sol <- do.call("rbind", sol.list)

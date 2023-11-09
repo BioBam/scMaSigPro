@@ -19,7 +19,7 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
                           pseudotime_col = "Pseudotime",
                           path_col = "Path") {
   # Validate is supplied opject is a valid
-  assert_that(class(cdsObj)[1] == "cell_data_set",
+  assert_that(is(cdsObj, "cell_data_set"),
     msg = "Please supply a valid monocle3 cdsObject"
   )
   # Check whether the lower dimensions are calculated

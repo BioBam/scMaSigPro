@@ -119,7 +119,7 @@ setClass(
     bin_members_colname = "scmp_bin_members",
     MT.adjust = "BH",
     step.method = "backward",
-    epsilon = 0.00001,
+    epsilon = 1e-8,
     useWeights = TRUE,
     offset = TRUE,
     useInverseWeights = TRUE,
