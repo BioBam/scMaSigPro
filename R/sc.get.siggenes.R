@@ -7,7 +7,7 @@
 #' @param scmpObj Object of Class \code{\link{scMaSigProClass}} in which the
 #' \code{sc.T.fit} has been run.
 #' @param rsq Cut-off level at the R-squared value for the stepwise regression fit.
-#' @param use_Influ description
+#' @param includeInflu description
 #' Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).
 #' @param vars Variables for which to extract significant genes. There are 3 possible values:
 #' \itemize{
@@ -52,7 +52,7 @@
 sc.get.siggenes <- function(scmpObj, rsq = 0.7,
                             vars = c("all", "each", "groups"),
                             significant.intercept = "dummy",
-                            use_Influ = TRUE) {
+                            includeInflu = TRUE) {
   # Check Validity of the object
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
@@ -63,9 +63,9 @@ sc.get.siggenes <- function(scmpObj, rsq = 0.7,
     dis = scmpObj@edesign@dis,
     edesign = scmpObj@edesign@edesign,
     groups.vector = scmpObj@scTFit@groups.vector,
-    sol = showSol(scmpObj, return = TRUE, view = FALSE, influ = use_Influ),
-    coefficients = showCoeff(scmpObj, return = TRUE, view = FALSE, influ = use_Influ),
-    sig.profiles = showSigProf(scmpObj, return = TRUE, view = FALSE, influ = use_Influ),
+    sol = showSol(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
+    coefficients = showCoeff(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
+    sig.profiles = showSigProf(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
     group.coeffs = scmpObj@scTFit@group.coeffs
   )
 

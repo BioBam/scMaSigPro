@@ -48,7 +48,7 @@ scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 2)
 # Step-5: Run P-vector
 # offset_F_UseWeights_F_UseInverseWeights_F_UseBinWeightAsOffset_T
 scmp.sce <- sc.p.vector(scmp.sce,
-  parallel = F, useWeights = F,
+  parallel = T, useWeights = F,
   offset = F, useInverseWeights = F, min.obs = 1,
   logOffset = F, globalTheta = F
 )
@@ -57,14 +57,17 @@ scmp.sce <- sc.p.vector(scmp.sce,
 scmp.sce <- sc.T.fit(scmp.sce, parallel = T, verbose = T)
 
 
-showParams(scmp.sce, return = T, view = F)
+showParams(scmp.sce)
 
 # Step-7: Select with R2
 scmp.sce <- sc.get.siggenes(
   scmpObj = scmp.sce,
-  vars = "all",
+  vars = "groups",
   significant.intercept = "dummy"
 )
+
+sc.path.intersection(scmp.sce) 
+
 showParams(scmp.sce, return = T, view = F)
 
 nrow(showSol(scmp.sce, view = F, return = T, influ = F))
