@@ -28,19 +28,16 @@ sc.path.intersection <- function(scmpObj) {
     assertthat::assert_that(!S4Vectors::isEmpty(scmpObj@sig.genes@summary),
                             msg = "'sig.genes@Summary' slot is empty, please run 'sc.get.siggenes'")
     
+    # Check if more 1 path exist 
     assertthat::assert_that(ncol(scmpObj@sig.genes@summary %>% as.data.frame()) >=2,
                             msg = "'sig.genes@Summary' slot is empty, please run 'sc.get.siggenes'")
     
-    # Create genes
+    # Create nested vector list for the genes
     gene_list <- lapply(scmpObj@sig.genes@summary, function(path){
-        
         # Drop Empty Sets
         path.genes <- path[!(path == " ")]
-        
         return(path.genes)
-        
     })
-    
     
     # Create a unique list of all genes
     all_genes <- unique(unlist(gene_list))
@@ -53,6 +50,20 @@ sc.path.intersection <- function(scmpObj) {
         gene_df[[pathway]] <- gene_df$gene %in% gene_list[[pathway]]
     }
     
+    # Binarize varibales
+    gene_df[,-1] <- apply(gene_df[, -1], 2, FUN = function(X){
+        
+        if(as.logical(X)){
+            return(1)
+        }else{
+            return(0)
+        }
+    })
+    
+    
+    
+    View(gene_df)
+    stop()
     # Convert the logical columns to factors for ggupset
     gene_df[-1] <- lapply(gene_df[-1], factor)
     
