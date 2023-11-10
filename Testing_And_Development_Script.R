@@ -62,11 +62,11 @@ showParams(scmp.sce)
 # Step-7: Select with R2
 scmp.sce <- sc.get.siggenes(
   scmpObj = scmp.sce,
-  vars = "groups",
+  vars = "each",
   significant.intercept = "dummy"
 )
 
-sc.path.intersection(scmp.sce) 
+sc.path.intersection(scmp.sce, show_sets_size = F) 
 
 showParams(scmp.sce, return = T, view = F)
 

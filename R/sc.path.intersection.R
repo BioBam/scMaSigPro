@@ -8,6 +8,7 @@
 #' @param min_interaction_size description
 #' @param width_ratio description
 #' @param keep_empty_groups description
+#' @param show_sets_size description
 #'
 #' @return An UpSet plot visualizing the intersections of significant genes across pathways.
 #'
@@ -17,12 +18,14 @@
 #' sc.path.intersection(scmp_object)
 #' }
 #' @importFrom S4Vectors isEmpty
-#' @importFrom ComplexUpset upset intersection_matrix intersection_size
+#' @importFrom ComplexUpset upset intersection_matrix intersection_size upset_set_size
 #' @importFrom RColorConesa colorConesa
+#' 
+#' @export
 #'
 sc.path.intersection <- function(scmpObj, min_interaction_size = 2,
                                  keep_empty_groups = TRUE,
-                                 width_ratio = 0.1) {
+                                 width_ratio = 0.1, show_sets_size = FALSE) {
   # Check the data
   assertthat::assert_that(
     is(scmpObj, "scMaSigProClass"),
@@ -62,6 +65,10 @@ sc.path.intersection <- function(scmpObj, min_interaction_size = 2,
 
   # Get conesa colours
   col_pal <- colorConesa(3)
+  
+  if(show_sets_size){
+      show_sets_size <- upset_set_size()
+  }
 
   # Create Upset
   p <- upset(
@@ -72,7 +79,7 @@ sc.path.intersection <- function(scmpObj, min_interaction_size = 2,
     keep_empty_groups = keep_empty_groups,
     name = "Vars",
     # wrap=FALSE,
-    # set_sizes=TRUE
+     set_sizes=show_sets_size,
     # stripes=c('deepskyblue1'),
     matrix = (
 

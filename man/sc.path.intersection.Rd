@@ -8,7 +8,8 @@ sc.path.intersection(
   scmpObj,
   min_interaction_size = 2,
   keep_empty_groups = TRUE,
-  width_ratio = 0.1
+  width_ratio = 0.1,
+  show_sets_size = FALSE
 )
 }
 \arguments{
@@ -20,6 +21,8 @@ filled with the summary of significant genes for each pathway.}
 \item{keep_empty_groups}{description}
 
 \item{width_ratio}{description}
+
+\item{show_sets_size}{description}
 }
 \value{
 An UpSet plot visualizing the intersections of significant genes across pathways.
