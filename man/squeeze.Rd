@@ -98,7 +98,7 @@ This function performs the following steps:
 - Returns the merged data.frame.
 }
 \examples{
-\dontrun{
+\donttest{
 squeeze(
   cell_metadata = data.frame, pseudotime_colname = "time",
   bin_method = "Sturges", drop.fac = 0.5, verbose = TRUE

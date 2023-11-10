@@ -57,7 +57,7 @@ object from Slingshot to an instance of the scmpClass object.
 Additional Details
 }
 \examples{
-\dontrun{
+\donttest{
 scmpObj <- as_scmp(object,
   from = "cds", path_prefix = "Path",
   root_label = "root",

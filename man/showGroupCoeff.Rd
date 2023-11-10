@@ -4,7 +4,7 @@
 \alias{showGroupCoeff}
 \title{Show or Return the Solution}
 \usage{
-showGroupCoeff(scmpObj, view = TRUE, return = FALSE)
+showGroupCoeff(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE)
 }
 \arguments{
 \item{scmpObj}{an object of class 'scMaSigProClass'. This object should contain the computed solution.}
@@ -12,6 +12,8 @@ showGroupCoeff(scmpObj, view = TRUE, return = FALSE)
 \item{view}{logical, whether to view the solution. If TRUE (default), the solution is displayed.}
 
 \item{return}{logical, whether to return the solution. If FALSE (default), the solution is not returned.}
+
+\item{includeInflu}{description}
 }
 \value{
 The computed solution as a data.frame if return is set to TRUE.
@@ -21,7 +23,7 @@ If return is FALSE, the function does not return anything.
 This function is used to view or return the group of the provided scMaSigPro object.
 }
 \examples{
-\dontrun{
+\donttest{
 # Assuming 'scmpObj' is an object of class 'scMaSigProClass'
 # with a computed solution:
 showSol(scmpObj, view = TRUE, return = FALSE)

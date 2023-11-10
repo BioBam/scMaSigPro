@@ -40,7 +40,7 @@ This function initializes a scMaSigProClass object with the given counts,
 cell level metadata, and other optional parameters.
 }
 \examples{
-\dontrun{
+\donttest{
 # Assuming you have 'counts_matrix', 'cell_data_df', 'pseudotime_col', and 'path_col'
 scmp_object <- create_scmp(counts_matrix, cell_data_df,
   feature_data = NULL,

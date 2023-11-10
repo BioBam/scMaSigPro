@@ -33,7 +33,7 @@ The function uses various rules for calculating the bin size:
 After estimating the bin size, it is scaled down by a factor specified by 'drop_fac'.
 }
 \examples{
-\dontrun{
+\donttest{
 estBinSize(time_vector = c(1, 2, 3, 4, 5), nPoints = 5, drop_fac = 0.5, bin_method = "Sturges")
 }
 }
