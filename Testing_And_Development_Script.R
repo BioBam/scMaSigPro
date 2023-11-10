@@ -39,8 +39,8 @@ scmp.sce <- squeeze(
 )
 
 # Validation Plots
-# sc.plot.bins.tile(scmp.sce)
-# sc.plot.bins.bar(scmp.sce)
+ sc.plot.bins.tile(scmp.sce)
+ sc.plot.bins.bar(scmp.sce)
 
 # Step-4: Make Design-Matrix
 scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 2)

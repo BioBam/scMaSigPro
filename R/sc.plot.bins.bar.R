@@ -55,6 +55,8 @@ sc.plot.bins.bar <- function(scmpObj,
     geom_point(aes(color = .data$path), position = position_dodge(0.9)) +
     ggtitle("Pseudotime Bins across paths") +
     scale_fill_manual(values = conesa_colors) +
+    labs(fill = bin_size_colname,
+         color = path_colname)+
     xlab("Binned Time") +
     ylab("Bin Size") +
     theme_minimal()

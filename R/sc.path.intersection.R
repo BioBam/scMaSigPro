@@ -27,18 +27,18 @@ sc.path.intersection <- function(scmpObj, min_interaction_size = 2,
                                  keep_empty_groups = TRUE,
                                  width_ratio = 0.1, show_sets_size = FALSE) {
   # Check the data
-  assertthat::assert_that(
+  assert_that(
     is(scmpObj, "scMaSigProClass"),
     msg = "Please supply an object of the class 'scMaSigPro'"
   )
 
   # Check if siggenes results exist for groups
-  assertthat::assert_that(!S4Vectors::isEmpty(scmpObj@sig.genes@summary),
+  assert_that(!S4Vectors::isEmpty(scmpObj@sig.genes@summary),
     msg = "'sig.genes@Summary' slot is empty, please run 'sc.get.siggenes'"
   )
 
   # Check if more 1 path exist
-  assertthat::assert_that(ncol(scmpObj@sig.genes@summary %>% as.data.frame()) >= 2,
+  assert_that(ncol(scmpObj@sig.genes@summary %>% as.data.frame()) >= 2,
     msg = "'sig.genes@Summary' slot is empty, please run 'sc.get.siggenes'"
   )
 

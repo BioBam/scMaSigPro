@@ -53,7 +53,7 @@ sc.plot.bins.tile <- function(scmpObj,
     geom_tile(aes(fill = .data$binSize)) +
     scale_fill_gradient(low = "#FDA3D1", high = "#FDC659") +
     geom_text(aes(label = sprintf("%d", round(.data$binSize, 1))), vjust = 1) +
-    ggtitle("") +
+    labs(fill = bin_size_colname)+
     xlab(bin_pseudotime_colname) +
     ylab(path_colname) +
     theme_minimal()
