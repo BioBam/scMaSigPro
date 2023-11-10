@@ -24,7 +24,8 @@ setClass(
   "sigClass",
   representation(
     summary = "ANY",
-    sig.genes = "list"
+    sig.genes = "list",
+    feature.clusters = "list"
   ),
   validity = function(object) {
     if (!is.list(object@sig.genes)) {
@@ -33,7 +34,8 @@ setClass(
   },
   prototype = list(
     summary = list(),
-    sig.genes = list()
+    sig.genes = list(),
+    feature.clusters = list()
   )
 )
 
@@ -117,6 +119,6 @@ setMethod(
   "show",
   "scMaSigProClass",
   function(object) {
-    .smsp_show(object)
+    .scmp_show(object)
   }
 )

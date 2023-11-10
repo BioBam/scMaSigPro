@@ -27,6 +27,8 @@
 #' @export
 #'
 
+library(assertthat)
+
 # Create scmp
 create_scmpObj <- function(counts,
                            cell_data,
@@ -69,7 +71,12 @@ create_scmpObj <- function(counts,
 
   # Use as bin
   if (use_as_bin) {
-    sce_tmp <- SingleCellExperiment(
+      
+      # Set bin size coulmn name
+      cell_data[["scmp_bin_size"]] <- as.numeric(1)
+      
+      # Create SCE
+      sce_tmp <- SingleCellExperiment(
       list(bulk.counts = counts),
       colData = DataFrame(cell_data)
     )

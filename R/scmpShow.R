@@ -10,7 +10,7 @@
 #'
 #' @keywords internal
 #' @export
-.smsp_show <- function(object) {
+.scmp_show <- function(object) {
   # Show Basic information
   cat("Class: ScMaSigPro\n")
   cat(paste0("nCells: ", ncol(object@sce), "\n"))
