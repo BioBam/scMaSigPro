@@ -28,21 +28,12 @@
 #'
 #' @seealso SingleCellExperiment class object, `colData` from the \pkg{SingleCellExperiment} package.
 #'
-#' @examples
-#' # Annotate a SingleCellExperiment object with pseudotime and path information
-#' \donttest{
-#' annotated_sce <- annotate_sce(sce,
-#'   pseudotime_colname = "Pseudotime",
-#'   path_colname = "Path"
-#' )
-#' }
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @importFrom SingleCellExperiment colData
 #' @importFrom assertthat assert_that
 #'
-#' @export
 annotate_sce <- function(sce,
                          pseudotime_colname = "Pseudotime",
                          path_prefix = "Path",

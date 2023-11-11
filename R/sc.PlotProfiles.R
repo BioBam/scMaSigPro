@@ -3,7 +3,7 @@
 #' This function generates plots based on various parameters. It calculates the summary mode, colors, and other visual attributes to create a plot.
 #'
 #' @param scmpObj object of class scmpObj
-#' @param feature_id A vector of maximum length 6 or a single feature of ID
+#' @param groupBy A vector of maximum length 6 or a single feature of ID
 #' @param xlab X-axis label. Default is "Pooled Pseudotime".
 #' @param ylab Y-axis label. Default is "Pseudobulk Expression".
 #' @param smoothness abc

@@ -77,14 +77,6 @@ and returns a list of FDR corrected significant genes.
   and indicate array naming. \code{rownames(data)} should contain unique gene IDs.
   \code{colnames(design)} are the given names for the variables in the regression model.
 }
-\examples{
-#### GENERATE TIME COURSE DATA
-## generates n random gene expression profiles of a data set with
-## one control plus 3 treatments, 3 time points and r replicates per time point.
-
-# ... (add example usage of the function here)
-
-}
 \references{
 Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
 maSigPro: a Method to Identify Significant Differential Expression Profiles in Time-Course Microarray Experiments.

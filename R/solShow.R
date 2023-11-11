@@ -10,12 +10,6 @@
 #' @return The computed solution as a data.frame if return is set to TRUE.
 #' If return is FALSE, the function does not return anything.
 #'
-#' @examples
-#' \donttest{
-#' # Assuming 'scmpObj' is an object of class 'scMaSigProClass'
-#' # with a computed solution:
-#' showSol(scmpObj, view = TRUE, return = FALSE)
-#' }
 #' @export
 showSol <- function(scmpObj, view = TRUE, return = FALSE, includeInflu = FALSE) {
   # Check Object Validity

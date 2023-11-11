@@ -48,19 +48,6 @@ the CDS. It then calculates the minimum spanning tree and the network matrix,
 which contains the cells along each path from root to endpoint. Finally, it
 updates the CDS with the endpoint data and the updated cell metadata.
 }
-\examples{
-\donttest{
-# Assuming 'cds' is a Monocle3 CellDataSet (CDS)
-result <- annotate_monocle3_cds(cds,
-  reduction_method = "umap",
-  path_prefix = "Path",
-  root_label = "root",
-  path_colname = path_prefix,
-  verbose = TRUE
-)
-}
-
-}
 \seealso{
 \code{\link[igraph]{shortest_paths}}, `colData` from the \pkg{SingleCellExperiment} package
 }

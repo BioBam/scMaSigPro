@@ -26,17 +26,10 @@
 #' @return The modified `scmpObj` with added clustering information in the
 #'   `@sig.genes@feature.clusters` slot.
 #'
-#' @examples
-#' # Assuming scmpObj is a valid scMaSigProClass object
-#' scmpObj <- sc.cluster.features(scmpObj,
-#'   includeInflu = TRUE,
-#'   cluster.method = "hclust"
-#' )
-#'
 #' @export
 #'
-#' @importFrom stats hclust kmeans Mclust cutree scale as.dist
-#' @importFrom assertthat assert_that
+#' @importFrom stats hclust kmeans cutree as.dist cor
+#' @importFrom mclust Mclust
 sc.cluster.features <- function(scmpObj, includeInflu = FALSE,
                                 cluster.method = "hclust",
                                 distance = "cor",

@@ -55,15 +55,6 @@
 #' - Merges the original data.frame with the new binned time series data.
 #' - Removes the 'cell' column and sets the row names back to the original row names of the input data.frame.
 #' - Returns the merged data.frame.
-#'
-#' @examples
-#' \donttest{
-#' squeeze(
-#'   cell_metadata = data.frame, pseudotime_colname = "time",
-#'   bin_method = "Sturges", drop.fac = 0.5, verbose = TRUE
-#' )
-#' }
-#'
 #' @importFrom assertthat assert_that
 #' @importFrom parallel mclapply detectCores
 #' @importFrom entropy discretize

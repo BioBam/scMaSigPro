@@ -31,9 +31,3 @@ An UpSet plot visualizing the intersections of significant genes across pathways
 This function takes a Single Cell MultiPathway (SCMP) object, extracts the list of
 significant genes for each pathway, and performs an UpSet plot to visualize their intersections.
 }
-\examples{
-\donttest{
-# Assuming 'scmp_object' is a pre-processed SCMP object with the relevant slots filled
-sc.path.intersection(scmp_object)
-}
-}

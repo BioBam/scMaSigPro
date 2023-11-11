@@ -22,10 +22,6 @@
 #'
 #' After estimating the bin size, it is scaled down by a factor specified by 'drop_fac'.
 #'
-#' @examples
-#' \donttest{
-#' estBinSize(time_vector = c(1, 2, 3, 4, 5), nPoints = 5, drop_fac = 0.5, bin_method = "Sturges")
-#' }
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @importFrom stats IQR sd

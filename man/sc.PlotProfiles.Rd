@@ -27,7 +27,7 @@ sc.PlotProfiles(
 
 \item{logType}{Log type required}
 
-\item{feature_id}{A vector of maximum length 6 or a single feature of ID}
+\item{groupBy}{A vector of maximum length 6 or a single feature of ID}
 }
 \value{
 Generates a plot.

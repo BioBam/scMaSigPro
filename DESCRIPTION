@@ -19,7 +19,7 @@ Imports:
     assertthat, e1071, data.table, dplyr, entropy, ggplot2, igraph,
     magrittr, maSigPro, MASS, MatrixGenerics, methods, parallel, parallelly,
     plotly, RColorConesa, rlang, S4Vectors, scales, shiny, SingleCellExperiment,
-    stats, stringr, utils, ComplexUpset
+    stats, stringr, utils, ComplexUpset, mclust
 Depends: R (>= 4.0)
 Encoding: UTF-8
 LazyData: true

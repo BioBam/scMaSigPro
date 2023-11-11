@@ -13,9 +13,6 @@
 #' @importFrom maSigPro make.design.matrix
 #' @export
 #'
-#' @examples
-#' # Insert an example of how to use the function here.
-#'
 sc.make.design.matrix <- function(scmpObject,
                                   poly_degree = 2,
                                   bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname,

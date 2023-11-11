@@ -97,15 +97,6 @@ This function performs the following steps:
 - Removes the 'cell' column and sets the row names back to the original row names of the input data.frame.
 - Returns the merged data.frame.
 }
-\examples{
-\donttest{
-squeeze(
-  cell_metadata = data.frame, pseudotime_colname = "time",
-  bin_method = "Sturges", drop.fac = 0.5, verbose = TRUE
-)
-}
-
-}
 \seealso{
 \code{\link{estBinSize}}, \code{\link{discretize}}, \code{\link{create_range}}
 }

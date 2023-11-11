@@ -14,15 +14,6 @@
 #'
 #' @return A scMaSigProClass object containing the inputted counts, cell data, and additional parameters.
 #'
-#' @examples
-#' \donttest{
-#' # Assuming you have 'counts_matrix', 'cell_data_df', 'pseudotime_col', and 'path_col'
-#' scmp_object <- create_scmp(counts_matrix, cell_data_df,
-#'   feature_data = NULL,
-#'   bin_counts = NULL, bin_cell_data = NULL,
-#'   pseudotime_col, path_col, use_as_bin = FALSE
-#' )
-#' }
 #'
 #' @export
 #'

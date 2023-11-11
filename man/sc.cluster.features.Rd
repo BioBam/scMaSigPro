@@ -53,9 +53,3 @@ Performs clustering on features in single-cell data using hierarchical clusterin
 k-means, or model-based clustering methods. It operates on an object of class
 `scMaSigProClass` and adds clustering information to this object.
 }
-\examples{
-# Assuming scmpObj is a valid scMaSigProClass object
-scmpObj <- sc.cluster.features(scmpObj, includeInflu = TRUE,
-                               cluster.method = "hclust")
-
-}

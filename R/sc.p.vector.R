@@ -44,13 +44,6 @@
 #'
 #' @seealso \code{\link{T.fit}}, \code{\link{lm}}
 #'
-#' @examples
-#' #### GENERATE TIME COURSE DATA
-#' ## generates n random gene expression profiles of a data set with
-#' ## one control plus 3 treatments, 3 time points and r replicates per time point.
-#'
-#' # ... (add example usage of the function here)
-#'
 #' @keywords regression
 #'
 #' @importFrom stats anova dist glm median na.omit p.adjust glm.control

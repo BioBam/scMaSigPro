@@ -11,12 +11,6 @@
 #' @param show_sets_size description
 #'
 #' @return An UpSet plot visualizing the intersections of significant genes across pathways.
-#'
-#' @examples
-#' \donttest{
-#' # Assuming 'scmp_object' is a pre-processed SCMP object with the relevant slots filled
-#' sc.path.intersection(scmp_object)
-#' }
 #' @importFrom S4Vectors isEmpty
 #' @importFrom ComplexUpset upset intersection_matrix intersection_size upset_set_size
 #' @importFrom RColorConesa colorConesa

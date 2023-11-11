@@ -57,14 +57,26 @@ object from Slingshot to an instance of the scmpClass object.
 Additional Details
 }
 \examples{
-\donttest{
-scmpObj <- as_scmp(object,
-  from = "cds", path_prefix = "Path",
-  root_label = "root",
-  path_colname = path_prefix,
-  verbose = TRUE
+# Load Library
+# library(scMaSigPro)
+# Step-1: Load a dataset for testing
+# This dataset is available as part of the package
+# It is simulated with splatter
+data("Sim2Path", package = "scMaSigPro")
+
+# Step-2: Convert to ScMaSigPro Object
+# Here, we convert the SCE object to an scMaSigPro object
+scmp.sce <- as_scmp(
+  object = sim.sce, from = "sce",
+  align_pseudotime = TRUE,
+  verbose = FALSE,
+  additional_params = list(
+    labels_exist = TRUE,
+    existing_pseudotime_colname = "Step",
+    existing_path_colname = "Group"
+  )
 )
-}
+
 
 }
 \seealso{

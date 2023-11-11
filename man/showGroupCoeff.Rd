@@ -22,10 +22,3 @@ If return is FALSE, the function does not return anything.
 \description{
 This function is used to view or return the group of the provided scMaSigPro object.
 }
-\examples{
-\donttest{
-# Assuming 'scmpObj' is an object of class 'scMaSigProClass'
-# with a computed solution:
-showSol(scmpObj, view = TRUE, return = FALSE)
-}
-}
