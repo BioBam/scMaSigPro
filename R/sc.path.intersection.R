@@ -20,7 +20,7 @@
 #' @importFrom S4Vectors isEmpty
 #' @importFrom ComplexUpset upset intersection_matrix intersection_size upset_set_size
 #' @importFrom RColorConesa colorConesa
-#' 
+#'
 #' @export
 #'
 sc.path.intersection <- function(scmpObj, min_interaction_size = 2,
@@ -65,9 +65,9 @@ sc.path.intersection <- function(scmpObj, min_interaction_size = 2,
 
   # Get conesa colours
   col_pal <- colorConesa(3)
-  
-  if(show_sets_size){
-      show_sets_size <- upset_set_size()
+
+  if (show_sets_size) {
+    show_sets_size <- upset_set_size()
   }
 
   # Create Upset
@@ -79,7 +79,7 @@ sc.path.intersection <- function(scmpObj, min_interaction_size = 2,
     keep_empty_groups = keep_empty_groups,
     name = "Vars",
     # wrap=FALSE,
-     set_sizes=show_sets_size,
+    set_sizes = show_sets_size,
     # stripes=c('deepskyblue1'),
     matrix = (
 

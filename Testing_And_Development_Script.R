@@ -313,29 +313,33 @@ see.genes(get$sig.genes, k = 4,
           edesign = edesign.abiotic)
 library(ggplot2)
 
-test.scmp.3 <- sc.cluster.features(scmpObj = test.scmp.2, cluster.method = "hclust")
+test.scmp.3 <- sc.cluster.features(scmpObj = scmp.sce, cluster.method = "kmeans",
+                                   k = 16)
 
 
-df <- sc.PlotProfiles(scmpObj = test.scmp.3,
-                               logs = F)
+df <- sc.PlotProfiles(scmpObj = test.scmp.3,groupBy = "feature",
+                               logs = F, smoothness = 1)
 
 # Assuming feature_id and cluster_id are factors
-p <- ggplot(data = df, aes(x = pooled.time, y = pb.counts, color = path)) +
-    geom_point(alpha = 0.5, size = 2, stroke = 1, shape = 21) +
-    geom_line(aes(linetype = path), size = 1) +  # Dotted line for points.df, solid for curve.df
-    facet_grid(cluster_id ~ feature_id) +  # Creates a panel for each cluster_id and feature_id
-    scale_color_manual(values = c("Control" = "blue", "Cold" = "red")) +  # Replace with your color choices
+p <- ggplot(data = df, aes(x = x, y = log(y), group = interaction(feature_id, path), color = path)) +
+    geom_line(aes(linetype = path), size = 0.4) + # Draw lines
+    geom_point(size = 1, shape = 21, alpha = 0.5, stroke = 1) + # Draw points
+    facet_wrap(~ cluster_id, scales = "free_y") + # Create a panel for each cluster_id
+    scale_color_manual(values = colorConesa(length(unique(df$path)))) + # Custom colors for paths
     theme_classic(base_size = 12) +
+    #geom_smooth(data = df, aes(x = x, y = log(y), color = path), method = "loess", se = FALSE, size = 0.7)+
     theme(
         strip.background = element_blank(),
         strip.text.x = element_text(size = 10, angle = 0),
         legend.position = "bottom",
         panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
-        panel.grid.minor = element_blank()
+        panel.grid.minor = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1) # Rotate x-axis text if necessary
     ) +
-    labs(title = "Feature Id: gene_name", color = "Paths")  # Replace gene_name with actual gene names if needed
-# You can add ggtitle and other theme settings as per your requirement
+    labs(title = "Gene Expression over Pseudotime", color = "Path") +
+    guides(color = guide_legend(title = "Path")) # Adjust legend for paths
 
+p
 
 
 sc.PlotGroups(test.scmp.3,logs = F, 
