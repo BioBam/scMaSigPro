@@ -43,6 +43,7 @@ setClass(
     bin_colname = "character",
     bin_size_colname = "character",
     bin_members_colname = "character",
+    annotation_col = "character",
     g = "integer",
     Q = "numeric", # Significance level (default is 0.05)
     min.obs = "numeric", # Minimum value to estimate the model (degree+1) x Groups + 1
@@ -64,7 +65,8 @@ setClass(
       "bin_pseudotime_colname", "path_prefix", "root_label",
       "pseudotime_colname", "bin_method",
       "path_colname", "bin_colname", "bin_size_colname",
-      "bin_members_colname", "MT.adjust", "step.method"
+      "bin_members_colname", "MT.adjust", "step.method",
+      "annotation_col"
     )
 
     for (slot_name in char_slots) {
@@ -126,6 +128,7 @@ setClass(
     logOffset = FALSE,
     max_it = 100L,
     logWeights = FALSE,
-    globalTheta = FALSE
+    globalTheta = FALSE,
+    annotation_col = "cell_type"
   )
 )

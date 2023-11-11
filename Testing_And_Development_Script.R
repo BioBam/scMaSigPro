@@ -38,6 +38,13 @@ scmp.sce <- squeeze(
   fill_gaps = F
 )
 
+
+scmp.sce@sce@colData$cell_type <- paste0("cellType", round(scmp.sce@sce@colData$Pseudotime/10))
+
+sc.fraction.bin(scmp.sce)
+
+
+
 # Validation Plots
  sc.plot.bins.tile(scmp.sce)
  sc.plot.bins.bar(scmp.sce)

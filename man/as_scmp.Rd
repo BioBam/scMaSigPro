@@ -77,7 +77,6 @@ scmp.sce <- as_scmp(
   )
 )
 
-
 }
 \seealso{
 `colData` from the \pkg{SingleCellExperiment} package, `new_cell_data_set`
