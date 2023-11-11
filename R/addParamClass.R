@@ -15,6 +15,13 @@
 #' @slot MT.adjust Pvalue correction
 #' @slot epsilon convergence tolerance
 #' @slot step.method A character specifying the imputed step method for stepwise regression.
+#' @slot useWeights A logical specifying whether to use weights during model fitting
+#' @slot offset Whether to use offset during model fitting
+#' @slot useInverseWeights Take inverse of the weights
+#' @slot logOffset description
+#' @slot logWeights description
+#' @slot max_it description
+#' @slot globalTheta Only works when negative binimoal is enabled
 #'
 #' @name addParamClass
 #' @aliases addParamClass-class
@@ -40,7 +47,14 @@ setClass(
     Q = "numeric", # Significance level (default is 0.05)
     min.obs = "numeric", # Minimum value to estimate the model (degree+1) x Groups + 1
     MT.adjust = "character",
-    epsilon = "numeric"
+    epsilon = "numeric",
+    useWeights = "logical",
+    offset = "logical",
+    useInverseWeights = "logical",
+    logOffset = "logical",
+    logWeights = "logical",
+    max_it = "integer",
+    globalTheta = "logical"
   ),
   validity = function(object) {
     errors <- character(0)
@@ -105,6 +119,13 @@ setClass(
     bin_members_colname = "scmp_bin_members",
     MT.adjust = "BH",
     step.method = "backward",
-    epsilon = 0.00001
+    epsilon = 1e-8,
+    useWeights = TRUE,
+    offset = TRUE,
+    useInverseWeights = TRUE,
+    logOffset = FALSE,
+    max_it = 100L,
+    logWeights = FALSE,
+    globalTheta = FALSE
   )
 )

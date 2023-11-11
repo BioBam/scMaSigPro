@@ -1,11 +1,11 @@
-sc.stepback <- function(y = y, d = d, alfa = 0.05, family = gaussian(), epsilon = 0.00001, useOffset) {
-  lm1 <- glm(y ~ ., data = d, family = family, epsilon = epsilon, offset = useOffset)
+sc.stepback <- function(y = y, d = d, alfa = 0.05, family = gaussian(), epsilon = 0.00001, useOffset, useWeight, max_it) {
+  lm1 <- glm(y ~ ., data = d, family = family, epsilon = epsilon, offset = useOffset, weights = useWeight, maxit = max_it)
   result <- summary(lm1)
   max <- max(result$coefficients[, 4][-1], na.rm = TRUE)
   if (length(result$coefficients[, 4][-1]) == 1) {
     if (max > alfa) {
       max <- 0
-      lm1 <- glm(y ~ 1, family = family, epsilon = epsilon, offset = useOffset)
+      lm1 <- glm(y ~ 1, family = family, epsilon = epsilon, offset = useOffset, weights = useWeight, maxit = max_it)
     }
   }
   while (max > alfa) {
@@ -23,14 +23,14 @@ sc.stepback <- function(y = y, d = d, alfa = 0.05, family = gaussian(), epsilon 
       d <- as.data.frame(d)
       colnames(d) <- lastname
     }
-    lm1 <- glm(y ~ ., data = d, family = family, epsilon = epsilon, offset = useOffset)
+    lm1 <- glm(y ~ ., data = d, family = family, epsilon = epsilon, offset = useOffset, weights = useWeight, maxit = max_it)
     result <- summary(lm1)
     max <- max(result$coefficients[, 4][-1], na.rm = TRUE)
     if (length(result$coefficients[, 4][-1]) == 1) {
       max <- result$coefficients[, 4][-1]
       if (max > alfa) {
         max <- 0
-        lm1 <- glm(y ~ 1, family = family, epsilon = epsilon, offset = useOffset)
+        lm1 <- glm(y ~ 1, family = family, epsilon = epsilon, offset = useOffset, weights = useWeight, maxit = max_it)
       }
     }
   }

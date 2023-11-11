@@ -9,7 +9,7 @@ sc.get.siggenes(
   rsq = 0.7,
   vars = c("all", "each", "groups"),
   significant.intercept = "dummy",
-  use_Influ = TRUE
+  includeInflu = TRUE
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ sc.get.siggenes(
 
 \item{significant.intercept}{Experimental groups for which significant intercept coefficients are considered.}
 
-\item{use_Influ}{description
+\item{includeInflu}{description
 Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).}
 }
 \value{

@@ -14,7 +14,7 @@ extract.intervals <- function(time.vector, nBins = 1, bin, bin.size, lbound, ubo
         new_range_current, 1, create_range,
         bin_size_colname = bin.size,
         bin_colname = bin,
-        verbose = F
+        verbose = FALSE
       )
     ))
   )

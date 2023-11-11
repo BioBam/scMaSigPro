@@ -4,7 +4,7 @@
 \alias{showParams}
 \title{Show or Return the Solution}
 \usage{
-showParams(scmpObj, view = TRUE, return = FALSE)
+showParams(scmpObj, view = FALSE, return = TRUE)
 }
 \arguments{
 \item{scmpObj}{an object of class 'scMaSigProClass'. This object should contain the computed solution.}
@@ -19,11 +19,4 @@ If return is FALSE, the function does not return anything.
 }
 \description{
 This function is used to view or return the solution of the provided scMaSigPro object.
-}
-\examples{
-\dontrun{
-# Assuming 'scmpObj' is an object of class 'scMaSigProClass'
-# with a computed solution:
-showSol(scmpObj, view = TRUE, return = FALSE)
-}
 }

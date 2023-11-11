@@ -37,7 +37,7 @@ sc.plot.bins.tile <- function(scmpObj,
   )
 
   # get conesa colors
-  conesa_colors <- getConesaColors()[c(T, F)][c(1:length(unique(compression.info[[path_colname]])))]
+  conesa_colors <- getConesaColors()[c(TRUE, FALSE)][c(1:length(unique(compression.info[[path_colname]])))]
   names(conesa_colors) <- unique(unique(compression.info[[path_colname]]))
 
   # Create plot data
@@ -53,10 +53,10 @@ sc.plot.bins.tile <- function(scmpObj,
     geom_tile(aes(fill = .data$binSize)) +
     scale_fill_gradient(low = "#FDA3D1", high = "#FDC659") +
     geom_text(aes(label = sprintf("%d", round(.data$binSize, 1))), vjust = 1) +
-    ggtitle("") +
+    labs(fill = bin_size_colname) +
     xlab(bin_pseudotime_colname) +
     ylab(path_colname) +
     theme_minimal()
 
-  print(tile)
+  return(tile)
 }

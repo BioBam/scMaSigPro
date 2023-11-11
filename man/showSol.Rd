@@ -4,7 +4,7 @@
 \alias{showSol}
 \title{Show or Return the Solution}
 \usage{
-showSol(scmpObj, view = TRUE, return = FALSE, influ = FALSE)
+showSol(scmpObj, view = TRUE, return = FALSE, includeInflu = FALSE)
 }
 \arguments{
 \item{scmpObj}{an object of class 'scMaSigProClass'. This object should contain the computed solution.}
@@ -13,7 +13,7 @@ showSol(scmpObj, view = TRUE, return = FALSE, influ = FALSE)
 
 \item{return}{logical, whether to return the solution. If FALSE (default), the solution is not returned.}
 
-\item{influ}{logical, whether to add gene with influential data in the solution.}
+\item{includeInflu}{logical, whether to add gene with influential data in the solution.}
 }
 \value{
 The computed solution as a data.frame if return is set to TRUE.
@@ -21,11 +21,4 @@ If return is FALSE, the function does not return anything.
 }
 \description{
 This function is used to view or return the solution of the provided scMaSigPro object.
-}
-\examples{
-\dontrun{
-# Assuming 'scmpObj' is an object of class 'scMaSigProClass'
-# with a computed solution:
-showSol(scmpObj, view = TRUE, return = FALSE)
-}
 }

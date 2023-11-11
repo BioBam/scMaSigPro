@@ -39,14 +39,3 @@ A scMaSigProClass object containing the inputted counts, cell data, and addition
 This function initializes a scMaSigProClass object with the given counts,
 cell level metadata, and other optional parameters.
 }
-\examples{
-\dontrun{
-# Assuming you have 'counts_matrix', 'cell_data_df', 'pseudotime_col', and 'path_col'
-scmp_object <- create_scmp(counts_matrix, cell_data_df,
-  feature_data = NULL,
-  bin_counts = NULL, bin_cell_data = NULL,
-  pseudotime_col, path_col, use_as_bin = FALSE
-)
-}
-
-}

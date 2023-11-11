@@ -11,9 +11,15 @@ sc.T.fit(
   nvar.correction = FALSE,
   family = scmpObj@distribution,
   epsilon = scmpObj@addParams@epsilon,
-  offset = T,
+  offset = scmpObj@addParams@offset,
   verbose = TRUE,
-  parallel = T
+  parallel = TRUE,
+  useWeights = scmpObj@addParams@useWeights,
+  useInverseWeights = scmpObj@addParams@useInverseWeights,
+  logWeights = scmpObj@addParams@logWeights,
+  logOffset = scmpObj@addParams@logOffset,
+  max_it = scmpObj@addParams@max_it,
+  globalTheta = scmpObj@addParams@globalTheta
 )
 }
 \arguments{
@@ -35,6 +41,18 @@ the \code{\link{p.vector}} function.}
 \item{verbose}{Name of the analyzed item to show on the screen while \code{T.fit} is in process.}
 
 \item{parallel}{description}
+
+\item{useWeights}{Use bin size as weights}
+
+\item{useInverseWeights}{description}
+
+\item{logWeights}{description}
+
+\item{logOffset}{description}
+
+\item{max_it}{description}
+
+\item{globalTheta}{description}
 }
 \value{
 A list containing the following elements:

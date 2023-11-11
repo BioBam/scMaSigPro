@@ -24,15 +24,6 @@
 #' counts (depending on the specified method), and adds these to a new data frame of pseudo bulk counts.
 #' The result is a pseudo bulk counts data frame where each row is a gene and each column is a bin.
 #'
-#' @examples
-#' \dontrun{
-#' make.pseudobulk.counts(
-#'   counts = sc_counts,
-#'   pseudo_bulk_profile = pb_profile,
-#'   cluster_count_by = "mean"
-#' )
-#' }
-#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @keywords internal
@@ -83,7 +74,7 @@ make.pseudobulk.counts <- function(scmpObject,
     col_indices <- which(colnames(counts) %in% cell.vector)
 
     # Subset the matrix using these indices
-    bin_matrix <- as.matrix(counts[, col_indices, drop = F])
+    bin_matrix <- as.matrix(counts[, col_indices, drop = FALSE])
 
     # Get Pseudobulked-counts
     pb.vector <- switch(cluster_count_by,

@@ -27,7 +27,3 @@ Returns the 'scmpObject' with an updated 'edesign' slot.
 This function creates a design matrix using the 'compress.sce' slot of a 'scMaSigProClass' object.
 It generates an 'edesignClass' object which is then stored in the 'edesign' slot of the 'scMaSigProClass' object.
 }
-\examples{
-# Insert an example of how to use the function here.
-
-}

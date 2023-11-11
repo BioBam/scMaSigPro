@@ -5,18 +5,13 @@
 #' @param scmpObj an object of class 'scMaSigProClass'. This object should contain the computed solution.
 #' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
 #' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
+#' @param includeInflu description
 #'
 #' @return The computed solution as a data.frame if return is set to TRUE.
 #' If return is FALSE, the function does not return anything.
 #'
-#' @examples
-#' \dontrun{
-#' # Assuming 'scmpObj' is an object of class 'scMaSigProClass'
-#' # with a computed solution:
-#' showSol(scmpObj, view = TRUE, return = FALSE)
-#' }
 #' @export
-showGroupCoeff <- function(scmpObj, view = TRUE, return = FALSE) {
+showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE) {
   # Check Object Validity
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'"
@@ -29,6 +24,11 @@ showGroupCoeff <- function(scmpObj, view = TRUE, return = FALSE) {
 
   # Extract
   grpCoeff <- scmpObj@scTFit@group.coeffs %>% as.data.frame()
+
+  if (!includeInflu) {
+    influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
+    grpCoeff <- grpCoeff[!(rownames(grpCoeff) %in% influ.gene), ]
+  }
 
   # If viewing is requested
   if (view) {

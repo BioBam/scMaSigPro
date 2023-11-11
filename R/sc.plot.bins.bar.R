@@ -37,7 +37,7 @@ sc.plot.bins.bar <- function(scmpObj,
   )
 
   # get conesa colors
-  conesa_colors <- getConesaColors()[c(T, F)][c(1:length(unique(compression.info[[path_colname]])))]
+  conesa_colors <- getConesaColors()[c(TRUE, FALSE)][c(1:length(unique(compression.info[[path_colname]])))]
   names(conesa_colors) <- unique(unique(compression.info[[path_colname]]))
 
   # Create plot data
@@ -55,9 +55,13 @@ sc.plot.bins.bar <- function(scmpObj,
     geom_point(aes(color = .data$path), position = position_dodge(0.9)) +
     ggtitle("Pseudotime Bins across paths") +
     scale_fill_manual(values = conesa_colors) +
+    labs(
+      fill = bin_size_colname,
+      color = path_colname
+    ) +
     xlab("Binned Time") +
     ylab("Bin Size") +
     theme_minimal()
 
-  print(bar)
+  return(bar)
 }

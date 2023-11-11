@@ -28,14 +28,15 @@ To install scMaSigPro from Github, use the following commands:
 
 ```{r, eval=FALSE}
 # Install devtools if not already installed
-if (!requireNamespace("devtools", quietly = TRUE))
-    install.packages("devtools")
+if (!requireNamespace("devtools", quietly = TRUE)) {
+  install.packages("devtools")
+}
 
 # Install scMaSigPro (token will be removed once the directory is public)
 devtools::install_github("spriyansh/scMaSigPro",
-                         ref = "main",
-                         auth_token = "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"
-                         )
+  ref = "main",
+  auth_token = "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"
+)
 ```
 
 ## Basic Workflow
@@ -56,12 +57,15 @@ data("Sim2Path", package = "scMaSigPro")
 Convert the SingleCellExperiment object to an scMaSigPro object.
 
 ```{r, eval=FALSE}
-scmp.sce <- as_scmp(object = sim.sce, from = "sce",
-                    align_pseudotime = TRUE,
-                    verbose = FALSE,
-                    additional_params = list(labels_exist = TRUE,
-                                             existing_pseudotime_colname = "Step",
-                                             existing_path_colname = "Group")
+scmp.sce <- as_scmp(
+  object = sim.sce, from = "sce",
+  align_pseudotime = TRUE,
+  verbose = FALSE,
+  additional_params = list(
+    labels_exist = TRUE,
+    existing_pseudotime_colname = "Step",
+    existing_path_colname = "Group"
+  )
 )
 showParams(scmp.sce, return = TRUE, view = FALSE)
 ```

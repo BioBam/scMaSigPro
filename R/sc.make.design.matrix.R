@@ -13,9 +13,6 @@
 #' @importFrom maSigPro make.design.matrix
 #' @export
 #'
-#' @examples
-#' # Insert an example of how to use the function here.
-#'
 sc.make.design.matrix <- function(scmpObject,
                                   poly_degree = 2,
                                   bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname,
@@ -49,7 +46,7 @@ sc.make.design.matrix <- function(scmpObject,
   }
 
   # Drop path columns
-  com.cell.meta <- com.cell.meta[, colnames(com.cell.meta) != path_colname, drop = F]
+  com.cell.meta <- com.cell.meta[, colnames(com.cell.meta) != path_colname, drop = FALSE]
 
   # Get colvec
   col.vec <- colnames(com.cell.meta)[colnames(com.cell.meta) != bin_pseudotime_colname]

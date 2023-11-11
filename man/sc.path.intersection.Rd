@@ -4,11 +4,25 @@
 \alias{sc.path.intersection}
 \title{Perform UpSet Plot on Intersection of Significant Genes from SCMP Object}
 \usage{
-sc.path.intersection(scmpObj)
+sc.path.intersection(
+  scmpObj,
+  min_interaction_size = 2,
+  keep_empty_groups = TRUE,
+  width_ratio = 0.1,
+  show_sets_size = FALSE
+)
 }
 \arguments{
 \item{scmpObj}{An object of class SCMP, which should contain the @siggenes@summary slot
 filled with the summary of significant genes for each pathway.}
+
+\item{min_interaction_size}{description}
+
+\item{keep_empty_groups}{description}
+
+\item{width_ratio}{description}
+
+\item{show_sets_size}{description}
 }
 \value{
 An UpSet plot visualizing the intersections of significant genes across pathways.
@@ -16,10 +30,4 @@ An UpSet plot visualizing the intersections of significant genes across pathways
 \description{
 This function takes a Single Cell MultiPathway (SCMP) object, extracts the list of
 significant genes for each pathway, and performs an UpSet plot to visualize their intersections.
-}
-\examples{
-\dontrun{
-# Assuming 'scmp_object' is a pre-processed SCMP object with the relevant slots filled
-sc.path.intersection(scmp_object)
-}
 }

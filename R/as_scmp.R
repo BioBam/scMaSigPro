@@ -29,14 +29,25 @@
 #' function in \pkg{monocle3}
 #'
 #' @examples
-#' \dontrun{
-#' scmpObj <- as_scmp(object,
-#'   from = "cds", path_prefix = "Path",
-#'   root_label = "root",
-#'   path_colname = path_prefix,
-#'   verbose = TRUE
+#' # Load Library
+#' # library(scMaSigPro)
+#' # Step-1: Load a dataset for testing
+#' # This dataset is available as part of the package
+#' # It is simulated with splatter
+#' data("Sim2Path", package = "scMaSigPro")
+#'
+#' # Step-2: Convert to ScMaSigPro Object
+#' # Here, we convert the SCE object to an scMaSigPro object
+#' scmp.sce <- as_scmp(
+#'   object = sim.sce, from = "sce",
+#'   align_pseudotime = TRUE,
+#'   verbose = FALSE,
+#'   additional_params = list(
+#'     labels_exist = TRUE,
+#'     existing_pseudotime_colname = "Step",
+#'     existing_path_colname = "Group"
+#'   )
 #' )
-#' }
 #'
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #' @importFrom assertthat assert_that
@@ -130,10 +141,6 @@ as_scmp <- function(object, from = "cds",
     scmpObj@addParams@path_prefix <- path_prefix
     scmpObj@addParams@path_colname <- path_colname
 
-    if (verbose) {
-      print(scmpObj)
-    }
-
     # Return Object
     return(scmpObj)
   } else if (is(object)[1] == "cell_data_set") {
@@ -166,7 +173,7 @@ as_scmp <- function(object, from = "cds",
     } else {
       stop("Only support for interactive for now")
     }
-      # return(scmpObj)
+    # return(scmpObj)
     if (align_pseudotime) {
       scmpObj <- align.pseudotime(
         scmpObj = scmpObj,
@@ -178,9 +185,7 @@ as_scmp <- function(object, from = "cds",
     }
 
     # Print
-    if (verbose) {
-      print(scmpObj)
-    }
+
     return(scmpObj)
   }
 }

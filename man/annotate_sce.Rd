@@ -53,16 +53,6 @@ and path information in its `cell.metadata` generated using `colData` from the
 \details{
 Additional Details
 }
-\examples{
-# Annotate a SingleCellExperiment object with pseudotime and path information
-\dontrun{
-annotated_sce <- annotate_sce(sce,
-  pseudotime_colname = "Pseudotime",
-  path_colname = "Path"
-)
-}
-
-}
 \seealso{
 SingleCellExperiment class object, `colData` from the \pkg{SingleCellExperiment} package.
 }

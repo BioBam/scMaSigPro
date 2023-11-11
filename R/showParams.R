@@ -8,16 +8,9 @@
 #'
 #' @return The computed solution as a data.frame if return is set to TRUE.
 #' If return is FALSE, the function does not return anything.
-#'
-#' @examples
-#' \dontrun{
-#' # Assuming 'scmpObj' is an object of class 'scMaSigProClass'
-#' # with a computed solution:
-#' showSol(scmpObj, view = TRUE, return = FALSE)
-#' }
 #' @importFrom methods slot slotNames
 #' @export
-showParams <- function(scmpObj, view = TRUE, return = FALSE) {
+showParams <- function(scmpObj, view = FALSE, return = TRUE) {
   # Check Object Validity
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'"

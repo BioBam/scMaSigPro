@@ -9,11 +9,17 @@ sc.p.vector(
   Q = 0.05,
   MT.adjust = "BH",
   min.obs = 6,
-  family = MASS::negative.binomial(theta = 1),
-  epsilon = 1e-05,
+  family = negative.binomial(theta = 1),
+  epsilon = 1e-08,
   verbose = TRUE,
-  offset = T,
-  parallel = F
+  offset = TRUE,
+  parallel = FALSE,
+  useWeights = TRUE,
+  useInverseWeights = TRUE,
+  logWeights = TRUE,
+  logOffset = TRUE,
+  max_it = 100,
+  globalTheta = FALSE
 )
 }
 \arguments{
@@ -37,6 +43,18 @@ If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = 
 \item{offset}{Whether ro use offset for normalization}
 
 \item{parallel}{description}
+
+\item{useWeights}{Use bin size as weights}
+
+\item{useInverseWeights}{description}
+
+\item{logWeights}{description}
+
+\item{logOffset}{description}
+
+\item{max_it}{description}
+
+\item{globalTheta}{description}
 }
 \value{
 A list containing:
@@ -58,14 +76,6 @@ and returns a list of FDR corrected significant genes.
 \code{rownames(design)} and \code{colnames(data)} must be identical vectors
   and indicate array naming. \code{rownames(data)} should contain unique gene IDs.
   \code{colnames(design)} are the given names for the variables in the regression model.
-}
-\examples{
-#### GENERATE TIME COURSE DATA
-## generates n random gene expression profiles of a data set with
-## one control plus 3 treatments, 3 time points and r replicates per time point.
-
-# ... (add example usage of the function here)
-
 }
 \references{
 Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.

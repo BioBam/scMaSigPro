@@ -29,17 +29,6 @@
 #' @seealso
 #' \code{\link[igraph]{shortest_paths}}, `colData` from the \pkg{SingleCellExperiment} package
 #'
-#' @examples
-#' \dontrun{
-#' # Assuming 'cds' is a Monocle3 CellDataSet (CDS)
-#' result <- annotate_monocle3_cds(cds,
-#'   reduction_method = "umap",
-#'   path_prefix = "Path",
-#'   root_label = "root",
-#'   path_colname = path_prefix,
-#'   verbose = TRUE
-#' )
-#' }
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
@@ -49,7 +38,6 @@
 #' @importFrom dplyr mutate select
 #' @importFrom S4Vectors DataFrame
 #' @import SingleCellExperiment
-#' @export
 annotate_monocle3_cds <- function(cds, reduction_method = "umap",
                                   path_prefix = "Path",
                                   root_label = "root",

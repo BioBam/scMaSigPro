@@ -1,14 +1,14 @@
 "sc.two.ways.stepfor" <-
-  function(y = y, d = d, alfa = 0.05, family = gaussian(), epsilon = 0.00001, useOffset) {
+  function(y = y, d = d, alfa = 0.05, family = gaussian(), epsilon = 0.00001, useOffset, useWeight, weights = useWeight, max_it) {
     pval <- NULL
     design <- NULL
     j <- 1
-    resul0 <- summary(glm(y ~ ., data = d, family = family, epsilon = epsilon, offset = useOffset))$coefficients[, 4]
+    resul0 <- summary(glm(y ~ ., data = d, family = family, epsilon = epsilon, offset = useOffset, weights = useWeight, maxit = max_it))$coefficients[, 4]
     d <- as.data.frame(d[, names(resul0)[-1]])
     for (i in 1:ncol(d)) {
       sub <- cbind(design, d[, i])
       sub <- as.data.frame(sub)
-      lm2 <- glm(y ~ ., data = sub, family = family, epsilon = epsilon, offset = useOffset)
+      lm2 <- glm(y ~ ., data = sub, family = family, epsilon = epsilon, offset = useOffset, weights = useWeight, maxit = max_it)
       result <- summary(lm2)
       pval[i] <- result$coefficients[, 4][j + 1]
     }
@@ -29,7 +29,7 @@
         d <- as.data.frame(d)
         colnames(d) <- lastname
       }
-      result2 <- summary(glm(y ~ ., data = design, family = family, epsilon = epsilon, offset = useOffset))$coefficients[
+      result2 <- summary(glm(y ~ ., data = design, family = family, epsilon = epsilon, offset = useOffset, weights = useWeight, maxit = max_it))$coefficients[
         ,
         4
       ]
@@ -49,7 +49,7 @@
           design <- as.data.frame(design)
           colnames(design) <- lastname
         }
-        result2 <- summary(glm(y ~ ., data = design, family = family, epsilon = epsilon, offset = useOffset))$coefficients[
+        result2 <- summary(glm(y ~ ., data = design, family = family, epsilon = epsilon, offset = useOffset, weights = useWeight, maxit = max_it))$coefficients[
           ,
           4
         ]
@@ -60,7 +60,7 @@
       for (i in 1:ncol(d)) {
         sub <- cbind(design, d[, i])
         sub <- as.data.frame(sub)
-        lm2 <- glm(y ~ ., data = sub, family = family, epsilon = epsilon, offset = useOffset)
+        lm2 <- glm(y ~ ., data = sub, family = family, epsilon = epsilon, offset = useOffset, weights = useWeight, maxit = max_it)
         result <- summary(lm2)
         pval[i] <- result$coefficients[, 4][j + 1]
       }
@@ -75,9 +75,9 @@
       }
     }
     if (is.null(design)) {
-      lm1 <- glm(y ~ 1, family = family, epsilon = epsilon, offset = useOffset)
+      lm1 <- glm(y ~ 1, family = family, epsilon = epsilon, offset = useOffset, weights = useWeight, maxit = max_it)
     } else {
-      lm1 <- glm(y ~ ., data = design, family = family, epsilon = epsilon, offset = useOffset)
+      lm1 <- glm(y ~ ., data = design, family = family, epsilon = epsilon, offset = useOffset, weights = useWeight, maxit = max_it)
     }
     return(lm1)
   }

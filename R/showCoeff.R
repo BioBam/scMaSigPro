@@ -4,20 +4,14 @@
 #'
 #' @param scmpObj an object of class 'scMaSigProClass'. This object should contain the computed solution.
 #' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
-#' @param influ description
+#' @param includeInflu description
 #' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
 #'
 #' @return The computed solution as a data.frame if return is set to TRUE.
 #' If return is FALSE, the function does not return anything.
 #'
-#' @examples
-#' \dontrun{
-#' # Assuming 'scmpObj' is an object of class 'scMaSigProClass'
-#' # with a computed solution:
-#' showCoeff(scmpObj, view = TRUE, return = FALSE)
-#' }
 #' @export
-showCoeff <- function(scmpObj, view = TRUE, return = FALSE, influ = FALSE) {
+showCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE) {
   # Check Object Validity
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'"
@@ -30,10 +24,10 @@ showCoeff <- function(scmpObj, view = TRUE, return = FALSE, influ = FALSE) {
 
   # Extract
   coefficients <- scmpObj@scTFit@coefficients %>% as.data.frame()
-  
-  if(!influ){
-      influ.gene <- colnames(showInflu(scmpObj,return = T, view = F))
-      coefficients <- coefficients[!(rownames(coefficients) %in% influ.gene),]
+
+  if (!includeInflu) {
+    influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
+    coefficients <- coefficients[!(rownames(coefficients) %in% influ.gene), ]
   }
 
   # If viewing is requested

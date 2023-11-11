@@ -4,20 +4,14 @@
 #'
 #' @param scmpObj an object of class 'scMaSigProClass'. This object should contain the computed solution.
 #' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
-#' @param influ logical, whether to add gene with influential data in the solution.
+#' @param includeInflu logical, whether to add gene with influential data in the solution.
 #' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
 #'
 #' @return The computed solution as a data.frame if return is set to TRUE.
 #' If return is FALSE, the function does not return anything.
 #'
-#' @examples
-#' \dontrun{
-#' # Assuming 'scmpObj' is an object of class 'scMaSigProClass'
-#' # with a computed solution:
-#' showSol(scmpObj, view = TRUE, return = FALSE)
-#' }
 #' @export
-showTS <- function(scmpObj, view = TRUE, return = FALSE, influ = FALSE) {
+showTS <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE) {
   # Check Object Validity
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'"
@@ -30,10 +24,10 @@ showTS <- function(scmpObj, view = TRUE, return = FALSE, influ = FALSE) {
 
   # Extract
   tscore <- scmpObj@scTFit@t.score
-  
-  if(!influ){
-      influ.gene <- colnames(showInflu(scmpObj,return = T, view = F))
-      tscore <- tscore[!(rownames(tscore) %in% influ.gene),]
+
+  if (!includeInflu) {
+    influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
+    tscore <- tscore[!(rownames(tscore) %in% influ.gene), ]
   }
 
   # If viewing is requested
