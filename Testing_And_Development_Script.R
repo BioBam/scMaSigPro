@@ -351,3 +351,17 @@ p
 
 sc.PlotGroups(test.scmp.3,logs = F, 
               feature_id = "STMHF88")
+
+
+
+
+
+
+
+
+# Load scMa
+library(tidyverse)
+load("../scMaSigPro_Supp/Analysis_Public_Data/data/rep3/rep3_scMaSigPro_Results.RData")
+
+sc.fraction.bin(scmp.obj)
+

@@ -24,17 +24,20 @@
 #' @importFrom magrittr %>%
 #' @importFrom stringr str_split_1
 #' @export
-sc.fraction.bin <- function(scmpObj) {
+sc.fraction.bin <- function(scmpObj,
+                            pseudotime_colname = scmpObj@addParams@pseudotime_colname,
+                            path_colname = scmpObj@addParams@path_colname,
+                            annotation_col = scmpObj@addParams@annotation_col) {
     # Extract necessary columns from compressed and cell data
     compressedData <- as.data.frame(scmpObj@compress.sce@colData)
     cellData <- as.data.frame(scmpObj@sce@colData)
     
     # Add cell identifier to cell data
-    cellDataSubset <- cellData[, c(scmpObj@addParams@pseudotime_colname, 
-                                   scmpObj@addParams@path_colname, 
-                                   scmpObj@addParams@annotation_col), drop = FALSE]
+    cellDataSubset <- cellData[, c(pseudotime_colname, 
+                                   path_colname, 
+                                   annotation_col), drop = FALSE]
     cellDataSubset[["cell"]] <- rownames(cellDataSubset)
-    
+
     # Process compressed data
     barPlotData <- lapply(1:nrow(compressedData), function(i) {
         rowVector <- compressedData[i, , drop = FALSE]
@@ -55,7 +58,8 @@ sc.fraction.bin <- function(scmpObj) {
     mergedData <- mergedData %>%
         mutate(row_time = factor(row_time, levels = unique(row_time)),
                Path = factor(Path, levels = c("Path1", "Path2")),
-               cell_type = factor(cell_type, levels = unique(cell_type)))
+               cell_type = factor(!!sym(annotation_col), levels = unique(!!sym(annotation_col))))
+    
     
     # Create summary data
     dfSummary <- mergedData %>%
@@ -67,7 +71,7 @@ sc.fraction.bin <- function(scmpObj) {
     # Generate and return plot
     dodgeWidth <- 0.9 / length(unique(dfSummary$Path))
     p <- ggplot(dfSummary, aes(x = interaction, y = Count, fill = cell_type)) +
-        geom_bar(stat = "identity", position = "stack", width = dodgeWidth) +
+        geom_bar(stat = "identity", position = "stack", width = dodgeWidth, alpha  =0.3) +
         scale_x_continuous("Row Time and Path", 
                            breaks = seq_along(unique(dfSummary$row_time)), 
                            labels = levels(dfSummary$row_time)) +
