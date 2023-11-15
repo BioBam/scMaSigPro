@@ -171,7 +171,7 @@ sc.PlotProfiles <-
 
     # Combine
     cluster.trend.data <- do.call("rbind", trend.data.list)
-
+    
     # Assuming feature_id and cluster_id are factors
     p <- ggplot(data = cluster.trend.data, aes(x = .data$x, y = log(.data$y), group = interaction(.data$feature_id, .data$path), color = .data$path)) +
       geom_line(aes(linetype = .data$path), size = 0.4) + # Draw lines

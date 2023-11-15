@@ -42,7 +42,6 @@ sc.fraction.bin <- function(scmpObj,
     barPlotData <- lapply(1:nrow(compressedData), function(i) {
         rowVector <- compressedData[i, , drop = FALSE]
         cells <- str_split_1(rowVector[[scmpObj@addParams@bin_members_colname]], "\\|")
-        
         data.frame(
             bin = rep(rowVector[[scmpObj@addParams@bin_colname]], length(cells)),
             row_time = rep(rowVector[[scmpObj@addParams@bin_pseudotime_colname]], length(cells)),
@@ -53,13 +52,13 @@ sc.fraction.bin <- function(scmpObj,
     
     # Merge with cell data to include additional information
     mergedData <- merge(cellDataSubset, barPlotData, by = "cell")
+    mergedData$row_time <- as.numeric(mergedData$row_time)
     
     # Prepare data for plotting
     mergedData <- mergedData %>%
         mutate(row_time = factor(row_time, levels = unique(row_time)),
                Path = factor(Path, levels = c("Path1", "Path2")),
                cell_type = factor(!!sym(annotation_col), levels = unique(!!sym(annotation_col))))
-    
     
     # Create summary data
     dfSummary <- mergedData %>%
@@ -68,10 +67,17 @@ sc.fraction.bin <- function(scmpObj,
         mutate(interaction = as.numeric(row_time) + 
                    (as.numeric(Path) - 1) * (0.9 / length(unique(Path))))
     
+    
+    dfSummary$row_time <- as.numeric(dfSummary$row_time)
+    #return(head(dfSummary))
+    
+    
+    
     # Generate and return plot
     dodgeWidth <- 0.9 / length(unique(dfSummary$Path))
+    dfSummary$row_time <- factor(dfSummary$row_time, levels = sort(unique(dfSummary$row_time)))
     p <- ggplot(dfSummary, aes(x = interaction, y = Count, fill = cell_type)) +
-        geom_bar(stat = "identity", position = "stack", width = dodgeWidth, alpha  =0.3) +
+        geom_bar(stat = "identity", position = "stack", width = dodgeWidth, alpha  =1) +
         scale_x_continuous("Row Time and Path", 
                            breaks = seq_along(unique(dfSummary$row_time)), 
                            labels = levels(dfSummary$row_time)) +
