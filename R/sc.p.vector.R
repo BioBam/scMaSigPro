@@ -54,10 +54,17 @@
 #' @export
 #'
 sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
-                        family = negative.binomial(theta = 1), epsilon = 1e-8,
-                        verbose = TRUE, offset = TRUE, parallel = FALSE, useWeights = TRUE,
-                        useInverseWeights = TRUE, logWeights = TRUE,
-                        logOffset = TRUE, max_it = 100, globalTheta = FALSE) {
+                        family = negative.binomial(theta = 10),
+                        epsilon = 1e-8,
+                        verbose = TRUE,
+                        offset = TRUE,
+                        parallel = FALSE,
+                        useWeights = TRUE,
+                        useInverseWeights = FALSE,
+                        logWeights = FALSE,
+                        logOffset = FALSE, 
+                        max_it = 100,
+                        globalTheta = FALSE) {
   # Check the type of the 'design' parameter and set the corresponding variables
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
@@ -167,7 +174,6 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
       if (!computeTheta_lapply) {
         theta.glm <- glm.nb(y ~ .,
           data = dis_lapply,
-          weights = weights_lapply,
           control = glm.control(
             maxit = max_it_lapply,
             epsilon = epsilon_lapply

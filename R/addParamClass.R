@@ -124,7 +124,7 @@ setClass(
     epsilon = 1e-8,
     useWeights = TRUE,
     offset = TRUE,
-    useInverseWeights = TRUE,
+    useInverseWeights = FALSE,
     logOffset = FALSE,
     max_it = 100L,
     logWeights = FALSE,

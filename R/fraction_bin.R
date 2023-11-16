@@ -69,9 +69,6 @@ sc.fraction.bin <- function(scmpObj,
     
     
     dfSummary$row_time <- as.numeric(dfSummary$row_time)
-    #return(head(dfSummary))
-    
-    
     
     # Generate and return plot
     dodgeWidth <- 0.9 / length(unique(dfSummary$Path))
