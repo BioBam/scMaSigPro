@@ -4,12 +4,23 @@
 \alias{sc.fraction.bin}
 \title{Binning and Plotting Function for scmpObj Data}
 \usage{
-sc.fraction.bin(scmpObj)
+sc.fraction.bin(
+  scmpObj,
+  pseudotime_colname = scmpObj@addParams@pseudotime_colname,
+  path_colname = scmpObj@addParams@path_colname,
+  annotation_col = scmpObj@addParams@annotation_col
+)
 }
 \arguments{
 \item{scmpObj}{An object representing compressed single-cell data. It is 
 expected to contain specific nested data structures and 
 parameters used for processing.}
+
+\item{pseudotime_colname}{description}
+
+\item{path_colname}{des}
+
+\item{annotation_col}{des}
 }
 \value{
 A ggplot object representing the binned data in a bar plot format.
@@ -22,10 +33,4 @@ data processing, binning, and plotting. It extracts necessary information
 from the compressed and cell data within the object, processes this data for 
 visualization, and creates a ggplot object representing the distribution 
 of cells across different bins and paths.
-}
-\examples{
-# Assuming 'myScmpObj' is a pre-existing single-cell compression object
-plot <- sc.fraction.bin(myScmpObj)
-print(plot)
-
 }

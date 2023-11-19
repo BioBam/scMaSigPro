@@ -10,7 +10,7 @@ as_scmp(
   path_prefix = "Path",
   root_label = "root",
   pseudotime_colname = "Pseudotime",
-  align_pseudotime = TRUE,
+  align_pseudotime = FALSE,
   path_colname = path_prefix,
   annotation_colname = "cell_type",
   verbose = TRUE,

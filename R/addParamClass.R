@@ -22,6 +22,7 @@
 #' @slot logWeights description
 #' @slot max_it description
 #' @slot globalTheta Only works when negative binimoal is enabled
+#' @slot annotation_col description
 #'
 #' @name addParamClass
 #' @aliases addParamClass-class

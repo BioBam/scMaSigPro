@@ -9,15 +9,13 @@
 #' @param scmpObj An object representing compressed single-cell data. It is 
 #'                expected to contain specific nested data structures and 
 #'                parameters used for processing.
+#' @param pseudotime_colname description
+#' @param path_colname des
+#' @param annotation_col des
 #'
 #' @return A ggplot object representing the binned data in a bar plot format.
 #'         The plot shows the distribution of cells across different bins, 
 #'         time points, and paths.
-#'
-#' @examples
-#' # Assuming 'myScmpObj' is a pre-existing single-cell compression object
-#' plot <- sc.fraction.bin(myScmpObj)
-#' print(plot)
 #'
 #' @importFrom ggplot2 ggplot geom_bar scale_x_continuous labs theme_minimal theme element_text
 #' @importFrom dplyr mutate group_by summarise
