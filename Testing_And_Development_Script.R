@@ -49,7 +49,7 @@ scmp.sce <- squeeze(
 sc.plot.bins.tile(scmp.sce)
 
 # Step-4: Make Design-Matrix
-scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 1)
+scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 2)
 
 # Step-5: Run P-vector
 # offset_F_UseWeights_F_UseInverseWeights_F_UseBinWeightAsOffset_T
@@ -61,29 +61,27 @@ scmp.sce <- sc.p.vector(scmp.sce,
 )
 
 # Step-6: Run T.fit
-scmp.sce <- sc.T.fit(scmp.sce, parallel = F, verbose = T,
-                     )
+scmp.sce <- sc.T.fit(scmp.sce, parallel = F, verbose = T)
 
 # Step-7: Select with R2
 scmp.sce <- sc.get.siggenes(
   scmpObj = scmp.sce,
   vars = "each",
-  significant.intercept = "dummy"
+  significant.intercept = "all"
 )
 
 sc.path.intersection(scmp.sce, show_sets_size = F) 
 
-showParams(scmp.sce, return = T, view = F)
-
-nrow(showSol(scmp.sce, view = F, return = T, influ = F))
 # Step-8: Plot Gene Trends
 sc.PlotGroups(
   scmpObj = scmp.sce,
   feature_id = "Gene121", smoothness = 0.1,
-  logs = F,
-  logType = "log2"
+  logs = T,
+  logType = "log"
 )
 
+scmp.sce <- sc.cluster.features(scmp.sce, k = 9)
+sc.PlotProfiles(scmp.sce, groupBy = "feature")
 
 # Developing Methods for monocle3
 # test real Data
