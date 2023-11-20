@@ -37,11 +37,11 @@ scmp.sce
 scmp.sce <- squeeze(
   scmpObject = scmp.sce,
   bin_method = "Sturges",
-  drop.fac = 1,
+  drop_fac = 1,
   verbose = F,
   cluster_count_by = "sum",
   split_bins = FALSE,
-  prune_bins = T,
+  prune_bins = F,
   drop_trails = F,
   fill_gaps = F
 )
@@ -54,7 +54,7 @@ scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 1)
 # Step-5: Run P-vector
 # offset_F_UseWeights_F_UseInverseWeights_F_UseBinWeightAsOffset_T
 scmp.sce <- sc.p.vector(scmp.sce,
-  parallel = F, useWeights = F,
+  parallel = F, useWeights = T,
   Q = 0.05,
   offset = T, useInverseWeights = F, min.obs = 13,
   logOffset = T, globalTheta = F
