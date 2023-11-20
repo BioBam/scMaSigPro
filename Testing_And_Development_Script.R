@@ -56,12 +56,13 @@ scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 1)
 scmp.sce <- sc.p.vector(scmp.sce,
   parallel = F, useWeights = F,
   Q = 0.05,
-  offset = T, useInverseWeights = F, min.obs = 1,
+  offset = T, useInverseWeights = F, min.obs = 13,
   logOffset = T, globalTheta = F
 )
 
 # Step-6: Run T.fit
-scmp.sce <- sc.T.fit(scmp.sce, parallel = F, verbose = T)
+scmp.sce <- sc.T.fit(scmp.sce, parallel = F, verbose = T,
+                     )
 
 # Step-7: Select with R2
 scmp.sce <- sc.get.siggenes(

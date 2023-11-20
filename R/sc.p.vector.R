@@ -80,13 +80,13 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   dat <- dat[, as.character(rownames(dis))]
   G <- nrow(dat)
 
+  # Add check
+  # assert_that((dat@Dim[1] > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
+  assert_that(min.obs <= ncol(dat), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
+  
   # Removing rows with many missings:
   count.na <- function(x) (length(x) - length(x[is.na(x)]))
   dat <- dat[apply(dat, 1, count.na) >= min.obs, ]
-
-  # Add check
-  # assert_that((dat@Dim[1] > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
-  assert_that((nrow(dat) > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
 
   # if(verbose){
   #     message(paste("'min.obs' is set at", min.obs))
@@ -94,11 +94,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   # }
 
   # Removing rows with all zeros:
-  sumatot <- apply(dat, 1, sum)
-  counts0 <- which(sumatot == 0)
-  if (length(counts0) > 0) {
-    dat <- dat[-counts0, ]
-  }
+  dat <- dat[rowSums(dat) != 0, , drop=FALSE]
 
   # Get dimensions for the input
   g <- dim(dat)[1]
