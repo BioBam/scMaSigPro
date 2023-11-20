@@ -23,9 +23,11 @@ scmp.sce <- as_scmp(
   annotation_colname = "Group",
   verbose = TRUE,
   interactive = T,
-  labels_exist = TRUE,
-  existing_pseudotime_colname = "Step",
-  existing_path_colname = "Group"
+  additional_params = list(
+    labels_exist = TRUE,
+    existing_pseudotime_colname = "Step",
+    existing_path_colname = "Group"
+  )
 )
 
 scmp.sce
@@ -46,35 +48,20 @@ scmp.sce <- squeeze(
 
 sc.plot.bins.tile(scmp.sce)
 
-compressed.cell.metadata <- scmp.sce@compress.sce@colData %>% as.data.frame()
-
-
-scmp.sce@sce@colData$cell_type <- paste0("cellType", round(scmp.sce@sce@colData$Pseudotime/10))
-
-sc.fraction.bin(scmp.sce)
-
-
-
-# Validation Plots
- sc.plot.bins.tile(scmp.sce)
- sc.plot.bins.bar(scmp.sce)
-
 # Step-4: Make Design-Matrix
 scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 2)
 
 # Step-5: Run P-vector
 # offset_F_UseWeights_F_UseInverseWeights_F_UseBinWeightAsOffset_T
 scmp.sce <- sc.p.vector(scmp.sce,
-  parallel = T, useWeights = F,
+  parallel = T, useWeights = T,
   offset = F, useInverseWeights = F, min.obs = 1,
   logOffset = F, globalTheta = F
 )
 
 # Step-6: Run T.fit
-scmp.sce <- sc.T.fit(scmp.sce, parallel = T, verbose = T)
-
-
-showParams(scmp.sce)
+test <- sc.T.fit(scmp.sce, parallel = F, verbose = T)
+test
 
 # Step-7: Select with R2
 scmp.sce <- sc.get.siggenes(
