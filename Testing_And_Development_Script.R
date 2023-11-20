@@ -37,7 +37,7 @@ scmp.sce
 scmp.sce <- squeeze(
   scmpObject = scmp.sce,
   bin_method = "Sturges",
-  drop.fac = 2,
+  drop.fac = 1,
   verbose = F,
   cluster_count_by = "sum",
   split_bins = FALSE,
@@ -49,19 +49,19 @@ scmp.sce <- squeeze(
 sc.plot.bins.tile(scmp.sce)
 
 # Step-4: Make Design-Matrix
-scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 2)
+scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 1)
 
 # Step-5: Run P-vector
 # offset_F_UseWeights_F_UseInverseWeights_F_UseBinWeightAsOffset_T
 scmp.sce <- sc.p.vector(scmp.sce,
-  parallel = T, useWeights = T,
-  offset = F, useInverseWeights = F, min.obs = 1,
-  logOffset = F, globalTheta = F
+  parallel = F, useWeights = F,
+  Q = 0.05,
+  offset = T, useInverseWeights = F, min.obs = 1,
+  logOffset = T, globalTheta = F
 )
 
 # Step-6: Run T.fit
-test <- sc.T.fit(scmp.sce, parallel = F, verbose = T)
-test
+scmp.sce <- sc.T.fit(scmp.sce, parallel = F, verbose = T)
 
 # Step-7: Select with R2
 scmp.sce <- sc.get.siggenes(

@@ -358,7 +358,8 @@ sc.T.fit <- function(scmpObj,
   })
   
   # Assuming 'parallel' is your list
-  influ.info.list <- influ.info.list[!sapply(influ.info.list, function(x) is.logical(x))]
+  #influ.info.list <- influ.info.list[!sapply(influ.info.list, function(x) is.logical(x))]
+  influ.info.list <- influ.info.list[!vapply(influ.info.list, is.logical, logical(1))]
   
   # Lapply to remove column 1
   influ.info.list <- lapply(influ.info.list, function(element) {

@@ -229,10 +229,10 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   names(p.adjusted) <- names(sc.p.vector)
   genes.selected <- rownames(dat)[which(p.adjusted <= Q)]
   FDR <- sort(sc.p.vector)[length(genes.selected)]
-
+  
   # Subset the expression values of significant genes
-  SELEC <- dat[rownames(dat) %in% genes.selected, ]
-
+  SELEC <- dat[rownames(dat) %in% genes.selected, , drop = FALSE]
+  
   if (nrow(SELEC) == 0) {
     message("No significant genes detected. Try changing parameters.")
     return(scmpObj)
