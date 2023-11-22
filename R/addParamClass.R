@@ -1,6 +1,6 @@
 #' Class "addParamClass"
 #'
-#' @slot bin_pseudotime_colname A character representing the name of the column for binned pseudotime values.
+#' @slot bin_pseudotime_colname A character representing the name of the column for binned pseudotime values. TEST
 #' @slot path_prefix A character representing the prefix for path labeling.
 #' @slot root_label A character representing the label for the root of the tree.
 #' @slot pseudotime_colname A character representing the name of the column for pseudotime values.
