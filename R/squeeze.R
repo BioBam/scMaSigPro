@@ -381,14 +381,12 @@ squeeze <- function(scmpObject,
   processed_binned_cell_metadata <- bind_rows(processed_binned_cell_metadata.list) %>%
     as.data.frame()
 
-  # Remove the 'cell' column
-  processed_cell_metadata <- processed_cell_metadata %>% select(-"cell")
-
   ## Add Processed Cell Matadata back with slot update
   scmpObject@sce@colData <- DataFrame(processed_cell_metadata)
 
   # Set the 'cell' column as rownames
   rownames(processed_cell_metadata) <- processed_cell_metadata$cell
+  processed_cell_metadata <- processed_cell_metadata %>% select(-"cell")
   rownames(processed_binned_cell_metadata) <- processed_binned_cell_metadata[[bin_colname]]
 
   # Prune and Trails
