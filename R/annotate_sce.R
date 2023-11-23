@@ -18,7 +18,7 @@
 #' to be replaced (if not NULL).
 #' @param existing_path_colname The name of an existing path column to be replaced
 #' (if not NULL).
-#' @param labels_exist Logical indicating whether if the existing column names 
+#' @param labels_exist Logical indicating whether if the existing column names
 #' should be overwritten (Default is TRUE).
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #'

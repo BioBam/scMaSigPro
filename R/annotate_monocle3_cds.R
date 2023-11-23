@@ -6,12 +6,12 @@
 #' with end-point information that is used as path information.
 #'
 #' @param cds A Monocle3 cds/CellDataSet object (CDS).
-#' @param reduction_method Character string with the dimensionality reduction method used. 
+#' @param reduction_method Character string with the dimensionality reduction method used.
 #' Monocle3 currently supports "UMAP" only for most procedure. (Default is "umap").
 #' @param path_prefix Character string with the prefix used to annotate the paths. (Default is "Path").
 #' @param root_label Character string with the label used to annotate root cells. (Default is "root").
-#' @param path_colname Character string with the column name in `cell.metadata` 
-#' storing information for Path. It is generated using `colData` from the 
+#' @param path_colname Character string with the column name in `cell.metadata`
+#' storing information for Path. It is generated using `colData` from the
 #' \pkg{SingleCellExperiment} package. (Default is `path_prefix`).
 #' @param pseudotime_colname Character string with the column name in `cell.metadata` storing
 #' information for Pseudotime. It is generated using `colData` from the

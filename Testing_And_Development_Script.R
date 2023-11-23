@@ -70,7 +70,7 @@ scmp.sce <- sc.get.siggenes(
   significant.intercept = "all"
 )
 
-sc.path.intersection(scmp.sce, show_sets_size = F) 
+sc.path.intersection(scmp.sce, show_sets_size = F)
 
 # Step-8: Plot Gene Trends
 sc.PlotGroups(
@@ -159,4 +159,3 @@ sc.PlotGroups(
   logType = "log"
 )
 stop()
-

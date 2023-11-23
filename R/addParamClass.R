@@ -1,6 +1,6 @@
 #' Class "addParamClass"
 #'
-#'A Class holding information about the parameters used. 
+#' A Class holding information about the parameters used.
 #'
 #' @slot bin_pseudotime_colname A character string representing the column name for binned pseudotime values.
 #' @slot path_prefix A character string representing the prefix for path labeling.
@@ -23,7 +23,7 @@
 #' @slot useInverseWeights A logical value specifying whether to take inverse of the weights.
 #' @slot logOffset A logical value specifying whether to take the logarithm of the offsets during model fitting.
 #' @slot logWeights A logical value specifying whether to take the logarithm of the weights during model fitting.
-#' @slot max_it Integer. Maximum number of iterations to fit the model. 
+#' @slot max_it Integer. Maximum number of iterations to fit the model.
 #' @slot globalTheta Only works when negative binomial is enabled.
 #'
 #' @name addParamClass

@@ -15,7 +15,7 @@
 #' @param path_colname Name of the column in `cell.metadata` storing information
 #' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
 #' (Default is `path_prefix`)
-#' @param align_pseudotime Whether to automatically align two different pseudotimes. 
+#' @param align_pseudotime Whether to automatically align two different pseudotimes.
 #' See \code{\link{align.pseudotime}} for more details. (Default is FALSE).
 #' @param interactive Whether to use the shiny application to select paths. (Default is TRUE).
 #' @param annotation_colname Column name in cell level metadata containing cell type
