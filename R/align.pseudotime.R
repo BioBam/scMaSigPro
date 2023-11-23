@@ -1,25 +1,28 @@
 #' Align pseudotime from two different paths
 #'
+#' @description
 #' `align.pseudotime()` is an internal function that aligns the pseudotime from
-#' two different paths. It first identifies the path which is having the longer
-#' range of pseudotime, and then it uses the range of the shorter path to rescale
+#' two different trajectory paths. It first identifies the path which has a longer
+#' pseudotime range, and then it uses the range of the shorter path to rescale
 #' the range of the longer one. It uses a simple rescaling mechanism from
 #' `scales::rescale`. In future we expect to support strategies like dynamic time
 #' warping from dtw package.
 #'
 #' @importFrom scales rescale
-#' @param pseudotime_col Name of the column in `cell.metadata` storing
+#' 
+#' @param pseudotime_col Chacarcter string with the column name in `cell.metadata` storing
 #' Pseudotime values. It is generated using `colData` from the \pkg{SingleCellExperiment}
-#' package. (Default is "Pseudotime").
-#' @param path_col Name of the column in `cell.metadata` storing information
+#' package. (Default is "Pseudotime")
+#' @param path_col Chacarcter string with the column name in `cell.metadata` storing information
 #' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
 #' (Default is `path_prefix`)
-#' @param method Currently supported `scales::rescale`.
+#' @param method Currently only `scales::rescale` is supported. (Default is "rescale")
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #'
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #' @keywords internal
+
 align.pseudotime <- function(scmpObj, pseudotime_col, path_col, method = "rescale", verbose = TRUE) {
   # Extract Cell metadata
   cell.metadata <- scmpObj@sce@colData %>% as.data.frame()

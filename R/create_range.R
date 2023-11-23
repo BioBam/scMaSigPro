@@ -36,9 +36,12 @@ create_range <- function(x, bin_size_colname = "scmp_bin_size",
 
   # Split the character string by comma and extract the first element (lower bound of the range)
   y1 <- as.numeric(sapply(strsplit(y, ","), "[", 1))
+  # Extract the first element
+  # y1 <- as.numeric(vapply(strsplit(y, ","), function(x) x[1], numeric(1)))
 
   # Split the character string by comma and extract the second element (upper bound of the range)
   y2 <- as.numeric(sapply(strsplit(y, ","), "[", 2))
+  # y2 <- as.numeric(vapply(strsplit(y, ","), function(x) x[2], numeric(1)))
 
   if (verbose) {
     message(paste0(

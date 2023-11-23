@@ -54,10 +54,17 @@
 #' @export
 #'
 sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
-                        family = negative.binomial(theta = 1), epsilon = 1e-8,
-                        verbose = TRUE, offset = TRUE, parallel = FALSE, useWeights = TRUE,
-                        useInverseWeights = TRUE, logWeights = TRUE,
-                        logOffset = TRUE, max_it = 100, globalTheta = FALSE) {
+                        family = negative.binomial(theta = 10),
+                        epsilon = 1e-8,
+                        verbose = TRUE,
+                        offset = TRUE,
+                        parallel = FALSE,
+                        useWeights = TRUE,
+                        useInverseWeights = FALSE,
+                        logWeights = FALSE,
+                        logOffset = FALSE,
+                        max_it = 100,
+                        globalTheta = TRUE) {
   # Check the type of the 'design' parameter and set the corresponding variables
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
@@ -73,13 +80,13 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   dat <- dat[, as.character(rownames(dis))]
   G <- nrow(dat)
 
+  # Add check
+  # assert_that((dat@Dim[1] > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
+  assert_that(min.obs <= ncol(dat), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
+
   # Removing rows with many missings:
   count.na <- function(x) (length(x) - length(x[is.na(x)]))
   dat <- dat[apply(dat, 1, count.na) >= min.obs, ]
-
-  # Add check
-  # assert_that((dat@Dim[1] > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
-  assert_that((nrow(dat) > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
 
   # if(verbose){
   #     message(paste("'min.obs' is set at", min.obs))
@@ -87,11 +94,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   # }
 
   # Removing rows with all zeros:
-  sumatot <- apply(dat, 1, sum)
-  counts0 <- which(sumatot == 0)
-  if (length(counts0) > 0) {
-    dat <- dat[-counts0, ]
-  }
+  dat <- dat[rowSums(dat) != 0, , drop = FALSE]
 
   # Get dimensions for the input
   g <- dim(dat)[1]
@@ -167,7 +170,6 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
       if (!computeTheta_lapply) {
         theta.glm <- glm.nb(y ~ .,
           data = dis_lapply,
-          weights = weights_lapply,
           control = glm.control(
             maxit = max_it_lapply,
             epsilon = epsilon_lapply
@@ -225,7 +227,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   FDR <- sort(sc.p.vector)[length(genes.selected)]
 
   # Subset the expression values of significant genes
-  SELEC <- dat[rownames(dat) %in% genes.selected, ]
+  SELEC <- dat[rownames(dat) %in% genes.selected, , drop = FALSE]
 
   if (nrow(SELEC) == 0) {
     message("No significant genes detected. Try changing parameters.")

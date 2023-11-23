@@ -9,7 +9,7 @@ squeeze(
   pseudotime_colname = scmpObject@addParams@pseudotime_colname,
   path_colname = scmpObject@addParams@path_colname,
   bin_method = "Sturges",
-  drop.fac = 0.5,
+  drop_fac = 0.5,
   verbose = TRUE,
   bin_members_colname = "scmp_bin_members",
   bin_colname = "scmp_bin",
@@ -41,7 +41,7 @@ estimate the optimal number of bins. Available options: "Freedman.Diaconis",
 "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal". See \code{\link{estBinSize}}
 for more details. (Default = "Sturges").}
 
-\item{drop.fac}{A numeric value specifying the factor by which to decrease the
+\item{drop_fac}{A numeric value specifying the factor by which to decrease the
 number of bins if the initial binning results in too many bins. (Default = 0.5).}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)

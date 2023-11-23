@@ -356,12 +356,16 @@ sc.T.fit <- function(scmpObj,
   influ.info.list <- lapply(result_list, function(element) {
     return(element[["influ.info"]])
   })
+
   # Assuming 'parallel' is your list
-  influ.info.list <- influ.info.list[!sapply(influ.info.list, function(x) is.logical(x))]
+  # influ.info.list <- influ.info.list[!sapply(influ.info.list, function(x) is.logical(x))]
+  influ.info.list <- influ.info.list[!vapply(influ.info.list, is.logical, logical(1))]
+
   # Lapply to remove column 1
   influ.info.list <- lapply(influ.info.list, function(element) {
     return(element[, -1, drop = FALSE])
   })
+
   # Create scmpObjframe
   sol <- do.call("rbind", sol.list)
   coefficients <- do.call("rbind", coeff.list)
@@ -413,10 +417,16 @@ sc.T.fit <- function(scmpObj,
       rownames(group.coeffs) <- rownames(coefficients)
     }
   }
-  if (ncol(influ.info) > 2) {
+
+  if (!is.null(influ.info)) {
     if (verbose) {
-      message(paste("\nInfluence:", ncol(influ.info), "genes with influential scmpObj at slot influ.info. Model validation for these genes is recommended"))
+      message(paste("\nInfluence:", ncol(influ.info), "genes with influential onservations detected. Model validation for these genes is recommended"))
     }
+  } else {
+    if (verbose) {
+      message(paste("\nNo genes with influential onservations detected"))
+    }
+    influ.info <- matrix(data = NA, nrow = 0, ncol = 0)
   }
   # influ.info <- influ.info[, -1]
 

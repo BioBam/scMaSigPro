@@ -91,7 +91,7 @@ setClass(
     scTFit = new("scTFitClass"), # Assuming you've defined scTFitClass with its prototype
     addParams = new("addParamClass"), # Assuming you've defined scTFitClass with its prototype
     sig.genes = new("sigClass"),
-    distribution = MASS::negative.binomial(theta = 1)
+    distribution = negative.binomial(theta = 10)
   )
 )
 
@@ -102,7 +102,7 @@ scMaSigProClass <- function(sce = new("SingleCellExperiment"), # Remove default 
                             edesign = new("edesignClass"),
                             addParams = new("addParamClass"),
                             sig.genes = new("sigClass"),
-                            distribution = MASS::negative.binomial(theta = 1)) {
+                            distribution = negative.binomial(theta = 10)) {
   new("scMaSigProClass",
     sce = sce,
     scPVector = scPVector,

@@ -54,6 +54,8 @@ Class "addParamClass"
 \item{\code{max_it}}{description}
 
 \item{\code{globalTheta}}{Only works when negative binimoal is enabled}
+
+\item{\code{annotation_col}}{description}
 }}
 
 \keyword{classes}

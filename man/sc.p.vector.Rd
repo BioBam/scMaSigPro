@@ -9,17 +9,17 @@ sc.p.vector(
   Q = 0.05,
   MT.adjust = "BH",
   min.obs = 6,
-  family = negative.binomial(theta = 1),
+  family = negative.binomial(theta = 10),
   epsilon = 1e-08,
   verbose = TRUE,
   offset = TRUE,
   parallel = FALSE,
   useWeights = TRUE,
-  useInverseWeights = TRUE,
-  logWeights = TRUE,
-  logOffset = TRUE,
+  useInverseWeights = FALSE,
+  logWeights = FALSE,
+  logOffset = FALSE,
   max_it = 100,
-  globalTheta = FALSE
+  globalTheta = TRUE
 )
 }
 \arguments{

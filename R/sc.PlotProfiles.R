@@ -177,9 +177,9 @@ sc.PlotProfiles <-
       geom_line(aes(linetype = .data$path), size = 0.4) + # Draw lines
       geom_point(size = 1, shape = 21, alpha = 0.5, stroke = 1) + # Draw points
       facet_wrap(~ .data$cluster_id, scales = "free_y") + # Create a panel for each cluster_id
-      scale_color_manual(values = colorConesa(length(unique(.data$path)))) + # Custom colors for paths
+      scale_color_manual(values = colorConesa(length(unique(cluster.trend.data$path)))) + # Custom colors for paths
       theme_classic(base_size = 12) +
-      # geom_smooth(data = df, aes(x = x, y = log(y), color = path), method = "loess", se = FALSE, size = 0.7)+
+      # geom_smooth(data = cluster.trend.data, aes(x = x, y = log(y), color = path), method = "loess", se = FALSE, linewidth = 0.7, color = "black")+
       theme(
         strip.background = element_blank(),
         strip.text.x = element_text(size = 10, angle = 0),

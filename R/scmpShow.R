@@ -18,7 +18,7 @@
   cat("Pseudotime Range:", paste(range(colData(object@sce)[[object@addParams@pseudotime_colname]])))
 
   # Calculate the Compression
-  compressed.cell.metadata <- as.data.frame(colData(object@compress.sce))
+  compressed.cell.metadata <- object@compress.sce@colData %>% as.data.frame()
   if (length(compressed.cell.metadata) > 0) {
     cat(paste("\nPaths:", paste(levels(as.factor(compressed.cell.metadata[[object@addParams@path_colname]])), collapse = ", ")))
     cat(paste0(
@@ -31,8 +31,8 @@
     per_path_bin_size <- round(extract_info(compressed.cell.metadata, return_type = "avg_bin_size", bin_size_col = object@addParams@bin_size_colname, object@addParams@path_colname))
 
     # Paste
-    cat("\nAverage bin Size->", paste(names(per_path_num_bin), per_path_num_bin, sep = ": "))
-    cat("\nNumber of bins->", paste(names(per_path_bin_size), per_path_bin_size, sep = ": "))
+    cat("\nNumber of bins->", paste(names(per_path_num_bin), per_path_num_bin, sep = ": "))
+    cat("\nAverage bin Size->", paste(names(per_path_bin_size), per_path_bin_size, sep = ": "))
   }
 
   # Calculate Dynamic Information

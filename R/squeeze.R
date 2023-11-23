@@ -23,7 +23,7 @@
 #' estimate the optimal number of bins. Available options: "Freedman.Diaconis",
 #' "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal". See \code{\link{estBinSize}}
 #' for more details. (Default = "Sturges").
-#' @param drop.fac A numeric value specifying the factor by which to decrease the
+#' @param drop_fac A numeric value specifying the factor by which to decrease the
 #' number of bins if the initial binning results in too many bins. (Default = 0.5).
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #' per path iteratively. Options: "universal", "individual. (Default = "universal").
@@ -73,7 +73,7 @@ squeeze <- function(scmpObject,
                     pseudotime_colname = scmpObject@addParams@pseudotime_colname,
                     path_colname = scmpObject@addParams@path_colname,
                     bin_method = "Sturges",
-                    drop.fac = 0.5,
+                    drop_fac = 0.5,
                     verbose = TRUE,
                     bin_members_colname = "scmp_bin_members",
                     bin_colname = "scmp_bin",
@@ -122,8 +122,8 @@ squeeze <- function(scmpObject,
   assert_that(path_colname %in% colnames(raw_cell_metadata),
     msg = paste0("'", path_colname, "' does not exist in cell.level.metadata. Please review the 'path_colname' parameter.")
   )
-  assert_that(drop.fac >= 0.3,
-    msg = "Invalid value for 'drop.fac'. It should be between 0.3 and 1."
+  assert_that(drop_fac >= 0.3,
+    msg = "Invalid value for 'drop_fac'. It should be between 0.3 and 1."
   )
   assert_that(
     all(
@@ -157,12 +157,12 @@ squeeze <- function(scmpObject,
     message(paste("Computing optimal bin-size with", bin_method, "method."))
     message(paste("Number of available path in the dataset:", length(avail.paths)))
     message(paste("Paths:", paste(avail.paths, collapse = ", ")))
-    message(paste("Drop factor:", drop.fac))
+    message(paste("Drop factor:", drop_fac))
   }
 
   # Apply transformations on data
   discrete.list <- lapply(avail.paths, function(path, design.frame = raw_cell_metadata,
-                                                drop_fac = drop.fac, path.col = path_colname,
+                                                drop_factor = drop_fac, path.col = path_colname,
                                                 bin.size = bin_size_colname, bin = bin_colname,
                                                 time.col = pseudotime_colname, method.bin = bin_method,
                                                 bin.time.col = bin_pseudotime_colname,
@@ -195,7 +195,7 @@ squeeze <- function(scmpObject,
       expr = {
         estBins <- ceiling(estBinSize(
           time_vector = time_vector, nPoints = length_n,
-          drop_fac = drop.fac, bin_method = method.bin
+          drop_fac = drop_factor, bin_method = method.bin
         ))
 
         if (verbose) {
@@ -258,7 +258,7 @@ squeeze <- function(scmpObject,
           lbound = lbound,
           ubound = ubound,
           bin = bin,
-          drop = drop.fac,
+          drop = drop_factor,
           bin.size = bin.size,
           method = method.bin
         )
