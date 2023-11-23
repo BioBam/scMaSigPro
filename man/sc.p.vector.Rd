@@ -19,7 +19,7 @@ sc.p.vector(
   logWeights = FALSE,
   logOffset = FALSE,
   max_it = 100,
-  globalTheta = FALSE
+  globalTheta = TRUE
 )
 }
 \arguments{
