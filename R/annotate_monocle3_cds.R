@@ -6,15 +6,15 @@
 #' with end-point information that is used as path information.
 #'
 #' @param cds A Monocle3 cds/CellDataSet object (CDS).
-#' @param reduction_method The dimensionality reduction method used. Default is
-#' "umap". Monocle3 currently supports "UMAP" only for most procedure.
-#' @param path_prefix Prefix used to annotate the paths. (Default is "Path").
-#' @param root_label Label used to annotate root cells. (Default is "root").
-#' @param path_colname Name of the column in `cell.metadata` storing information
-#' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment}
-#' package. (Default is `path_prefix`).
-#' @param pseudotime_colname Name of the column in `cell.metadata` storing
-#' information for Pseudotime. It is generated usingn`colData` from the
+#' @param reduction_method Character string with the dimensionality reduction method used. 
+#' Monocle3 currently supports "UMAP" only for most procedure. (Default is "umap").
+#' @param path_prefix Character string with the prefix used to annotate the paths. (Default is "Path").
+#' @param root_label Character string with the label used to annotate root cells. (Default is "root").
+#' @param path_colname Character string with the column name in `cell.metadata` 
+#' storing information for Path. It is generated using `colData` from the 
+#' \pkg{SingleCellExperiment} package. (Default is `path_prefix`).
+#' @param pseudotime_colname Character string with the column name in `cell.metadata` storing
+#' information for Pseudotime. It is generated using `colData` from the
 #' \pkg{SingleCellExperiment} package. (Default is "Pseudotime").
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #'
@@ -24,7 +24,7 @@
 #' which contains the cells along each path from root to endpoint. Finally, it
 #' updates the CDS with the endpoint data and the updated cell metadata.
 #'
-#' @return Annotated CDS object with end-point/path information:
+#' @return Annotated CDS object with end-point/path information.
 #'
 #' @seealso
 #' \code{\link[igraph]{shortest_paths}}, `colData` from the \pkg{SingleCellExperiment} package

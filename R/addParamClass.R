@@ -1,28 +1,30 @@
 #' Class "addParamClass"
 #'
-#' @slot bin_pseudotime_colname A character representing the name of the column for binned pseudotime values.
-#' @slot path_prefix A character representing the prefix for path labeling.
-#' @slot root_label A character representing the label for the root of the tree.
-#' @slot pseudotime_colname A character representing the name of the column for pseudotime values.
-#' @slot bin_method A character representing the algorithm used for binning.
-#' @slot path_colname A character representing the name of the column for path values.
-#' @slot bin_colname A character representing the name of the column for bin values.
-#' @slot bin_size_colname A character representing the name of the column for bin sizes.
-#' @slot bin_members_colname A character representing the name of the column for bin members.
-#' @slot Q Significance Level
-#' @slot min.obs Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).
+#'A Class holding information about the parameters used. 
+#'
+#' @slot bin_pseudotime_colname A character string representing the column name for binned pseudotime values.
+#' @slot path_prefix A character string representing the prefix for path labeling.
+#' @slot root_label A character string representing the label for the tree root.
+#' @slot pseudotime_colname A character string representing the column name for pseudotime values.
+#' @slot bin_method A character string representing the algorithm used for binning.
+#' @slot path_colname A character string representing the column name for path values.
+#' @slot bin_colname A character string representing the column name for bin values.
+#' @slot bin_size_colname A character string representing the column name for bin sizes.
+#' @slot bin_members_colname A character string representing the column name for bin members.
+#' @slot annotation_col A character string representing the column name for cell type annotation.
 #' @slot g Integer. Number of genes taken in the regression fit.
-#' @slot MT.adjust Pvalue correction
-#' @slot epsilon convergence tolerance
-#' @slot step.method A character specifying the imputed step method for stepwise regression.
-#' @slot useWeights A logical specifying whether to use weights during model fitting
-#' @slot offset Whether to use offset during model fitting
-#' @slot useInverseWeights Take inverse of the weights
-#' @slot logOffset description
-#' @slot logWeights description
-#' @slot max_it description
-#' @slot globalTheta Only works when negative binimoal is enabled
-#' @slot annotation_col description
+#' @slot Q Numeric. Significance Level.
+#' @slot min.obs Numeric. Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).
+#' @slot MT.adjust A character string specifying the Pvalue correction method used.
+#' @slot epsilon Numeric. Convergence tolerance.
+#' @slot step.method A character string specifying the imputed step method for stepwise regression.
+#' @slot useWeights A logical value specifying whether to use weights during model fitting.
+#' @slot offset A logical value specifying whether to use offset during model fitting.
+#' @slot useInverseWeights A logical value specifying whether to take inverse of the weights.
+#' @slot logOffset A logical value specifying whether to take the logarithm of the offsets during model fitting.
+#' @slot logWeights A logical value specifying whether to take the logarithm of the weights during model fitting.
+#' @slot max_it Integer. Maximum number of iterations to fit the model. 
+#' @slot globalTheta Only works when negative binomial is enabled.
 #'
 #' @name addParamClass
 #' @aliases addParamClass-class

@@ -171,7 +171,7 @@ sc.PlotProfiles <-
 
     # Combine
     cluster.trend.data <- do.call("rbind", trend.data.list)
-    
+
     # Assuming feature_id and cluster_id are factors
     p <- ggplot(data = cluster.trend.data, aes(x = .data$x, y = log(.data$y), group = interaction(.data$feature_id, .data$path), color = .data$path)) +
       geom_line(aes(linetype = .data$path), size = 0.4) + # Draw lines
@@ -179,7 +179,7 @@ sc.PlotProfiles <-
       facet_wrap(~ .data$cluster_id, scales = "free_y") + # Create a panel for each cluster_id
       scale_color_manual(values = colorConesa(length(unique(cluster.trend.data$path)))) + # Custom colors for paths
       theme_classic(base_size = 12) +
-      #geom_smooth(data = cluster.trend.data, aes(x = x, y = log(y), color = path), method = "loess", se = FALSE, linewidth = 0.7, color = "black")+
+      # geom_smooth(data = cluster.trend.data, aes(x = x, y = log(y), color = path), method = "loess", se = FALSE, linewidth = 0.7, color = "black")+
       theme(
         strip.background = element_blank(),
         strip.text.x = element_text(size = 10, angle = 0),
