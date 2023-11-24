@@ -17,25 +17,25 @@ annotate_monocle3_cds(
 \arguments{
 \item{cds}{A Monocle3 cds/CellDataSet object (CDS).}
 
-\item{reduction_method}{The dimensionality reduction method used. Default is
-"umap". Monocle3 currently supports "UMAP" only for most procedure.}
+\item{reduction_method}{Character string with the dimensionality reduction method used.
+Monocle3 currently supports "UMAP" only for most procedure. (Default is "umap").}
 
-\item{path_prefix}{Prefix used to annotate the paths. (Default is "Path").}
+\item{path_prefix}{Character string with the prefix used to annotate the paths. (Default is "Path").}
 
-\item{root_label}{Label used to annotate root cells. (Default is "root").}
+\item{root_label}{Character string with the label used to annotate root cells. (Default is "root").}
 
-\item{pseudotime_colname}{Name of the column in `cell.metadata` storing
-information for Pseudotime. It is generated usingn`colData` from the
+\item{pseudotime_colname}{Character string with the column name in `cell.metadata` storing
+information for Pseudotime. It is generated using `colData` from the
 \pkg{SingleCellExperiment} package. (Default is "Pseudotime").}
 
-\item{path_colname}{Name of the column in `cell.metadata` storing information
-for Path. It is generated using `colData` from the \pkg{SingleCellExperiment}
-package. (Default is `path_prefix`).}
+\item{path_colname}{Character string with the column name in `cell.metadata`
+storing information for Path. It is generated using `colData` from the
+\pkg{SingleCellExperiment} package. (Default is `path_prefix`).}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }
 \value{
-Annotated CDS object with end-point/path information:
+Annotated CDS object with end-point/path information.
 }
 \description{
 `annotate_monocle3_cds()` annotates the Monocle3's cds/CellDataSet (CDS) object. It uses

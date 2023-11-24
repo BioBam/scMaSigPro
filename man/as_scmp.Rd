@@ -32,17 +32,19 @@ as_scmp(
 Pseudotime values. It is generated using `colData` from the \pkg{SingleCellExperiment}
 package. (Default is "Pseudotime").}
 
-\item{align_pseudotime}{if two pseudotimes are different whether to align them}
+\item{align_pseudotime}{Whether to automatically align two different pseudotimes.
+See \code{\link{align.pseudotime}} for more details. (Default is FALSE).}
 
 \item{path_colname}{Name of the column in `cell.metadata` storing information
 for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
 (Default is `path_prefix`)}
 
-\item{annotation_colname}{annotations from cell level metadata}
+\item{annotation_colname}{Column name in cell level metadata containing cell type
+annotations. (Default is "cell_type").}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{interactive}{use shiny}
+\item{interactive}{Whether to use the shiny application to select paths. (Default is TRUE).}
 
 \item{additional_params}{A named list of additional parameters. See details.}
 }
@@ -62,12 +64,12 @@ Additional Details
 # Step-1: Load a dataset for testing
 # This dataset is available as part of the package
 # It is simulated with splatter
-data("Sim2Path", package = "scMaSigPro")
+data("splat.sim", package = "scMaSigPro")
 
 # Step-2: Convert to ScMaSigPro Object
 # Here, we convert the SCE object to an scMaSigPro object
 scmp.sce <- as_scmp(
-  object = sim.sce, from = "sce",
+  object = splat.sim, from = "sce",
   align_pseudotime = TRUE,
   verbose = FALSE,
   additional_params = list(

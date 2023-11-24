@@ -6,56 +6,56 @@
 \alias{addParamClass-class}
 \title{Class "addParamClass"}
 \description{
-Class "addParamClass"
+A Class holding information about the parameters used.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{bin_pseudotime_colname}}{A character representing the name of the column for binned pseudotime values.}
+\item{\code{bin_pseudotime_colname}}{A character string representing the column name for binned pseudotime values.}
 
-\item{\code{path_prefix}}{A character representing the prefix for path labeling.}
+\item{\code{path_prefix}}{A character string representing the prefix for path labeling.}
 
-\item{\code{root_label}}{A character representing the label for the root of the tree.}
+\item{\code{root_label}}{A character string representing the label for the tree root.}
 
-\item{\code{pseudotime_colname}}{A character representing the name of the column for pseudotime values.}
+\item{\code{pseudotime_colname}}{A character string representing the column name for pseudotime values.}
 
-\item{\code{bin_method}}{A character representing the algorithm used for binning.}
+\item{\code{bin_method}}{A character string representing the algorithm used for binning.}
 
-\item{\code{path_colname}}{A character representing the name of the column for path values.}
+\item{\code{path_colname}}{A character string representing the column name for path values.}
 
-\item{\code{bin_colname}}{A character representing the name of the column for bin values.}
+\item{\code{bin_colname}}{A character string representing the column name for bin values.}
 
-\item{\code{bin_size_colname}}{A character representing the name of the column for bin sizes.}
+\item{\code{bin_size_colname}}{A character string representing the column name for bin sizes.}
 
-\item{\code{bin_members_colname}}{A character representing the name of the column for bin members.}
+\item{\code{bin_members_colname}}{A character string representing the column name for bin members.}
 
-\item{\code{Q}}{Significance Level}
-
-\item{\code{min.obs}}{Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).}
+\item{\code{annotation_col}}{A character string representing the column name for cell type annotation.}
 
 \item{\code{g}}{Integer. Number of genes taken in the regression fit.}
 
-\item{\code{MT.adjust}}{Pvalue correction}
+\item{\code{Q}}{Numeric. Significance Level.}
 
-\item{\code{epsilon}}{convergence tolerance}
+\item{\code{min.obs}}{Numeric. Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).}
 
-\item{\code{step.method}}{A character specifying the imputed step method for stepwise regression.}
+\item{\code{MT.adjust}}{A character string specifying the Pvalue correction method used.}
 
-\item{\code{useWeights}}{A logical specifying whether to use weights during model fitting}
+\item{\code{epsilon}}{Numeric. Convergence tolerance.}
 
-\item{\code{offset}}{Whether to use offset during model fitting}
+\item{\code{step.method}}{A character string specifying the imputed step method for stepwise regression.}
 
-\item{\code{useInverseWeights}}{Take inverse of the weights}
+\item{\code{useWeights}}{A logical value specifying whether to use weights during model fitting.}
 
-\item{\code{logOffset}}{description}
+\item{\code{offset}}{A logical value specifying whether to use offset during model fitting.}
 
-\item{\code{logWeights}}{description}
+\item{\code{useInverseWeights}}{A logical value specifying whether to take inverse of the weights.}
 
-\item{\code{max_it}}{description}
+\item{\code{logOffset}}{A logical value specifying whether to take the logarithm of the offsets during model fitting.}
 
-\item{\code{globalTheta}}{Only works when negative binimoal is enabled}
+\item{\code{logWeights}}{A logical value specifying whether to take the logarithm of the weights during model fitting.}
 
-\item{\code{annotation_col}}{description}
+\item{\code{max_it}}{Integer. Maximum number of iterations to fit the model.}
+
+\item{\code{globalTheta}}{Only works when negative binomial is enabled.}
 }}
 
 \keyword{classes}
