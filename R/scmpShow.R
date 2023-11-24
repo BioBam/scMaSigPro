@@ -37,9 +37,9 @@
 
   # Influential Genes if any
   if (length(colnames(object@edesign@dis)) > 0) {
-      cat(paste("\nPolynomial Order:", object@edesign@poly_degree))
+    cat(paste("\nPolynomial Order:", object@edesign@poly_degree))
   }
-  
+
   # Calculate Dynamic Information
   if (length(object@scPVector@p.adjusted) > 0) {
     sig.level <- object@addParams@Q
