@@ -11,7 +11,7 @@
 #' If return is FALSE, the function does not return anything.
 #'
 #' @export
-showSol <- function(scmpObj, view = TRUE, return = FALSE, includeInflu = FALSE) {
+showSol <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE) {
   # Check Object Validity
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'"
