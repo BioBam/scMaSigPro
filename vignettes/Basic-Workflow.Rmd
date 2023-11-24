@@ -1,6 +1,6 @@
 ---
 title: "scMaSigPro: Workflow"
-subtitle: "Basic Steps"
+subtitle: "Quick Start Guide"
 author: "Priyansh Srivastava"
 package: "scMaSigPro"
 abstract: |
@@ -28,7 +28,7 @@ to pinpoint genes exhibiting significant expression profile differences among
 branching paths.
 
 ## Installation
-Cuurently, is scMaSigPro is avaible on the Github and can be installed as follows:
+Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
 
 ```{r, echo=TRUE, eval=FALSE}
 # Use public PAT
@@ -41,7 +41,7 @@ if (!requireNamespace("devtools", quietly = TRUE)) {
 
 # Install scMaSigPro
 devtools::install_github("spriyansh/scMaSigPro",
-  ref = "main",
+  ref = "dev",
   auth_token = publicPat,
   build_vignettes = TRUE,
   build_manual = TRUE,
@@ -52,38 +52,52 @@ devtools::install_github("spriyansh/scMaSigPro",
 ```
 
 ## Basic Workflow
-Here we demonstrate the basic workflow of scMaSigPro using a simulated dataset included in the package.
+Here, we demonstrate the basic workflow of `scMaSigPro` using a simulated dataset
+included in the package.
 
 ### Set Seed for Reproducibility
 ```{r, eval=TRUE, echo=TRUE}
 set.seed(123)
 ```
 
-### Step 1: Load the scMaSigPro package and the dataset
+### Step 1: Load the `scMaSigPro` package and the dataset
 ```{r, eval=TRUE, echo=TRUE}
-# Load Pakage
+# Load Package
 library(scMaSigPro)
 
 # Load example data
 data("splat.sim", package = "scMaSigPro")
 ```
 
-if you are integrested in learning how thhis data is simulated and what information
-does it has, you try `?splat.sim` in the interactive R console and can read about the details.
+If you are interested in learning how this data is simulated and what information
+it contains, you can try `?splat.sim` in the R console to read about the details.
 
 ### Step 2: Convert to scMaSigPro Object
-`scMaSigPro`, offers various option to directly convert the widely used single-cell related S4 objects directly to `scmaSigPro` class (now reffered to as `scmpObject`) such as SingleCellExoeriment` or Monoce3's `cell_data_set` class. Here using the simulated object (from single cell expeimrnet class) that we have just loaded into the r enevriormnet, we will demonstate the direct converion to single cell experiment object.
+`scMaSigPro` offers various options to directly convert widely used single-cell
+related S4 objects directly to the scmpClass class (now referred to as `scmpObject`),
+such as `SingleCellExperiment` or `Monocle3`'s `cell_data_set` class. Here, using the
+simulated object (from the `SingleCellExperiment` class) that we have just loaded
+into the R environment, we will demonstrate the direct conversion to 
+`scmpObject` object.
 
-In our case we already have the pseudotime and the path information stored in the `colData` slot of the `splat.sim`. The `Step` columns holds the information for the simulated steps of the paths, that we can treat as Pseudotime variable and the `Group` column have the ifnormation regarding the lineage information i.e. to which the cell belongs to. we can view that information by `View(as.data.frame(splat.sim@colData))`
+In our case, we already have pseudotime and path information stored in the
+colData slot of the `splat.sim`. The Step column holds the information for the
+simulated steps of the paths, which we can treat as a pseudotime variable, and
+the Group column has information regarding lineage, i.e., to which path the cell
+belongs. We can view this information by executing 
+`View(as.data.frame(splat.sim@colData)).`
 
 ```{r, eval=TRUE, echo = FALSE}
-head(as.data.frame(splat.sim@colData), 7)
+print(head(as.data.frame(splat.sim@colData), 5))
 ```
 
-We make use of `as_scmp` from scMaSigPro and direct it to use the columns present the dataset as the columns for the `step` and `Group`. To do that we have to enable the parameter `labels_exist` and then pass the existing column names as a named list.
-```{r, eval=FALSE}
+We use `as_scmp()` from `scMaSigPro` and direct it to use the columns present in
+the dataset as the columns for `Step` and `Group`. To do this, we have to enable
+the parameter `labels_exist` and then pass the existing column names as a named list.
+
+```{r, eval=TRUE, echo=TRUE}
 # Helper Function to convert annotated SCE object to scmpObject
-scmp.sce <- as_scmp(
+scmp.ob <- as_scmp(
   object = splat.sim, from = "sce",
   align_pseudotime = FALSE,
   verbose = TRUE,
@@ -94,3 +108,89 @@ scmp.sce <- as_scmp(
   )
 )
 ```
+
+Once the object is created, we can type the name of the object in the R console
+to view various attributes, such as the dimensions (number of cells and number
+of genes), the available branching paths, and the range of pseudotime.
+
+```{r, eval=TRUE, echo = FALSE}
+scmp.ob
+```
+
+### Step 3: Pseudo-bulking along the continuum with `squeeze()`
+
+scMaSigPro provides a comprehensive function for pseudo-bulking along the
+pseudotime continuum, named squeeze(). This function discretizes a continuous
+pseudotime column into bins of equal size using histogram binning methods. The
+squeeze() function includes various parameters that can be tailored depending on
+the characteristics of the data. Here, we will show the basic usage with the
+default parameters:
+
+```{r, eval=TRUE, echo=TRUE}
+scmp.ob <- squeeze(scmp.ob)
+```
+
+The console output of scMaSigPro is dynamic and displays more attributes as the analysis progresses. To view the results of the binning procedure, we can simply type the object's name into the console:
+
+```{r, eval=TRUE, echo = FALSE}
+scmp.ob
+```
+Here, we observe that the original pseudotime, which ranged from 1 to 100 with
+two cells at each step and different paths, is now rescaled to a range of 1 to 8,
+with each path having an equal number of bins (8 in total). We also see the average
+bin sizes per path, indicating the average number of cells that make up a single
+bin for each path.
+
+We can also visually inspect the binning process using a tile plot:
+
+```{r, eval=TRUE, echo=TRUE}
+sc.plot.bins.tile(scmp.ob)
+```
+
+The tile plot provides a clear view of the number of cells in each bin and how the sizes of bins compare with those of other paths in the same scmp_binned_pseudotime.
+
+### Step 3: Setting up the Polynomial Model
+
+scMaSigPro being the successor of maSigPro has access to teh same polynimal regression model. If we consider a case with two branching paths and alomg the same pseudotime scale with quadratratci polynomial the model will be formed as follows,
+
+```{r, echo=FALSE}
+library(knitr)
+knitr::asis_output("
+\\begin{align*}
+Y_{i} &\\sim \\text{NegativeBinomial}(\\mu_{i}, \\theta = 10) \\\\
+\\log(\\mu_{i}) &= \\beta_{0} + \\beta_{1} \\cdot (\\text{Path}_{B}\\text{vsPath}_{A})_{i} + \\beta_{2} \\cdot T_{\\text{Pseudotime}}^{\\text{Binned}_{i}} \\\\
+&\\quad + \\beta_{3} \\cdot (T_{\\text{Pseudotime}}^{\\text{Binned}_{i}} \\cdot \\text{Path}_{B_{i}})  + \\beta_{4} \\cdot (T_{\\text{Pseudotime}}^{\\text{Binned}_{i}})^2 \\\\
+&\\quad + \\beta_{5} \\cdot ((T_{\\text{Pseudotime}}^{\\text{Binned}_{i}})^2 \\cdot \\text{Path}_{B_{i}}) + \\text{Offset}_{i} + \\omega_{i} \\cdot \\epsilon_{i}\\\\
+\\end{align*}
+")
+```
+
+In order to formulate the same model we will make use of the `sc.make.design.matrix()` to model the same model with quardratics terms
+```{r, eval=TRUE, echo=TRUE}
+# Polynomial Degree 2
+scmp.ob <- sc.make.design.matrix(scmp.ob,poly_degree = 2)
+scmp.ob
+```
+
+Once the model is stores we can visualizse its terms using the helper functions
+```{r}
+df.col <- colnames(scmp.ob@edesign@dis)
+
+
+beta_names = paste0("beta", seq(1:length(df.col)))
+formula_parts = vapply(seq_along(df.col), 
+                       function(i) paste(beta_names[i], "*", df.col[i], sep = ""), 
+                       FUN.VALUE = character(1))
+formula_string = paste("beta0", paste(formula_parts, collapse = " + "), sep = " + ")
+
+
+
+paste(paste0("beta", seq(1:length(df.col))), df.col, collapse = "*")
+
+
+
+
+paste(colnames(scmp.ob@edesign@dis), collapse = " + ")
+
+```
+

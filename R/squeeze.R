@@ -24,7 +24,7 @@
 #' "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal". See \code{\link{estBinSize}}
 #' for more details. (Default = "Sturges").
 #' @param drop_fac A numeric value specifying the factor by which to decrease the
-#' number of bins if the initial binning results in too many bins. (Default = 0.5).
+#' number of bins if the initial binning results in too many bins. (Default = 1).
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #' per path iteratively. Options: "universal", "individual. (Default = "universal").
 #' @param additional_params Pass additional parameters as a named list. See Details.
@@ -73,18 +73,18 @@ squeeze <- function(scmpObject,
                     pseudotime_colname = scmpObject@addParams@pseudotime_colname,
                     path_colname = scmpObject@addParams@path_colname,
                     bin_method = "Sturges",
-                    drop_fac = 0.5,
-                    verbose = TRUE,
+                    drop_fac = 1,
+                    verbose = FALSE,
                     bin_members_colname = "scmp_bin_members",
                     bin_colname = "scmp_bin",
                     bin_size_colname = "scmp_bin_size",
                     bin_pseudotime_colname = "scmp_binned_pseudotime",
-                    split_bins = TRUE,
-                    prune_bins = TRUE,
+                    split_bins = FALSE,
+                    prune_bins = FALSE,
                     assay_name = "counts",
-                    drop_trails = TRUE,
+                    drop_trails = FALSE,
                     cluster_count_by = "sum",
-                    fill_gaps = TRUE,
+                    fill_gaps = FALSE,
                     additional_params = list(use_unique_time_points = FALSE)) {
   # Initiate Variable
   scmp_bin_lower_bound <- "scmp_l_bound"
