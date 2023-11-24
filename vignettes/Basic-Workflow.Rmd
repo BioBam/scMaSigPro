@@ -21,21 +21,33 @@ library(scMaSigPro)
 ```
 
 ## Introduction
-`scMaSigPro` is a polynomial regression-based approach inspired by the maSigPro package tailored for single-cell RNA-seq data. It discretizes cell expression along pseudotime while preserving cellular order, then applies the maSigPro model to pinpoint genes exhibiting significant expression profile differences among branching paths.
+`scMaSigPro` is a polynomial regression-based approach inspired by the maSigPro
+package tailored for single-cell RNA-seq data. It discretizes cell expression
+along pseudotime while preserving cellular order, then applies the maSigPro model
+to pinpoint genes exhibiting significant expression profile differences among
+branching paths.
 
 ## Installation
-To install scMaSigPro from Github, use the following commands:
+Cuurently, is scMaSigPro is avaible on the Github and can be installed as follows:
 
-```{r, eval=FALSE}
+```{r, echo=TRUE, eval=FALSE}
+# Use public PAT
+publicPat <- "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"
+
 # Install devtools if not already installed
 if (!requireNamespace("devtools", quietly = TRUE)) {
   install.packages("devtools")
 }
 
-# Install scMaSigPro (token will be removed once the directory is public)
+# Install scMaSigPro
 devtools::install_github("spriyansh/scMaSigPro",
   ref = "main",
-  auth_token = "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"
+  auth_token = publicPat,
+  build_vignettes = TRUE,
+  build_manual = TRUE,
+  upgrade = "never",
+  force = TRUE,
+  quiet = TRUE,
 )
 ```
 
@@ -43,29 +55,42 @@ devtools::install_github("spriyansh/scMaSigPro",
 Here we demonstrate the basic workflow of scMaSigPro using a simulated dataset included in the package.
 
 ### Set Seed for Reproducibility
-```{r, eval=FALSE}
+```{r, eval=TRUE, echo=TRUE}
 set.seed(123)
 ```
 
 ### Step 1: Load the scMaSigPro package and the dataset
-```{r, eval=FALSE}
+```{r, eval=TRUE, echo=TRUE}
+# Load Pakage
 library(scMaSigPro)
-data("Sim2Path", package = "scMaSigPro")
+
+# Load example data
+data("splat.sim", package = "scMaSigPro")
 ```
 
-### Step 2: Convert to scMaSigPro Object
-Convert the SingleCellExperiment object to an scMaSigPro object.
+if you are integrested in learning how thhis data is simulated and what information
+does it has, you try `?splat.sim` in the interactive R console and can read about the details.
 
+### Step 2: Convert to scMaSigPro Object
+`scMaSigPro`, offers various option to directly convert the widely used single-cell related S4 objects directly to `scmaSigPro` class (now reffered to as `scmpObject`) such as SingleCellExoeriment` or Monoce3's `cell_data_set` class. Here using the simulated object (from single cell expeimrnet class) that we have just loaded into the r enevriormnet, we will demonstate the direct converion to single cell experiment object.
+
+In our case we already have the pseudotime and the path information stored in the `colData` slot of the `splat.sim`. The `Step` columns holds the information for the simulated steps of the paths, that we can treat as Pseudotime variable and the `Group` column have the ifnormation regarding the lineage information i.e. to which the cell belongs to. we can view that information by `View(as.data.frame(splat.sim@colData))`
+
+```{r, eval=TRUE, echo = FALSE}
+head(as.data.frame(splat.sim@colData), 7)
+```
+
+We make use of `as_scmp` from scMaSigPro and direct it to use the columns present the dataset as the columns for the `step` and `Group`. To do that we have to enable the parameter `labels_exist` and then pass the existing column names as a named list.
 ```{r, eval=FALSE}
+# Helper Function to convert annotated SCE object to scmpObject
 scmp.sce <- as_scmp(
-  object = sim.sce, from = "sce",
-  align_pseudotime = TRUE,
-  verbose = FALSE,
+  object = splat.sim, from = "sce",
+  align_pseudotime = FALSE,
+  verbose = TRUE,
   additional_params = list(
     labels_exist = TRUE,
     existing_pseudotime_colname = "Step",
     existing_path_colname = "Group"
   )
 )
-showParams(scmp.sce, return = TRUE, view = FALSE)
 ```
