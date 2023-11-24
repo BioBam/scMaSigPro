@@ -160,6 +160,12 @@ squeeze <- function(scmpObject,
     message(paste("Drop factor:", drop_fac))
   }
 
+  # Order
+  avail.paths <- avail.paths[order(avail.paths)]
+  if (verbose) {
+    message(paste("Setting", avail.paths[1], "as reference."))
+  }
+
   # Apply transformations on data
   discrete.list <- lapply(avail.paths, function(path, design.frame = raw_cell_metadata,
                                                 drop_factor = drop_fac, path.col = path_colname,

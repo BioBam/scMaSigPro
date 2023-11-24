@@ -64,8 +64,8 @@ set.seed(123)
 ```{r, eval=TRUE, echo=TRUE}
 # Load Package
 library(scMaSigPro)
-suppressPackageStartupMessages(library(ggplot2)) #(Optional Import)
-suppressPackageStartupMessages(library(SingleCellExperiment)) #(Optional Import)
+suppressPackageStartupMessages(library(ggplot2)) # (Optional Import)
+suppressPackageStartupMessages(library(SingleCellExperiment)) # (Optional Import)
 
 # Load example data
 data("splat.sim", package = "scMaSigPro")
@@ -74,14 +74,17 @@ data("splat.sim", package = "scMaSigPro")
 ### Step 1.1: Plot the data
 ```{r, eval=TRUE, echo=TRUE}
 # Extract PCA (Optional)
-df <- as.data.frame(reducedDim(splat.sim)[,c(1:2)])
+df <- as.data.frame(reducedDim(splat.sim)[, c(1:2)])
 df$Step <- splat.sim@colData$Step
 df$Group <- splat.sim@colData$Group
 
 # Plot the data
-ggplot(df,
-       aes(x = PC1, y = PC2, color = Step, shape = Group)) + 
-    geom_point() + theme_minimal()
+ggplot(
+  df,
+  aes(x = PC1, y = PC2, color = Step, shape = Group)
+) +
+  geom_point() +
+  theme_minimal()
 ```
 
 If you are interested in learning how this data is simulated and what information
@@ -190,7 +193,7 @@ To construct this model, we use `sc.make.design.matrix()` to include quadratic t
 
 ```{r, eval=TRUE, echo=TRUE}
 # Polynomial Degree 2
-scmp.ob <- sc.make.design.matrix(scmp.ob,poly_degree = 2)
+scmp.ob <- sc.make.design.matrix(scmp.ob, poly_degree = 2)
 ```
 
 ### Step 4.1: Visualize the model
@@ -205,7 +208,7 @@ Similarly, we can fit a cubic polynomial by setting the polynomial degree to 3:
 
 ```{r, eval=TRUE, echo=TRUE}
 # Polynomial Degree 3
-scmp.ob <- sc.make.design.matrix(scmp.ob,poly_degree = 3)
+scmp.ob <- sc.make.design.matrix(scmp.ob, poly_degree = 3)
 showPoly(scmp.ob)
 ```
 
@@ -215,7 +218,7 @@ capturing exponential and nonlinear gene expression patterns:
 
 ```{r, eval=TRUE, echo=TRUE}
 # Polynomial Degree 3
-scmp.ob <- sc.make.design.matrix(scmp.ob,poly_degree = 1)
+scmp.ob <- sc.make.design.matrix(scmp.ob, poly_degree = 1)
 showPoly(scmp.ob)
 ```
 
@@ -241,8 +244,10 @@ We can execute sc.p.vector() as follows:
 
 ```{r, eval=TRUE, echo=TRUE}
 # Detect non-flat profiles
-scmp.ob <- sc.p.vector(scmp.ob, offset = TRUE, Q = 0.05,
-                       useWeights = TRUE, logOffset = TRUE, verbose = FALSE)
+scmp.ob <- sc.p.vector(scmp.ob,
+  offset = TRUE, Q = 0.05,
+  useWeights = TRUE, logOffset = TRUE, verbose = FALSE
+)
 scmp.ob
 ```
 
@@ -264,23 +269,30 @@ scmp.ob
 
 ## Step 7: Selection of Genes
 
-Now that we have the refined models, we can further explore that which of gene are significant diferrences with pseudotime, among paths and both. To do that we will make use of the `sc.get.siggenes()`. We try to select only the models with relatively high $R^2$, as we are modeling simple linear relationships.
+With our refined models in hand, we now focus on identifying genes showing significant differences with pseudotime, among paths, or both. For this purpose, we use the sc.get.siggenes() function. Our aim is to select models with a relatively high $R^2$, indicating simple linear relationships. The vars parameter in sc.get.siggenes() allows us to extract different sets of significant genes. Setting vars = 'all' retrieves all non-flat profiles identified in sc.p.vector with $R^2>=$ the specified threshold. The option vars = 'group' fetches genes per path, resulting in two gene lists that demonstrate associative significance among paths, helping us identify genes associated with one path or the other. The vars = 'each' option finds significance for each term in the polynomial. In our case, we are interested in genes differentially expressed between paths and over time, so we will choose vars = 'group'.
 ```{r}
-scmp.ob <- sc.get.siggenes(scmpObj = scmp.ob,
-                rsq = 0.7, 
-                vars = "groups")
+scmp.ob <- sc.get.siggenes(
+  scmpObj = scmp.ob,
+  rsq = 0.7,
+  vars = "groups",
+  significant.intercept = "dummy",
+  includeInflu = T
+)
 ```
 
-The `vars` parameter which is set to the "groups" will add the genes that are having $R^2$ >= 0.8 to the object. We can explpre the number of genes per groupo using the upsetplot as follows,
+By setting the vars parameter to "groups", the function will add genes with $R^2$ >= 0.7 to the object. To explore the number of genes per group, we can use an upset plot:
 ```{r}
 sc.path.intersection(scmp.ob)
 ```
 
+Here we see that 
+
 ```{r}
-sc.PlotGroups(scmp.ob, "Gene9", logs = T, logType = "log")
-sc.PlotGroups(scmp.ob, "Gene95", logs = T, logType = "log")
-sc.PlotGroups(scmp.ob, "Gene10", logs = T, logType = "log")
-sc.PlotGroups(scmp.ob, "Gene92", logs = T, logType = "log")
+a <- sc.PlotGroups(scmp.ob, "Gene9", logs = T, logType = "log")
+b <- sc.PlotGroups(scmp.ob, "Gene95", logs = T, logType = "log")
+c <- sc.PlotGroups(scmp.ob, "Gene10", logs = T, logType = "log")
+d <- sc.PlotGroups(scmp.ob, "Gene92", logs = T, logType = "log")
+ggpubr::ggarrange(a, b, c, d, nrow = 2, ncol = 2)
 ```
 
 

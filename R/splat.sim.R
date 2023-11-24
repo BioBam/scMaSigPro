@@ -18,7 +18,7 @@
 #' suppressPackageStartupMessages(library(SingleCellExperiment))
 #'
 #' set.seed(123)
-#' 
+#'
 #' # Simulate
 #' splat.sim <- splatSimulatePaths(
 #'    params = newSplatParams(
@@ -38,17 +38,17 @@
 #' # Visulize Steps and Groups
 #'  plotPCA(splat.sim, colour_by = "Step")
 #'  plotPCA(splat.sim, colour_by = "Group")
-#' 
+#'
 #' # Create SCE and transfer data
 #' sce <- SingleCellExperiment(list(counts = splat.sim@@assays@@data@@listData$counts))
 #' sce@@colData <- splat.sim@@colData
 #' rowData(sce) <- rowData(splat.sim)
 #' reducedDims(sce) <- reducedDims(splat.sim)
 #' splat.sim <- sce
-#' 
+#'
 #' # Save
 #'  save(splat.sim, file = "data/splat.sim.RData")
-#' 
+#'
 #' # Compress
 #' tools::resaveRdaFiles(paths = "data/")
 #' }
