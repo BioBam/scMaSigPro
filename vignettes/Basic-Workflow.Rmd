@@ -60,19 +60,34 @@ included in the package.
 set.seed(123)
 ```
 
-### Step 1: Load the `scMaSigPro` package and the dataset
+## Step 1: Load the `scMaSigPro` package and the dataset
 ```{r, eval=TRUE, echo=TRUE}
 # Load Package
 library(scMaSigPro)
+suppressPackageStartupMessages(library(ggplot2)) #(Optional Import)
+suppressPackageStartupMessages(library(SingleCellExperiment)) #(Optional Import)
 
 # Load example data
 data("splat.sim", package = "scMaSigPro")
 ```
 
+### Step 1.1: Plot the data
+```{r, eval=TRUE, echo=TRUE}
+# Extract PCA (Optional)
+df <- as.data.frame(reducedDim(splat.sim)[,c(1:2)])
+df$Step <- splat.sim@colData$Step
+df$Group <- splat.sim@colData$Group
+
+# Plot the data
+ggplot(df,
+       aes(x = PC1, y = PC2, color = Step, shape = Group)) + 
+    geom_point() + theme_minimal()
+```
+
 If you are interested in learning how this data is simulated and what information
 it contains, you can try `?splat.sim` in the R console to read about the details.
 
-### Step 2: Convert to scMaSigPro Object
+## Step 2: Convert to scMaSigPro Object
 `scMaSigPro` offers various options to directly convert widely used single-cell
 related S4 objects directly to the scmpClass class (now referred to as `scmpObject`),
 such as `SingleCellExperiment` or `Monocle3`'s `cell_data_set` class. Here, using the
@@ -117,7 +132,7 @@ of genes), the available branching paths, and the range of pseudotime.
 scmp.ob
 ```
 
-### Step 3: Pseudo-bulking along the continuum with `squeeze()`
+## Step 3: Pseudo-bulking along the continuum with `squeeze()`
 
 scMaSigPro provides a comprehensive function for pseudo-bulking along the
 pseudotime continuum, named squeeze(). This function discretizes a continuous
@@ -141,17 +156,23 @@ with each path having an equal number of bins (8 in total). We also see the aver
 bin sizes per path, indicating the average number of cells that make up a single
 bin for each path.
 
+### Step 3.1: Visualize bins
+
 We can also visually inspect the binning process using a tile plot:
 
 ```{r, eval=TRUE, echo=TRUE}
 sc.plot.bins.tile(scmp.ob)
 ```
 
-The tile plot provides a clear view of the number of cells in each bin and how the sizes of bins compare with those of other paths in the same scmp_binned_pseudotime.
+The tile plot provides a clear view of the number of cells in each bin and how the
+sizes of bins compare with those of other paths in the same scmp_binned_pseudotime.
 
-### Step 3: Setting up the Polynomial Model
+## Step 4: Setting up the Polynomial Model
 
-scMaSigPro being the successor of maSigPro has access to teh same polynimal regression model. If we consider a case with two branching paths and alomg the same pseudotime scale with quadratratci polynomial the model will be formed as follows,
+`scMaSigPro`, being the successor of maSigPro, utilizes the same polynomial
+regression model. Let's consider a case with two branching paths along the same
+pseudotime scale, modeled with a quadratic polynomial. The model can be represented
+as follows:
 
 ```{r, echo=FALSE}
 library(knitr)
@@ -165,32 +186,105 @@ Y_{i} &\\sim \\text{NegativeBinomial}(\\mu_{i}, \\theta = 10) \\\\
 ")
 ```
 
-In order to formulate the same model we will make use of the `sc.make.design.matrix()` to model the same model with quardratics terms
+To construct this model, we use `sc.make.design.matrix()` to include quadratic terms:
+
 ```{r, eval=TRUE, echo=TRUE}
 # Polynomial Degree 2
 scmp.ob <- sc.make.design.matrix(scmp.ob,poly_degree = 2)
+```
+
+### Step 4.1: Visualize the model
+
+Once the model is stored, we can visualize the corresponding polynomial using the `showPoly()` function:
+
+```{r, eval=TRUE, echo=TRUE}
+showPoly(scmp.ob)
+```
+
+Similarly, we can fit a cubic polynomial by setting the polynomial degree to 3:
+
+```{r, eval=TRUE, echo=TRUE}
+# Polynomial Degree 3
+scmp.ob <- sc.make.design.matrix(scmp.ob,poly_degree = 3)
+showPoly(scmp.ob)
+```
+
+However, for simplicity in this tutorial, we will explore a polynomial of degree 1.
+Note that increasing the polynomial degree enhances `scMaSigPro`'s performance in
+capturing exponential and nonlinear gene expression patterns:
+
+```{r, eval=TRUE, echo=TRUE}
+# Polynomial Degree 3
+scmp.ob <- sc.make.design.matrix(scmp.ob,poly_degree = 1)
+showPoly(scmp.ob)
+```
+
+In the above model we have:
+
+* _beta0_: Accounts for differences in expression from the start to the end.
+
+* _beta1*Path1vsPath2_: Captures differences between the branching paths, assuming path A does not change along pseudotime.
+    
+* _beta2*scmp_binned_pseudotime_: Reflects differences across pseudotime.
+
+* _beta3*scmp_binned_pseudotimexPath1_: Represents interaction between pseudotime and path differences.
+
+## Step 5: Detecting Genes with Non-Flat Profiles
+
+To identify genes that demonstrate significant changes along the binned pseudotime, we use the sc.p.vector() function. This function, adapted from the original maSigPro, includes additional parameters such as the use of offsets and weights.
+
+scMaSigPro expects raw counts as input because it models data using a negative binomial distribution, a count distribution, so the counts should not be normalized to continuous values. To account for library size differences, it uses offsets, which are the log of size factors, similar to DESeq2.
+
+For those who prefer to supply continuous data normalized using methods like log(1+x), the distribution can be changed during model fitting. The weight parameter accounts for variation in bin sizes, enabling uniform modeling of small and large bins.
+
+We can execute sc.p.vector() as follows:
+
+```{r, eval=TRUE, echo=TRUE}
+# Detect non-flat profiles
+scmp.ob <- sc.p.vector(scmp.ob, offset = TRUE, Q = 0.05,
+                       useWeights = TRUE, logOffset = TRUE, verbose = FALSE)
 scmp.ob
 ```
 
-Once the model is stores we can visualizse its terms using the helper functions
-```{r}
-df.col <- colnames(scmp.ob@edesign@dis)
+The console output reveals that scMaSigPro detected 51 genes with non-flat profiles.
 
+## Step 6: Model Refinement
 
-beta_names = paste0("beta", seq(1:length(df.col)))
-formula_parts = vapply(seq_along(df.col), 
-                       function(i) paste(beta_names[i], "*", df.col[i], sep = ""), 
-                       FUN.VALUE = character(1))
-formula_string = paste("beta0", paste(formula_parts, collapse = " + "), sep = " + ")
+Having identified genes with significant profiles, we can refine their polynomial
+models using sc.T.fit. This function evaluates each term of the polynomial model.
+In our case, it will assess which among "beta0 + beta1\*Path1vsPath2 + 
+beta2\*scmp_binned_pseudotime + beta3*scmp_binned_pseudotimexPath1" 
+significantly contributes to the differences. To execute sc.T.fit, we proceed as follows:
 
-
-
-paste(paste0("beta", seq(1:length(df.col))), df.col, collapse = "*")
-
-
-
-
-paste(colnames(scmp.ob@edesign@dis), collapse = " + ")
-
+```{r, eval=TRUE, echo=TRUE}
+# Model refinement
+scmp.ob <- sc.T.fit(scmp.ob, verbose = FALSE)
+scmp.ob
 ```
 
+## Step 7: Selection of Genes
+
+Now that we have the refined models, we can further explore that which of gene are significant diferrences with pseudotime, among paths and both. To do that we will make use of the `sc.get.siggenes()`. We try to select only the models with relatively high $R^2$, as we are modeling simple linear relationships.
+```{r}
+scmp.ob <- sc.get.siggenes(scmpObj = scmp.ob,
+                rsq = 0.7, 
+                vars = "groups")
+```
+
+The `vars` parameter which is set to the "groups" will add the genes that are having $R^2$ >= 0.8 to the object. We can explpre the number of genes per groupo using the upsetplot as follows,
+```{r}
+sc.path.intersection(scmp.ob)
+```
+
+```{r}
+sc.PlotGroups(scmp.ob, "Gene9", logs = T, logType = "log")
+sc.PlotGroups(scmp.ob, "Gene95", logs = T, logType = "log")
+sc.PlotGroups(scmp.ob, "Gene10", logs = T, logType = "log")
+sc.PlotGroups(scmp.ob, "Gene92", logs = T, logType = "log")
+```
+
+
+## Session Info
+```{r}
+sessionInfo(package = "scMaSigPro")
+```
