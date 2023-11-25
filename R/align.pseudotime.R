@@ -9,7 +9,7 @@
 #' warping from dtw package.
 #'
 #' @importFrom scales rescale
-#' 
+#'
 #' @param pseudotime_col Chacarcter string with the column name in `cell.metadata` storing
 #' Pseudotime values. It is generated using `colData` from the \pkg{SingleCellExperiment}
 #' package. (Default is "Pseudotime")

@@ -4,7 +4,7 @@
 \alias{showSol}
 \title{Show or Return the Solution}
 \usage{
-showSol(scmpObj, view = TRUE, return = FALSE, includeInflu = FALSE)
+showSol(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE)
 }
 \arguments{
 \item{scmpObj}{an object of class 'scMaSigProClass'. This object should contain the computed solution.}

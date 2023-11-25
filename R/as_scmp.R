@@ -15,7 +15,7 @@
 #' @param path_colname Name of the column in `cell.metadata` storing information
 #' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
 #' (Default is `path_prefix`)
-#' @param align_pseudotime Whether to automatically align two different pseudotimes. 
+#' @param align_pseudotime Whether to automatically align two different pseudotimes.
 #' See \code{\link{align.pseudotime}} for more details. (Default is FALSE).
 #' @param interactive Whether to use the shiny application to select paths. (Default is TRUE).
 #' @param annotation_colname Column name in cell level metadata containing cell type
@@ -36,12 +36,12 @@
 #' # Step-1: Load a dataset for testing
 #' # This dataset is available as part of the package
 #' # It is simulated with splatter
-#' data("Sim2Path", package = "scMaSigPro")
+#' data("splat.sim", package = "scMaSigPro")
 #'
 #' # Step-2: Convert to ScMaSigPro Object
 #' # Here, we convert the SCE object to an scMaSigPro object
 #' scmp.sce <- as_scmp(
-#'   object = sim.sce, from = "sce",
+#'   object = splat.sim, from = "sce",
 #'   align_pseudotime = TRUE,
 #'   verbose = FALSE,
 #'   additional_params = list(

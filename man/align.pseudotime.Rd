@@ -13,22 +13,22 @@ align.pseudotime(
 )
 }
 \arguments{
-\item{pseudotime_col}{Name of the column in `cell.metadata` storing
+\item{pseudotime_col}{Chacarcter string with the column name in `cell.metadata` storing
 Pseudotime values. It is generated using `colData` from the \pkg{SingleCellExperiment}
-package. (Default is "Pseudotime").}
+package. (Default is "Pseudotime")}
 
-\item{path_col}{Name of the column in `cell.metadata` storing information
+\item{path_col}{Chacarcter string with the column name in `cell.metadata` storing information
 for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
 (Default is `path_prefix`)}
 
-\item{method}{Currently supported `scales::rescale`.}
+\item{method}{Currently only `scales::rescale` is supported. (Default is "rescale")}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }
 \description{
 `align.pseudotime()` is an internal function that aligns the pseudotime from
-two different paths. It first identifies the path which is having the longer
-range of pseudotime, and then it uses the range of the shorter path to rescale
+two different trajectory paths. It first identifies the path which has a longer
+pseudotime range, and then it uses the range of the shorter path to rescale
 the range of the longer one. It uses a simple rescaling mechanism from
 `scales::rescale`. In future we expect to support strategies like dynamic time
 warping from dtw package.

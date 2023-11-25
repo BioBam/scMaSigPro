@@ -35,6 +35,11 @@
     cat("\nAverage bin Size->", paste(names(per_path_bin_size), per_path_bin_size, sep = ": "))
   }
 
+  # Influential Genes if any
+  if (length(colnames(object@edesign@dis)) > 0) {
+    cat(paste("\nPolynomial Order:", object@edesign@poly_degree))
+  }
+
   # Calculate Dynamic Information
   if (length(object@scPVector@p.adjusted) > 0) {
     sig.level <- object@addParams@Q
