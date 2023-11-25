@@ -1,13 +1,15 @@
 ---
-title: "scMaSigPro: Workflow"
-subtitle: "Quick Start Guide"
+title: "scMaSigPro: Quick Start Guide"
+subtitle: "Basic Steps"
 author: "Priyansh Srivastava"
 package: "scMaSigPro"
 abstract: |
-  `scMaSigPro` is a Bioconductor package designed for the analysis of single-cell RNA-seq data along pseudotime. 
-  It builds upon the `maSigPro` package to identify genes with significant expression changes across different 
-  branching paths in a pseudotime-ordered single-cell dataset. This vignette illustrates the basic workflow 
-  of `scMaSigPro`, providing a step-by-step guide for users.
+  `scMaSigPro` is an R package designed for the serial analysis of single-cell 
+  RNA-seq (scRNA-Seq) data along inferred pseudotime. It builds upon the [`maSigPro`](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html)
+  Bioconductor package to identify genes with significant expression changes across different 
+  branching paths in a pseudotime-ordered scRNA-Seq dataset. This vignette illustrates
+  the basic workflow of `scMaSigPro`, providing a step-by-step guide for users using a
+  small simulated dataset.
 output: BiocStyle::html_document
 vignette: >
   %\VignetteIndexEntry{scMaSigPro Basic Workflow}
@@ -15,17 +17,18 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
+```{r, "setup", include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(scMaSigPro)
 ```
 
 ## Introduction
-`scMaSigPro` is a polynomial regression-based approach inspired by the maSigPro
-package tailored for single-cell RNA-seq data. It discretizes cell expression
-along pseudotime while preserving cellular order, then applies the maSigPro model
+`scMaSigPro` is a polynomial regression-based approach inspired by the [maSigPro](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html)
+Bioconductor package tailored for scRNA-Seq data. It first discretizes single cell
+expression along inferred pseudotime while preserving order. Afterwards it applies
+the [maSigPro model](https://academic.oup.com/bioinformatics/article/22/9/1096/200371)
 to pinpoint genes exhibiting significant expression profile differences among
-branching paths.
+branching paths and pseudotime.
 
 ## Installation
 Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
@@ -53,27 +56,27 @@ devtools::install_github("spriyansh/scMaSigPro",
 
 ## Basic Workflow
 Here, we demonstrate the basic workflow of `scMaSigPro` using a simulated dataset
-included in the package.
+included in the package, simulated via [splatter](https://bioconductor.org/packages/release/bioc/html/splatter.html).
 
-### Set Seed for Reproducibility
-```{r, eval=TRUE, echo=TRUE}
+### Load the `scMaSigPro` package and the dataset
+```{r, "Step 1: Load the `scMaSigPro` package and the dataset", eval=TRUE, echo=TRUE}
+# Set Seed for Reproducibility
 set.seed(123)
-```
 
-## Step 1: Load the `scMaSigPro` package and the dataset
-```{r, eval=TRUE, echo=TRUE}
 # Load Package
 library(scMaSigPro)
-suppressPackageStartupMessages(library(ggplot2)) # (Optional Import)
-suppressPackageStartupMessages(library(SingleCellExperiment)) # (Optional Import)
 
 # Load example data
 data("splat.sim", package = "scMaSigPro")
 ```
 
-### Step 1.1: Plot the data
-```{r, eval=TRUE, echo=TRUE}
-# Extract PCA (Optional)
+####  Plot the data (Optional)
+```{r, "Plot the data (Optional)", eval=TRUE, echo=TRUE}
+# Load 
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(SingleCellExperiment))
+
+# Extract PCA
 df <- as.data.frame(reducedDim(splat.sim)[, c(1:2)])
 df$Step <- splat.sim@colData$Step
 df$Group <- splat.sim@colData$Group
@@ -90,30 +93,40 @@ ggplot(
 If you are interested in learning how this data is simulated and what information
 it contains, you can try `?splat.sim` in the R console to read about the details.
 
-## Step 2: Convert to scMaSigPro Object
+The UMAP visualization of our dataset reveals a bifurcating trajectory,
+illustrating how one cell type diverges into two distinct cell types. This 
+bifurcation is driven by the selective expression of genes along the pseudotime.
+In the UMAP plot, the two branching paths of differentiation are represented 
+by points with distinct shapes, each corresponding to a different cell type.
+
+Furthermore, the points in the UMAP are color-coded based on a simulated
+pseudotime-like variable, termed _Step_, from the [Splatter package](https://bioconductor.org/packages/release/bioc/html/splatter.html). This
+color gradient effectively captures the progression of cells along the pseudotime
+axis, providing insights into the temporal dynamics of cellular differentiation.
+
+### Convert to `scMaSigPro` Object
 `scMaSigPro` offers various options to directly convert widely used single-cell
 related S4 objects directly to the scmpClass class (now referred to as `scmpObject`),
-such as `SingleCellExperiment` or `Monocle3`'s `cell_data_set` class. Here, using the
-simulated object (from the `SingleCellExperiment` class) that we have just loaded
-into the R environment, we will demonstrate the direct conversion to 
-`scmpObject` object.
+such as [`SingleCellExperiment`](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) or [`Monocle3`](https://cole-trapnell-lab.github.io/monocle3/)'s [`cell_data_set`](https://rdrr.io/github/cole-trapnell-lab/monocle3/man/new_cell_data_set.html) class. Here, using the
+simulated object (of the [`SingleCellExperiment`](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) class) that we have just loaded into the R environment, we will 
+demonstrate the direct conversion to `scmpObject` object.
 
 In our case, we already have pseudotime and path information stored in the
-colData slot of the `splat.sim`. The Step column holds the information for the
-simulated steps of the paths, which we can treat as a pseudotime variable, and
-the Group column has information regarding lineage, i.e., to which path the cell
-belongs. We can view this information by executing 
+`colData` slot of the `splat.sim`. The _Step_ column holds the information for the
+simulated steps of each path, which we can treat as a pseudotime variable, and
+the _Group_ column has information regarding branching path, i.e., to which
+branching path each of the cell belongs. We can view this information by executing 
 `View(as.data.frame(splat.sim@colData)).`
 
-```{r, eval=TRUE, echo = FALSE}
+```{r, "View(as.data.frame(splat.sim@colData))", eval=TRUE, echo = FALSE}
 print(head(as.data.frame(splat.sim@colData), 5))
 ```
 
-We use `as_scmp()` from `scMaSigPro` and direct it to use the columns present in
-the dataset as the columns for `Step` and `Group`. To do this, we have to enable
+We will use `as_scmp()` from `scMaSigPro` and direct it to use the columns present in
+the dataset as the columns for `Pseudotime` and `Path`. To do this, we have to enable
 the parameter `labels_exist` and then pass the existing column names as a named list.
 
-```{r, eval=TRUE, echo=TRUE}
+```{r, "Convert to `scMaSigPro` Object", eval=TRUE, echo=TRUE}
 # Helper Function to convert annotated SCE object to scmpObject
 scmp.ob <- as_scmp(
   object = splat.sim, from = "sce",
@@ -131,55 +144,54 @@ Once the object is created, we can type the name of the object in the R console
 to view various attributes, such as the dimensions (number of cells and number
 of genes), the available branching paths, and the range of pseudotime.
 
-```{r, eval=TRUE, echo = FALSE}
+```{r, "Console Echo-1", eval=TRUE, echo = FALSE}
 scmp.ob
 ```
 
-## Step 3: Pseudo-bulking along the continuum with `squeeze()`
+### Pseudo-bulking along the continuum with `squeeze()`
 
-scMaSigPro provides a comprehensive function for pseudo-bulking along the
-pseudotime continuum, named squeeze(). This function discretizes a continuous
-pseudotime column into bins of equal size using histogram binning methods. The
-squeeze() function includes various parameters that can be tailored depending on
-the characteristics of the data. Here, we will show the basic usage with the
-default parameters:
+`scMaSigPro` provides a comprehensive function for pseudo-bulking along the
+pseudotime continuum, named `squeeze()`. This function discretizes the original 
+pseudotime values into bins using histogram binning methods. The `squeeze()`
+function includes various parameters that can be tailored depending on the 
+characteristics of the data. Here, we will show the basic usage with the default
+parameters:
 
-```{r, eval=TRUE, echo=TRUE}
+```{r, "Pseudo-bulking along the continuum with `squeeze()`",eval=TRUE, echo=TRUE}
 scmp.ob <- squeeze(scmp.ob)
 ```
 
-The console output of scMaSigPro is dynamic and displays more attributes as the
+The console output of `scMaSigPro` is dynamic and displays more attributes as the
 analysis progresses. To view the results of the binning procedure, we can simply
 type the object's name into the console:
 
-```{r, eval=TRUE, echo = FALSE}
+```{r,  "Console Echo-2", eval=TRUE, echo = FALSE}
 scmp.ob
 ```
 Here, we observe that the original pseudotime, which ranged from 1 to 100 with
 two cells at each step and different paths, is now rescaled to a range of 1 to 8,
-with each path having an equal number of bins (8 in total). We also see the average
+with each path having an equal number of bins (8+8 in total). We also see the average
 bin sizes per path, indicating the average number of cells that make up a single
 bin for each path.
 
-### Step 3.1: Visualize bins
+### Visualize bins
 
 We can also visually inspect the binning process using a tile plot:
 
-```{r, eval=TRUE, echo=TRUE}
+```{r, "Visualize bins",eval=TRUE, echo=TRUE}
 sc.plot.bins.tile(scmp.ob)
 ```
 
 The tile plot provides a clear view of the number of cells in each bin and how the
 sizes of bins compare with those of other paths in the same scmp_binned_pseudotime.
 
-## Step 4: Setting up the Polynomial Model
+### Setting up the Polynomial Model
 
-`scMaSigPro`, being the successor of maSigPro, utilizes the same polynomial
-regression model. Let's consider a case with two branching paths along the same
+`scMaSigPro`, being the successor of [`maSigPro`](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html), utilizes the same polynomial regression model. Let's consider a case with two branching paths along the same
 pseudotime scale, modeled with a quadratic polynomial. The model can be represented
 as follows:
 
-```{r, echo=FALSE}
+```{r, "formula", echo=FALSE}
 library(knitr)
 knitr::asis_output("
 \\begin{align*}
@@ -193,33 +205,33 @@ Y_{i} &\\sim \\text{NegativeBinomial}(\\mu_{i}, \\theta = 10) \\\\
 
 To construct this model, we use `sc.make.design.matrix()` to include quadratic terms:
 
-```{r, eval=TRUE, echo=TRUE}
+```{r, "Polynomial Degree 2",eval=TRUE, echo=TRUE}
 # Polynomial Degree 2
 scmp.ob <- sc.make.design.matrix(scmp.ob, poly_degree = 2)
 ```
 
-### Step 4.1: Visualize the model
+#### Visualize the model
 
 Once the model is stored, we can visualize the corresponding polynomial using the `showPoly()` function:
 
-```{r, eval=TRUE, echo=TRUE}
+```{r, "showPoly",eval=TRUE, echo=TRUE}
 showPoly(scmp.ob)
 ```
 
 Similarly, we can fit a cubic polynomial by setting the polynomial degree to 3:
 
-```{r, eval=TRUE, echo=TRUE}
+```{r, "Polynomial Degree 3",eval=TRUE, echo=TRUE}
 # Polynomial Degree 3
 scmp.ob <- sc.make.design.matrix(scmp.ob, poly_degree = 3)
 showPoly(scmp.ob)
 ```
 
-However, for simplicity in this tutorial, we will explore a polynomial of degree 1.
-Note that increasing the polynomial degree enhances `scMaSigPro`'s performance in
-capturing exponential and nonlinear gene expression patterns:
+However, for simplicity, we will explore a polynomial of degree 1. Note that 
+increasing the polynomial degree enhances `scMaSigPro`'s performance in capturing
+exponential and nonlinear gene expression patterns:
 
-```{r, eval=TRUE, echo=TRUE}
-# Polynomial Degree 3
+```{r, "# Polynomial Degree 1", eval=TRUE, echo=TRUE}
+# Polynomial Degree 1
 scmp.ob <- sc.make.design.matrix(scmp.ob, poly_degree = 1)
 showPoly(scmp.ob)
 ```
@@ -228,32 +240,32 @@ In the above model we have:
 
 * _beta0_: Accounts for differences in expression from the start to the end.
 
-* _beta1*Path1vsPath2_: Captures differences between the branching paths,
-assuming path A does not change along pseudotime.
+* _beta1*Path2vsPath1_: Captures differences between the branching paths,
+assuming path-1 does not change along pseudotime.
     
 * _beta2*scmp_binned_pseudotime_: Reflects differences across pseudotime.
 
-* _beta3*scmp_binned_pseudotimexPath1_: Represents interaction between pseudotime
+* _beta3*scmp_binned_pseudotimexPath2_: Represents interaction between pseudotime
 and path differences.
 
-## Step 5: Detecting Genes with Non-Flat Profiles
+### Detecting Genes with Non-Flat Profiles
 
-To identify genes that demonstrate significant changes along the binned pseudotime,
-we use the sc.p.vector() function. This function, adapted from the original maSigPro,
-includes additional parameters such as the use of offsets and weights.
+To identify genes that demonstrate significant changes along the pseudotime contniuum,
+we use the `sc.p.vector()`. This function, adapted from the original [`maSigPro`](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html),
+includes additional parameters such as the use of `offsets` and `weights`.
 
-scMaSigPro expects raw counts as input because it models data using a negative
+`scMaSigPro` expects raw counts as input because it models data using a negative
 binomial distribution, a count distribution, so the counts should not be normalized
-to continuous values. To account for library size differences, it uses offsets,
+to continuous values. To account for library size differences, it uses `offsets`,
 which are the log of size factors, similar to DESeq2.
 
 For those who prefer to supply continuous data normalized using methods like log(1+x),
-the distribution can be changed during model fitting. The weight parameter accounts
+the distribution can be changed during model fitting. The `weight` parameter accounts
 for variation in bin sizes, enabling uniform modeling of small and large bins.
 
 We can execute `sc.p.vector()` as follows:
 
-```{r, eval=TRUE, echo=TRUE}
+```{r, "Detecting Genes with Non-Flat Profiles", eval=TRUE, echo=TRUE}
 # Detect non-flat profiles
 scmp.ob <- sc.p.vector(scmp.ob,
   offset = TRUE, Q = 0.05,
@@ -262,26 +274,28 @@ scmp.ob <- sc.p.vector(scmp.ob,
 scmp.ob
 ```
 
-The console output reveals that scMaSigPro detected 51 genes with non-flat profiles.
+The console output reveals that `scMaSigPro` detected 51 genes with non-flat profiles.
 
-## Step 6: Model Refinement
+### Model Refinement
 
 Having identified genes with significant profiles, we can refine their polynomial
 models using `sc.T.fit()`. This function evaluates each term of the polynomial model.
-In our case, it will assess which among "beta0 + beta1\*Path1vsPath2 + 
-beta2\*scmp_binned_pseudotime + beta3*scmp_binned_pseudotimexPath1" 
-significantly contributes to the differences. To execute sc.T.fit, we proceed as follows:
+In our case, it will assess which among "beta0 + beta1\*Path2vsPath1 + 
+beta2\*scmp_binned_pseudotime + beta3*scmp_binned_pseudotimexPath2" 
+significantly contributes to the differences. To execute `sc.T.fit()`, we proceed as follows:
 
-```{r, eval=TRUE, echo=TRUE}
+```{r, "Model Refinement",eval=TRUE, echo=TRUE}
 # Model refinement
 scmp.ob <- sc.T.fit(scmp.ob, verbose = FALSE)
 scmp.ob
 ```
 
-## Step 7: Selection of Genes
+---
 
-With our refined models in hand, we now focus on identifying genes showing significant differences with pseudotime, among paths, or both. For this purpose, we use the `sc.get.siggenes()` function. Our aim is to select models with a relatively high $R^2$, indicating simple linear relationships. The `vars` parameter in `sc.get.siggenes()` allows us to extract different sets of significant genes. Setting `vars = 'all'` retrieves all non-flat profiles identified in sc.p.vector with $R^2>=$ the specified threshold. The option `vars = 'group'` fetches genes per path, resulting in two gene lists that demonstrate associative significance among paths, helping us identify genes associated with one path or the other along the continum. The `vars = 'each'` option finds significance for each term in the polynomial. In our case, we are interested in genes differentially expressed between paths and over time, so we will choose `vars = 'group'`.
-```{r}
+## Selection of Genes
+
+With our refined models in hand, we now focus on identifying genes showing significant differences with pseudotime, among paths, or both. For this purpose, we use the `sc.get.siggenes()` function. Our aim is to select models with a relatively high $R^2$, indicating simple linear relationships. The `vars` parameter in `sc.get.siggenes()` allows us to extract different sets of significant genes. Setting `vars = 'all'` retrieves all non-flat profiles identified in `sc.p.vector()` with $R^2>=$ the specified threshold. The option `vars = 'groups` fetches genes per path, resulting in two gene lists that demonstrate associative significance among paths, helping us identify genes associated with one path or the other along the pseudotime continuum. The `vars = 'each'` option finds significance for each term in the polynomial. In our case, we are interested in genes differentially expressed between paths and over pseudotime continum, so we will choose `vars = 'groups`.
+```{r, "vars = groups",eval=TRUE, echo=TRUE}
 scmp.ob <- sc.get.siggenes(
   scmpObj = scmp.ob,
   rsq = 0.7,
@@ -291,8 +305,8 @@ scmp.ob <- sc.get.siggenes(
 )
 ```
 
-By setting the vars parameter to "groups", the function will add genes with $R^2$ >= 0.7 to the object. To explore the number of genes per group, we can use an upset plot:
-```{r}
+By setting the vars parameter to "groups", the function will add genes with $R^2$ >= 0.7 to the object. To explore the number of genes per group, we will make an upset plot:
+```{r, "uspet",eval=TRUE, echo=TRUE}
 sc.path.intersection(scmp.ob)
 ```
 
@@ -302,7 +316,7 @@ different expression between the two paths. Additionally, there are 11 genes
 uniquely associated with Path2vsPath1. This implies that Path2 has 11 genes that
 are significantly differentially expressed over time, using Path1 genes as a
 reference. Let's explore a few of these genes:
-```{r}
+```{r, "trend",eval=TRUE, echo=TRUE}
 a <- sc.PlotGroups(scmp.ob, "Gene9", logs = T, logType = "log")
 b <- sc.PlotGroups(scmp.ob, "Gene95", logs = T, logType = "log")
 c <- sc.PlotGroups(scmp.ob, "Gene10", logs = T, logType = "log")
@@ -315,16 +329,16 @@ These plots illustrate the gene expression trends for selected genes, providing
 insights into their behavior in different paths. Fortunately, since we are using
 simulated data, we can validate these trends by extracting gene-level metadata
 from our simulated object:
-```{r}
+```{r, "ground truth",eval=TRUE, echo=TRUE}
 groundTruth <- as.data.frame(splat.sim@rowRanges@elementMetadata)
 print(groundTruth[groundTruth$Gene %in% c("Gene9", "Gene95", "Gene10", "Gene92"),c(1,2,6,8)])
 ```
 
 The ground truth data reveals, for example, that Gene9 has a base gene mean of 0.5, a fold change of 1.5 in Path1, and remains at the same expression level for Path2. This trend is accurately captured in our analysis, as shown in Figure-A. Similarly, Gene92 does not show a significant difference between the paths but demonstrates a downtrend along pseudotime in both paths, a finding we successfully recapitulate in Figure-D.
 
-## Step 8: Cluster Trends
-To discern general trends among the genes, we can cluster them together using the sc.cluster.features function. By default, this function employs hierarchical clustering (hclust) and will divide the genes into 4 clusters.
-```{r}
+### Cluster Trends
+To discern general trends among the genes, we can cluster them together using the `sc.cluster.features()`. By default, this function employs hierarchical clustering (hclust) and we will divide the genes into 4 clusters.
+```{r, "Cluster Trends"}
 scmp.ob <- sc.cluster.features(
     scmp.ob, 
     cluster.method = "hclust",
@@ -333,7 +347,7 @@ scmp.ob <- sc.cluster.features(
 
 Once the genes are clustered, we can visualize their profiles as follows:
 
-```{r}
+```{r, "profiles"}
 sc.PlotProfiles(scmp.ob, groupBy = "feature", logs = T)
 ```
 
@@ -341,12 +355,12 @@ This visualization helps in understanding the collective behavior of genes
 within each cluster, highlighting patterns and trends that might be relevant for
 further biological interpretation.
 
-This concludes the basic usage quick start guide of scMaSigPro. Please refer to
+This concludes the basic usage quick start guide of `scMaSigPro`. Please refer to
 other vignettes for more in-depth analysis.
 
 ---
 
-## Session Info
-```{r}
+### Session Info
+```{r, "Session Info"}
 sessionInfo(package = "scMaSigPro")
 ```
