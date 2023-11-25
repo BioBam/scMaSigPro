@@ -317,12 +317,11 @@ uniquely associated with Path2vsPath1. This implies that Path2 has 11 genes that
 are significantly differentially expressed over time, using Path1 genes as a
 reference. Let's explore a few of these genes:
 ```{r, "trend",eval=TRUE, echo=TRUE}
-a <- sc.PlotGroups(scmp.ob, "Gene9", logs = T, logType = "log")
-b <- sc.PlotGroups(scmp.ob, "Gene95", logs = T, logType = "log")
-c <- sc.PlotGroups(scmp.ob, "Gene10", logs = T, logType = "log")
-d <- sc.PlotGroups(scmp.ob, "Gene92", logs = T, logType = "log")
-ggpubr::ggarrange(a, b, c, d, nrow = 2, ncol = 2,
-                  labels = c("A.", "B.", "C.", "D."))
+FigureA <- sc.PlotGroups(scmp.ob, "Gene9", logs = T, logType = "log")
+FigureB <- sc.PlotGroups(scmp.ob, "Gene95", logs = T, logType = "log")
+FigureC <- sc.PlotGroups(scmp.ob, "Gene10", logs = T, logType = "log")
+FigureD <- sc.PlotGroups(scmp.ob, "Gene92", logs = T, logType = "log")
+(FigureA+FigureB)/(FigureC+FigureD)
 ```
 
 These plots illustrate the gene expression trends for selected genes, providing
