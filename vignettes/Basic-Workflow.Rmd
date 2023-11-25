@@ -148,7 +148,9 @@ default parameters:
 scmp.ob <- squeeze(scmp.ob)
 ```
 
-The console output of scMaSigPro is dynamic and displays more attributes as the analysis progresses. To view the results of the binning procedure, we can simply type the object's name into the console:
+The console output of scMaSigPro is dynamic and displays more attributes as the
+analysis progresses. To view the results of the binning procedure, we can simply
+type the object's name into the console:
 
 ```{r, eval=TRUE, echo = FALSE}
 scmp.ob
@@ -226,21 +228,30 @@ In the above model we have:
 
 * _beta0_: Accounts for differences in expression from the start to the end.
 
-* _beta1*Path1vsPath2_: Captures differences between the branching paths, assuming path A does not change along pseudotime.
+* _beta1*Path1vsPath2_: Captures differences between the branching paths,
+assuming path A does not change along pseudotime.
     
 * _beta2*scmp_binned_pseudotime_: Reflects differences across pseudotime.
 
-* _beta3*scmp_binned_pseudotimexPath1_: Represents interaction between pseudotime and path differences.
+* _beta3*scmp_binned_pseudotimexPath1_: Represents interaction between pseudotime
+and path differences.
 
 ## Step 5: Detecting Genes with Non-Flat Profiles
 
-To identify genes that demonstrate significant changes along the binned pseudotime, we use the sc.p.vector() function. This function, adapted from the original maSigPro, includes additional parameters such as the use of offsets and weights.
+To identify genes that demonstrate significant changes along the binned pseudotime,
+we use the sc.p.vector() function. This function, adapted from the original maSigPro,
+includes additional parameters such as the use of offsets and weights.
 
-scMaSigPro expects raw counts as input because it models data using a negative binomial distribution, a count distribution, so the counts should not be normalized to continuous values. To account for library size differences, it uses offsets, which are the log of size factors, similar to DESeq2.
+scMaSigPro expects raw counts as input because it models data using a negative
+binomial distribution, a count distribution, so the counts should not be normalized
+to continuous values. To account for library size differences, it uses offsets,
+which are the log of size factors, similar to DESeq2.
 
-For those who prefer to supply continuous data normalized using methods like log(1+x), the distribution can be changed during model fitting. The weight parameter accounts for variation in bin sizes, enabling uniform modeling of small and large bins.
+For those who prefer to supply continuous data normalized using methods like log(1+x),
+the distribution can be changed during model fitting. The weight parameter accounts
+for variation in bin sizes, enabling uniform modeling of small and large bins.
 
-We can execute sc.p.vector() as follows:
+We can execute `sc.p.vector()` as follows:
 
 ```{r, eval=TRUE, echo=TRUE}
 # Detect non-flat profiles
@@ -256,7 +267,7 @@ The console output reveals that scMaSigPro detected 51 genes with non-flat profi
 ## Step 6: Model Refinement
 
 Having identified genes with significant profiles, we can refine their polynomial
-models using sc.T.fit. This function evaluates each term of the polynomial model.
+models using `sc.T.fit()`. This function evaluates each term of the polynomial model.
 In our case, it will assess which among "beta0 + beta1\*Path1vsPath2 + 
 beta2\*scmp_binned_pseudotime + beta3*scmp_binned_pseudotimexPath1" 
 significantly contributes to the differences. To execute sc.T.fit, we proceed as follows:
@@ -269,7 +280,7 @@ scmp.ob
 
 ## Step 7: Selection of Genes
 
-With our refined models in hand, we now focus on identifying genes showing significant differences with pseudotime, among paths, or both. For this purpose, we use the sc.get.siggenes() function. Our aim is to select models with a relatively high $R^2$, indicating simple linear relationships. The vars parameter in sc.get.siggenes() allows us to extract different sets of significant genes. Setting vars = 'all' retrieves all non-flat profiles identified in sc.p.vector with $R^2>=$ the specified threshold. The option vars = 'group' fetches genes per path, resulting in two gene lists that demonstrate associative significance among paths, helping us identify genes associated with one path or the other. The vars = 'each' option finds significance for each term in the polynomial. In our case, we are interested in genes differentially expressed between paths and over time, so we will choose vars = 'group'.
+With our refined models in hand, we now focus on identifying genes showing significant differences with pseudotime, among paths, or both. For this purpose, we use the `sc.get.siggenes()` function. Our aim is to select models with a relatively high $R^2$, indicating simple linear relationships. The `vars` parameter in `sc.get.siggenes()` allows us to extract different sets of significant genes. Setting `vars = 'all'` retrieves all non-flat profiles identified in sc.p.vector with $R^2>=$ the specified threshold. The option `vars = 'group'` fetches genes per path, resulting in two gene lists that demonstrate associative significance among paths, helping us identify genes associated with one path or the other along the continum. The `vars = 'each'` option finds significance for each term in the polynomial. In our case, we are interested in genes differentially expressed between paths and over time, so we will choose `vars = 'group'`.
 ```{r}
 scmp.ob <- sc.get.siggenes(
   scmpObj = scmp.ob,
@@ -285,16 +296,55 @@ By setting the vars parameter to "groups", the function will add genes with $R^2
 sc.path.intersection(scmp.ob)
 ```
 
-Here we see that 
-
+Here, we observe that 23 genes belong to both Path2vsPath1 and Path1, indicating
+that these genes not only change along pseudotime but also exhibit significantly
+different expression between the two paths. Additionally, there are 11 genes
+uniquely associated with Path2vsPath1. This implies that Path2 has 11 genes that
+are significantly differentially expressed over time, using Path1 genes as a
+reference. Let's explore a few of these genes:
 ```{r}
 a <- sc.PlotGroups(scmp.ob, "Gene9", logs = T, logType = "log")
 b <- sc.PlotGroups(scmp.ob, "Gene95", logs = T, logType = "log")
 c <- sc.PlotGroups(scmp.ob, "Gene10", logs = T, logType = "log")
 d <- sc.PlotGroups(scmp.ob, "Gene92", logs = T, logType = "log")
-ggpubr::ggarrange(a, b, c, d, nrow = 2, ncol = 2)
+ggpubr::ggarrange(a, b, c, d, nrow = 2, ncol = 2,
+                  labels = c("A.", "B.", "C.", "D."))
 ```
 
+These plots illustrate the gene expression trends for selected genes, providing
+insights into their behavior in different paths. Fortunately, since we are using
+simulated data, we can validate these trends by extracting gene-level metadata
+from our simulated object:
+```{r}
+groundTruth <- as.data.frame(splat.sim@rowRanges@elementMetadata)
+print(groundTruth[groundTruth$Gene %in% c("Gene9", "Gene95", "Gene10", "Gene92"),c(1,2,6,8)])
+```
+
+The ground truth data reveals, for example, that Gene9 has a base gene mean of 0.5, a fold change of 1.5 in Path1, and remains at the same expression level for Path2. This trend is accurately captured in our analysis, as shown in Figure-A. Similarly, Gene92 does not show a significant difference between the paths but demonstrates a downtrend along pseudotime in both paths, a finding we successfully recapitulate in Figure-D.
+
+## Step 8: Cluster Trends
+To discern general trends among the genes, we can cluster them together using the sc.cluster.features function. By default, this function employs hierarchical clustering (hclust) and will divide the genes into 4 clusters.
+```{r}
+scmp.ob <- sc.cluster.features(
+    scmp.ob, 
+    cluster.method = "hclust",
+    k = 4)
+```
+
+Once the genes are clustered, we can visualize their profiles as follows:
+
+```{r}
+sc.PlotProfiles(scmp.ob, groupBy = "feature", logs = T)
+```
+
+This visualization helps in understanding the collective behavior of genes
+within each cluster, highlighting patterns and trends that might be relevant for
+further biological interpretation.
+
+This concludes the basic usage quick start guide of scMaSigPro. Please refer to
+other vignettes for more in-depth analysis.
+
+---
 
 ## Session Info
 ```{r}

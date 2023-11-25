@@ -6,96 +6,109 @@ Implementation of MaSigPro for scRNA-Seq Data
 
 [![R-CMD-check](https://github.com/spriyansh/scMaSigPro/actions/workflows/r.yml/badge.svg)](https://github.com/spriyansh/scMaSigPro/actions/workflows/r.yml)
 
+---
 
 ## Introduction
 
-ScMaSigPro is an R package designed to analyze single-cell trajectory data, acting as an adaptation of [MaSigPro](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html). This package incorporates pseudotime as a temporal covariate into the polynomial Generalized Linear Model (GLM) used by MaSigPro. This feature empowers users to investigate differentially expressed genes across trajectory branches over pseudotime.
+`scMaSigPro` is an R package designed for analyzing single-cell RNA-seq data over pseudotime. Building on the [maSigPro](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html) package, it identifies genes with significant expression changes across branching paths in a pseudotime-ordered dataset. This guide provides a step-by-step workflow for ScMaSigPro, making it accessible for users.
 
 ## Installation
+To install `scMaSigPro` from GitHub, use the following R code:
 
-### Step-1: Installation
 ```
 # Install devtools if not already installed
-if (!requireNamespace("devtools", quietly = TRUE))
+if (!requireNamespace("devtools", quietly = TRUE)) {
     install.packages("devtools")
+}
 
-# Install scMaSigPro (token will be removed once the directory is public)
+# Install scMaSigPro
 devtools::install_github("spriyansh/scMaSigPro",
-                         ref = "main",
-                         auth_token = "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"
-                         )
+                         ref = "dev",
+                         auth_token = "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",
+                         build_vignettes = TRUE,
+                         build_manual = TRUE,
+                         upgrade = "never",
+                         force = TRUE,
+                         quiet = TRUE)
 ```
-## Basic Usage
-The basic workflow of scMaSigPro involves the following steps:
 
-### Set Seed for Reproducibility
+---
+
+## Basic Usage
+The basic workflow of `scMaSigPro` involves the following steps:
+
+### 1. Load Package and Dataset
 ```
 set.seed(123)
-```
-
-### Load the scMaSigPro Package and Dataset
-
-```
 library(scMaSigPro)
-data("Sim2Path", package = "scMaSigPro")
+data("splat.sim", package = "scMaSigPro")
 ```
 
-### Convert to scMaSigPro Object
+### 2. Create `scMaSigPro` Object
 
 ```
-scmp.sce <- as_scmp(object = sim.sce, from = "sce", ...)
+# Helper Function to convert annotated SCE object to scmpObject
+scmp.ob <- as_scmp(
+  object = splat.sim, from = "sce",
+  align_pseudotime = FALSE,
+  verbose = TRUE,
+  additional_params = list(
+    labels_exist = TRUE,
+    existing_pseudotime_colname = "Step",
+    existing_path_colname = "Group"
+  )
+)
 ```
 
-### Pseudo-Bulk Processing
+### 3. Pseudo-bulking with `squeeze()`
+
+This function discretizes a continuous pseudotime column into bins:
 
 ```
 scmp.sce <- squeeze(scmp.sce, ...)
 ```
 
-Design Matrix Creation
+### 4. Setting up the Polynomial Model
 
 ```
 scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 2)
 ```
 
-Run P-vector Calculation
+### 5. Detecting Genes with Non-Flat Profiles
 
 ```
 scmp.sce <- sc.p.vector(scmp.sce, ...)
 ```
 
-T-fit Calculation
+### 6. Model Refinement
 
 ```
 scmp.sce <- sc.T.fit(scmp.sce, ...)
 ```
 
-Gene Selection with R²
+### 7. Gene selection with $R^2$
 
 ```
 scmp.sce <- sc.get.siggenes(scmpObj = scmp.sce, ...)
 ```
 
-Gene Trend Visualization
+### 8. Gene Trend Visualization
 
 ```
-sc.PlotGroups(scmpObj = scmp.sce, feature_id = "Gene138", ...)
+scmp.ob <- sc.cluster.features(scmp.ob, ...)
+sc.PlotProfiles(scmp.ob, groupBy = "feature")
 ```
 
-For detailed instructions, please refer to the vignette included in the package, which contains comprehensive guidance and explanations for each step in the analysis process.
+For detailed instructions, please refer to the quick start vignette included in the package, which contains comprehensive guidance and explanations for each step in the analysis process.
 
-# ... continue with the workflow steps as outlined above ...
-For the full example and explanation of each function, please see the vignette.
+## Contributing
+Contributions, including bug reports, suggestions, and pull requests, are welcome.
 
-Contributing
-We welcome contributions from the community, including bug reports, suggestions, and pull requests. Please read CONTRIBUTING.md for details on our code of conduct, and the process for submitting pull requests to us.
 
-License
+## License
 This project is licensed under the MIT - see the LICENSE.md file for details.
 
-Citation
-If you use scMaSigPro in your research, please cite:
+## Citation
+If you use `scMaSigPro` in your research, please cite:
 
-Priyansh Srivastava (2023).
-
-
+---
