@@ -8,6 +8,7 @@
 #' \code{sc.T.fit} has been run.
 #' @param rsq Cut-off level at the R-squared value for the stepwise regression fit.
 #' @param includeInflu description
+#' @param Q overall model significance
 #' Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).
 #' @param vars Variables for which to extract significant genes. There are 3 possible values:
 #' \itemize{
@@ -49,15 +50,59 @@
 #' @importFrom maSigPro get.siggenes
 #'
 #' @export
-sc.get.siggenes <- function(scmpObj, rsq = 0.7,
+sc.get.siggenes.k <- function(scmpObj, rsq = 0.7,
+                            Q = scmpObj@addParams@Q, 
                             vars = c("all", "each", "groups"),
                             significant.intercept = "dummy",
+                            each.Q = 0.05,
                             includeInflu = TRUE) {
   # Check Validity of the object
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
   )
-
+    
+    assert_that(
+        all(
+            vars %in% c("all", "each", "groups")
+        ),
+        msg = "Invalid selction for 'vars'"
+    )
+    
+    # Initiate empty list
+    sig.list <- list()
+    
+    # Extract sol
+    sol <- showSol(scmpObj, includeInflu = includeInflu)
+    
+    # Replace the NAs with corresponding values
+    sol[is.na(sol$`p-value`), "p-value"] <- 1
+    sol[is.na(sol$`R-squared`), "R-squared"] <- 0
+    sol[,!(colnames(sol) %in% c("p-value", "R-squared"))][is.na(sol[,!(colnames(sol) %in% c("p-value", "R-squared"))])] <- 1
+    
+    # Filter based on RSQ and P-value
+    sol <- sol[sol$`p-value` <= Q, ]
+    sol <- sol[sol$`R-squared` >= rsq, ]
+    
+    # If`all`
+    if (vars == "all"){
+        
+        # Return a list of gene names
+        sig.list[["all"]] <- rownames(sol)
+    }
+    else if(vars == "each"){
+        
+        # Subset
+        sol.sub <- sol[,!(colnames(sol) %in% c("p-value",  "R-squared"))]
+        
+        # Get the genes
+        sig.list <- apply(sol.sub, 2, function(column) row.names(sol.sub)[which(column < each.Q)])
+        names(sig.list) <- stringr::str_remove(names(sig.list), "p.valor_")
+        
+        # Return per terms
+        return(sig.list)
+        
+    }
+    print(sig.list)
   # Create a named tstep
   tstep <- list(
     dis = scmpObj@edesign@dis,

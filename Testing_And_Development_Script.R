@@ -9,12 +9,12 @@ library(scMaSigPro)
 
 # Step-1: Load a dataset for testing
 ## This dataset will be avaible as the part of the package
-data("Sim2Path", package = "scMaSigPro")
+data("splat.sim", package = "scMaSigPro")
 
 # Step-2: Convert to ScMaSigpro Object
 ## Here we will convert the SCE object to scMaSigPro object
 scmp.sce <- as_scmp(
-  object = sim.sce, from = "sce",
+  object = splat.sim, from = "sce",
   align_pseudotime = T,
   path_prefix = "path",
   root_label = "NULL",
@@ -54,21 +54,54 @@ scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 2)
 # Step-5: Run P-vector
 # offset_F_UseWeights_F_UseInverseWeights_F_UseBinWeightAsOffset_T
 scmp.sce <- sc.p.vector(scmp.sce,
-  parallel = F, useWeights = T,
+  parallel = T, useWeights = T,
   Q = 0.05,
-  offset = T, useInverseWeights = F, min.obs = 13,
-  logOffset = T, globalTheta = F
+  offset = T, useInverseWeights = F, min.obs = 1,
+  logOffset = T, globalTheta = T
 )
 
 # Step-6: Run T.fit
 scmp.sce <- sc.T.fit(scmp.sce, parallel = F, verbose = T)
 
 # Step-7: Select with R2
-scmp.sce <- sc.get.siggenes(
+b <- sc.get.siggenes.k(
   scmpObj = scmp.sce,
   vars = "each",
   significant.intercept = "all"
 )
+
+# Create a named tstep
+tstep <- list(
+    dis = scmp.sce@edesign@dis,
+    edesign = scmp.sce@edesign@edesign,
+    groups.vector = scmp.sce@scTFit@groups.vector,
+    sol = showSol(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE),
+    coefficients = showCoeff(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE),
+    sig.profiles = showSigProf(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE),
+    group.coeffs = scmp.sce@scTFit@group.coeffs
+)
+
+
+a <- get.siggenes(tstep = tstep,
+             vars = "each")
+
+
+
+
+sigs <- showSigProf(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE)
+summary <- rownames(showSigProf(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE))
+
+coeffs <- coefficients
+gc <- group.coeffs
+ps <- sig.pvalues
+sig.genes <- list(sigs, coeffs, gc, ps, nrow(sig.profiles), 
+                  edesign, groups.vector)
+names(sig.genes) <- c("sig.profiles", "coefficients", 
+                      "group.coeffs", "sig.pvalues", "g", "edesign", 
+                      "groups.vector")
+
+
+
 
 sc.path.intersection(scmp.sce, show_sets_size = F)
 
