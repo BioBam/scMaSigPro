@@ -27,22 +27,11 @@ sc.path.intersection <- function(scmpObj, min_interaction_size = 2,
   )
 
   # Check if siggenes results exist for groups
-  assert_that(!S4Vectors::isEmpty(scmpObj@sig.genes@summary),
+  assert_that(!S4Vectors::isEmpty(scmpObj@sig.genes@sig.genes),
     msg = "'sig.genes@Summary' slot is empty, please run 'sc.get.siggenes'"
   )
 
-  # Check if more 1 path exist
-  assert_that(ncol(scmpObj@sig.genes@summary %>% as.data.frame()) >= 2,
-    msg = "'sig.genes@Summary' slot is empty, please run 'sc.get.siggenes'"
-  )
-
-  # Create nested vector list for the genes
-  gene_list <- lapply(scmpObj@sig.genes@summary, function(path) {
-    # Drop Empty Sets
-    path.genes <- path[!(path == " ")]
-    return(path.genes)
-  })
-
+  gene_list <- scmpObj@sig.genes@sig.genes
   # Create a unique list of all genes
   all_genes <- unique(unlist(gene_list))
 

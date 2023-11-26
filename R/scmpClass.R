@@ -19,11 +19,10 @@
 #' @importFrom methods is new as
 #' @keywords classes
 
-
+# SigClass
 setClass(
   "sigClass",
   representation(
-    summary = "ANY",
     sig.genes = "list",
     feature.clusters = "list"
   ),
@@ -33,7 +32,6 @@ setClass(
     }
   },
   prototype = list(
-    summary = list(),
     sig.genes = list(),
     feature.clusters = list()
   )
@@ -110,7 +108,7 @@ scMaSigProClass <- function(sce = new("SingleCellExperiment"), # Remove default 
     compress.sce = compress.sce,
     edesign = edesign,
     addParamClass = addParams,
-    sig.genes = new("sigClass"),
+    sig.genes = sig.genes, # new("sigClass"),
     distribution = distribution
   )
 }

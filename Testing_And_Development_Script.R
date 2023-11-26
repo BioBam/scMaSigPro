@@ -63,45 +63,30 @@ scmp.sce <- sc.p.vector(scmp.sce,
 # Step-6: Run T.fit
 scmp.sce <- sc.T.fit(scmp.sce, parallel = F, verbose = T)
 
-# Step-7: Select with R2
-b <- sc.get.siggenes.k(
-  scmpObj = scmp.sce,
-  vars = "each",
-  significant.intercept = "all"
-)
-
 # Create a named tstep
 tstep <- list(
-    dis = scmp.sce@edesign@dis,
-    edesign = scmp.sce@edesign@edesign,
-    groups.vector = scmp.sce@scTFit@groups.vector,
-    sol = showSol(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE),
-    coefficients = showCoeff(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE),
-    sig.profiles = showSigProf(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE),
-    group.coeffs = scmp.sce@scTFit@group.coeffs
+  dis = scmp.sce@edesign@dis,
+  edesign = scmp.sce@edesign@edesign,
+  groups.vector = scmp.sce@scTFit@groups.vector,
+  sol = showSol(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE),
+  coefficients = showCoeff(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE),
+  sig.profiles = showSigProf(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE),
+  group.coeffs = scmp.sce@scTFit@group.coeffs
 )
 
 
-a <- get.siggenes(tstep = tstep,
-             vars = "each")
+a <- get.siggenes(
+  tstep = tstep,
+  vars = "groups",
+  significant.intercept = "none"
+)
 
-
-
-
-sigs <- showSigProf(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE)
-summary <- rownames(showSigProf(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE))
-
-coeffs <- coefficients
-gc <- group.coeffs
-ps <- sig.pvalues
-sig.genes <- list(sigs, coeffs, gc, ps, nrow(sig.profiles), 
-                  edesign, groups.vector)
-names(sig.genes) <- c("sig.profiles", "coefficients", 
-                      "group.coeffs", "sig.pvalues", "g", "edesign", 
-                      "groups.vector")
-
-
-
+# Step-7: Select with R2
+scmp.sce <- sc.get.siggenes(
+  scmpObj = scmp.sce,
+  vars = "groups",
+  significant.intercept = "none"
+)
 
 sc.path.intersection(scmp.sce, show_sets_size = F)
 
@@ -113,8 +98,16 @@ sc.PlotGroups(
   logType = "log"
 )
 
-scmp.sce <- sc.cluster.features(scmp.sce, k = 9)
+scmp.sce <- sc.cluster.features(scmp.sce, k = 4)
+
+
+
 sc.PlotProfiles(scmp.sce, groupBy = "feature")
+
+
+
+
+
 
 # Developing Methods for monocle3
 # test real Data

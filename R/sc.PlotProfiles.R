@@ -21,8 +21,10 @@ sc.PlotProfiles <-
            ylab = "Pseudobulk Expression",
            smoothness = 0.01,
            logs = TRUE,
-           logType = "log10",
-           groupBy = "coeff") {
+           logType = "log",
+           groupBy = "coeff",
+           includeInflu = FALSE) {
+      
     # Invoke Variables
     pb.counts <- "pb.counts"
     pooled.time <- "pooled.time"
@@ -143,18 +145,19 @@ sc.PlotProfiles <-
       # if log is requestion
       if (logs) {
         if (logType == "log2") {
-          points.df$pb.counts <- log2(points.df$pb.counts)
-          ylab <- paste0("log2(", ylab, ")")
+          points.df$pb.counts <- log2(points.df$pb.counts + 1)
+          ylab <- paste0("log2(", ylab, " +1)")
         } else if (logType == "log") {
-          points.df$pb.counts <- log(points.df$pb.counts)
-          ylab <- paste0("log(", ylab, ")")
+          points.df$pb.counts <- log(points.df$pb.counts + 1)
+          ylab <- paste0("log(", ylab, "+1)")
         } else if (logType == "log10") {
-          points.df$pb.counts <- log10(points.df$pb.counts)
-          ylab <- paste0("log10(", ylab, ")")
+          points.df$pb.counts <- log10(points.df$pb.counts + 1)
+          ylab <- paste0("log10(", ylab, "+1)")
         } else {
           stop("'logType' should be one of 'log2', 'log10', 'log'")
         }
       }
+      
       if (group_by == "coeff") {
         plot.df <- curve.df
         plot.df[["feature_id"]] <- feature_id
@@ -171,15 +174,22 @@ sc.PlotProfiles <-
 
     # Combine
     cluster.trend.data <- do.call("rbind", trend.data.list)
-
+    
     # Assuming feature_id and cluster_id are factors
-    p <- ggplot(data = cluster.trend.data, aes(x = .data$x, y = log(.data$y), group = interaction(.data$feature_id, .data$path), color = .data$path)) +
-      geom_line(aes(linetype = .data$path), size = 0.4) + # Draw lines
-      geom_point(size = 1, shape = 21, alpha = 0.5, stroke = 1) + # Draw points
+    p <- ggplot(data = cluster.trend.data, 
+                aes(x = .data$x, y = .data$y, 
+                    group = interaction(.data$feature_id, .data$path), 
+                    color = .data$path, shape = .data$path, linetype = .data$path)) +
+      geom_line(
+          linewidth = 0.4
+          ) + # Draw lines
+      geom_point(
+          #size = 1, alpha = 0.5, stroke = 1
+          ) + # Draw points
       facet_wrap(~ .data$cluster_id, scales = "free_y") + # Create a panel for each cluster_id
       scale_color_manual(values = colorConesa(length(unique(cluster.trend.data$path)))) + # Custom colors for paths
       theme_classic(base_size = 12) +
-      # geom_smooth(data = cluster.trend.data, aes(x = x, y = log(y), color = path), method = "loess", se = FALSE, linewidth = 0.7, color = "black")+
+       #geom_smooth(data = cluster.trend.data, aes(x = x, y = y), method = "loess", se = FALSE, linewidth = 0.7, color = "black")+
       theme(
         strip.background = element_blank(),
         strip.text.x = element_text(size = 10, angle = 0),
@@ -188,7 +198,7 @@ sc.PlotProfiles <-
         panel.grid.minor = element_blank(),
         axis.text.x = element_text(angle = 45, hjust = 1) # Rotate x-axis text if necessary
       ) +
-      labs(title = "Gene Expression over Pseudotime", color = "Path") +
-      guides(color = guide_legend(title = "Path")) # Adjust legend for paths
+      labs(title = "Gene Expression over Pseudotime", color = "Path") + xlab(xlab) + ylab(ylab)
+      #guides(color = guide_legend(title = "Path")) # Adjust legend for paths
     return(p)
   }

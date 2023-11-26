@@ -310,10 +310,10 @@ By setting the vars parameter to "groups", the function will add genes with $R^2
 sc.path.intersection(scmp.ob)
 ```
 
-Here, we observe that 23 genes belong to both Path2vsPath1 and Path1, indicating
+Here, we observe that 21 genes belong to both Path2vsPath1 and Path1, indicating
 that these genes not only change along pseudotime but also exhibit significantly
-different expression between the two paths. Additionally, there are 11 genes
-uniquely associated with Path2vsPath1. This implies that Path2 has 11 genes that
+different expression between the two paths. Additionally, there are 12 genes
+uniquely associated with Path2vsPath1. This implies that Path2 has 12 genes that
 are significantly differentially expressed over time, using Path1 genes as a
 reference. Let's explore a few of these genes:
 ```{r, "trend",eval=TRUE, echo=TRUE}

@@ -22,7 +22,7 @@ sc.PlotGroups <-
            ylab = "Pseudobulk Expression",
            smoothness = 0.01,
            logs = TRUE,
-           logType = "log10") {
+           logType = "log") {
     # Invoke Variables
     pb.counts <- "pb.counts"
     pooled.time <- "pooled.time"
