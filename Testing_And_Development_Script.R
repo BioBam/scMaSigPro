@@ -86,7 +86,7 @@ scmp.sce <- sc.get.siggenes(
   scmpObj = scmp.sce,
   vars = "groups",
   includeInflu = T,
-  significant.intercept = "none"
+  significant.intercept = "dummy"
 )
 
 sc.path.intersection(scmp.sce, show_sets_size = F)
@@ -99,13 +99,10 @@ sc.PlotGroups(
   logType = "log"
 )
 
-scmp.sce <- sc.cluster.features(scmp.sce, k = 9, includeInflu = T)
+scmp.sce <- sc.cluster.features(scmp.sce, k = 25, includeInflu = T)
 
 
-sc.PlotProfiles(scmp.sce, groupBy = "feature")
-
-
-
+sc.PlotProfiles(scmp.sce, groupBy = "coeff")
 
 
 
