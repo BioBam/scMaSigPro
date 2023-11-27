@@ -8,8 +8,8 @@
 #' each variable belongs to.
 #' @slot edesign A data frame describing the experimental design. Rows must contain
 #' cells and columns experiment descriptors. The matrix must be binarized.
-#' @slot poly_degree Integer with the polynomial degree to fit the regression. 1 
-#' specifies a linear regression, 2 a quadratic regression, etc.  
+#' @slot poly_degree Integer with the polynomial degree to fit the regression. 1
+#' specifies a linear regression, 2 a quadratic regression, etc.
 #'
 #' @name edesignClass
 #' @aliases edesignClass-class

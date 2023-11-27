@@ -1,6 +1,6 @@
 #' @title Homogenize Bins of a Dataframe
 #'
-#' @description 
+#' @description
 #' Adjust the bins of a dataframe based on a specified maximum bin size threshold.
 #' It checks if the bin size is too large relative to this threshold.
 #' If a bin is too large, it will be split into two equal parts until all bins are

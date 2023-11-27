@@ -14,7 +14,7 @@ A numeric value representing the size of the bin (number of elements
 in the "cluster.members" column).
 }
 \description{
-This function calculates the size of a bin based on the number of elements in
+`calc_bin_size()` calculates the bin size based on the number of elements in
 the "cluster.members" column of the input data frame.
 }
 \author{

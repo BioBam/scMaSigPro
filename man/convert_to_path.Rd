@@ -17,7 +17,7 @@ A character vector with the same length as the input where
 unique elements, excluding "root", are renamed to "Path1", "Path2", etc.
 }
 \description{
-This function transforms a vector by renaming its unique elements
+`convert_to_path()` transforms a vector by renaming its unique elements
 (excluding the "root" element) to a sequence named "Path1", "Path2", etc.
 }
 \keyword{internal}

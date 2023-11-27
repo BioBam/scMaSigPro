@@ -33,7 +33,7 @@
 #'
 #' @importFrom SingleCellExperiment colData
 #' @importFrom assertthat assert_that
-#' 
+#'
 #' @keyword internal
 #'
 annotate_sce <- function(sce,

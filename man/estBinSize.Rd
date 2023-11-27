@@ -11,25 +11,35 @@ estBinSize(time_vector, nPoints, drop_fac, bin_method)
 
 \item{nPoints}{An integer. The total number of data points in time_vector.}
 
-\item{drop_fac}{A numeric. A factor to adjust the calculated bin size. The estimated bin size is multiplied by this value. It helps in refining the bin size when the original bin size calculation results in too many empty bins.}
+\item{drop_fac}{A numeric. A factor to adjust the calculated bin size. The 
+estimated bin size is multiplied by this value. It helps in refining the bin 
+size when the original bin size calculation results in too many empty bins.}
 
-\item{bin_method}{A character string. The bin_method to estimate the bin size. Possible values include "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal".}
+\item{bin_method}{A character string. The bin_method to estimate the bin size. 
+Possible values include "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", 
+and "Scott.Normal". See details.}
 }
 \value{
 A numeric value representing the estimated bin size, adjusted by the drop_fac.
 }
 \description{
-This function calculates the optimal bin size for discretizing a continuous variable. It uses various bin_methods for bin size estimation such as "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal".
+`estBinSize()` calculates the optimal bin size for discretizing a continuous variable. 
+It uses various bin_methods for bin size estimation such as "Freedman.Diaconis", 
+"Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal".
 }
 \details{
-The function uses various rules for calculating the bin size:
-- "Freedman.Diaconis": bin size is proportional to the interquartile range (IQR) and inversely proportional to the cube root of the number of data points.
-- "Sqrt": bin size is proportional to the square root of the number of data points.
-- "Sturges": bin size is proportional to the log (base 2) of the number of data points.
-- "Rice": bin size is proportional to twice the cube root of the number of data points.
-- "Doane": bin size accounts for data skewness in the calculation.
-- "Scott.Normal": bin size is proportional to the standard deviation and inversely proportional to the cube root of the number of data points, assuming the data is nearly normal in distribution.
-
+The function contains various rules for calculating the bin size:
+\describe{
+  \item{"Freedman.Diaconis"}{bin size is proportional to the interquartile range 
+  (IQR) and inversely proportional to the cube root of the number of data points.}
+  \item{"Sqrt"}{bin size is proportional to the square root of the number of data points.}
+  \item{"Sturges"}{bin size is proportional to the log (base 2) of the number of data points.}
+  \item{"Rice"}{bin size is proportional to twice the cube root of the number of data points.}
+  \item{"Doane"}{bin size accounts for data skewness in the calculation.}
+  \item{"Scott.Normal"}{bin size is proportional to the standard deviation and 
+  inversely proportional to the cube root of the number of data points, assuming 
+  the data is nearly normal in distribution.}
+}
 After estimating the bin size, it is scaled down by a factor specified by 'drop_fac'.
 }
 \author{
