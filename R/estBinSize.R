@@ -1,7 +1,7 @@
-#' estBinSize
+#' @title estBinSize
 #'
 #' @description
-#' This function calculates the optimal bin size for discretizing a continuous variable. It uses various bin_methods for bin size estimation such as "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal".
+#' `estBinSize()` calculates the optimal bin size for discretizing a continuous variable. It uses various bin_methods for bin size estimation such as "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal".
 #'
 #' @param time_vector A numeric vector. The time series data points that need to be binned.
 #' @param nPoints An integer. The total number of data points in time_vector.

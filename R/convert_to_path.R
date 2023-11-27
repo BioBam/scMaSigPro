@@ -1,7 +1,7 @@
 #' @title Convert Vector Elements to Path Names (Internal)
 #'
 #' @description
-#' This function transforms a vector by renaming its unique elements
+#' `convert_to_path()` transforms a vector by renaming its unique elements
 #' (excluding the "root" element) to a sequence named "Path1", "Path2", etc.
 #'
 #' @param vec A character vector where elements may be repeated and

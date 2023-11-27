@@ -1,6 +1,7 @@
-#' Create scMaSigProClass Object
+#' @title Create scMaSigProClass Object
 #'
-#' This function initializes a scMaSigProClass object with the given counts,
+#' @description
+#' `create_scmpObj()` initializes a scMaSigProClass object with the given counts,
 #' cell level metadata, and other optional parameters.
 #'
 #' @param counts A matrix containing the raw expression counts.
@@ -16,7 +17,6 @@
 #'
 #'
 #' @export
-#'
 
 # Create scmp
 create_scmpObj <- function(counts,

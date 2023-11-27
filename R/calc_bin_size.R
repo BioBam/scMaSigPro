@@ -1,7 +1,7 @@
 #' @title Calculate Bin Size Function
 #'
 #' @description
-#' This function calculates the bin size based on the number of elements in
+#' `calc_bin_size()` calculates the bin size based on the number of elements in
 #' the "cluster.members" column of the input data frame.
 #'
 #' @param x A data frame containing the "cluster.members" column.
