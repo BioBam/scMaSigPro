@@ -11,7 +11,9 @@ sc.PlotGroups(
   ylab = "Pseudobulk Expression",
   smoothness = 0.01,
   logs = TRUE,
-  logType = "log"
+  logType = "log",
+  pseudoCount = 1,
+  significant = TRUE
 )
 }
 \arguments{
@@ -28,6 +30,10 @@ sc.PlotGroups(
 \item{logs}{Whether to plot log of counts}
 
 \item{logType}{Log type required}
+
+\item{pseudoCount}{add pseucount for log}
+
+\item{significant}{description}
 }
 \value{
 Generates a plot.

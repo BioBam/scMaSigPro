@@ -3,6 +3,7 @@
 export(.scmp_show)
 export(as_scmp)
 export(create_scmpObj)
+export(get.features)
 export(sc.PlotGroups)
 export(sc.PlotProfiles)
 export(sc.T.fit)

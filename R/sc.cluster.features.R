@@ -55,16 +55,16 @@ sc.cluster.features <- function(scmpObj, includeInflu = TRUE,
   sigCounts[is.na(sigCounts)] <- 0
   sigCoeff <- showCoeff(scmpObj = scmpObj, includeInflu = includeInflu)
   sigCoeff[is.na(sigCoeff)] <- 0
-  
+
   # Get the names of the genes that are significant
   sig_gene_list <- scmpObj@sig.genes@sig.genes
   sig_genes <- unlist(sig_gene_list)
   names(sig_genes) <- NULL
   sig_genes <- unique(sig_genes)
-  
-  sigCounts <- sigCounts[rownames(sigCounts) %in% sig_genes, , drop =FALSE]
-  sigCoeff <- sigCoeff[rownames(sigCoeff) %in% sig_genes, , drop =FALSE]
-  
+
+  sigCounts <- sigCounts[rownames(sigCounts) %in% sig_genes, , drop = FALSE]
+  sigCoeff <- sigCoeff[rownames(sigCoeff) %in% sig_genes, , drop = FALSE]
+
   # Create list for
   matrix.list <- list(
     sigCounts = sigCounts,

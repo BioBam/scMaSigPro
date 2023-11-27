@@ -51,7 +51,8 @@
 #' @importFrom maSigPro get.siggenes
 #'
 #' @export
-sc.get.siggenes <- function(scmpObj, rsq = 0.7,
+sc.get.siggenes <- function(scmpObj,
+                            rsq = 0.7,
                             Q = scmpObj@addParams@Q,
                             vars = c("all", "each", "groups"),
                             significant.intercept = "dummy",

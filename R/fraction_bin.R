@@ -21,7 +21,7 @@
 #' #' @importFrom dplyr mutate group_by summarise
 #' #' @importFrom magrittr %>%
 #' #' @importFrom stringr str_split_1
-#' 
+#'
 #' sc.fraction.bin <- function(scmpObj,
 #'                             pseudotime_colname = scmpObj@addParams@pseudotime_colname,
 #'                             path_colname = scmpObj@addParams@path_colname,
@@ -29,7 +29,7 @@
 #'   # Extract necessary columns from compressed and cell data
 #'   compressedData <- as.data.frame(scmpObj@compress.sce@colData)
 #'   cellData <- as.data.frame(scmpObj@sce@colData)
-#' 
+#'
 #'   # Add cell identifier to cell data
 #'   cellDataSubset <- cellData[, c(
 #'     pseudotime_colname,
@@ -37,7 +37,7 @@
 #'     annotation_col
 #'   ), drop = FALSE]
 #'   cellDataSubset[["cell"]] <- rownames(cellDataSubset)
-#' 
+#'
 #'   # Process compressed data
 #'   barPlotData <- lapply(1:nrow(compressedData), function(i) {
 #'     rowVector <- compressedData[i, , drop = FALSE]
@@ -49,11 +49,11 @@
 #'       path = rep(rowVector[[scmpObj@addParams@path_colname]], length(cells))
 #'     )
 #'   }) %>% do.call("rbind", .)
-#' 
+#'
 #'   # Merge with cell data to include additional information
 #'   mergedData <- merge(cellDataSubset, barPlotData, by = "cell")
 #'   mergedData$row_time <- as.numeric(mergedData$row_time)
-#' 
+#'
 #'   # Prepare data for plotting
 #'   mergedData <- mergedData %>%
 #'     mutate(
@@ -61,17 +61,17 @@
 #'       Path = factor(Path, levels = c("Path1", "Path2")),
 #'       cell_type = factor(!!sym(annotation_col), levels = unique(!!sym(annotation_col)))
 #'     )
-#' 
+#'
 #'   # Create summary data
 #'   dfSummary <- mergedData %>%
 #'     group_by(row_time, Path, cell_type) %>%
 #'     summarise(Count = n(), .groups = "drop") %>%
 #'     mutate(interaction = as.numeric(row_time) +
 #'       (as.numeric(Path) - 1) * (0.9 / length(unique(Path))))
-#' 
-#' 
+#'
+#'
 #'   dfSummary$row_time <- as.numeric(dfSummary$row_time)
-#' 
+#'
 #'   # Generate and return plot
 #'   dodgeWidth <- 0.9 / length(unique(dfSummary$Path))
 #'   dfSummary$row_time <- factor(dfSummary$row_time, levels = sort(unique(dfSummary$row_time)))
@@ -84,6 +84,6 @@
 #'     labs(y = "Count", fill = "Cell Type") +
 #'     theme_minimal() +
 #'     theme(axis.text.x = element_text(angle = 90, vjust = 0.5))
-#' 
+#'
 #'   return(p)
 #' }
