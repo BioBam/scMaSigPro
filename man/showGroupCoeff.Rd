@@ -4,7 +4,7 @@
 \alias{showGroupCoeff}
 \title{Show or Return the Solution}
 \usage{
-showGroupCoeff(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE)
+showGroupCoeff(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE)
 }
 \arguments{
 \item{scmpObj}{an object of class 'scMaSigProClass'. This object should contain the computed solution.}

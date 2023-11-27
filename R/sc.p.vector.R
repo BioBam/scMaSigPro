@@ -134,7 +134,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     compressed.data <- as.data.frame(scmpObj@compress.sce@colData)
 
     # Get bin_name and bin size
-    weight_df <- log(compressed.data[, c(scmpObj@addParams@bin_size_colname), drop = TRUE])
+    weight_df <- compressed.data[, c(scmpObj@addParams@bin_size_colname), drop = TRUE]
 
     # Set names
     names(weight_df) <- rownames(compressed.data)

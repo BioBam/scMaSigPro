@@ -8,6 +8,8 @@
 #' \code{sc.T.fit} has been run.
 #' @param rsq Cut-off level at the R-squared value for the stepwise regression fit.
 #' @param includeInflu description
+#' @param Q overall model significance
+#' @param term.Q Term wise significance
 #' Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).
 #' @param vars Variables for which to extract significant genes. There are 3 possible values:
 #' \itemize{
@@ -50,39 +52,124 @@
 #'
 #' @export
 sc.get.siggenes <- function(scmpObj, rsq = 0.7,
+                            Q = scmpObj@addParams@Q,
                             vars = c("all", "each", "groups"),
                             significant.intercept = "dummy",
+                            term.Q = 0.05,
                             includeInflu = TRUE) {
   # Check Validity of the object
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
   )
 
-  # Create a named tstep
-  tstep <- list(
-    dis = scmpObj@edesign@dis,
-    edesign = scmpObj@edesign@edesign,
-    groups.vector = scmpObj@scTFit@groups.vector,
-    sol = showSol(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
-    coefficients = showCoeff(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
-    sig.profiles = showSigProf(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
-    group.coeffs = scmpObj@scTFit@group.coeffs
+  assert_that(
+    all(
+      vars %in% c("all", "each", "groups")
+    ),
+    msg = "Invalid selction for 'vars'"
   )
 
+  # Initiate empty list
+  sig.list <- list()
 
-  sig.genes.s3 <- get.siggenes(tstep,
-    rsq = rsq, add.IDs = FALSE, IDs = NULL, matchID.col = 1,
-    only.names = FALSE, vars = vars,
-    significant.intercept = significant.intercept,
-    groups.vector = NULL, trat.repl.spots = "none",
-    r = 0.7
-  )
+  # Extract sol
+  sol <- showSol(scmpObj, includeInflu = includeInflu)
 
-  # Call the maSigPro get sig
+  # Replace the NAs with corresponding values
+  sol[is.na(sol$`p-value`), "p-value"] <- 1
+  sol[is.na(sol$`R-squared`), "R-squared"] <- 0
+  sol[, !(colnames(sol) %in% c("p-value", "R-squared"))][is.na(sol[, !(colnames(sol) %in% c("p-value", "R-squared"))])] <- 1
+
+  # Filter based on RSQ and P-value
+  sol <- sol[sol$`p-value` <= Q, ]
+  sol <- sol[sol$`R-squared` >= rsq, ]
+
+  # If`all`
+  if (vars == "all") {
+    # Return a list of gene names
+    sig.list[["all"]] <- rownames(sol)
+  } else if (vars == "each") {
+    # Subset
+    sol.sub <- sol[, !(colnames(sol) %in% c("p-value", "R-squared")), drop = FALSE]
+
+    # Get the genes
+    sig.list <- apply(sol.sub, 2, function(column) row.names(sol.sub)[which(column <= term.Q)])
+    names(sig.list) <- stringr::str_remove(names(sig.list), "p.valor_")
+  } else if (vars == "groups") {
+    # Subset
+    sol.sub <- sol[, !(colnames(sol) %in% c("p-value", "R-squared")), drop = FALSE]
+
+    # Get group_vector, from T fit
+    group_vector <- scmpObj@scTFit@groups.vector
+
+    # Based on the dummy, none and all
+    if (significant.intercept == "all") {
+      select_cols <- seq(from = 1, to = ncol(sol.sub))
+    } else if (significant.intercept == "dummy") {
+      select_cols <- seq(from = 2, to = ncol(sol.sub))
+    } else if (significant.intercept == "none") {
+      select_cols <- seq(from = 3, to = ncol(sol.sub))
+    }
+
+    # subset groupVector and sol
+    group_vector <- group_vector[select_cols]
+    sol.sub <- sol.sub[, select_cols, drop = FALSE]
+
+    # Create Named list for traversal
+    group_term_list <- as.list(as.vector(colnames(sol.sub)))
+    names(group_term_list) <- group_vector
+
+    # Available groups
+    avail_groups <- unique(group_vector)
+
+    # Get per path
+    sig.list <- lapply(avail_groups, function(group_i) {
+      # Get names per path
+      group_term_list_sub <- group_term_list[names(group_term_list) %in% group_i]
+
+      # get subset
+      sol.sub.term <- sol.sub[, unlist(group_term_list_sub), drop = FALSE]
+
+      # Get group wise genes
+      sig.list.tmp <- row.names(sol.sub.term)[apply(sol.sub.term, 1, function(x) any(x <= term.Q))]
+
+      # Return
+      return(sig.list.tmp)
+    })
+
+    # Add names
+    names(sig.list) <- avail_groups
+  }
+
+  # # Create a named tstep
+  ## Donot remove this ##
+  # tstep <- list(
+  #   dis = scmpObj@edesign@dis,
+  #   edesign = scmpObj@edesign@edesign,
+  #   groups.vector = scmpObj@scTFit@groups.vector,
+  #   sol = showSol(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
+  #   coefficients = showCoeff(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
+  #   sig.profiles = showSigProf(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
+  #   group.coeffs = scmpObj@scTFit@group.coeffs
+  # )
+
+  # sig.genes.s3 <- get.siggenes(tstep,
+  #   rsq = rsq, add.IDs = FALSE, IDs = NULL, matchID.col = 1,
+  #   only.names = FALSE, vars = vars,
+  #   significant.intercept = significant.intercept,
+  #   groups.vector = NULL, trat.repl.spots = "none",
+  #   r = 0.7
+  # )
+
+  # Create Object
+  # siggenes.object <- new("sigClass",
+  #   summary = sig.genes.s3$summary,
+  #   sig.genes = sig.genes.s3$sig.genes
+  # )
+
   # Create Object
   siggenes.object <- new("sigClass",
-    summary = sig.genes.s3$summary,
-    sig.genes = sig.genes.s3$sig.genes
+    sig.genes = sig.list
   )
 
   # Update the slot

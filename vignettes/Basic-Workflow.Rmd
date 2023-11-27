@@ -72,7 +72,7 @@ data("splat.sim", package = "scMaSigPro")
 
 ####  Plot the data (Optional)
 ```{r, "Plot the data (Optional)", eval=TRUE, echo=TRUE}
-# Load 
+# Load
 suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(SingleCellExperiment))
 
@@ -310,10 +310,10 @@ By setting the vars parameter to "groups", the function will add genes with $R^2
 sc.path.intersection(scmp.ob)
 ```
 
-Here, we observe that 23 genes belong to both Path2vsPath1 and Path1, indicating
+Here, we observe that 21 genes belong to both Path2vsPath1 and Path1, indicating
 that these genes not only change along pseudotime but also exhibit significantly
-different expression between the two paths. Additionally, there are 11 genes
-uniquely associated with Path2vsPath1. This implies that Path2 has 11 genes that
+different expression between the two paths. Additionally, there are 12 genes
+uniquely associated with Path2vsPath1. This implies that Path2 has 12 genes that
 are significantly differentially expressed over time, using Path1 genes as a
 reference. Let's explore a few of these genes:
 ```{r, "trend",eval=TRUE, echo=TRUE}
@@ -321,7 +321,7 @@ FigureA <- sc.PlotGroups(scmp.ob, "Gene9", logs = T, logType = "log")
 FigureB <- sc.PlotGroups(scmp.ob, "Gene95", logs = T, logType = "log")
 FigureC <- sc.PlotGroups(scmp.ob, "Gene10", logs = T, logType = "log")
 FigureD <- sc.PlotGroups(scmp.ob, "Gene92", logs = T, logType = "log")
-(FigureA+FigureB)/(FigureC+FigureD)
+(FigureA + FigureB) / (FigureC + FigureD)
 ```
 
 These plots illustrate the gene expression trends for selected genes, providing
@@ -330,7 +330,7 @@ simulated data, we can validate these trends by extracting gene-level metadata
 from our simulated object:
 ```{r, "ground truth",eval=TRUE, echo=TRUE}
 groundTruth <- as.data.frame(splat.sim@rowRanges@elementMetadata)
-print(groundTruth[groundTruth$Gene %in% c("Gene9", "Gene95", "Gene10", "Gene92"),c(1,2,6,8)])
+print(groundTruth[groundTruth$Gene %in% c("Gene9", "Gene95", "Gene10", "Gene92"), c(1, 2, 6, 8)])
 ```
 
 The ground truth data reveals, for example, that Gene9 has a base gene mean of 0.5, a fold change of 1.5 in Path1, and remains at the same expression level for Path2. This trend is accurately captured in our analysis, as shown in Figure-A. Similarly, Gene92 does not show a significant difference between the paths but demonstrates a downtrend along pseudotime in both paths, a finding we successfully recapitulate in Figure-D.
@@ -339,9 +339,10 @@ The ground truth data reveals, for example, that Gene9 has a base gene mean of 0
 To discern general trends among the genes, we can cluster them together using the `sc.cluster.features()`. By default, this function employs hierarchical clustering (hclust) and we will divide the genes into 4 clusters.
 ```{r, "Cluster Trends"}
 scmp.ob <- sc.cluster.features(
-    scmp.ob, 
-    cluster.method = "hclust",
-    k = 4)
+  scmp.ob,
+  cluster.method = "hclust",
+  k = 4
+)
 ```
 
 Once the genes are clustered, we can visualize their profiles as follows:

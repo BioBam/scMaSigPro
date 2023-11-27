@@ -9,12 +9,12 @@ library(scMaSigPro)
 
 # Step-1: Load a dataset for testing
 ## This dataset will be avaible as the part of the package
-data("Sim2Path", package = "scMaSigPro")
+data("splat.sim", package = "scMaSigPro")
 
 # Step-2: Convert to ScMaSigpro Object
 ## Here we will convert the SCE object to scMaSigPro object
 scmp.sce <- as_scmp(
-  object = sim.sce, from = "sce",
+  object = splat.sim, from = "sce",
   align_pseudotime = T,
   path_prefix = "path",
   root_label = "NULL",
@@ -54,20 +54,39 @@ scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 2)
 # Step-5: Run P-vector
 # offset_F_UseWeights_F_UseInverseWeights_F_UseBinWeightAsOffset_T
 scmp.sce <- sc.p.vector(scmp.sce,
-  parallel = F, useWeights = T,
+  parallel = T, useWeights = T,
   Q = 0.05,
-  offset = T, useInverseWeights = F, min.obs = 13,
-  logOffset = T, globalTheta = F
+  offset = T, useInverseWeights = F, min.obs = 1,
+  logOffset = T, globalTheta = T
 )
 
 # Step-6: Run T.fit
 scmp.sce <- sc.T.fit(scmp.sce, parallel = F, verbose = T)
 
+# Create a named tstep
+tstep <- list(
+  dis = scmp.sce@edesign@dis,
+  edesign = scmp.sce@edesign@edesign,
+  groups.vector = scmp.sce@scTFit@groups.vector,
+  sol = showSol(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE),
+  coefficients = showCoeff(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE),
+  sig.profiles = showSigProf(scmp.sce, return = TRUE, view = FALSE, includeInflu = TRUE),
+  group.coeffs = scmp.sce@scTFit@group.coeffs
+)
+
+
+a <- get.siggenes(
+  tstep = tstep,
+  vars = "groups",
+  significant.intercept = "none"
+)
+
 # Step-7: Select with R2
 scmp.sce <- sc.get.siggenes(
   scmpObj = scmp.sce,
-  vars = "each",
-  significant.intercept = "all"
+  vars = "groups",
+  includeInflu = T,
+  significant.intercept = "dummy"
 )
 
 sc.path.intersection(scmp.sce, show_sets_size = F)
@@ -75,13 +94,17 @@ sc.path.intersection(scmp.sce, show_sets_size = F)
 # Step-8: Plot Gene Trends
 sc.PlotGroups(
   scmpObj = scmp.sce,
-  feature_id = "Gene121", smoothness = 0.1,
+  feature_id = "Gene3", smoothness = 0.1,
   logs = T,
   logType = "log"
 )
 
-scmp.sce <- sc.cluster.features(scmp.sce, k = 9)
-sc.PlotProfiles(scmp.sce, groupBy = "feature")
+scmp.sce <- sc.cluster.features(scmp.sce, k = 25, includeInflu = T)
+
+
+sc.PlotProfiles(scmp.sce, groupBy = "coeff")
+
+
 
 # Developing Methods for monocle3
 # test real Data
