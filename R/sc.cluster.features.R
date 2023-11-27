@@ -30,7 +30,7 @@
 #'
 #' @importFrom stats hclust kmeans cutree as.dist cor
 #' @importFrom mclust Mclust
-sc.cluster.features <- function(scmpObj, includeInflu = FALSE,
+sc.cluster.features <- function(scmpObj, includeInflu = TRUE,
                                 cluster.method = "hclust",
                                 distance = "cor",
                                 k = 9, k.mclust = FALSE,

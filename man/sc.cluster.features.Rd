@@ -6,7 +6,7 @@
 \usage{
 sc.cluster.features(
   scmpObj,
-  includeInflu = FALSE,
+  includeInflu = TRUE,
   cluster.method = "hclust",
   distance = "cor",
   k = 9,

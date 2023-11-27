@@ -85,6 +85,7 @@ a <- get.siggenes(
 scmp.sce <- sc.get.siggenes(
   scmpObj = scmp.sce,
   vars = "groups",
+  includeInflu = T,
   significant.intercept = "none"
 )
 
@@ -93,13 +94,12 @@ sc.path.intersection(scmp.sce, show_sets_size = F)
 # Step-8: Plot Gene Trends
 sc.PlotGroups(
   scmpObj = scmp.sce,
-  feature_id = "Gene121", smoothness = 0.1,
+  feature_id = "Gene3", smoothness = 0.1,
   logs = T,
   logType = "log"
 )
 
-scmp.sce <- sc.cluster.features(scmp.sce, k = 4)
-
+scmp.sce <- sc.cluster.features(scmp.sce, k = 9, includeInflu = T)
 
 
 sc.PlotProfiles(scmp.sce, groupBy = "feature")

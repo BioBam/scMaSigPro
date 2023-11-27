@@ -11,7 +11,7 @@ sc.PlotGroups(
   ylab = "Pseudobulk Expression",
   smoothness = 0.01,
   logs = TRUE,
-  logType = "log10"
+  logType = "log"
 )
 }
 \arguments{
