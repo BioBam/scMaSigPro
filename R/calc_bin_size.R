@@ -1,7 +1,7 @@
 #' @title Calculate Bin Size Function
 #'
 #' @description
-#' This function calculates the size of a bin based on the number of elements in
+#' `calc_bin_size()` calculates the bin size based on the number of elements in
 #' the "cluster.members" column of the input data frame.
 #'
 #' @param x A data frame containing the "cluster.members" column.
@@ -15,6 +15,7 @@
 #'
 #' @keywords internal
 # Define a function 'calc_bin_size' which takes a data frame 'x' as input
+
 calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
   # Use the 'str_split' function from the 'stringr' package to split the 'cluster.members' column
   # of the input data frame 'x' by the '|' character.

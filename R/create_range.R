@@ -1,7 +1,7 @@
 #' @title Create Range Function
 #'
 #' @description
-#' This function converts a factor column "bin" into a character vector, extracts
+#' `create_range()` converts a factor column "bin" into a character vector, extracts
 #' numeric range values from the character vector, and combines them with
 #' additional columns "bin_size" and "binned_time" to return a numeric vector
 #' representing the range information.
@@ -26,6 +26,7 @@
 #' @importFrom stringr str_remove_all
 #'
 #' @keywords internal
+
 create_range <- function(x, bin_size_colname = "scmp_bin_size",
                          bin_colname = "scmp_bin", verbose = TRUE) {
   # Convert the factor column "bin" to character
