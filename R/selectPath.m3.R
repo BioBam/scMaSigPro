@@ -204,7 +204,7 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     #             cell.metadata.sub=cell.metadata.sub)
     #        )
     # Call the ScMaSigPro Creator
-    scmpObj <- create_scmpObj(
+    scmpObj <- create.scmp(
       counts = rawCounts,
       cell_data = cell.metadata.sub,
       pseudotime_colname = pseudotime_col,

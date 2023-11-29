@@ -1,7 +1,7 @@
 #' @title Create scMaSigProClass Object
 #'
 #' @description
-#' `create_scmpObj()` initializes a scMaSigProClass object with the given counts,
+#' `create.scmp()` initializes a scMaSigProClass object with the given counts,
 #' cell level metadata, and other optional parameters.
 #'
 #' @param counts A matrix containing the raw expression counts.
@@ -19,14 +19,14 @@
 #' @export
 
 # Create scmp
-create_scmpObj <- function(counts,
-                           cell_data,
-                           feature_data,
-                           bin_counts = NULL,
-                           bin_cell_data = NULL,
-                           pseudotime_colname,
-                           path_colname,
-                           use_as_bin = FALSE) {
+create.scmp <- function(counts,
+                        cell_data,
+                        feature_data,
+                        bin_counts = NULL,
+                        bin_cell_data = NULL,
+                        pseudotime_colname,
+                        path_colname,
+                        use_as_bin = FALSE) {
   # Validation Checks
   assert_that(ncol(counts) == nrow(cell_data),
     msg = paste("Number of cells in raw-counts and cell-level-metadata are different.")

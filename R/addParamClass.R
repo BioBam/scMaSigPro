@@ -24,7 +24,6 @@
 #' @slot logOffset A logical value specifying whether to take the logarithm of the offsets during model fitting.
 #' @slot logWeights A logical value specifying whether to take the logarithm of the weights during model fitting.
 #' @slot max_it Integer. Maximum number of iterations to fit the model.
-#' @slot globalTheta Only works when negative binomial is enabled.
 #'
 #' @name addParamClass
 #' @aliases addParamClass-class
@@ -48,8 +47,8 @@ setClass(
     bin_members_colname = "character",
     annotation_col = "character",
     g = "integer",
-    Q = "numeric", # Significance level (default is 0.05)
-    min.obs = "numeric", # Minimum value to estimate the model (degree+1) x Groups + 1
+    Q = "numeric",
+    min.obs = "numeric",
     MT.adjust = "character",
     epsilon = "numeric",
     useWeights = "logical",
@@ -57,8 +56,7 @@ setClass(
     useInverseWeights = "logical",
     logOffset = "logical",
     logWeights = "logical",
-    max_it = "integer",
-    globalTheta = "logical"
+    max_it = "integer"
   ),
   validity = function(object) {
     errors <- character(0)
@@ -117,9 +115,9 @@ setClass(
     path_colname = "Path",
     bin_method = "Sturges",
     bin_colname = "scmp_bin",
-    g = 0L, # Default g value is 0
+    g = 0L,
     Q = 0.05,
-    min.obs = 6, # Default min.obs value is 0
+    min.obs = 1,
     bin_size_colname = "scmp_bin_size",
     bin_members_colname = "scmp_bin_members",
     MT.adjust = "BH",
@@ -131,7 +129,6 @@ setClass(
     logOffset = FALSE,
     max_it = 100L,
     logWeights = FALSE,
-    globalTheta = FALSE,
     annotation_col = "cell_type"
   )
 )

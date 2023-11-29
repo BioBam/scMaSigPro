@@ -17,7 +17,6 @@
 #' @param logWeights description
 #' @param useInverseWeights description
 #' @param max_it description
-#' @param globalTheta description
 #'
 #' @details
 #' In the maSigPro approach, \code{\link{p.vector}} and \code{\link{T.fit}} are subsequent steps, meaning that significant genes are
@@ -73,8 +72,7 @@ sc.T.fit <- function(scmpObj,
                      useInverseWeights = scmpObj@addParams@useInverseWeights,
                      logWeights = scmpObj@addParams@logWeights,
                      logOffset = scmpObj@addParams@logOffset,
-                     max_it = scmpObj@addParams@max_it,
-                     globalTheta = scmpObj@addParams@globalTheta) {
+                     max_it = scmpObj@addParams@max_it) {
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
   )
@@ -161,33 +159,10 @@ sc.T.fit <- function(scmpObj,
 
   # Select the covariates
   if (step.method == "backward") {
-    result_list <- parallel::mclapply(names(y_input), function(gene_name, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it, computeTheta_lapply = globalTheta) {
+    result_list <- parallel::mclapply(names(y_input), function(gene_name, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it) {
       # result_list <- lapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info) {
       y <- y_input[[gene_name]]
 
-
-      # Auto theta
-      if (length(grep(x = family_lapply$family, pattern = "Negative Binomial")) == 1) {
-        if (!computeTheta_lapply) {
-          theta.glm <- glm.nb(y ~ .,
-            data = as.data.frame(dis_lapply),
-            weights = weights_lapply,
-            control = glm.control(
-              maxit = max_it_lapply,
-              epsilon = epsilon_lapply
-            )
-          )
-          auto.theta <- theta.glm$theta
-          family_lapply <- negative.binomial(theta = auto.theta)
-        } else {
-          if (verbose_lapply) {
-            message(paste(
-              "Using global theta value of",
-              grep(x = family_lapply$family, pattern = "Negative Binomial", value = T)
-            ))
-          }
-        }
-      }
 
       reg_scmpObj <- sc.stepback(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply, useWeight = weights_lapply, max_it = max_it_lapply)
       lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply, weights = weights_lapply, maxit = max_it_lapply)
@@ -209,32 +184,8 @@ sc.T.fit <- function(scmpObj,
     }, mc.cores = numCores, mc.set.seed = 2023)
     # })
   } else if (step.method == "forward") {
-    result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it, computeTheta_lapply = globalTheta) {
+    result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it) {
       y <- y_input[[gene_name]]
-
-
-      # Auto theta
-      if (length(grep(x = family_lapply$family, pattern = "Negative Binomial")) == 1) {
-        if (!computeTheta_lapply) {
-          theta.glm <- glm.nb(y ~ .,
-            data = as.data.frame(dis_lapply),
-            weights = weights_lapply,
-            control = glm.control(
-              maxit = max_it_lapply,
-              epsilon = epsilon_lapply
-            )
-          )
-          auto.theta <- theta.glm$theta
-          family_lapply <- negative.binomial(theta = auto.theta)
-        } else {
-          if (verbose_lapply) {
-            message(paste(
-              "Using global theta value of",
-              grep(x = family_lapply$family, pattern = "Negative Binomial", value = T)
-            ))
-          }
-        }
-      }
 
       reg_scmpObj <- sc.stepfor(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply, useWeight = weights_lapply, max_it = max_it_lapply)
       lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply, weights = weights_lapply, maxit = max_it_lapply)
@@ -250,32 +201,8 @@ sc.T.fit <- function(scmpObj,
       return(extract_fitting(reg = reg_scmpObj, lmf = lmf_scmpObj, model.glm.0 = model.glm.0_scmpObj, dis = dis_lapply, family = family_lapply, name = gene_name, vars.in = vars_in_lapply, alfa = Q_lapply, influ.info = influ.info_lapply))
     }, mc.cores = numCores, mc.set.seed = 2023)
   } else if (step.method == "two.ways.backward") {
-    result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it, computeTheta_lapply = globalTheta) {
+    result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it) {
       y <- y_input[[gene_name]]
-
-
-      # Auto theta
-      if (length(grep(x = family_lapply$family, pattern = "Negative Binomial")) == 1) {
-        if (!computeTheta_lapply) {
-          theta.glm <- glm.nb(y ~ .,
-            data = as.data.frame(dis_lapply),
-            weights = weights_lapply,
-            control = glm.control(
-              maxit = max_it_lapply,
-              epsilon = epsilon_lapply
-            )
-          )
-          auto.theta <- theta.glm$theta
-          family_lapply <- negative.binomial(theta = auto.theta)
-        } else {
-          if (verbose_lapply) {
-            message(paste(
-              "Using global theta value of",
-              grep(x = family_lapply$family, pattern = "Negative Binomial", value = T)
-            ))
-          }
-        }
-      }
 
       reg_scmpObj <- sc.two.ways.stepback(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply, useWeight = weights_lapply, max_it = max_it_lapply)
       lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply, weights = weights_lapply, maxit = max_it_lapply)
@@ -292,32 +219,8 @@ sc.T.fit <- function(scmpObj,
     }, mc.cores = numCores, mc.set.seed = 2023)
     # })
   } else if (step.method == "two.ways.forward") {
-    result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it, computeTheta_lapply = globalTheta) {
+    result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it) {
       y <- y_input[[gene_name]]
-
-
-      # Auto theta
-      if (length(grep(x = family_lapply$family, pattern = "Negative Binomial")) == 1) {
-        if (!computeTheta_lapply) {
-          theta.glm <- glm.nb(y ~ .,
-            data = as.data.frame(dis_lapply),
-            weights = weights_lapply,
-            control = glm.control(
-              maxit = max_it_lapply,
-              epsilon = epsilon_lapply
-            )
-          )
-          auto.theta <- theta.glm$theta
-          family_lapply <- negative.binomial(theta = auto.theta)
-        } else {
-          if (verbose_lapply) {
-            message(paste(
-              "Using global theta value of",
-              grep(x = family_lapply$family, pattern = "Negative Binomial", value = T)
-            ))
-          }
-        }
-      }
 
       reg_scmpObj <- sc.two.ways.stepfor(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply, useWeight = weights_lapply, max_it = max_it_lapply)
       lmf_scmpObj <- glm(y ~ ., data = as.data.frame(dis_lapply), family = family_lapply, epsilon = epsilon_lapply, offset = offsetData_lapply, weights = weights_lapply, maxit = max_it_lapply)

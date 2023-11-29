@@ -1,4 +1,4 @@
-#' sc.plot.bins: Plot Bin Sizes Across Binned Time and Paths
+#' plot.bin.tile: Plot Bin Sizes Across Binned Time and Paths
 #'
 #' This function generates plots to visualize the compressed data from a SingleCellExperiment object.
 #' It produces a bar plot and, optionally, a tile (heatmap) plot to display the bin sizes across different
@@ -11,13 +11,11 @@
 #'
 #' @return A bar plot and, optionally, a tile (heatmap) plot, visualizing the bin sizes across different binned time and paths.
 #' If add_tile is TRUE, returns a combined ggplot object with both plots; otherwise, only the bar plot is printed.
-#'
-#'
 #' @export
-sc.plot.bins.tile <- function(scmpObj,
-                              path_colname = scmpObj@addParams@path_colname,
-                              bin_size_colname = scmpObj@addParams@bin_size_colname,
-                              bin_pseudotime_colname = scmpObj@addParams@bin_pseudotime_colname) {
+plot_bin.tile <- function(scmpObj,
+                          path_colname = scmpObj@addParams@path_colname,
+                          bin_size_colname = scmpObj@addParams@bin_size_colname,
+                          bin_pseudotime_colname = scmpObj@addParams@bin_pseudotime_colname) {
   # Check Object Validity
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'."

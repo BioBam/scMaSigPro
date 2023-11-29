@@ -20,7 +20,6 @@
 #' @param useInverseWeights description
 #' @param max_it description
 #' @param logWeights description
-#' @param globalTheta description
 #' @details \code{rownames(design)} and \code{colnames(data)} must be identical vectors
 #'   and indicate array naming. \code{rownames(data)} should contain unique gene IDs.
 #'   \code{colnames(design)} are the given names for the variables in the regression model.
@@ -63,8 +62,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
                         useInverseWeights = FALSE,
                         logWeights = FALSE,
                         logOffset = FALSE,
-                        max_it = 100,
-                        globalTheta = TRUE) {
+                        max_it = 100) {
   # Check the type of the 'design' parameter and set the corresponding variables
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
@@ -152,7 +150,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     weight_df <- NULL
   }
 
-  p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetdata_lapply = offsetData, pb_lapply = pb, weights_lapply = weight_df, verbose_lapply = verbose, max_it_lapply = max_it, computeTheta_lapply = globalTheta) {
+  p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetdata_lapply = offsetData, pb_lapply = pb, weights_lapply = weight_df, verbose_lapply = verbose, max_it_lapply = max_it) {
     y <- as.numeric(dat_lapply[i, ])
 
     # Print prog_lapplyress every 100 g_lapplyenes
@@ -166,27 +164,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
       }
     }
 
-    if (length(grep(x = family_lapply$family, pattern = "Negative Binomial")) == 1) {
-      if (!computeTheta_lapply) {
-        theta.glm <- glm.nb(y ~ .,
-          data = dis_lapply,
-          control = glm.control(
-            maxit = max_it_lapply,
-            epsilon = epsilon_lapply
-          )
-        )
-        auto.theta <- theta.glm$theta
-        family_lapply <- negative.binomial(theta = auto.theta)
-      } else {
-        if (verbose_lapply) {
-          message(paste(
-            "Using global theta value of",
-            grep(x = family_lapply$family, pattern = "Negative Binomial", value = T)
-          ))
-        }
-      }
-    }
-
+    # Set full Model
     model.glm <- glm(y ~ .,
       data = dis_lapply, family = family_lapply, epsilon = epsilon_lapply,
       offset = offsetdata_lapply, weights = weights_lapply,
@@ -263,7 +241,6 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     scmpObj@addParams@MT.adjust <- MT.adjust
     scmpObj@addParams@epsilon <- epsilon
     scmpObj@distribution <- family
-    scmpObj@addParams@globalTheta <- globalTheta
 
     return(scmpObj)
   }

@@ -128,7 +128,7 @@ the parameter `labels_exist` and then pass the existing column names as a named 
 
 ```{r, "Convert to `scMaSigPro` Object", eval=TRUE, echo=TRUE}
 # Helper Function to convert annotated SCE object to scmpObject
-scmp.ob <- as_scmp(
+scmp.ob <- as.scmp(
   object = splat.sim, from = "sce",
   align_pseudotime = FALSE,
   verbose = TRUE,
@@ -158,7 +158,7 @@ characteristics of the data. Here, we will show the basic usage with the default
 parameters:
 
 ```{r, "Pseudo-bulking along the continuum with `squeeze()`",eval=TRUE, echo=TRUE}
-scmp.ob <- squeeze(scmp.ob)
+scmp.ob <- sc.squeeze(scmp.ob)
 ```
 
 The console output of `scMaSigPro` is dynamic and displays more attributes as the
@@ -179,7 +179,7 @@ bin for each path.
 We can also visually inspect the binning process using a tile plot:
 
 ```{r, "Visualize bins",eval=TRUE, echo=TRUE}
-sc.plot.bins.tile(scmp.ob)
+plot_bin.tile(scmp.ob)
 ```
 
 The tile plot provides a clear view of the number of cells in each bin and how the

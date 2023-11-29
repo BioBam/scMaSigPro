@@ -18,8 +18,7 @@ sc.p.vector(
   useInverseWeights = FALSE,
   logWeights = FALSE,
   logOffset = FALSE,
-  max_it = 100,
-  globalTheta = TRUE
+  max_it = 100
 )
 }
 \arguments{
@@ -53,8 +52,6 @@ If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = 
 \item{logOffset}{description}
 
 \item{max_it}{description}
-
-\item{globalTheta}{description}
 }
 \value{
 A list containing:

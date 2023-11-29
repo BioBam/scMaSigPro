@@ -69,23 +69,23 @@
 #'
 #' @export
 
-squeeze <- function(scmpObject,
-                    pseudotime_colname = scmpObject@addParams@pseudotime_colname,
-                    path_colname = scmpObject@addParams@path_colname,
-                    bin_method = "Sturges",
-                    drop_fac = 1,
-                    verbose = FALSE,
-                    bin_members_colname = "scmp_bin_members",
-                    bin_colname = "scmp_bin",
-                    bin_size_colname = "scmp_bin_size",
-                    bin_pseudotime_colname = "scmp_binned_pseudotime",
-                    split_bins = FALSE,
-                    prune_bins = FALSE,
-                    assay_name = "counts",
-                    drop_trails = FALSE,
-                    cluster_count_by = "sum",
-                    fill_gaps = FALSE,
-                    additional_params = list(use_unique_time_points = FALSE)) {
+sc.squeeze <- function(scmpObject,
+                       pseudotime_colname = scmpObject@addParams@pseudotime_colname,
+                       path_colname = scmpObject@addParams@path_colname,
+                       bin_method = "Sturges",
+                       drop_fac = 1,
+                       verbose = FALSE,
+                       bin_members_colname = "scmp_bin_members",
+                       bin_colname = "scmp_bin",
+                       bin_size_colname = "scmp_bin_size",
+                       bin_pseudotime_colname = "scmp_binned_pseudotime",
+                       split_bins = FALSE,
+                       prune_bins = FALSE,
+                       assay_name = "counts",
+                       drop_trails = FALSE,
+                       cluster_count_by = "sum",
+                       fill_gaps = FALSE,
+                       additional_params = list(use_unique_time_points = FALSE)) {
   # Initiate Variable
   scmp_bin_lower_bound <- "scmp_l_bound"
   scmp_bin_upper_bound <- "scmp_u_bound"
