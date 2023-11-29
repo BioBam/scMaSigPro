@@ -179,7 +179,7 @@ bin for each path.
 We can also visually inspect the binning process using a tile plot:
 
 ```{r, "Visualize bins",eval=TRUE, echo=TRUE}
-plot_bin.tile(scmp.ob)
+plotBinTile(scmp.ob)
 ```
 
 The tile plot provides a clear view of the number of cells in each bin and how the
@@ -307,7 +307,7 @@ scmp.ob <- sc.get.siggenes(
 
 By setting the vars parameter to "groups", the function will add genes with $R^2$ >= 0.7 to the object. To explore the number of genes per group, we will make an upset plot:
 ```{r, "uspet",eval=TRUE, echo=TRUE}
-sc.path.intersection(scmp.ob)
+plotIntersect(scmp.ob)
 ```
 
 Here, we observe that 21 genes belong to both Path2vsPath1 and Path1, indicating
@@ -317,10 +317,10 @@ uniquely associated with Path2vsPath1. This implies that Path2 has 12 genes that
 are significantly differentially expressed over time, using Path1 genes as a
 reference. Let's explore a few of these genes:
 ```{r, "trend",eval=TRUE, echo=TRUE}
-FigureA <- sc.PlotGroups(scmp.ob, "Gene9", logs = T, logType = "log")
-FigureB <- sc.PlotGroups(scmp.ob, "Gene95", logs = T, logType = "log")
-FigureC <- sc.PlotGroups(scmp.ob, "Gene10", logs = T, logType = "log")
-FigureD <- sc.PlotGroups(scmp.ob, "Gene92", logs = T, logType = "log")
+FigureA <- plotTrend(scmp.ob, "Gene9", logs = T, logType = "log")
+FigureB <- plotTrend(scmp.ob, "Gene95", logs = T, logType = "log")
+FigureC <- plotTrend(scmp.ob, "Gene10", logs = T, logType = "log")
+FigureD <- plotTrend(scmp.ob, "Gene92", logs = T, logType = "log")
 (FigureA + FigureB) / (FigureC + FigureD)
 ```
 
@@ -348,7 +348,7 @@ scmp.ob <- sc.cluster.features(
 Once the genes are clustered, we can visualize their profiles as follows:
 
 ```{r, "profiles"}
-sc.PlotProfiles(scmp.ob, groupBy = "feature", logs = T)
+plotTrendCluster(scmp.ob, groupBy = "feature", logs = T)
 ```
 
 This visualization helps in understanding the collective behavior of genes

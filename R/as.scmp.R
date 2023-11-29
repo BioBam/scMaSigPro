@@ -155,15 +155,6 @@ as.scmp <- function(object, from = "cds",
       additional_params[["reduction_method"]] <- "umap"
     }
 
-    # Annotate the monocel3 Object
-    # annotated_cds <- annotate_monocle3_cds(object,
-    #   reduction_method = additional_params[["reduction_method"]],
-    #   path_prefix = path_prefix,
-    #   root_label = root_label,
-    #   path_colname = path_colname,
-    #   pseudotime_colname = pseudotime_colname,
-    #   verbose = verbose
-    # )
     if (interactive) {
       scmpObj <- selectPath.m3(
         cdsObj = object,

@@ -17,7 +17,7 @@
 #' @return Generates a plot.
 #' @export
 
-sc.PlotGroups <-
+plotTrend <-
   function(scmpObj,
            feature_id,
            xlab = "Pooled Pseudotime",

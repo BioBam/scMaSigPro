@@ -17,9 +17,9 @@
 #'
 #' @export
 #'
-sc.path.intersection <- function(scmpObj, min_interaction_size = 2,
-                                 keep_empty_groups = TRUE,
-                                 width_ratio = 0.1, show_sets_size = FALSE) {
+plotIntersect <- function(scmpObj, min_interaction_size = 2,
+                          keep_empty_groups = TRUE,
+                          width_ratio = 0.1, show_sets_size = FALSE) {
   # Check the data
   assert_that(
     is(scmpObj, "scMaSigProClass"),
