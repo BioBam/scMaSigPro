@@ -1,7 +1,7 @@
 #' @title Extract significant genes for sets of variables in time series gene expression experiments
 #'
 #' @description
-#' `sc.get.siggenes()` creates lists of significant genes for a set of variables
+#' `sc.filter()` creates lists of significant genes for a set of variables
 #' whose significance value has been computed with the \code{sc.T.fit} function.
 #'
 #' @param scmpObj Object of Class \code{\link{scMaSigProClass}} in which the
@@ -51,13 +51,13 @@
 #' @importFrom maSigPro get.siggenes
 #'
 #' @export
-sc.get.siggenes <- function(scmpObj,
-                            rsq = 0.7,
-                            Q = scmpObj@addParams@Q,
-                            vars = c("all", "each", "groups"),
-                            significant.intercept = "dummy",
-                            term.Q = 0.05,
-                            includeInflu = TRUE) {
+sc.filter <- function(scmpObj,
+                      rsq = 0.7,
+                      Q = scmpObj@addParams@Q,
+                      vars = c("all", "each", "groups"),
+                      significant.intercept = "dummy",
+                      term.Q = 0.05,
+                      includeInflu = TRUE) {
   # Check Validity of the object
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"

@@ -203,11 +203,11 @@ Y_{i} &\\sim \\text{NegativeBinomial}(\\mu_{i}, \\theta = 10) \\\\
 ")
 ```
 
-To construct this model, we use `sc.make.design.matrix()` to include quadratic terms:
+To construct this model, we use `sc.set.poly()` to include quadratic terms:
 
 ```{r, "Polynomial Degree 2",eval=TRUE, echo=TRUE}
 # Polynomial Degree 2
-scmp.ob <- sc.make.design.matrix(scmp.ob, poly_degree = 2)
+scmp.ob <- sc.set.poly(scmp.ob, poly_degree = 2)
 ```
 
 #### Visualize the model
@@ -222,7 +222,7 @@ Similarly, we can fit a cubic polynomial by setting the polynomial degree to 3:
 
 ```{r, "Polynomial Degree 3",eval=TRUE, echo=TRUE}
 # Polynomial Degree 3
-scmp.ob <- sc.make.design.matrix(scmp.ob, poly_degree = 3)
+scmp.ob <- sc.set.poly(scmp.ob, poly_degree = 3)
 showPoly(scmp.ob)
 ```
 
@@ -232,7 +232,7 @@ exponential and nonlinear gene expression patterns:
 
 ```{r, "# Polynomial Degree 1", eval=TRUE, echo=TRUE}
 # Polynomial Degree 1
-scmp.ob <- sc.make.design.matrix(scmp.ob, poly_degree = 1)
+scmp.ob <- sc.set.poly(scmp.ob, poly_degree = 1)
 showPoly(scmp.ob)
 ```
 
@@ -296,7 +296,7 @@ scmp.ob
 
 With our refined models in hand, we now focus on identifying genes showing significant differences with pseudotime, among paths, or both. For this purpose, we use the `sc.get.siggenes()` function. Our aim is to select models with a relatively high $R^2$, indicating simple linear relationships. The `vars` parameter in `sc.get.siggenes()` allows us to extract different sets of significant genes. Setting `vars = 'all'` retrieves all non-flat profiles identified in `sc.p.vector()` with $R^2>=$ the specified threshold. The option `vars = 'groups` fetches genes per path, resulting in two gene lists that demonstrate associative significance among paths, helping us identify genes associated with one path or the other along the pseudotime continuum. The `vars = 'each'` option finds significance for each term in the polynomial. In our case, we are interested in genes differentially expressed between paths and over pseudotime continum, so we will choose `vars = 'groups`.
 ```{r, "vars = groups",eval=TRUE, echo=TRUE}
-scmp.ob <- sc.get.siggenes(
+scmp.ob <- sc.filter(
   scmpObj = scmp.ob,
   rsq = 0.7,
   vars = "groups",
@@ -336,9 +336,9 @@ print(groundTruth[groundTruth$Gene %in% c("Gene9", "Gene95", "Gene10", "Gene92")
 The ground truth data reveals, for example, that Gene9 has a base gene mean of 0.5, a fold change of 1.5 in Path1, and remains at the same expression level for Path2. This trend is accurately captured in our analysis, as shown in Figure-A. Similarly, Gene92 does not show a significant difference between the paths but demonstrates a downtrend along pseudotime in both paths, a finding we successfully recapitulate in Figure-D.
 
 ### Cluster Trends
-To discern general trends among the genes, we can cluster them together using the `sc.cluster.features()`. By default, this function employs hierarchical clustering (hclust) and we will divide the genes into 4 clusters.
+To discern general trends among the genes, we can cluster them together using the `sc.cluster.trend()`. By default, this function employs hierarchical clustering (hclust) and we will divide the genes into 4 clusters.
 ```{r, "Cluster Trends"}
-scmp.ob <- sc.cluster.features(
+scmp.ob <- sc.cluster.trend(
   scmp.ob,
   cluster.method = "hclust",
   k = 4

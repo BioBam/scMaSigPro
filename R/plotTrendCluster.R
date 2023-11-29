@@ -52,7 +52,6 @@ plotTrendCluster <-
         clusterList <- clusterList[["sigCounts"]]
         clusterLabel <- clusterList[[gene_i]]
         trend.data[["scmpCluster"]] <- paste("cluster", clusterLabel)
-        print(clusterLabel)
       } else if (group_by == "coeff") {
         trend.data <- plt$layers[[3]][["data"]]
         trend.data[["feature"]] <- gene_i

@@ -30,13 +30,13 @@
 #'
 #' @importFrom stats hclust kmeans cutree as.dist cor
 #' @importFrom mclust Mclust
-sc.cluster.features <- function(scmpObj, includeInflu = TRUE,
-                                cluster.method = "hclust",
-                                distance = "cor",
-                                k = 9, k.mclust = FALSE,
-                                cor.methods_covariance = "pairwise.complete.obs",
-                                cor.method = "pearson",
-                                hclust.agglo_method = "ward.D") {
+sc.cluster.trend <- function(scmpObj, includeInflu = TRUE,
+                             cluster.method = "hclust",
+                             distance = "cor",
+                             k = 9, k.mclust = FALSE,
+                             cor.methods_covariance = "pairwise.complete.obs",
+                             cor.method = "pearson",
+                             hclust.agglo_method = "ward.D") {
   # Check Object Validity
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigPro'"
