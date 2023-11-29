@@ -59,3 +59,4 @@ SingleCellExperiment class object, `colData` from the \pkg{SingleCellExperiment}
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\keyword{internal}

@@ -7,3 +7,4 @@ extdata/
 inst/doc
 /doc/
 /Meta/
+.Rbuildignore

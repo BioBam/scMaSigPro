@@ -16,10 +16,10 @@ make.pseudobulk.counts(
 \item{scmpObject}{object of Class scMaSigPro. See \code{\link{scMaSigProClass}}
 for more details.}
 
-\item{bin_members_colname}{Name of the column in the 'compressed_cell_metadata'
+\item{bin_members_colname}{Column name in the 'compressed_cell_metadata'
 storing information about the members of the bins. (Default is 'scmp_bin_members').}
 
-\item{bin_colname}{Name of the column in the 'compressed_cell_metadata'
+\item{bin_colname}{Column name in the 'compressed_cell_metadata'
 storing information about the bin labels. (Default is 'scmp_bin').}
 
 \item{assay_name}{Name of the Assay in the assay_name object from which retrieve the counts.
@@ -29,10 +29,13 @@ storing information about the bin labels. (Default is 'scmp_bin').}
 aggregate counts within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").}
 }
 \value{
-A data.frame. The data frame includes pseudo bulk counts with each row being a gene and each column being a bin.
+A data.frame. The data frame includes pseudo bulk counts with each row being
+a gene and each column being a bin.
 }
 \description{
-`make.pseudobulk.counts()` creates a dataframe of pseudo bulk counts from single cell counts. It does this by either taking the mean or sum of counts across clusters in each bin, depending on the specified method.
+`make.pseudobulk.counts()` creates a dataframe of pseudo bulk counts from single
+cell counts. It does this by either taking the mean or sum of counts across clusters
+in each bin, depending on the specified method.
 }
 \details{
 The function operates by iterating over each row of the pseudo_bulk_profile.

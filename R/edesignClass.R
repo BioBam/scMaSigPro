@@ -1,12 +1,15 @@
-#' edesignClass
+#' Class "edesignClass"
 #'
 #' An S4 class to represent an edesign object with associated data.
 #' This class contains three slots: dis, groups.vector, and edesign.
 #'
-#' @slot dis A data frame.
-#' @slot groups.vector A character vector.
-#' @slot edesign A data frame.
-#' @slot poly_degree Polynomial degree
+#' @slot dis A data frame containing the design matrix of dummies for fitting the GLM.
+#' @slot groups.vector A character vector specifying the experimental group to which
+#' each variable belongs to.
+#' @slot edesign A data frame describing the experimental design. Rows must contain
+#' cells and columns experiment descriptors. The matrix must be binarized.
+#' @slot poly_degree Integer with the polynomial degree to fit the regression. 1
+#' specifies a linear regression, 2 a quadratic regression, etc.
 #'
 #' @name edesignClass
 #' @aliases edesignClass-class

@@ -4,14 +4,14 @@
 \alias{showSol}
 \title{Show or Return the Solution}
 \usage{
-showSol(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE)
+showSol(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE)
 }
 \arguments{
 \item{scmpObj}{an object of class 'scMaSigProClass'. This object should contain the computed solution.}
 
 \item{view}{logical, whether to view the solution. If TRUE (default), the solution is displayed.}
 
-\item{return}{logical, whether to return the solution. If FALSE (default), the solution is not returned.}
+\item{return}{logical, whether to return the solution. If TRUE (default), returned.}
 
 \item{includeInflu}{logical, whether to add gene with influential data in the solution.}
 }

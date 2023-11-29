@@ -1,6 +1,7 @@
-#' Convert Vector Elements to Path Names (Internal)
+#' @title Convert Vector Elements to Path Names (Internal)
 #'
-#' This function transforms a vector by renaming its unique elements
+#' @description
+#' `convert_to_path()` transforms a vector by renaming its unique elements
 #' (excluding the "root" element) to a sequence named "Path1", "Path2", etc.
 #'
 #' @param vec A character vector where elements may be repeated and
@@ -13,6 +14,7 @@
 #' @importFrom stats setNames
 #'
 #' @keywords internal
+
 convert_to_path <- function(vec, path_prefix, root_label) {
   # Exclude "root" from the transformation and get the unique values
   unique_vals <- unique(vec[vec != root_label])

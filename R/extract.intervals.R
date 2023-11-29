@@ -1,3 +1,14 @@
+#' @title Extract Intervals
+#'
+#' @param time.vector description
+#' @param nBins description
+#' @param bin description
+#' @param bin.size description
+#' @param lbond description
+#' @param ubond description
+#'
+#' @keywords internal
+
 extract.intervals <- function(time.vector, nBins = 1, bin, bin.size, lbound, ubound) {
   # Create Dataframe
   new_range_current <- as.data.frame(entropy::discretize(

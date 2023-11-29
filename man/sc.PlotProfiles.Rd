@@ -8,10 +8,11 @@ sc.PlotProfiles(
   scmpObj,
   xlab = "Pooled Pseudotime",
   ylab = "Pseudobulk Expression",
-  smoothness = 0.01,
+  groupBy = "coeff",
   logs = TRUE,
-  logType = "log10",
-  groupBy = "coeff"
+  logType = "log",
+  smoothness = 0.01,
+  includeInflu = TRUE
 )
 }
 \arguments{
@@ -21,17 +22,19 @@ sc.PlotProfiles(
 
 \item{ylab}{Y-axis label. Default is "Pseudobulk Expression".}
 
-\item{smoothness}{abc}
+\item{groupBy}{A vector of maximum length 6 or a single feature of ID}
 
 \item{logs}{Whether to plot log of counts}
 
 \item{logType}{Log type required}
 
-\item{groupBy}{A vector of maximum length 6 or a single feature of ID}
+\item{smoothness}{description}
+
+\item{includeInflu}{description}
 }
 \value{
 Generates a plot.
 }
 \description{
-This function generates plots based on various parameters. It calculates the summary mode, colors, and other visual attributes to create a plot.
+This function generates plots based on various parameters.
 }

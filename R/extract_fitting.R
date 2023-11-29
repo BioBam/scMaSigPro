@@ -1,3 +1,17 @@
+#' @title Extract Fitting
+#'
+#' @param reg description
+#' @param lmf description
+#' @param model.glm.0 description
+#' @param dis description
+#' @param family description
+#' @param name description
+#' @param vars.in description
+#' @param alfa description
+#' @param influ.info description
+#'
+#' @keywords internal
+
 extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, alfa, influ.info) {
   sol <- coefficients <- group.coeffs <- t.score <- sig.profiles <- NULL
   y <- reg$y

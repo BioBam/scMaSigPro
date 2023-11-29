@@ -7,8 +7,10 @@
 sc.get.siggenes(
   scmpObj,
   rsq = 0.7,
+  Q = scmpObj@addParams@Q,
   vars = c("all", "each", "groups"),
   significant.intercept = "dummy",
+  term.Q = 0.05,
   includeInflu = TRUE
 )
 }
@@ -17,6 +19,8 @@ sc.get.siggenes(
 \code{sc.T.fit} has been run.}
 
 \item{rsq}{Cut-off level at the R-squared value for the stepwise regression fit.}
+
+\item{Q}{overall model significance}
 
 \item{vars}{Variables for which to extract significant genes. There are 3 possible values:
 \itemize{
@@ -27,8 +31,10 @@ sc.get.siggenes(
 
 \item{significant.intercept}{Experimental groups for which significant intercept coefficients are considered.}
 
-\item{includeInflu}{description
+\item{term.Q}{Term wise significance
 Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).}
+
+\item{includeInflu}{description}
 }
 \value{
 A list with two elements:

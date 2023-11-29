@@ -9,6 +9,8 @@
 #' @param smoothness abc
 #' @param logs Whether to plot log of counts
 #' @param logType Log type required
+#' @param pseudoCount add pseucount for log
+#' @param significant description
 #'
 #' @import ggplot2
 #' @importFrom RColorConesa getConesaColors
@@ -22,7 +24,9 @@ sc.PlotGroups <-
            ylab = "Pseudobulk Expression",
            smoothness = 0.01,
            logs = TRUE,
-           logType = "log10") {
+           logType = "log",
+           pseudoCount = 1,
+           significant = TRUE) {
     # Invoke Variables
     pb.counts <- "pb.counts"
     pooled.time <- "pooled.time"
@@ -38,6 +42,13 @@ sc.PlotGroups <-
     assert_that(all(feature_id %in% rownames(bulk.counts)),
       msg = "Feature Id doesn't exist please select another one"
     )
+
+    if (significant) {
+      assert_that(all(feature_id %in% unique(unlist(scmpObj@sig.genes@sig.genes))),
+        msg = "Feature Id didn't pass the R2 threshold, please re-run sc.get.sigenes, with lower a value or set 'significant' to 'FALSE'"
+      )
+    }
+
     # gene_i
     yy <- bulk.counts[rownames(bulk.counts) %in% feature_id, , drop = FALSE]
 
@@ -82,6 +93,7 @@ sc.PlotGroups <-
         group = i
       )
       a <- c(a, rep(0, (7 - length(a))))
+      a[is.na(a)] <- 0
 
       # Extract the time
       time <- edesign.frame[edesign.frame[[i]] == 1, scmpObj@addParams@bin_pseudotime_colname]
@@ -119,18 +131,22 @@ sc.PlotGroups <-
     # if log is requestion
     if (logs) {
       if (logType == "log2") {
-        points.df$pb.counts <- log2(points.df$pb.counts)
+        points.df$pb.counts <- log2(points.df$pb.counts + pseudoCount)
         ylab <- paste0("log2(", ylab, ")")
       } else if (logType == "log") {
-        points.df$pb.counts <- log(points.df$pb.counts)
+        points.df$pb.counts <- log(points.df$pb.counts + pseudoCount)
         ylab <- paste0("log(", ylab, ")")
       } else if (logType == "log10") {
-        points.df$pb.counts <- log10(points.df$pb.counts)
+        points.df$pb.counts <- log10(points.df$pb.counts + pseudoCount)
         ylab <- paste0("log10(", ylab, ")")
       } else {
         stop("'logType' should be one of 'log2', 'log10', 'log'")
       }
     }
+
+    # Convert Negative values to 0
+    curve.df[curve.df$y < 0, "y"] <- 0
+    # points.df[points.df$pb.counts < 0, "pb.counts"] <- 0
 
     p <- ggplot() +
       geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.5, size = 2, stroke = 1, shape = 21) +

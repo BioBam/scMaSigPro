@@ -34,6 +34,8 @@
 #' @importFrom SingleCellExperiment colData
 #' @importFrom assertthat assert_that
 #'
+#' @keywords internal
+#'
 annotate_sce <- function(sce,
                          pseudotime_colname = "Pseudotime",
                          path_prefix = "Path",

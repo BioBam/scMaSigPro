@@ -36,6 +36,6 @@ create_scmpObj(
 A scMaSigProClass object containing the inputted counts, cell data, and additional parameters.
 }
 \description{
-This function initializes a scMaSigProClass object with the given counts,
+`create_scmpObj()` initializes a scMaSigProClass object with the given counts,
 cell level metadata, and other optional parameters.
 }
