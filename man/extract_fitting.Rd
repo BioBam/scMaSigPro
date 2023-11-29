@@ -17,21 +17,23 @@ extract_fitting(
 )
 }
 \arguments{
-\item{reg}{}
+\item{reg}{description}
 
-\item{lmf}{}
+\item{lmf}{description}
 
-\item{model.glm.0}{}
+\item{model.glm.0}{description}
 
-\item{dis}{}
+\item{dis}{description}
 
-\item{name}{}
+\item{family}{description}
 
-\item{vars.in}{}
+\item{name}{description}
 
-\item{alfa}{}
+\item{vars.in}{description}
 
-\item{influ.info}{}
+\item{alfa}{description}
+
+\item{influ.info}{description}
 }
 \description{
 Extract Fitting

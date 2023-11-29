@@ -1,11 +1,11 @@
 #' @title Extract Intervals
 #'
-#' @param time.vector
-#' @param nBins
-#' @param bin
-#' @param bin.size
-#' @param lbond
-#' @param ubond
+#' @param time.vector description
+#' @param nBins description
+#' @param bin description
+#' @param bin.size description
+#' @param lbond description
+#' @param ubond description
 #'
 #' @keywords internal
 

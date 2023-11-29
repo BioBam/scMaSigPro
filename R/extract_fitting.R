@@ -1,14 +1,14 @@
 #' @title Extract Fitting
 #'
-#' @param reg
-#' @param lmf
-#' @param model.glm.0
-#' @param dis
-#' @param family
-#' @param name
-#' @param vars.in
-#' @param alfa
-#' @param influ.info
+#' @param reg description
+#' @param lmf description
+#' @param model.glm.0 description
+#' @param dis description
+#' @param family description
+#' @param name description
+#' @param vars.in description
+#' @param alfa description
+#' @param influ.info description
 #'
 #' @keywords internal
 

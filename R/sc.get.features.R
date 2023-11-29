@@ -201,8 +201,86 @@ sc.get.features <- function(scmpObj,
 
         # Get shared elements
         res <- Reduce(intersect, res.list)
-      } else {
-        stop("Not codes")
+      } else if ((union.target.trend == "any" & union.ref.trend == "down")) {
+        # Get list
+        res.list <- lapply(avail_groups, function(group_i) {
+          if (group_i == union.ref) {
+            trend_value <- union.ref.trend
+          } else if (group_i == union.target) {
+            trend_value <- union.target.trend
+          }
+
+          res.frame <- getPattern(
+            frame = coeff.df.sub,
+            trend = trend_value, group = group_i,
+            groups_vector = scmpObj@scTFit@groups.vector
+          )
+
+          return(rownames(res.frame))
+        })
+
+        # Get shared elements
+        res <- Reduce(intersect, res.list)
+      } else if ((union.target.trend == "any" & union.ref.trend == "up")) {
+        # Get list
+        res.list <- lapply(avail_groups, function(group_i) {
+          if (group_i == union.ref) {
+            trend_value <- union.ref.trend
+          } else if (group_i == union.target) {
+            trend_value <- union.target.trend
+          }
+
+          res.frame <- getPattern(
+            frame = coeff.df.sub,
+            trend = trend_value, group = group_i,
+            groups_vector = scmpObj@scTFit@groups.vector
+          )
+
+          return(rownames(res.frame))
+        })
+
+        # Get shared elements
+        res <- Reduce(intersect, res.list)
+      } else if ((union.target.trend == "down" & union.ref.trend == "any")) {
+        # Get list
+        res.list <- lapply(avail_groups, function(group_i) {
+          if (group_i == union.ref) {
+            trend_value <- union.ref.trend
+          } else if (group_i == union.target) {
+            trend_value <- union.target.trend
+          }
+
+          res.frame <- getPattern(
+            frame = coeff.df.sub,
+            trend = trend_value, group = group_i,
+            groups_vector = scmpObj@scTFit@groups.vector
+          )
+
+          return(rownames(res.frame))
+        })
+
+        # Get shared elements
+        res <- Reduce(intersect, res.list)
+      } else if ((union.target.trend == "up" & union.ref.trend == "any")) {
+        # Get list
+        res.list <- lapply(avail_groups, function(group_i) {
+          if (group_i == union.ref) {
+            trend_value <- union.ref.trend
+          } else if (group_i == union.target) {
+            trend_value <- union.target.trend
+          }
+
+          res.frame <- getPattern(
+            frame = coeff.df.sub,
+            trend = trend_value, group = group_i,
+            groups_vector = scmpObj@scTFit@groups.vector
+          )
+
+          return(rownames(res.frame))
+        })
+
+        # Get shared elements
+        res <- Reduce(intersect, res.list)
       }
     }
   }

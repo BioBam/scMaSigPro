@@ -29,12 +29,12 @@ storing information about the bin labels. (Default is 'scmp_bin').}
 aggregate counts within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").}
 }
 \value{
-A data.frame. The data frame includes pseudo bulk counts with each row being 
+A data.frame. The data frame includes pseudo bulk counts with each row being
 a gene and each column being a bin.
 }
 \description{
-`make.pseudobulk.counts()` creates a dataframe of pseudo bulk counts from single 
-cell counts. It does this by either taking the mean or sum of counts across clusters 
+`make.pseudobulk.counts()` creates a dataframe of pseudo bulk counts from single
+cell counts. It does this by either taking the mean or sum of counts across clusters
 in each bin, depending on the specified method.
 }
 \details{

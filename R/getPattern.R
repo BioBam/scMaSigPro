@@ -7,12 +7,14 @@ getPattern <- function(frame, trend, group, groups_vector) {
     frame <- frame[, colnames(frame) != "beta0", drop = FALSE]
   }
 
+
   # Subset by trend
   if (trend == "up") {
     frame <- frame[rowSums(frame) > 0, , drop = FALSE]
   } else if (trend == "down") {
     frame <- frame[rowSums(frame) <= 0, , drop = FALSE]
+  } else if (trend == "any") {
+    frame <- frame
   }
-
   return(frame)
 }

@@ -7,15 +7,17 @@
 extract.intervals(time.vector, nBins = 1, bin, bin.size, lbound, ubound)
 }
 \arguments{
-\item{time.vector}{}
+\item{time.vector}{description}
 
-\item{nBins}{}
+\item{nBins}{description}
 
-\item{bin}{}
+\item{bin}{description}
 
-\item{bin.size}{}
+\item{bin.size}{description}
 
-\item{ubond}{}
+\item{lbond}{description}
+
+\item{ubond}{description}
 }
 \description{
 Extract Intervals
