@@ -70,7 +70,7 @@ sc.get.features <- function(scmpObj,
   )
 
   # Override
-  scmpObj <- sc.get.siggenes(scmpObj,
+  scmpObj <- sc.filter(scmpObj,
     rsq = rsq,
     vars = vars,
     significant.intercept = significant.intercept,
@@ -80,7 +80,7 @@ sc.get.features <- function(scmpObj,
   )
 
   # Create Intersection
-  interserction <- sc.path.intersection(scmpObj)
+  interserction <- plotIntersect(scmpObj)
 
   # Get intersection Data
   interserction.data <- interserction[[1]][["data"]][, c("gene", avail_groups),
