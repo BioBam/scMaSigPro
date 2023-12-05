@@ -29,6 +29,8 @@
 #' @slot logOffset A logical value specifying whether to take the logarithm of the offsets during model fitting.
 #' @slot logWeights A logical value specifying whether to take the logarithm of the weights during model fitting.
 #' @slot max_it Integer. Maximum number of iterations to fit the model.
+#' @slot poly_degree Integer with the polynomial degree to fit the regression. 1
+#' specifies a linear regression, 2 a quadratic regression, etc.
 #'
 #' @name paramClass
 #' @aliases paramClass-class
@@ -61,7 +63,8 @@ setClass(
     useInverseWeights = "logical",
     logOffset = "logical",
     logWeights = "logical",
-    max_it = "integer"
+    max_it = "integer",
+    poly_degree = "integer"
   ),
   validity = function(object) {
     errors <- character(0)
@@ -134,10 +137,64 @@ setClass(
     logOffset = FALSE,
     max_it = 100L,
     logWeights = FALSE,
-    annotation_col = "cell_type"
+    annotation_col = "cell_type",
+    poly_degree = 2L
   )
 )
 
+###############################################################################
+#' Class "edesignClass"
+#'
+#' An S4 class to represent an edesign object with associated data.
+#' This class contains three slots: dis, groups.vector, and edesign.
+#'
+#' @slot dis A data frame containing the design matrix of dummies for fitting the GLM.
+#' @slot groups.vector A character vector specifying the experimental group to which
+#' each variable belongs to.
+#' @slot edesign A data frame describing the experimental design. Rows must contain
+#' cells and columns experiment descriptors. The matrix must be binarized.
+#'
+#' @name edesignClass
+#' @aliases edesignClass-class
+#' @rdname edesignClass-class
+#' @exportClass edesignClass
+#' @importFrom methods is new
+#' @keywords classes
+#'
+#' @section Validity:
+#'   Valid objects must have:
+#'   \itemize{
+#'     \item{dis}{A valid data frame.}
+#'     \item{groups.vector}{A valid character vector.}
+#'     \item{edesign}{A valid data frame.}
+#'   }
+#'
+
+setClass(
+    "edesignClass",
+    representation(
+        dis = "matrix",
+        groups.vector = "character",
+        edesign = "matrix"
+    ),
+    prototype = list(
+        dis = matrix(NA, nrow = 0, ncol = 0),
+        groups.vector = character(),
+        edesign = matrix(NA, nrow = 0, ncol = 0)
+    ),
+    validity = function(object) {
+        if (!validObject(object@dis)) {
+            stop("dis slot is not a valid data frame.")
+        }
+        if (!validObject(object@groups.vector)) {
+            stop("groups.vector slot is not a valid character vector.")
+        }
+        if (!validObject(object@edesign)) {
+            stop("poly_degree slot is not a valid matrix")
+        }
+        TRUE
+    }
+)
 ###############################################################################
 
 
@@ -149,7 +206,7 @@ setClass(
 #' @slot sparse Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.
 #' @slot scPVector Object of Class scPVectorClass See \pkg{scPVectorClass} for more details.
 #' @slot scTFit Object of Class scTFitClass. See \code{\link{scTFitClass}} for more details.
-#' @slot dense ABC
+#' @slot dense  Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.
 #' @slot edesign Object of Class edesignClass. See \code{\link{edesignClass}} for more details.
 #' @slot param Object of Class paramClass. See \code{\link{paramClass}} for more details.
 #' @slot sig.genes ABC

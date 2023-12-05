@@ -403,7 +403,7 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
 
   # Influential Genes if any
   if (length(colnames(object@edesign@dis)) > 0) {
-    cat(paste("\nPolynomial Order:", object@edesign@poly_degree))
+    cat(paste("\nPolynomial Order:", object@param@poly_degree))
   }
 
   # Calculate Dynamic Information

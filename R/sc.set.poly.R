@@ -74,12 +74,14 @@ sc.set.poly <- function(scmpObject,
   edesignObj <- new("edesignClass",
     dis = as.matrix(edesignList$dis),
     groups.vector = edesignList$groups.vector,
-    edesign = as.matrix(edesignList$edesign),
-    poly_degree = as.integer(poly_degree)
+    edesign = as.matrix(edesignList$edesign)
   )
 
   # Update Slot
   scmpObject@edesign <- edesignObj
+  
+  # Update poly degree
+  scmpObject@param@poly_degree <- as.integer(poly_degree)
 
   return(scmpObject)
 }

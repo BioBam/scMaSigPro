@@ -18,7 +18,7 @@ Inherits from \code{SingleCellExperiment}.
 
 \item{\code{scTFit}}{Object of Class scTFitClass. See \code{\link{scTFitClass}} for more details.}
 
-\item{\code{dense}}{ABC}
+\item{\code{dense}}{Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.}
 
 \item{\code{edesign}}{Object of Class edesignClass. See \code{\link{edesignClass}} for more details.}
 
