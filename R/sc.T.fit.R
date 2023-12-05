@@ -43,7 +43,7 @@
 #' \item{dat}{Input analysis scmpObj matrix.}
 #' \item{dis}{Regression design matrix.}
 #' \item{step.method}{Imputed step method for stepwise regression.}
-#' \item{edesign}{Matrix of experimental design.}
+#' \item{alloc}{Matrix of experimental design.}
 #' \item{influ.info}{scmpObj frame of genes containing influential scmpObj.}
 #'
 #' @references{Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
@@ -63,7 +63,7 @@ sc.T.fit <- function(scmpObj,
                      step.method = "backward",
                      Q = scmpObj@param@Q,
                      nvar.correction = FALSE,
-                     family = scmpObj@distribution,
+                     family = scmpObj@param@distribution,
                      epsilon = scmpObj@param@epsilon,
                      offset = scmpObj@param@offset,
                      verbose = TRUE,
@@ -78,14 +78,15 @@ sc.T.fit <- function(scmpObj,
   )
 
   # Transfer Data
-  dis <- scmpObj@edesign@dis
+  dis <- scmpObj@design@predictor
   Q <- scmpObj@param@Q
-  groups.vector <- scmpObj@edesign@groups.vector
+  groups.vector <- scmpObj@design@groups.vector
   groups.vector <- c(groups.vector[nchar(groups.vector) == min(nchar(groups.vector))][1], groups.vector)
-  edesign <- scmpObj@edesign@edesign
+  alloc <- scmpObj@design@alloc
   G <- scmpObj@param@g
 
-  dat <- scmpObj@scPVector@SELEC
+  dat.all <- scmpObj@dense@assays@data@listData$bulk.counts
+  dat <- dat.all[scmpObj@profile@non.flat, , drop = F]
   dat <- rbind(c(rep(1, ncol(dat))), dat)
   dat <- dat[, as.character(rownames(dis))]
 
@@ -298,8 +299,8 @@ sc.T.fit <- function(scmpObj,
       vars.in,
       sep = ""
     ))
-    if (!is.null(groups.vector) & !is.null(edesign)) {
-      groups <- colnames(edesign)[3:ncol(edesign)]
+    if (!is.null(groups.vector) & !is.null(alloc)) {
+      groups <- colnames(alloc)[3:ncol(alloc)]
       degree <- (length(groups.vector) / length(groups)) -
         1
       for (w in 1:nrow(coefficients)) {
@@ -327,14 +328,14 @@ sc.T.fit <- function(scmpObj,
     }
   } else {
     if (verbose) {
-      message(paste("\nNo genes with influential onservations detected"))
+      message(paste("\nNo genes with influential observations detected"))
     }
     influ.info <- matrix(data = NA, nrow = 0, ncol = 0)
   }
   # influ.info <- influ.info[, -1]
 
   # Create a constructor for the class
-  t.fit.object <- new("scTFitClass",
+  t.fit.object <- new("estimateClass",
     sol = sol,
     coefficients = coefficients,
     group.coeffs = group.coeffs,
@@ -345,7 +346,7 @@ sc.T.fit <- function(scmpObj,
   )
 
   # Added Tfit
-  scmpObj@scTFit <- t.fit.object
+  scmpObj@estimate <- t.fit.object
 
   # Update Parameter Slot
   scmpObj@param@Q <- Q
@@ -357,7 +358,7 @@ sc.T.fit <- function(scmpObj,
   scmpObj@param@offset <- offset
   scmpObj@param@epsilon <- epsilon
   scmpObj@param@step.method <- step.method
-  scmpObj@distribution <- family
+  scmpObj@param@distribution <- family
 
   return(scmpObj)
 }

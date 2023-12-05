@@ -69,9 +69,9 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   )
 
   # Extract from s4
-  dis <- as.data.frame(scmpObj@edesign@dis)
-  groups.vector <- scmpObj@edesign@groups.vector
-  edesign <- scmpObj@edesign@edesign
+  dis <- as.data.frame(scmpObj@design@predictor)
+  groups.vector <- scmpObj@design@groups.vector
+  alloc <- scmpObj@design@alloc
 
   # Convert 'scmpObj' to matrix and select relevant columns based on 'design' rows
   dat <- as.matrix(scmpObj@dense@assays@data@listData$bulk.counts)
@@ -215,18 +215,15 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     names(sc.p.vector) <- rownames(dat)
 
     # Add Data to the class
-    scPVector.obj <- new("scPVectorClass",
-      SELEC = as(SELEC, "dgCMatrix"),
+    profile.obj <- new("sigProfileClass",
+      non.flat = rownames(SELEC),
       p.vector = sc.p.vector,
       p.adjusted = p.adjusted,
-      FDR = FDR,
-      dis = dis,
-      groups.vector = groups.vector,
-      family = family
+      FDR = FDR
     )
 
     # Update Slot
-    scmpObj@scPVector <- scPVector.obj
+    scmpObj@profile <- profile.obj
 
     # Update Parameter Slot useInverseWeights
     scmpObj@param@useWeights <- useWeights
@@ -240,7 +237,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     scmpObj@param@g <- g
     scmpObj@param@MT.adjust <- MT.adjust
     scmpObj@param@epsilon <- epsilon
-    scmpObj@distribution <- family
+    scmpObj@param@distribution <- family
 
     return(scmpObj)
   }

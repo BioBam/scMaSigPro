@@ -33,7 +33,7 @@ plotTrend <-
     path <- "path"
 
     # Extract edisgn
-    edesign.frame <- scmpObj@edesign@edesign %>% as.data.frame()
+    alloc.frame <- scmpObj@design@alloc %>% as.data.frame()
 
     # Extract the bulk counts
     bulk.counts <- scmpObj@dense@assays@data@listData$bulk.counts
@@ -53,15 +53,15 @@ plotTrend <-
     yy <- bulk.counts[rownames(bulk.counts) %in% feature_id, , drop = FALSE]
 
     # Extract the bulk counts
-    edesign <- edesign.frame
+    alloc <- alloc.frame
 
     # group Vector
-    groups.vector <- scmpObj@scPVector@groups.vector
+    groups.vector <- scmpObj@design@groups.vector
 
     # Prepare for Tfit
     rm <- matrix(yy, nrow = 1, ncol = length(yy))
     rownames(rm) <- c("ratio medio")
-    colnames(rm) <- rownames(scmpObj@edesign@dis)
+    colnames(rm) <- rownames(scmpObj@design@predictor)
 
     # Extract the beta
     betas.table <- showCoeff(scmpObj, view = FALSE, return = TRUE)
@@ -76,11 +76,11 @@ plotTrend <-
     path.names <- unique(scmpObj@dense@colData[[scmpObj@param@path_colname]])
 
     # Get x and y
-    x <- y <- rep(0, nrow(edesign.frame))
+    x <- y <- rep(0, nrow(alloc.frame))
 
     # Create Point df
     points.df <- data.frame(
-      pooled.time = edesign.frame[, scmpObj@param@bin_pseudotime_colname],
+      pooled.time = alloc.frame[, scmpObj@param@bin_pseudotime_colname],
       pb.counts = as.vector(yy),
       path = scmpObj@dense@colData[[scmpObj@param@path_colname]]
     )
@@ -96,7 +96,7 @@ plotTrend <-
       a[is.na(a)] <- 0
 
       # Extract the time
-      time <- edesign.frame[edesign.frame[[i]] == 1, scmpObj@param@bin_pseudotime_colname]
+      time <- alloc.frame[alloc.frame[[i]] == 1, scmpObj@param@bin_pseudotime_colname]
 
       # Create a data frame with time values
       x <- seq(from = min(time), to = max(time), by = smoothness)

@@ -55,7 +55,9 @@ A Class holding information about the parameters used.
 
 \item{\code{max_it}}{Integer. Maximum number of iterations to fit the model.}
 
-\item{\code{poly_degree}}{Integer with the polynomial degree to fit the regression. 1
+\item{\code{poly_degree}}{Integer with the polynomial degree to fit the regression. 1}
+
+\item{\code{distribution}}{Distribution used
 specifies a linear regression, 2 a quadratic regression, etc.}
 }}
 

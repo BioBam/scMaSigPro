@@ -14,19 +14,17 @@ Inherits from \code{SingleCellExperiment}.
 \describe{
 \item{\code{sparse}}{Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.}
 
-\item{\code{scPVector}}{Object of Class scPVectorClass See \pkg{scPVectorClass} for more details.}
+\item{\code{profile}}{Object of Class sigProfileClass See \pkg{sigProfileClass} for more details.}
 
-\item{\code{scTFit}}{Object of Class scTFitClass. See \code{\link{scTFitClass}} for more details.}
+\item{\code{estimate}}{Object of Class estimateClass See \code{\link{estimateClass}} for more details.}
 
 \item{\code{dense}}{Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.}
 
-\item{\code{edesign}}{Object of Class edesignClass. See \code{\link{edesignClass}} for more details.}
+\item{\code{design}}{Object of Class designClass. See \code{\link{designClass}} for more details.}
 
 \item{\code{param}}{Object of Class paramClass. See \code{\link{paramClass}} for more details.}
 
 \item{\code{sig.genes}}{ABC}
-
-\item{\code{distribution}}{The distribution function to be used in the glm model.}
 }}
 
 \keyword{classes}

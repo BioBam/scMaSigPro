@@ -34,12 +34,12 @@ showCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE)
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@scTFit@sol) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@estimate@sol) == c(0, 0)),
     msg = "Coeff is not computed yet"
   )
 
   # Extract
-  coefficients <- scmpObj@scTFit@coefficients %>% as.data.frame()
+  coefficients <- scmpObj@estimate@coefficients %>% as.data.frame()
 
   if (!includeInflu) {
     influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
@@ -78,12 +78,12 @@ showInflu <- function(scmpObj, view = FALSE, return = TRUE) {
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@scTFit@influ.info) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@estimate@influ.info) == c(0, 0)),
     msg = "tscore is not computed yet"
   )
 
   # Extract
-  influ <- scmpObj@scTFit@influ.info
+  influ <- scmpObj@estimate@influ.info
 
   # If viewing is requested
   if (view) {
@@ -118,12 +118,12 @@ showTS <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@scTFit@t.score) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@estimate@t.score) == c(0, 0)),
     msg = "tscore is not computed yet"
   )
 
   # Extract
-  tscore <- scmpObj@scTFit@t.score
+  tscore <- scmpObj@estimate@t.score
 
   if (!includeInflu) {
     influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
@@ -163,12 +163,12 @@ showSol <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@scTFit@sol) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@estimate@sol) == c(0, 0)),
     msg = "Sol is not computed yet"
   )
 
   # Extract
-  sol <- scmpObj@scTFit@sol %>% as.data.frame()
+  sol <- scmpObj@estimate@sol %>% as.data.frame()
 
   if (!includeInflu) {
     influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
@@ -207,7 +207,7 @@ showSigProf <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FAL
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@scTFit@sol) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@estimate@sol) == c(0, 0)),
     msg = "Sol is not computed yet"
   )
 
@@ -250,12 +250,12 @@ showPoly <- function(scmpObj) {
   )
 
   # Check if the sol exist
-  assert_that(all(!is.na(colnames(scmpObj@edesign@dis)) | length(colnames(scmpObj@edesign@dis) > 1)),
+  assert_that(all(!is.na(colnames(scmpObj@design@predictor)) | length(colnames(scmpObj@design@predictor) > 1)),
     msg = "Please setup the model first, using 'sc.make.design.matrix()'"
   )
 
   # Extract columns
-  df.col <- colnames(scmpObj@edesign@dis)
+  df.col <- colnames(scmpObj@design@predictor)
 
   # Extract betas
   beta_names <- paste0("beta", seq(1:length(df.col)))
@@ -298,15 +298,31 @@ showParams <- function(scmpObj, view = FALSE, return = TRUE) {
   paramData <- slot(scmpObj, "param")
 
   # Get all slots of 'param', assuming 'param' itself is an S4 object with slots
-  params <- lapply(slotNames(paramData), function(parameter) {
+  params.frame.list <- lapply(slotNames(paramData), function(parameter) {
     slot(paramData, parameter)
   })
+  names(params.frame.list) <- slotNames(paramData)
+  params.frame.list[["distribution"]] <- NULL
 
   # Get the data
-  params <- data.frame(
-    parameters = slotNames(paramData),
-    value = unlist(params)
+  params.frame <- data.frame(
+    parameters = names(params.frame.list),
+    value = unlist(params.frame.list)
   )
+
+  # Add family
+  distribution.f <- data.frame(
+    parameters = "distribution",
+    value = paste0(scmpObj@param@distribution[["family"]])
+  )
+
+
+  # Add
+  params <- rbind(
+    params.frame,
+    distribution.f
+  )
+  rownames(params) <- NULL
 
   # If viewing is requested and the 'View' function is available
   if (view && exists("View")) {
@@ -340,12 +356,12 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@scTFit@group.coeffs) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@estimate@group.coeffs) == c(0, 0)),
     msg = "group.coeffs is not computed yet"
   )
 
   # Extract
-  grpCoeff <- scmpObj@scTFit@group.coeffs %>% as.data.frame()
+  grpCoeff <- scmpObj@estimate@group.coeffs %>% as.data.frame()
 
   if (!includeInflu) {
     influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
@@ -402,15 +418,15 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
   }
 
   # Influential Genes if any
-  if (length(colnames(object@edesign@dis)) > 0) {
+  if (length(colnames(object@design@predictor)) > 0) {
     cat(paste("\nPolynomial Order:", object@param@poly_degree))
   }
 
   # Calculate Dynamic Information
-  if (length(object@scPVector@p.adjusted) > 0) {
+  if (length(object@profile@p.adjusted) > 0) {
     sig.level <- object@param@Q
-    nSigs <- length(object@scPVector@p.adjusted[object@scPVector@p.adjusted <= sig.level])
-    if (all(object@scPVector@p.adjusted > sig.level)) {
+    nSigs <- length(object@profile@p.adjusted[object@profile@p.adjusted <= sig.level])
+    if (all(object@profile@p.adjusted > sig.level)) {
       cat("\nSig. Profiles (P-vector): None found")
     } else {
       cat(paste("\nSig. Models (sc.p.vector):", nSigs, sep = " "))
@@ -418,8 +434,8 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
   }
 
   # Influential Genes if any
-  if (ncol(object@scTFit@influ.info) > 0) {
-    cat(paste("\nNo. of Influential Features:", ncol(object@scTFit@influ.info)))
+  if (ncol(object@estimate@influ.info) > 0) {
+    cat(paste("\nNo. of Influential Features:", ncol(object@estimate@influ.info)))
   }
 }
 

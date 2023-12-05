@@ -21,9 +21,9 @@ sc.set.poly(
 \item{path_colname}{Name of the path column.}
 }
 \value{
-Returns the 'scmpObject' with an updated 'edesign' slot.
+Returns the 'scmpObject' with an updated 'design' slot.
 }
 \description{
 This function creates a design matrix using the 'dense' slot of a 'scMaSigProClass' object.
-It generates an 'edesignClass' object which is then stored in the 'edesign' slot of the 'scMaSigProClass' object.
+It generates an 'designClass' object which is then stored in the 'design' slot of the 'scMaSigProClass' object.
 }

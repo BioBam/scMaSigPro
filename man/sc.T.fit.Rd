@@ -9,7 +9,7 @@ sc.T.fit(
   step.method = "backward",
   Q = scmpObj@param@Q,
   nvar.correction = FALSE,
-  family = scmpObj@distribution,
+  family = scmpObj@param@distribution,
   epsilon = scmpObj@param@epsilon,
   offset = scmpObj@param@offset,
   verbose = TRUE,
@@ -67,7 +67,7 @@ A list containing the following elements:
 \item{dat}{Input analysis scmpObj matrix.}
 \item{dis}{Regression design matrix.}
 \item{step.method}{Imputed step method for stepwise regression.}
-\item{edesign}{Matrix of experimental design.}
+\item{alloc}{Matrix of experimental design.}
 \item{influ.info}{scmpObj frame of genes containing influential scmpObj.}
 }
 \description{

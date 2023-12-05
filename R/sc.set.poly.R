@@ -1,14 +1,14 @@
 #' Create design matrix for 'scMaSigProClass' object
 #'
 #' This function creates a design matrix using the 'dense' slot of a 'scMaSigProClass' object.
-#' It generates an 'edesignClass' object which is then stored in the 'edesign' slot of the 'scMaSigProClass' object.
+#' It generates an 'designClass' object which is then stored in the 'design' slot of the 'scMaSigProClass' object.
 #'
 #' @param scmpObject A 'scMaSigProClass' object.
 #' @param poly_degree Degree of the design matrix (default: 2).
 #' @param bin_pseudotime_colname Name of the time column.
 #' @param path_colname Name of the path column.
 #'
-#' @return Returns the 'scmpObject' with an updated 'edesign' slot.
+#' @return Returns the 'scmpObject' with an updated 'design' slot.
 #'
 #' @importFrom maSigPro make.design.matrix
 #' @export
@@ -63,7 +63,7 @@ sc.set.poly <- function(scmpObject,
   com.cell.meta <- as.matrix(com.cell.meta[, ord])
 
   # Run Original MaSigPro make.matrix.design
-  edesignList <- make.design.matrix(com.cell.meta,
+  designList <- make.design.matrix(com.cell.meta,
     degree = poly_degree,
     time.col = 1,
     repl.col = 2,
@@ -71,15 +71,15 @@ sc.set.poly <- function(scmpObject,
   )
 
   # Create Object
-  edesignObj <- new("edesignClass",
-    dis = as.matrix(edesignList$dis),
-    groups.vector = edesignList$groups.vector,
-    edesign = as.matrix(edesignList$edesign)
+  designObj <- new("designClass",
+    predictor = as.matrix(designList$dis),
+    groups.vector = designList$groups.vector,
+    alloc = as.matrix(designList$edesign)
   )
 
   # Update Slot
-  scmpObject@edesign <- edesignObj
-  
+  scmpObject@design <- designObj
+
   # Update poly degree
   scmpObject@param@poly_degree <- as.integer(poly_degree)
 

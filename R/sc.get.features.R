@@ -59,7 +59,7 @@ sc.get.features <- function(scmpObj,
   )
 
   # Extract avail groups
-  avail_groups <- unique(scmpObj@scTFit@groups.vector)
+  avail_groups <- unique(scmpObj@estimate@groups.vector)
 
   # Check if group exist
   assert_that(
@@ -110,12 +110,12 @@ sc.get.features <- function(scmpObj,
         if (unique.trend == "up") {
           res <- rownames(getPattern(
             frame = coeff.df.sub, trend = "up", group = unique.group,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@groups.vector
           ))
         } else if (unique.trend == "down") {
           res <- rownames(getPattern(
             frame = coeff.df.sub, trend = "down", group = unique.group,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@groups.vector
           ))
         }
       }
@@ -140,7 +140,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = "up", group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@groups.vector
           )
           return(rownames(res.frame))
         })
@@ -153,7 +153,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = "down", group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@groups.vector
           )
 
           return(rownames(res.frame))
@@ -173,7 +173,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = trend_value, group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@groups.vector
           )
 
           return(rownames(res.frame))
@@ -193,7 +193,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = trend_value, group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@groups.vector
           )
 
           return(rownames(res.frame))
@@ -213,7 +213,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = trend_value, group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@groups.vector
           )
 
           return(rownames(res.frame))
@@ -233,7 +233,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = trend_value, group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@groups.vector
           )
 
           return(rownames(res.frame))
@@ -253,7 +253,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = trend_value, group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@groups.vector
           )
 
           return(rownames(res.frame))
@@ -273,7 +273,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = trend_value, group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@groups.vector
           )
 
           return(rownames(res.frame))

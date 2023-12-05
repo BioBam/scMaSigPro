@@ -101,7 +101,7 @@ sc.filter <- function(scmpObj,
     sol.sub <- sol[, !(colnames(sol) %in% c("p-value", "R-squared")), drop = FALSE]
 
     # Get group_vector, from T fit
-    group_vector <- scmpObj@scTFit@groups.vector
+    group_vector <- scmpObj@estimate@groups.vector
 
     # Based on the dummy, none and all
     if (significant.intercept == "all") {
@@ -145,13 +145,13 @@ sc.filter <- function(scmpObj,
   # # Create a named tstep
   ## Donot remove this ##
   # tstep <- list(
-  #   dis = scmpObj@edesign@dis,
-  #   edesign = scmpObj@edesign@edesign,
-  #   groups.vector = scmpObj@scTFit@groups.vector,
+  #   dis = scmpObj@design@predictor,
+  #   edesign = scmpObj@design@alloc,
+  #   groups.vector = scmpObj@estimate@groups.vector,
   #   sol = showSol(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
   #   coefficients = showCoeff(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
   #   sig.profiles = showSigProf(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
-  #   group.coeffs = scmpObj@scTFit@group.coeffs
+  #   group.coeffs = scmpObj@estimate@group.coeffs
   # )
 
   # sig.genes.s3 <- get.siggenes(tstep,

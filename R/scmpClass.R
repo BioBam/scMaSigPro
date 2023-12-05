@@ -30,6 +30,7 @@
 #' @slot logWeights A logical value specifying whether to take the logarithm of the weights during model fitting.
 #' @slot max_it Integer. Maximum number of iterations to fit the model.
 #' @slot poly_degree Integer with the polynomial degree to fit the regression. 1
+#' @slot distribution Distribution used
 #' specifies a linear regression, 2 a quadratic regression, etc.
 #'
 #' @name paramClass
@@ -64,7 +65,8 @@ setClass(
     logOffset = "logical",
     logWeights = "logical",
     max_it = "integer",
-    poly_degree = "integer"
+    poly_degree = "integer",
+    distribution = "ANY"
   ),
   validity = function(object) {
     errors <- character(0)
@@ -138,79 +140,211 @@ setClass(
     max_it = 100L,
     logWeights = FALSE,
     annotation_col = "cell_type",
-    poly_degree = 2L
+    poly_degree = 2L,
+    distribution = MASS::negative.binomial(10)
   )
 )
 
 ###############################################################################
-#' Class "edesignClass"
+#' Class "designClass"
 #'
-#' An S4 class to represent an edesign object with associated data.
-#' This class contains three slots: dis, groups.vector, and edesign.
+#' An S4 class to represent an design object with associated data.
+#' This class contains three slots: predictor, groups.vector, and alloc.
 #'
-#' @slot dis A data frame containing the design matrix of dummies for fitting the GLM.
+#' @slot predictor A data frame containing the design matrix of dummies for fitting the GLM.
 #' @slot groups.vector A character vector specifying the experimental group to which
 #' each variable belongs to.
-#' @slot edesign A data frame describing the experimental design. Rows must contain
+#' @slot alloc A data frame describing the experimental design. Rows must contain
 #' cells and columns experiment descriptors. The matrix must be binarized.
 #'
-#' @name edesignClass
-#' @aliases edesignClass-class
-#' @rdname edesignClass-class
-#' @exportClass edesignClass
+#' @name designClass
+#' @aliases designClass-class
+#' @rdname designClass-class
+#' @exportClass designClass
 #' @importFrom methods is new
 #' @keywords classes
 #'
 #' @section Validity:
 #'   Valid objects must have:
 #'   \itemize{
-#'     \item{dis}{A valid data frame.}
+#'     \item{predictor}{A valid data frame.}
 #'     \item{groups.vector}{A valid character vector.}
-#'     \item{edesign}{A valid data frame.}
+#'     \item{alloc}{A valid data frame.}
 #'   }
 #'
 
 setClass(
-    "edesignClass",
-    representation(
-        dis = "matrix",
-        groups.vector = "character",
-        edesign = "matrix"
-    ),
-    prototype = list(
-        dis = matrix(NA, nrow = 0, ncol = 0),
-        groups.vector = character(),
-        edesign = matrix(NA, nrow = 0, ncol = 0)
-    ),
-    validity = function(object) {
-        if (!validObject(object@dis)) {
-            stop("dis slot is not a valid data frame.")
-        }
-        if (!validObject(object@groups.vector)) {
-            stop("groups.vector slot is not a valid character vector.")
-        }
-        if (!validObject(object@edesign)) {
-            stop("poly_degree slot is not a valid matrix")
-        }
-        TRUE
+  "designClass",
+  representation(
+    predictor = "matrix",
+    groups.vector = "character",
+    alloc = "matrix"
+  ),
+  prototype = list(
+    predictor = matrix(NA, nrow = 0, ncol = 0),
+    groups.vector = character(),
+    alloc = matrix(NA, nrow = 0, ncol = 0)
+  ),
+  validity = function(object) {
+    if (!validObject(object@predictor)) {
+      stop("predictor slot is not a valid data frame.")
     }
+    if (!validObject(object@groups.vector)) {
+      stop("groups.vector slot is not a valid character vector.")
+    }
+    if (!validObject(object@alloc)) {
+      stop("poly_degree slot is not a valid matrix")
+    }
+    TRUE
+  }
 )
 ###############################################################################
+#' A class to store regression fit results for time series gene expression experiments
+#'
+#' The sigProfileClass is designed to hold the results of a regression fit for each gene in a time series gene expression experiment.
+#' It contains slots to store various results, such as expression values for significant genes, computed p-values, adjusted p-values,
+#' number of input genes, number of genes taken in the regression fit, and more. This class is useful for analyzing time course
+#' microarray experiments and identifying significant differential expression profiles.
+#'
+#' @slot non.flat a charcter vector
+#' @slot p.vector Numeric vector containing the computed p-values.
+#' @slot p.adjusted Numeric vector of FDR-adjusted p-values.
+#' @slot FDR P-value at FDR \code{Q} control when Benjamini & Hochberg (BH) correction is used.
+#'
+#' @name sigProfileClass
+#' @aliases sigProfileClass-class
+#' @rdname sigProfileClass-class
+#' @exportClass sigProfileClass
+#' @keywords classes regression
+#'
+#' @author Priyansh Srivastava <spriyansh29@gmail.com>
+#' @seealso \code{\link{T.fit}}, \code{\link{lm}}
+#' @importFrom stats family gaussian poisson
+#' @importFrom utils data combn
+#' @importFrom MASS negative.binomial
+
+# Define the sigProfileClass with the following slots:
+setClass("sigProfileClass",
+  slots = c(
+    non.flat = "character", # Matrix containing the expression values for significant genes
+    p.vector = "numeric", # Matrix containing the computed p-values
+    p.adjusted = "numeric", # Vector of FDR-adjusted p-values
+    FDR = "numeric" # P-value at FDR Q control when Benjamini & Hochberg (BH) correction is used
+  ),
+  validity = function(object) {
+    # Check for slot SELEC
+    if (!is.character(object@non.flat)) {
+      stop("Slot 'non.flat' must be a character")
+    }
+
+    # Check for slot sc.p.vector
+    if (!is.numeric(object@p.vector)) {
+      stop("Slot 'sc.p.vector' must be a numeric")
+    }
+
+    # Check for slot p.adjusted
+    if (!is.numeric(object@p.adjusted)) {
+      stop("Slot 'p.adjusted' must be numeric.")
+    }
+
+    # Check for slot FDR
+    if (!is.numeric(object@FDR)) {
+      stop("Slot 'FDR' must be numeric.")
+    }
+
+    TRUE
+  },
+  prototype = list(
+    non.flat = character(),
+    p.vector = numeric(0), # Empty matrix for sc.p.vector
+    p.adjusted = numeric(0), # Empty numeric vector for p.adjusted
+    FDR = 0 # Default FDR value is 0
+  )
+)
+###############################################################################
+#' @title Class "estimateClass"
+#'
+#' @description A class for fitting a model.
+#'
+#' @slot sol A data frame for summary results of the stepwise regression.
+#' For each selected gene the following values are given:
+#'   \itemize{
+#'     \item{p-value}{of the regression ANOVA.}
+#'     \item{R-squared}{of the model.}
+#'     \item{p-value}{of the regression coefficients of the selected variables.}
+#'   }
+#' @slot coefficients A data frame containing regression coefficients for the adjusted models.
+#' @slot group.coeffs A matrix with the coefficients of the implicit models of each experimental group.
+#' @slot t.score A data frame containing tscores for each covariate in polynomial glm.
+#' @slot variables A character vector containing the variables in the complete regression model.
+#' @slot groups.vector A character vector containing the branching path.
+#' @slot influ.info A matrix with genes containing influencial data.
+#'
+#' @name estimateClass
+#' @aliases estimate-class
+#' @rdname estimate-class
+#' @exportClass estimateClass
+#' @importFrom methods is new
+#' @keywords classes
 
 
+setClass(
+  "estimateClass",
+  representation(
+    sol = "data.frame",
+    coefficients = "data.frame",
+    group.coeffs = "matrix",
+    t.score = "data.frame",
+    variables = "character",
+    groups.vector = "character",
+    influ.info = "matrix"
+  ),
+  validity = function(object) {
+    if (!is.data.frame(object@sol)) {
+      stop("sol slot must be a data.frame")
+    }
+    if (!is.data.frame(object@coefficients)) {
+      stop("coefficients slot must be a data.frame")
+    }
+    if (!is.matrix(object@group.coeffs)) {
+      stop("group.coeffs slot must be a matrix.")
+    }
+    if (!is.data.frame(object@t.score)) {
+      stop("t.score slot must be a data.frame")
+    }
+    if (!is.character(object@variables)) {
+      stop("variables slot must be a character vector.")
+    }
+    if (!is.character(object@groups.vector)) {
+      stop("groups.vector slot must be a character.")
+    }
+    if (!is.matrix(object@influ.info)) {
+      stop("influ.info slot must be a matrix.")
+    }
+  },
+  prototype = list(
+    sol = data.frame(),
+    coefficients = data.frame(),
+    group.coeffs = matrix(0, nrow = 1, ncol = 1),
+    t.score = data.frame(),
+    variables = "not_selected",
+    groups.vector = character(),
+    influ.info = matrix(NA, nrow = 0, ncol = 0)
+  )
+)
+###############################################################################
 #' scMaSigProClass
 #'
 #' A class to represent the ScMaSigPro analysis results and associated data.
 #' Inherits from \code{SingleCellExperiment}.
 #'
 #' @slot sparse Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.
-#' @slot scPVector Object of Class scPVectorClass See \pkg{scPVectorClass} for more details.
-#' @slot scTFit Object of Class scTFitClass. See \code{\link{scTFitClass}} for more details.
+#' @slot profile Object of Class sigProfileClass See \pkg{sigProfileClass} for more details.
+#' @slot estimate Object of Class estimateClass See \code{\link{estimateClass}} for more details.
 #' @slot dense  Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.
-#' @slot edesign Object of Class edesignClass. See \code{\link{edesignClass}} for more details.
+#' @slot design Object of Class designClass. See \code{\link{designClass}} for more details.
 #' @slot param Object of Class paramClass. See \code{\link{paramClass}} for more details.
 #' @slot sig.genes ABC
-#' @slot distribution The distribution function to be used in the glm model.
 #'
 #' @name scMaSigProClass
 #' @aliases scMaSigProClass-class
@@ -241,13 +375,12 @@ setClass(
   "scMaSigProClass",
   representation(
     sparse = "SingleCellExperiment",
-    scPVector = "scPVectorClass",
-    scTFit = "scTFitClass",
+    profile = "sigProfileClass",
+    estimate = "estimateClass",
     dense = "SingleCellExperiment",
-    edesign = "edesignClass",
+    design = "designClass",
     param = "paramClass",
-    sig.genes = "sigClass",
-    distribution = "ANY"
+    sig.genes = "sigClass"
   ),
   validity = function(object) {
     # Check sparse slot
@@ -255,14 +388,14 @@ setClass(
       stop("sparse slot is not a valid SingleCellExperiment object.")
     }
 
-    # Check scPVectorClass slot
-    if (!validObject(object@scPVector)) {
-      stop("scPVector slot is not a valid scPVectorClass object.")
+    # Check sigProfileClass slot
+    if (!validObject(object@profile)) {
+      stop("profile slot is not a valid sigProfileClass object.")
     }
 
-    # Check scTFitClass slot
-    if (!validObject(object@scTFit)) {
-      stop("scTFitClass slot is not a valid scTFitClass object.")
+    # Check estimateClass slot
+    if (!validObject(object@estimate)) {
+      stop("estimateClass slot is not a valid estimateClass object.")
     }
 
     # Check dense slot
@@ -270,9 +403,9 @@ setClass(
       stop("dense slot is not a valid SingleCellExperiment object.")
     }
 
-    # Check edesignClass slot
-    if (!validObject(object@edesign)) {
-      stop("edesign slot is not a valid edesignClass object.")
+    # Check designClass slot
+    if (!validObject(object@design)) {
+      stop("design slot is not a valid designClass object.")
     }
 
     # Check paramClass slot
@@ -285,31 +418,28 @@ setClass(
     }
   },
   prototype = list(
-    scPVector = new("scPVectorClass"), # Assuming you've defined scPVectorClass with its prototype
-    scTFit = new("scTFitClass"), # Assuming you've defined scTFitClass with its prototype
-    param = new("paramClass"), # Assuming you've defined scTFitClass with its prototype
-    sig.genes = new("sigClass"),
-    distribution = negative.binomial(theta = 10)
+    profile = new("sigProfileClass"), # Assuming you've defined sigProfileClass with its prototype
+    estimate = new("estimateClass"), # Assuming you've defined estimateClass with its prototype
+    param = new("paramClass"), # Assuming you've defined estimateClass with its prototype
+    sig.genes = new("sigClass")
   )
 )
 
 scMaSigProClass <- function(sparse = new("SingleCellExperiment"), # Remove default sparse
-                            scPVector = new("scPVectorClass"),
-                            scTFit = new("scTFitClass"),
+                            profile = new("sigProfileClass"),
+                            estimate = new("estimateClass"),
                             dense = new("SingleCellExperiment"),
-                            edesign = new("edesignClass"),
+                            design = new("designClass"),
                             param = new("paramClass"),
-                            sig.genes = new("sigClass"),
-                            distribution = negative.binomial(theta = 10)) {
+                            sig.genes = new("sigClass")) {
   new("scMaSigProClass",
     sparse = sparse,
-    scPVector = scPVector,
-    scTFit = scTFit,
+    profile = profile,
+    estimate = estimate,
     dense = dense,
-    edesign = edesign,
+    design = design,
     paramClass = param,
-    sig.genes = sig.genes, # new("sigClass"),
-    distribution = distribution
+    sig.genes = sig.genes # new("sigClass"),
   )
 }
 
