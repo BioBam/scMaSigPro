@@ -9,7 +9,7 @@
 #'
 #' @keywords internal
 
-extract.intervals <- function(time.vector, nBins = 1, bin, bin.size, lbound, ubound) {
+extract_interval <- function(time.vector, nBins = 1, bin, bin.size, lbound, ubound) {
   # Create Dataframe
   new_range_current <- as.data.frame(entropy::discretize(
     time.vector,

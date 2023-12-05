@@ -22,7 +22,7 @@
 #' @return A dataframe with adjusted bins. The structure of the dataframe will be the same as `bin_table`
 #' with updated values for the bin size and bounds.
 #' @keywords internal
-optimize.bin.max <- function(bin_table, max_allowed, verbose = TRUE,
+optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
                              time_vector, lbound, ubound, bin, bin.size, method,
                              drop) {
   # Initiate an empty uniform bin
@@ -49,7 +49,7 @@ optimize.bin.max <- function(bin_table, max_allowed, verbose = TRUE,
       ))
 
       # Run the extraction
-      small_splitted_bin_df <- extract.intervals(
+      small_splitted_bin_df <- extract_interval(
         time.vector = pTime.for.big.interval,
         nBins = potential_splits,
         bin = bin, bin.size = bin.size, lbound = lbound, ubound = ubound

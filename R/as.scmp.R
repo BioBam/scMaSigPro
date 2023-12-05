@@ -16,7 +16,7 @@
 #' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
 #' (Default is `path_prefix`)
 #' @param align_pseudotime Whether to automatically align two different pseudotimes.
-#' See \code{\link{align.pseudotime}} for more details. (Default is FALSE).
+#' See \code{\link{align_pseudotime}} for more details. (Default is FALSE).
 #' @param interactive Whether to use the shiny application to select paths. (Default is TRUE).
 #' @param annotation_colname Column name in cell level metadata containing cell type
 #' annotations. (Default is "cell_type").
@@ -168,7 +168,7 @@ as.scmp <- function(object, from = "cds",
     }
     # return(scmpObj)
     if (align_pseudotime) {
-      scmpObj <- align.pseudotime(
+      scmpObj <- align_pseudotime(
         scmpObj = scmpObj,
         method = "rescale",
         pseudotime_col = pseudotime_colname,

@@ -218,7 +218,7 @@ sc.squeeze <- function(scmpObject,
     )
 
     # Get Bin Table
-    bin_table <- extract.intervals(
+    bin_table <- extract_interval(
       time.vector = time_vector,
       nBins = estBins,
       bin = bin, bin.size = bin.size, lbound = lbound,
@@ -256,7 +256,7 @@ sc.squeeze <- function(scmpObject,
         }
 
         # Call your 'optimize.bin.width' function
-        bin_table <- optimize.bin.max(
+        bin_table <- optimize_bin_max(
           bin_table = bin_table,
           max_allowed = max.allowed,
           verbose = verbose,
@@ -466,7 +466,7 @@ sc.squeeze <- function(scmpObject,
   scmpObject@dense <- compressed.sparse
 
   # Get Counts
-  scmpObject <- make.pseudobulk.counts(
+  scmpObject <- pb_counts(
     scmpObject = scmpObject,
     bin_members_colname = bin_members_colname,
     bin_colname = bin_colname,

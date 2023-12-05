@@ -1,7 +1,7 @@
 #' Align pseudotime from two different paths
 #'
 #' @description
-#' `align.pseudotime()` is an internal function that aligns the pseudotime from
+#' `align_pseudotime()` is an internal function that aligns the pseudotime from
 #' two different trajectory paths. It first identifies the path which has a longer
 #' pseudotime range, and then it uses the range of the shorter path to rescale
 #' the range of the longer one. It uses a simple rescaling mechanism from
@@ -24,7 +24,7 @@
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #' @keywords internal
 
-align.pseudotime <- function(scmpObj, pseudotime_col, path_col, method = "rescale", verbose = TRUE) {
+align_pseudotime <- function(scmpObj, pseudotime_col, path_col, method = "rescale", verbose = TRUE) {
   # Extract Cell metadata
   cell.metadata <- scmpObj@sparse@colData %>% as.data.frame()
 

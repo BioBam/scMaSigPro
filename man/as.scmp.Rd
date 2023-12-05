@@ -33,7 +33,7 @@ Pseudotime values. It is generated using `colData` from the \pkg{SingleCellExper
 package. (Default is "Pseudotime").}
 
 \item{align_pseudotime}{Whether to automatically align two different pseudotimes.
-See \code{\link{align.pseudotime}} for more details. (Default is FALSE).}
+See \code{\link{align_pseudotime}} for more details. (Default is FALSE).}
 
 \item{path_colname}{Name of the column in `cell.metadata` storing information
 for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.

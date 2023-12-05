@@ -1,7 +1,7 @@
 #' @title Create Pseduo-bulk Counts
 #'
 #' @description
-#' `make.pseudobulk.counts()` creates a dataframe of pseudo bulk counts from single
+#' `pb_counts()` creates a dataframe of pseudo bulk counts from single
 #' cell counts. It does this by either taking the mean or sum of counts across clusters
 #' in each bin, depending on the specified method.
 #'
@@ -31,7 +31,7 @@
 #'
 #' @keywords internal
 
-make.pseudobulk.counts <- function(scmpObject,
+pb_counts <- function(scmpObject,
                                    bin_members_colname = scmpObject@param@bin_members_colname,
                                    bin_colname = scmpObject@param@bin_colname,
                                    assay_name = "counts",
