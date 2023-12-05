@@ -4,7 +4,7 @@
 #' `sc.filter()` creates lists of significant genes for a set of variables
 #' whose significance value has been computed with the \code{sc.T.fit} function.
 #'
-#' @param scmpObj Object of Class \code{\link{scMaSigProClass}} in which the
+#' @param scmpObj Object of Class \code{\link{scmp}} in which the
 #' \code{sc.T.fit} has been run.
 #' @param rsq Cut-off level at the R-squared value for the stepwise regression fit.
 #' @param includeInflu description
@@ -59,8 +59,8 @@ sc.filter <- function(scmpObj,
                       term.Q = 0.05,
                       includeInflu = TRUE) {
   # Check Validity of the object
-  assert_that(is(scmpObj, "scMaSigProClass"),
-    msg = "Please provide object of class 'scMaSigProClass'"
+  assert_that(is(scmpObj, "scmp"),
+    msg = "Please provide object of class 'scmp'"
   )
 
   assert_that(
@@ -101,7 +101,7 @@ sc.filter <- function(scmpObj,
     sol.sub <- sol[, !(colnames(sol) %in% c("p-value", "R-squared")), drop = FALSE]
 
     # Get group_vector, from T fit
-    group_vector <- scmpObj@estimate@groups.vector
+    group_vector <- scmpObj@estimate@path
 
     # Based on the dummy, none and all
     if (significant.intercept == "all") {
@@ -147,7 +147,7 @@ sc.filter <- function(scmpObj,
   # tstep <- list(
   #   dis = scmpObj@design@predictor,
   #   edesign = scmpObj@design@alloc,
-  #   groups.vector = scmpObj@estimate@groups.vector,
+  #   groups.vector = scmpObj@estimate@path,
   #   sol = showSol(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
   #   coefficients = showCoeff(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
   #   sig.profiles = showSigProf(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),

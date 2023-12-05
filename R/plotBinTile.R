@@ -17,7 +17,7 @@ plotBinTile <- function(scmpObj,
                         bin_size_colname = scmpObj@param@bin_size_colname,
                         bin_pseudotime_colname = scmpObj@param@bin_pseudotime_colname) {
   # Check Object Validity
-  assert_that(is(scmpObj, "scMaSigProClass"),
+  assert_that(is(scmpObj, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'."
   )
 

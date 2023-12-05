@@ -7,7 +7,7 @@
 .scmp_show(object)
 }
 \arguments{
-\item{object}{An object of class \code{scMaSigProClass}.}
+\item{object}{An object of class \code{scmp}.}
 }
 \description{
 This method displays basic information about the ScMaSigPro object when the object

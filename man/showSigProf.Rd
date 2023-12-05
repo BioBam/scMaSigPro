@@ -7,7 +7,7 @@
 showSigProf(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE)
 }
 \arguments{
-\item{scmpObj}{an object of class 'scMaSigProClass'. This object should contain the computed solution.}
+\item{scmpObj}{an object of class 'scmp'. This object should contain the computed solution.}
 
 \item{view}{logical, whether to view the solution. If TRUE (default), the solution is displayed.}
 

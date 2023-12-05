@@ -36,7 +36,6 @@
 #' @name paramClass
 #' @aliases paramClass-class
 #' @rdname paramClass-class
-#' @exportClass paramClass
 #' @importFrom methods is new
 #' @keywords classes
 
@@ -160,7 +159,6 @@ setClass(
 #' @name designClass
 #' @aliases designClass-class
 #' @rdname designClass-class
-#' @exportClass designClass
 #' @importFrom methods is new
 #' @keywords classes
 #'
@@ -214,7 +212,6 @@ setClass(
 #' @name sigProfileClass
 #' @aliases sigProfileClass-class
 #' @rdname sigProfileClass-class
-#' @exportClass sigProfileClass
 #' @keywords classes regression
 #'
 #' @author Priyansh Srivastava <spriyansh29@gmail.com>
@@ -276,14 +273,12 @@ setClass("sigProfileClass",
 #' @slot coefficients A data frame containing regression coefficients for the adjusted models.
 #' @slot group.coeffs A matrix with the coefficients of the implicit models of each experimental group.
 #' @slot t.score A data frame containing tscores for each covariate in polynomial glm.
-#' @slot variables A character vector containing the variables in the complete regression model.
-#' @slot groups.vector A character vector containing the branching path.
+#' @slot path A character vector containing the branching path.
 #' @slot influ.info A matrix with genes containing influencial data.
 #'
 #' @name estimateClass
 #' @aliases estimate-class
 #' @rdname estimate-class
-#' @exportClass estimateClass
 #' @importFrom methods is new
 #' @keywords classes
 
@@ -295,8 +290,7 @@ setClass(
     coefficients = "data.frame",
     group.coeffs = "matrix",
     t.score = "data.frame",
-    variables = "character",
-    groups.vector = "character",
+    path = "character",
     influ.info = "matrix"
   ),
   validity = function(object) {
@@ -312,11 +306,8 @@ setClass(
     if (!is.data.frame(object@t.score)) {
       stop("t.score slot must be a data.frame")
     }
-    if (!is.character(object@variables)) {
-      stop("variables slot must be a character vector.")
-    }
-    if (!is.character(object@groups.vector)) {
-      stop("groups.vector slot must be a character.")
+    if (!is.character(object@path)) {
+      stop("path slot must be a character.")
     }
     if (!is.matrix(object@influ.info)) {
       stop("influ.info slot must be a matrix.")
@@ -327,13 +318,12 @@ setClass(
     coefficients = data.frame(),
     group.coeffs = matrix(0, nrow = 1, ncol = 1),
     t.score = data.frame(),
-    variables = "not_selected",
-    groups.vector = character(),
+    path = character(),
     influ.info = matrix(NA, nrow = 0, ncol = 0)
   )
 )
 ###############################################################################
-#' scMaSigProClass
+#' scmp
 #'
 #' A class to represent the ScMaSigPro analysis results and associated data.
 #' Inherits from \code{SingleCellExperiment}.
@@ -346,10 +336,10 @@ setClass(
 #' @slot param Object of Class paramClass. See \code{\link{paramClass}} for more details.
 #' @slot sig.genes ABC
 #'
-#' @name scMaSigProClass
-#' @aliases scMaSigProClass-class
-#' @rdname scMaSigProClass-class
-#' @exportClass scMaSigProClass
+#' @name scmp
+#' @aliases scmp-class
+#' @rdname scmp-class
+#' @exportClass scmp
 #' @importFrom methods is new as
 #' @keywords classes
 
@@ -370,9 +360,9 @@ setClass(
     feature.clusters = list()
   )
 )
-
+###############################################################################
 setClass(
-  "scMaSigProClass",
+  "scmp",
   representation(
     sparse = "SingleCellExperiment",
     profile = "sigProfileClass",
@@ -425,14 +415,14 @@ setClass(
   )
 )
 
-scMaSigProClass <- function(sparse = new("SingleCellExperiment"), # Remove default sparse
-                            profile = new("sigProfileClass"),
-                            estimate = new("estimateClass"),
-                            dense = new("SingleCellExperiment"),
-                            design = new("designClass"),
-                            param = new("paramClass"),
-                            sig.genes = new("sigClass")) {
-  new("scMaSigProClass",
+scmp <- function(sparse = new("SingleCellExperiment"), # Remove default sparse
+                 profile = new("sigProfileClass"),
+                 estimate = new("estimateClass"),
+                 dense = new("SingleCellExperiment"),
+                 design = new("designClass"),
+                 param = new("paramClass"),
+                 sig.genes = new("sigClass")) {
+  new("scmp",
     sparse = sparse,
     profile = profile,
     estimate = estimate,
@@ -445,7 +435,7 @@ scMaSigProClass <- function(sparse = new("SingleCellExperiment"), # Remove defau
 
 setMethod(
   "show",
-  "scMaSigProClass",
+  "scmp",
   function(object) {
     .scmp_show(object)
   }

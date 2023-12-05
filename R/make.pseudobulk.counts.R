@@ -5,7 +5,7 @@
 #' cell counts. It does this by either taking the mean or sum of counts across clusters
 #' in each bin, depending on the specified method.
 #'
-#' @param scmpObject object of Class scMaSigPro. See \code{\link{scMaSigProClass}}
+#' @param scmpObject object of Class scMaSigPro. See \code{\link{scmp}}
 #' for more details.
 #' @param bin_members_colname Column name in the 'compressed_cell_metadata'
 #' storing information about the members of the bins. (Default is 'scmp_bin_members').
@@ -37,7 +37,7 @@ make.pseudobulk.counts <- function(scmpObject,
                                    assay_name = "counts",
                                    cluster_count_by = "sum") {
   # Check Object Validity
-  assert_that(is(scmpObject, "scMaSigProClass"),
+  assert_that(is(scmpObject, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'."
   )
 

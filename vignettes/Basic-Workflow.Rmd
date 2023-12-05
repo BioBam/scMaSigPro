@@ -148,16 +148,16 @@ of genes), the available branching paths, and the range of pseudotime.
 scmp.ob
 ```
 
-### Pseudo-bulking along the continuum with `squeeze()`
+### Pseudo-bulking along the continuum with `sc.squeeze()`
 
 `scMaSigPro` provides a comprehensive function for pseudo-bulking along the
-pseudotime continuum, named `squeeze()`. This function discretizes the original 
-pseudotime values into bins using histogram binning methods. The `squeeze()`
+pseudotime continuum, named `sc.squeeze()`. This function discretizes the original 
+pseudotime values into bins using histogram binning methods. The `sc.squeeze()`
 function includes various parameters that can be tailored depending on the 
 characteristics of the data. Here, we will show the basic usage with the default
 parameters:
 
-```{r, "Pseudo-bulking along the continuum with `squeeze()`",eval=TRUE, echo=TRUE}
+```{r, "Pseudo-bulking along the continuum with `sc.squeeze()`",eval=TRUE, echo=TRUE}
 scmp.ob <- sc.squeeze(scmp.ob)
 ```
 

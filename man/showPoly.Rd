@@ -7,7 +7,7 @@
 showPoly(scmpObj)
 }
 \arguments{
-\item{scmpObj}{an object of class 'scMaSigProClass'. This object should contain the computed solution.}
+\item{scmpObj}{an object of class 'scmp'. This object should contain the computed solution.}
 }
 \value{
 Return the terms of the polynomial model.

@@ -64,8 +64,8 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
                         logOffset = FALSE,
                         max_it = 100) {
   # Check the type of the 'design' parameter and set the corresponding variables
-  assert_that(is(scmpObj, "scMaSigProClass"),
-    msg = "Please provide object of class 'scMaSigProClass'"
+  assert_that(is(scmpObj, "scmp"),
+    msg = "Please provide object of class 'scmp'"
   )
 
   # Extract from s4

@@ -73,8 +73,8 @@ sc.T.fit <- function(scmpObj,
                      logWeights = scmpObj@param@logWeights,
                      logOffset = scmpObj@param@logOffset,
                      max_it = scmpObj@param@max_it) {
-  assert_that(is(scmpObj, "scMaSigProClass"),
-    msg = "Please provide object of class 'scMaSigProClass'"
+  assert_that(is(scmpObj, "scmp"),
+    msg = "Please provide object of class 'scmp'"
   )
 
   # Transfer Data
@@ -340,8 +340,7 @@ sc.T.fit <- function(scmpObj,
     coefficients = coefficients,
     group.coeffs = group.coeffs,
     t.score = t.score,
-    variables = vars.in,
-    groups.vector = groups.vector,
+    path = groups.vector,
     influ.info = influ.info
   )
 

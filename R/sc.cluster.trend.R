@@ -2,9 +2,9 @@
 #'
 #' Performs clustering on features in single-cell data using hierarchical clustering,
 #' k-means, or model-based clustering methods. It operates on an object of class
-#' `scMaSigProClass` and adds clustering information to this object.
+#' `scmp` and adds clustering information to this object.
 #'
-#' @param scmpObj An object of class `scMaSigProClass`. The function checks for
+#' @param scmpObj An object of class `scmp`. The function checks for
 #'   validity and necessary data within this object before proceeding.
 #' @param includeInflu A boolean indicating whether to include influential points in
 #'   the analysis.
@@ -38,7 +38,7 @@ sc.cluster.trend <- function(scmpObj, includeInflu = TRUE,
                              cor.method = "pearson",
                              hclust.agglo_method = "ward.D") {
   # Check Object Validity
-  assert_that(is(scmpObj, "scMaSigProClass"),
+  assert_that(is(scmpObj, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'"
   )
 

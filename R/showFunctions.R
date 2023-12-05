@@ -18,7 +18,7 @@
 #'
 #' This function is used to view or return the coeffients of the provided scMaSigPro object.
 #'
-#' @param scmpObj an object of class 'scMaSigProClass'. This object should contain the computed solution.
+#' @param scmpObj an object of class 'scmp'. This object should contain the computed solution.
 #' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
 #' @param includeInflu description
 #' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
@@ -29,7 +29,7 @@
 #' @export
 showCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
   # Check Object Validity
-  assert_that(is(scmpObj, "scMaSigProClass"),
+  assert_that(is(scmpObj, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'"
   )
 
@@ -63,7 +63,7 @@ showCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE)
 #'
 #' This function is used to view or return the solution of the provided scMaSigPro object.
 #'
-#' @param scmpObj an object of class 'scMaSigProClass'. This object should contain the computed solution.
+#' @param scmpObj an object of class 'scmp'. This object should contain the computed solution.
 #' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
 #' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
 #'
@@ -73,7 +73,7 @@ showCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE)
 #' @export
 showInflu <- function(scmpObj, view = FALSE, return = TRUE) {
   # Check Object Validity
-  assert_that(is(scmpObj, "scMaSigProClass"),
+  assert_that(is(scmpObj, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'"
   )
 
@@ -102,7 +102,7 @@ showInflu <- function(scmpObj, view = FALSE, return = TRUE) {
 #'
 #' This function is used to view or return the solution of the provided scMaSigPro object.
 #'
-#' @param scmpObj an object of class 'scMaSigProClass'. This object should contain the computed solution.
+#' @param scmpObj an object of class 'scmp'. This object should contain the computed solution.
 #' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
 #' @param includeInflu logical, whether to add gene with influential data in the solution.
 #' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
@@ -113,7 +113,7 @@ showInflu <- function(scmpObj, view = FALSE, return = TRUE) {
 #' @export
 showTS <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
   # Check Object Validity
-  assert_that(is(scmpObj, "scMaSigProClass"),
+  assert_that(is(scmpObj, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'"
   )
 
@@ -147,7 +147,7 @@ showTS <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
 #'
 #' This function is used to view or return the solution of the provided scMaSigPro object.
 #'
-#' @param scmpObj an object of class 'scMaSigProClass'. This object should contain the computed solution.
+#' @param scmpObj an object of class 'scmp'. This object should contain the computed solution.
 #' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
 #' @param includeInflu logical, whether to add gene with influential data in the solution.
 #' @param return logical, whether to return the solution. If TRUE (default), returned.
@@ -158,7 +158,7 @@ showTS <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
 #' @export
 showSol <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
   # Check Object Validity
-  assert_that(is(scmpObj, "scMaSigProClass"),
+  assert_that(is(scmpObj, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'"
   )
 
@@ -191,7 +191,7 @@ showSol <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
 #'
 #' This function is used to view or return the solution of the provided scMaSigPro object.
 #'
-#' @param scmpObj an object of class 'scMaSigProClass'. This object should contain the computed solution.
+#' @param scmpObj an object of class 'scmp'. This object should contain the computed solution.
 #' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
 #' @param includeInflu logical, whether to add gene with influential data in the solution.
 #' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
@@ -202,7 +202,7 @@ showSol <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
 #' @export
 showSigProf <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE) {
   # Check Object Validity
-  assert_that(is(scmpObj, "scMaSigProClass"),
+  assert_that(is(scmpObj, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'"
   )
 
@@ -238,14 +238,14 @@ showSigProf <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FAL
 #'
 #' This function is used to view or return the solution of the provided scMaSigPro object.
 #'
-#' @param scmpObj an object of class 'scMaSigProClass'. This object should contain the computed solution.
+#' @param scmpObj an object of class 'scmp'. This object should contain the computed solution.
 #'
 #' @return Return the terms of the polynomial model.
 #'
 #' @export
 showPoly <- function(scmpObj) {
   # Check Object Validity
-  assert_that(is(scmpObj, "scMaSigProClass"),
+  assert_that(is(scmpObj, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'"
   )
 
@@ -277,7 +277,7 @@ showPoly <- function(scmpObj) {
 #'
 #' This function is used to view or return the solution of the provided scMaSigPro object.
 #'
-#' @param scmpObj an object of class 'scMaSigProClass'. This object should contain the computed solution.
+#' @param scmpObj an object of class 'scmp'. This object should contain the computed solution.
 #' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
 #' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
 #'
@@ -287,7 +287,7 @@ showPoly <- function(scmpObj) {
 #' @export
 showParams <- function(scmpObj, view = FALSE, return = TRUE) {
   # Check Object Validity
-  assert_that(is(scmpObj, "scMaSigProClass"),
+  assert_that(is(scmpObj, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'"
   )
 
@@ -340,7 +340,7 @@ showParams <- function(scmpObj, view = FALSE, return = TRUE) {
 #'
 #' This function is used to view or return the group of the provided scMaSigPro object.
 #'
-#' @param scmpObj an object of class 'scMaSigProClass'. This object should contain the computed solution.
+#' @param scmpObj an object of class 'scmp'. This object should contain the computed solution.
 #' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
 #' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
 #' @param includeInflu description
@@ -351,7 +351,7 @@ showParams <- function(scmpObj, view = FALSE, return = TRUE) {
 #' @export
 showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
   # Check Object Validity
-  assert_that(is(scmpObj, "scMaSigProClass"),
+  assert_that(is(scmpObj, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'"
   )
 
@@ -386,7 +386,7 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
 #' is printed in the console. The method is automatically called when the user writes
 #' the name of the object in the console.
 #'
-#' @param object An object of class \code{scMaSigProClass}.
+#' @param object An object of class \code{scmp}.
 #'
 #' @importFrom S4Vectors coolcat
 #'

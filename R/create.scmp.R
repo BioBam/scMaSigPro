@@ -1,7 +1,7 @@
-#' @title Create scMaSigProClass Object
+#' @title Create scmp Object
 #'
 #' @description
-#' `create.scmp()` initializes a scMaSigProClass object with the given counts,
+#' `create.scmp()` initializes a scmp object with the given counts,
 #' cell level metadata, and other optional parameters.
 #'
 #' @param counts A matrix containing the raw expression counts.
@@ -13,7 +13,7 @@
 #' @param path_colname A character string specifying the column name for the path in the cell level metadata.
 #' @param use_as_bin A logical indicating whether to use the raw counts and cell level data as binned. Defaults to FALSE.
 #'
-#' @return A scMaSigProClass object containing the inputted counts, cell data, and additional parameters.
+#' @return A scmp object containing the inputted counts, cell data, and additional parameters.
 #'
 #'
 #' @export
@@ -52,7 +52,7 @@ create.scmp <- function(counts,
   )
 
   # Initate scMaSigPro
-  scmpObj <- new("scMaSigProClass",
+  scmpObj <- new("scmp",
     sparse = sparse_tmp,
     dense = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
   )

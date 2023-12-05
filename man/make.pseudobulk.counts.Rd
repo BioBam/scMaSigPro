@@ -13,7 +13,7 @@ make.pseudobulk.counts(
 )
 }
 \arguments{
-\item{scmpObject}{object of Class scMaSigPro. See \code{\link{scMaSigProClass}}
+\item{scmpObject}{object of Class scMaSigPro. See \code{\link{scmp}}
 for more details.}
 
 \item{bin_members_colname}{Column name in the 'compressed_cell_metadata'

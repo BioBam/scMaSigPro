@@ -25,7 +25,7 @@ sc.squeeze(
 )
 }
 \arguments{
-\item{scmpObject}{object of Class scMaSigPro. See \code{\link{scMaSigProClass}}
+\item{scmpObject}{object of Class scMaSigPro. See \code{\link{scmp}}
 for more details.}
 
 \item{pseudotime_colname}{Name of the column in `cell.metadata` storing

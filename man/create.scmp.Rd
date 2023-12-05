@@ -2,7 +2,7 @@
 % Please edit documentation in R/create.scmp.R
 \name{create.scmp}
 \alias{create.scmp}
-\title{Create scMaSigProClass Object}
+\title{Create scmp Object}
 \usage{
 create.scmp(
   counts,
@@ -33,9 +33,9 @@ create.scmp(
 \item{use_as_bin}{A logical indicating whether to use the raw counts and cell level data as binned. Defaults to FALSE.}
 }
 \value{
-A scMaSigProClass object containing the inputted counts, cell data, and additional parameters.
+A scmp object containing the inputted counts, cell data, and additional parameters.
 }
 \description{
-`create.scmp()` initializes a scMaSigProClass object with the given counts,
+`create.scmp()` initializes a scmp object with the given counts,
 cell level metadata, and other optional parameters.
 }

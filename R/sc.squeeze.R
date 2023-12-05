@@ -6,7 +6,7 @@
 #' the optimal number of bins using one of the supported methods. The bin sizes
 #' are also calculated and merged with the input cell_metadata.
 #'
-#' @param scmpObject object of Class scMaSigPro. See \code{\link{scMaSigProClass}}
+#' @param scmpObject object of Class scMaSigPro. See \code{\link{scmp}}
 #' for more details.
 #' @param pseudotime_colname Name of the column in `cell.metadata` storing
 #' Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment}
@@ -92,7 +92,7 @@ sc.squeeze <- function(scmpObject,
   cell <- "cell"
 
   # Check Object Validity
-  assert_that(is(scmpObject, "scMaSigProClass"),
+  assert_that(is(scmpObject, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'."
   )
 

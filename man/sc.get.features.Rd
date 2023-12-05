@@ -2,7 +2,7 @@
 % Please edit documentation in R/sc.get.features.R
 \name{sc.get.features}
 \alias{sc.get.features}
-\title{Get Features from scMaSigProClass Object}
+\title{Get Features from scmp Object}
 \usage{
 sc.get.features(
   scmpObj,
@@ -22,7 +22,7 @@ sc.get.features(
 )
 }
 \arguments{
-\item{scmpObj}{An object of class 'scMaSigProClass'.}
+\item{scmpObj}{An object of class 'scmp'.}
 
 \item{query}{A string specifying the type of query.
 Valid options are 'unique' or 'union'.
@@ -59,7 +59,7 @@ Depending on the query, the function returns either a vector of
         common to all groups (when query is 'union').
 }
 \description{
-This function extracts features from an object of class 'scMaSigProClass'
+This function extracts features from an object of class 'scmp'
 based on a specified query and group. The function supports two types of
 queries: 'unique' or 'union', and allows for the selection of a specific
 group from the available groups in the object.

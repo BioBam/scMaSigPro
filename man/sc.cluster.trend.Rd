@@ -17,7 +17,7 @@ sc.cluster.trend(
 )
 }
 \arguments{
-\item{scmpObj}{An object of class `scMaSigProClass`. The function checks for
+\item{scmpObj}{An object of class `scmp`. The function checks for
 validity and necessary data within this object before proceeding.}
 
 \item{includeInflu}{A boolean indicating whether to include influential points in
@@ -51,5 +51,5 @@ The modified `scmpObj` with added clustering information in the
 \description{
 Performs clustering on features in single-cell data using hierarchical clustering,
 k-means, or model-based clustering methods. It operates on an object of class
-`scMaSigProClass` and adds clustering information to this object.
+`scmp` and adds clustering information to this object.
 }

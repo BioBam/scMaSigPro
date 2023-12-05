@@ -132,7 +132,7 @@ as.scmp <- function(object, from = "cds",
     )
 
     # Create Object
-    scmpObj <- new("scMaSigProClass",
+    scmpObj <- new("scmp",
       sparse = annotated_sce,
       dense = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
     )

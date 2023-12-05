@@ -1,9 +1,9 @@
-#' Create design matrix for 'scMaSigProClass' object
+#' Create design matrix for 'scmp' object
 #'
-#' This function creates a design matrix using the 'dense' slot of a 'scMaSigProClass' object.
-#' It generates an 'designClass' object which is then stored in the 'design' slot of the 'scMaSigProClass' object.
+#' This function creates a design matrix using the 'dense' slot of a 'scmp' object.
+#' It generates an 'designClass' object which is then stored in the 'design' slot of the 'scmp' object.
 #'
-#' @param scmpObject A 'scMaSigProClass' object.
+#' @param scmpObject A 'scmp' object.
 #' @param poly_degree Degree of the design matrix (default: 2).
 #' @param bin_pseudotime_colname Name of the time column.
 #' @param path_colname Name of the path column.
@@ -18,7 +18,7 @@ sc.set.poly <- function(scmpObject,
                         bin_pseudotime_colname = scmpObject@param@bin_pseudotime_colname,
                         path_colname = scmpObject@param@path_colname) {
   # Check Object Validity
-  assert_that(is(scmpObject, "scMaSigProClass"),
+  assert_that(is(scmpObject, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'"
   )
 

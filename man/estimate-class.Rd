@@ -25,9 +25,7 @@ For each selected gene the following values are given:
 
 \item{\code{t.score}}{A data frame containing tscores for each covariate in polynomial glm.}
 
-\item{\code{variables}}{A character vector containing the variables in the complete regression model.}
-
-\item{\code{groups.vector}}{A character vector containing the branching path.}
+\item{\code{path}}{A character vector containing the branching path.}
 
 \item{\code{influ.info}}{A matrix with genes containing influencial data.}
 }}

@@ -15,7 +15,7 @@ sc.filter(
 )
 }
 \arguments{
-\item{scmpObj}{Object of Class \code{\link{scMaSigProClass}} in which the
+\item{scmpObj}{Object of Class \code{\link{scmp}} in which the
 \code{sc.T.fit} has been run.}
 
 \item{rsq}{Cut-off level at the R-squared value for the stepwise regression fit.}
