@@ -74,12 +74,12 @@ create.scmp <- function(counts,
     sce_tmp <- NULL
 
     # Update the slots
-    scmpObj@addParams@bin_pseudotime_colname <- pseudotime_colname
+    scmpObj@param@bin_pseudotime_colname <- pseudotime_colname
   }
 
   # Update the slots
-  scmpObj@addParams@pseudotime_colname <- pseudotime_colname
-  scmpObj@addParams@path_colname <- path_colname
+  scmpObj@param@pseudotime_colname <- pseudotime_colname
+  scmpObj@param@path_colname <- path_colname
 
 
   return(scmpObj)

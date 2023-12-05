@@ -11,7 +11,7 @@ sc.get.features(
   union.ref = "Path1",
   union.target = "Path2vsPath1",
   rsq = 0.7,
-  Q = scmpObj@addParams@Q,
+  Q = scmpObj@param@Q,
   vars = "groups",
   significant.intercept = "dummy",
   term.Q = 0.05,

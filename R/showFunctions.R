@@ -291,20 +291,20 @@ showParams <- function(scmpObj, view = FALSE, return = TRUE) {
     msg = "Please provide object of class 'scMaSigPro'"
   )
 
-  # Get slot names, assuming 'addParams' is a slot within 'scmpObj'
+  # Get slot names, assuming 'param' is a slot within 'scmpObj'
   all_slots <- slotNames(scmpObj)
 
-  # Get 'addParams' slot data using the correct S4 accessor method
-  addParamsData <- slot(scmpObj, "addParams")
+  # Get 'param' slot data using the correct S4 accessor method
+  paramData <- slot(scmpObj, "param")
 
-  # Get all slots of 'addParams', assuming 'addParams' itself is an S4 object with slots
-  params <- lapply(slotNames(addParamsData), function(parameter) {
-    slot(addParamsData, parameter)
+  # Get all slots of 'param', assuming 'param' itself is an S4 object with slots
+  params <- lapply(slotNames(paramData), function(parameter) {
+    slot(paramData, parameter)
   })
 
   # Get the data
   params <- data.frame(
-    parameters = slotNames(addParamsData),
+    parameters = slotNames(paramData),
     value = unlist(params)
   )
 
@@ -381,20 +381,20 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
   cat("Class: scmpClass\n")
   cat(paste0("nCells: ", ncol(object@sce), "\n"))
   cat(paste0("nFeatures: ", nrow(object@sce), "\n"))
-  cat("Pseudotime Range:", paste(range(colData(object@sce)[[object@addParams@pseudotime_colname]])))
+  cat("Pseudotime Range:", paste(range(colData(object@sce)[[object@param@pseudotime_colname]])))
 
   # Calculate the Compression
   compressed.cell.metadata <- object@compress.sce@colData %>% as.data.frame()
   if (length(compressed.cell.metadata) > 0) {
-    cat(paste("\nPaths:", paste(levels(as.factor(compressed.cell.metadata[[object@addParams@path_colname]])), collapse = ", ")))
+    cat(paste("\nPaths:", paste(levels(as.factor(compressed.cell.metadata[[object@param@path_colname]])), collapse = ", ")))
     cat(paste0(
-      "\nBinned Pseudotime: ", paste(range(compressed.cell.metadata[[object@addParams@bin_pseudotime_colname]]), collapse = "-"), "(Range), ",
-      round(mean(compressed.cell.metadata[[object@addParams@bin_pseudotime_colname]]), 2), "(Mean), "
+      "\nBinned Pseudotime: ", paste(range(compressed.cell.metadata[[object@param@bin_pseudotime_colname]]), collapse = "-"), "(Range), ",
+      round(mean(compressed.cell.metadata[[object@param@bin_pseudotime_colname]]), 2), "(Mean), "
     ))
 
     # Extract info
-    per_path_num_bin <- extract_info(compressed.cell.metadata, return_type = "num_bins", bin_size_col = object@addParams@bin_size_colname, object@addParams@path_colname)
-    per_path_bin_size <- round(extract_info(compressed.cell.metadata, return_type = "avg_bin_size", bin_size_col = object@addParams@bin_size_colname, object@addParams@path_colname))
+    per_path_num_bin <- extract_info(compressed.cell.metadata, return_type = "num_bins", bin_size_col = object@param@bin_size_colname, object@param@path_colname)
+    per_path_bin_size <- round(extract_info(compressed.cell.metadata, return_type = "avg_bin_size", bin_size_col = object@param@bin_size_colname, object@param@path_colname))
 
     # Paste
     cat("\nNumber of bins->", paste(names(per_path_num_bin), per_path_num_bin, sep = ": "))
@@ -408,7 +408,7 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
 
   # Calculate Dynamic Information
   if (length(object@scPVector@p.adjusted) > 0) {
-    sig.level <- object@addParams@Q
+    sig.level <- object@param@Q
     nSigs <- length(object@scPVector@p.adjusted[object@scPVector@p.adjusted <= sig.level])
     if (all(object@scPVector@p.adjusted > sig.level)) {
       cat("\nSig. Profiles (P-vector): None found")

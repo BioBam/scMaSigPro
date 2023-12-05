@@ -137,11 +137,11 @@ as.scmp <- function(object, from = "cds",
       compress.sce = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
     )
 
-    # Update the AddParams slot
-    scmpObj@addParams@pseudotime_colname <- pseudotime_colname
-    scmpObj@addParams@root_label <- root_label
-    scmpObj@addParams@path_prefix <- path_prefix
-    scmpObj@addParams@path_colname <- path_colname
+    # Update the param slot
+    scmpObj@param@pseudotime_colname <- pseudotime_colname
+    scmpObj@param@root_label <- root_label
+    scmpObj@param@path_prefix <- path_prefix
+    scmpObj@param@path_colname <- path_colname
 
     # Return Object
     return(scmpObj)

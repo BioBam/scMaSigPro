@@ -84,7 +84,7 @@ align.pseudotime <- function(scmpObj, pseudotime_col, path_col, method = "rescal
       scmpObj@sce@colData <- DataFrame(cell.metadata)
 
       # Update Pseudotime
-      scmpObj@addParams@pseudotime_colname <- paste(pseudotime_col, "rescaled", sep = "_")
+      scmpObj@param@pseudotime_colname <- paste(pseudotime_col, "rescaled", sep = "_")
     } else {
       if (verbose) {
         message("Currently only 'scales::rescale' is supported")

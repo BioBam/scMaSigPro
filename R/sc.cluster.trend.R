@@ -44,8 +44,8 @@ sc.cluster.trend <- function(scmpObj, includeInflu = TRUE,
 
   # Check if compressed exist
   assert_that(
-    all(length(scmpObj@compress.sce@colData[[scmpObj@addParams@bin_pseudotime_colname]]) > 1 &
-      length(scmpObj@compress.sce@colData[[scmpObj@addParams@path_colname]]) >= 2 &
+    all(length(scmpObj@compress.sce@colData[[scmpObj@param@bin_pseudotime_colname]]) > 1 &
+      length(scmpObj@compress.sce@colData[[scmpObj@param@path_colname]]) >= 2 &
       nrow(scmpObj@compress.sce@assays@data@listData$bulk.counts) > 1),
     msg = "Please run 'squeeze', sc.pvector' & 'sc.Tfit' before"
   )

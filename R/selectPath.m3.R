@@ -213,7 +213,7 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     )
 
     # Add annotation column
-    scmpObj@addParams@annotation_col <- annotation_col
+    scmpObj@param@annotation_col <- annotation_col
 
     return(scmpObj)
   }

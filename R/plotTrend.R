@@ -68,21 +68,21 @@ plotTrend <-
     betas <- betas.table[rownames(betas.table) %in% feature_id, , drop = FALSE]
 
     # Set Data
-    curve.df <- data.frame(x = 0, y = 0, path = scmpObj@addParams@path_prefix)
-    line.df <- data.frame(x = 0, y = 0, path = scmpObj@addParams@path_prefix)
-    colnames(line.df) <- c("x", "y", scmpObj@addParams@path_colname)
-    colnames(line.df) <- c("x", "y", scmpObj@addParams@path_colname)
+    curve.df <- data.frame(x = 0, y = 0, path = scmpObj@param@path_prefix)
+    line.df <- data.frame(x = 0, y = 0, path = scmpObj@param@path_prefix)
+    colnames(line.df) <- c("x", "y", scmpObj@param@path_colname)
+    colnames(line.df) <- c("x", "y", scmpObj@param@path_colname)
     curve_data <- NULL
-    path.names <- unique(scmpObj@compress.sce@colData[[scmpObj@addParams@path_colname]])
+    path.names <- unique(scmpObj@compress.sce@colData[[scmpObj@param@path_colname]])
 
     # Get x and y
     x <- y <- rep(0, nrow(edesign.frame))
 
     # Create Point df
     points.df <- data.frame(
-      pooled.time = edesign.frame[, scmpObj@addParams@bin_pseudotime_colname],
+      pooled.time = edesign.frame[, scmpObj@param@bin_pseudotime_colname],
       pb.counts = as.vector(yy),
-      path = scmpObj@compress.sce@colData[[scmpObj@addParams@path_colname]]
+      path = scmpObj@compress.sce@colData[[scmpObj@param@path_colname]]
     )
 
     for (i in path.names) {
@@ -96,7 +96,7 @@ plotTrend <-
       a[is.na(a)] <- 0
 
       # Extract the time
-      time <- edesign.frame[edesign.frame[[i]] == 1, scmpObj@addParams@bin_pseudotime_colname]
+      time <- edesign.frame[edesign.frame[[i]] == 1, scmpObj@param@bin_pseudotime_colname]
 
       # Create a data frame with time values
       x <- seq(from = min(time), to = max(time), by = smoothness)

@@ -7,7 +7,7 @@
 sc.filter(
   scmpObj,
   rsq = 0.7,
-  Q = scmpObj@addParams@Q,
+  Q = scmpObj@param@Q,
   vars = c("all", "each", "groups"),
   significant.intercept = "dummy",
   term.Q = 0.05,

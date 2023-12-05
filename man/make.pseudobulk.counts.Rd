@@ -6,8 +6,8 @@
 \usage{
 make.pseudobulk.counts(
   scmpObject,
-  bin_members_colname = scmpObject@addParams@bin_members_colname,
-  bin_colname = scmpObject@addParams@bin_colname,
+  bin_members_colname = scmpObject@param@bin_members_colname,
+  bin_colname = scmpObject@param@bin_colname,
   assay_name = "counts",
   cluster_count_by = "sum"
 )

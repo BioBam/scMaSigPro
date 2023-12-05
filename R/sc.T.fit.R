@@ -61,29 +61,29 @@
 #' @export
 sc.T.fit <- function(scmpObj,
                      step.method = "backward",
-                     Q = scmpObj@addParams@Q,
+                     Q = scmpObj@param@Q,
                      nvar.correction = FALSE,
                      family = scmpObj@distribution,
-                     epsilon = scmpObj@addParams@epsilon,
-                     offset = scmpObj@addParams@offset,
+                     epsilon = scmpObj@param@epsilon,
+                     offset = scmpObj@param@offset,
                      verbose = TRUE,
                      parallel = TRUE,
-                     useWeights = scmpObj@addParams@useWeights,
-                     useInverseWeights = scmpObj@addParams@useInverseWeights,
-                     logWeights = scmpObj@addParams@logWeights,
-                     logOffset = scmpObj@addParams@logOffset,
-                     max_it = scmpObj@addParams@max_it) {
+                     useWeights = scmpObj@param@useWeights,
+                     useInverseWeights = scmpObj@param@useInverseWeights,
+                     logWeights = scmpObj@param@logWeights,
+                     logOffset = scmpObj@param@logOffset,
+                     max_it = scmpObj@param@max_it) {
   assert_that(is(scmpObj, "scMaSigProClass"),
     msg = "Please provide object of class 'scMaSigProClass'"
   )
 
   # Transfer Data
   dis <- scmpObj@edesign@dis
-  Q <- scmpObj@addParams@Q
+  Q <- scmpObj@param@Q
   groups.vector <- scmpObj@edesign@groups.vector
   groups.vector <- c(groups.vector[nchar(groups.vector) == min(nchar(groups.vector))][1], groups.vector)
   edesign <- scmpObj@edesign@edesign
-  G <- scmpObj@addParams@g
+  G <- scmpObj@param@g
 
   dat <- scmpObj@scPVector@SELEC
   dat <- rbind(c(rep(1, ncol(dat))), dat)
@@ -107,7 +107,7 @@ sc.T.fit <- function(scmpObj,
     compressed.data <- as.data.frame(scmpObj@compress.sce@colData)
 
     # Get bin_name and bin size
-    weight_df <- compressed.data[, c(scmpObj@addParams@bin_size_colname), drop = TRUE]
+    weight_df <- compressed.data[, c(scmpObj@param@bin_size_colname), drop = TRUE]
 
     # Set names
     names(weight_df) <- rownames(compressed.data)
@@ -348,15 +348,15 @@ sc.T.fit <- function(scmpObj,
   scmpObj@scTFit <- t.fit.object
 
   # Update Parameter Slot
-  scmpObj@addParams@Q <- Q
-  scmpObj@addParams@useWeights <- useWeights
-  scmpObj@addParams@logOffset <- logOffset
-  scmpObj@addParams@logWeights <- logWeights
-  scmpObj@addParams@max_it <- as.integer(max_it)
-  scmpObj@addParams@useInverseWeights <- useInverseWeights
-  scmpObj@addParams@offset <- offset
-  scmpObj@addParams@epsilon <- epsilon
-  scmpObj@addParams@step.method <- step.method
+  scmpObj@param@Q <- Q
+  scmpObj@param@useWeights <- useWeights
+  scmpObj@param@logOffset <- logOffset
+  scmpObj@param@logWeights <- logWeights
+  scmpObj@param@max_it <- as.integer(max_it)
+  scmpObj@param@useInverseWeights <- useInverseWeights
+  scmpObj@param@offset <- offset
+  scmpObj@param@epsilon <- epsilon
+  scmpObj@param@step.method <- step.method
   scmpObj@distribution <- family
 
   return(scmpObj)

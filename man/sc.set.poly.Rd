@@ -7,8 +7,8 @@
 sc.set.poly(
   scmpObject,
   poly_degree = 2,
-  bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname,
-  path_colname = scmpObject@addParams@path_colname
+  bin_pseudotime_colname = scmpObject@param@bin_pseudotime_colname,
+  path_colname = scmpObject@param@path_colname
 )
 }
 \arguments{

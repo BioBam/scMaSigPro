@@ -7,18 +7,18 @@
 sc.T.fit(
   scmpObj,
   step.method = "backward",
-  Q = scmpObj@addParams@Q,
+  Q = scmpObj@param@Q,
   nvar.correction = FALSE,
   family = scmpObj@distribution,
-  epsilon = scmpObj@addParams@epsilon,
-  offset = scmpObj@addParams@offset,
+  epsilon = scmpObj@param@epsilon,
+  offset = scmpObj@param@offset,
   verbose = TRUE,
   parallel = TRUE,
-  useWeights = scmpObj@addParams@useWeights,
-  useInverseWeights = scmpObj@addParams@useInverseWeights,
-  logWeights = scmpObj@addParams@logWeights,
-  logOffset = scmpObj@addParams@logOffset,
-  max_it = scmpObj@addParams@max_it
+  useWeights = scmpObj@param@useWeights,
+  useInverseWeights = scmpObj@param@useInverseWeights,
+  logWeights = scmpObj@param@logWeights,
+  logOffset = scmpObj@param@logOffset,
+  max_it = scmpObj@param@max_it
 )
 }
 \arguments{

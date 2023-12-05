@@ -22,7 +22,7 @@ Inherits from \code{SingleCellExperiment}.
 
 \item{\code{edesign}}{Object of Class edesignClass. See \code{\link{edesignClass}} for more details.}
 
-\item{\code{addParams}}{Object of Class addParamClass. See \code{\link{addParamClass}} for more details.}
+\item{\code{param}}{Object of Class paramClass. See \code{\link{paramClass}} for more details.}
 
 \item{\code{sig.genes}}{ABC}
 

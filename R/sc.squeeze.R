@@ -70,8 +70,8 @@
 #' @export
 
 sc.squeeze <- function(scmpObject,
-                       pseudotime_colname = scmpObject@addParams@pseudotime_colname,
-                       path_colname = scmpObject@addParams@path_colname,
+                       pseudotime_colname = scmpObject@param@pseudotime_colname,
+                       path_colname = scmpObject@param@path_colname,
                        bin_method = "Sturges",
                        drop_fac = 1,
                        verbose = FALSE,
@@ -101,8 +101,8 @@ sc.squeeze <- function(scmpObject,
 
   # Drop Columns if exist
   cols_to_drop <- c(
-    scmpObject@addParams@bin_size_colname,
-    scmpObject@addParams@bin_pseudotime_colname,
+    scmpObject@param@bin_size_colname,
+    scmpObject@param@bin_pseudotime_colname,
     "scmp_u_bound", "scmp_l_bound"
   )
   raw_cell_metadata <- raw_cell_metadata[, !colnames(raw_cell_metadata) %in% cols_to_drop, drop = FALSE]
@@ -475,12 +475,12 @@ sc.squeeze <- function(scmpObject,
   )
 
   # Update Slots
-  scmpObject@addParams@pseudotime_colname <- pseudotime_colname
-  scmpObject@addParams@path_colname <- path_colname
-  scmpObject@addParams@bin_method <- bin_method
-  scmpObject@addParams@bin_pseudotime_colname <- bin_pseudotime_colname
-  scmpObject@addParams@bin_colname <- bin_colname
-  scmpObject@addParams@bin_members_colname <- bin_members_colname
-  scmpObject@addParams@bin_size_colname <- bin_size_colname
+  scmpObject@param@pseudotime_colname <- pseudotime_colname
+  scmpObject@param@path_colname <- path_colname
+  scmpObject@param@bin_method <- bin_method
+  scmpObject@param@bin_pseudotime_colname <- bin_pseudotime_colname
+  scmpObject@param@bin_colname <- bin_colname
+  scmpObject@param@bin_members_colname <- bin_members_colname
+  scmpObject@param@bin_size_colname <- bin_size_colname
   return(scmpObject)
 }

@@ -132,7 +132,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     compressed.data <- as.data.frame(scmpObj@compress.sce@colData)
 
     # Get bin_name and bin size
-    weight_df <- compressed.data[, c(scmpObj@addParams@bin_size_colname), drop = TRUE]
+    weight_df <- compressed.data[, c(scmpObj@param@bin_size_colname), drop = TRUE]
 
     # Set names
     names(weight_df) <- rownames(compressed.data)
@@ -229,17 +229,17 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     scmpObj@scPVector <- scPVector.obj
 
     # Update Parameter Slot useInverseWeights
-    scmpObj@addParams@useWeights <- useWeights
-    scmpObj@addParams@logOffset <- logOffset
-    scmpObj@addParams@logWeights <- logWeights
-    scmpObj@addParams@max_it <- as.integer(max_it)
-    scmpObj@addParams@useInverseWeights <- useInverseWeights
-    scmpObj@addParams@offset <- offset
-    scmpObj@addParams@Q <- Q
-    scmpObj@addParams@min.obs <- min.obs
-    scmpObj@addParams@g <- g
-    scmpObj@addParams@MT.adjust <- MT.adjust
-    scmpObj@addParams@epsilon <- epsilon
+    scmpObj@param@useWeights <- useWeights
+    scmpObj@param@logOffset <- logOffset
+    scmpObj@param@logWeights <- logWeights
+    scmpObj@param@max_it <- as.integer(max_it)
+    scmpObj@param@useInverseWeights <- useInverseWeights
+    scmpObj@param@offset <- offset
+    scmpObj@param@Q <- Q
+    scmpObj@param@min.obs <- min.obs
+    scmpObj@param@g <- g
+    scmpObj@param@MT.adjust <- MT.adjust
+    scmpObj@param@epsilon <- epsilon
     scmpObj@distribution <- family
 
     return(scmpObj)

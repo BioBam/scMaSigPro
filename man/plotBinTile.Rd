@@ -6,9 +6,9 @@
 \usage{
 plotBinTile(
   scmpObj,
-  path_colname = scmpObj@addParams@path_colname,
-  bin_size_colname = scmpObj@addParams@bin_size_colname,
-  bin_pseudotime_colname = scmpObj@addParams@bin_pseudotime_colname
+  path_colname = scmpObj@param@path_colname,
+  bin_size_colname = scmpObj@param@bin_size_colname,
+  bin_pseudotime_colname = scmpObj@param@bin_pseudotime_colname
 )
 }
 \arguments{
