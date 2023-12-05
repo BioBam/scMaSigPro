@@ -9,6 +9,7 @@
 #' warping from dtw package.
 #'
 #' @importFrom scales rescale
+#' @importFrom S4Vectors DataFrame
 #'
 #' @param pseudotime_col Chacarcter string with the column name in `cell.metadata` storing
 #' Pseudotime values. It is generated using `colData` from the \pkg{SingleCellExperiment}
@@ -25,7 +26,7 @@
 
 align.pseudotime <- function(scmpObj, pseudotime_col, path_col, method = "rescale", verbose = TRUE) {
   # Extract Cell metadata
-  cell.metadata <- scmpObj@sce@colData %>% as.data.frame()
+  cell.metadata <- scmpObj@sparse@colData %>% as.data.frame()
 
   # Extract Time and Path info with cell
   cell.metadata.sub <- cell.metadata[, c(pseudotime_col, path_col), drop = FALSE]
@@ -81,7 +82,7 @@ align.pseudotime <- function(scmpObj, pseudotime_col, path_col, method = "rescal
       cell.metadata <- cell.metadata[, colnames(cell.metadata) != "cell", drop = FALSE]
 
       # Add
-      scmpObj@sce@colData <- DataFrame(cell.metadata)
+      scmpObj@sparse@colData <- DataFrame(cell.metadata)
 
       # Update Pseudotime
       scmpObj@param@pseudotime_colname <- paste(pseudotime_col, "rescaled", sep = "_")

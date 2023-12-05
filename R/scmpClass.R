@@ -38,104 +38,104 @@
 #' @keywords classes
 
 setClass(
-    "paramClass",
-    representation(
-        bin_pseudotime_colname = "character",
-        path_prefix = "character",
-        root_label = "character",
-        pseudotime_colname = "character",
-        step.method = "character",
-        bin_method = "character",
-        path_colname = "character",
-        bin_colname = "character",
-        bin_size_colname = "character",
-        bin_members_colname = "character",
-        annotation_col = "character",
-        g = "integer",
-        Q = "numeric",
-        min.obs = "numeric",
-        MT.adjust = "character",
-        epsilon = "numeric",
-        useWeights = "logical",
-        offset = "logical",
-        useInverseWeights = "logical",
-        logOffset = "logical",
-        logWeights = "logical",
-        max_it = "integer"
-    ),
-    validity = function(object) {
-        errors <- character(0)
-        
-        # Check if any character slots are empty or not of type character
-        char_slots <- c(
-            "bin_pseudotime_colname", "path_prefix", "root_label",
-            "pseudotime_colname", "bin_method",
-            "path_colname", "bin_colname", "bin_size_colname",
-            "bin_members_colname", "MT.adjust", "step.method",
-            "annotation_col"
-        )
-        
-        for (slot_name in char_slots) {
-            slot_value <- slot(object, slot_name) # Corrected line
-            if (length(slot_value) == 0 || !is.character(slot_value)) { # Corrected line
-                errors <- c(errors, paste(slot_name, "must not be empty and should be of type character."))
-            }
-        }
-        
-        # Check for slot g
-        if (!is.integer(object@g)) {
-            stop("Slot 'g' must be an integer.")
-        }
-        
-        
-        # Check for slot Q
-        if (!is.numeric(object@Q)) {
-            stop("Slot 'Q' must be numeric.")
-        }
-        
-        if (!is.numeric(object@epsilon)) {
-            stop("Slot 'epsilon' must be numeric.")
-        }
-        
-        # Check for slot min.obs
-        if (!is.numeric(object@min.obs)) {
-            stop("Slot 'min.obs' must be an integer.")
-        }
-        
-        # Check if any of the character slots have multiple values
-        for (slot_name in char_slots) {
-            slot_value <- slot(object, slot_name) # Corrected line
-            if (length(slot_value) > 1) { # Corrected line
-                errors <- c(errors, paste(slot_name, "should not contain multiple values."))
-            }
-        }
-        
-        if (length(errors) == 0) TRUE else errors
-    },
-    prototype = list(
-        bin_pseudotime_colname = "scmp_binned_pseudotime",
-        path_prefix = "Path",
-        root_label = "root",
-        pseudotime_colname = "Pseudotime",
-        path_colname = "Path",
-        bin_method = "Sturges",
-        bin_colname = "scmp_bin",
-        g = 0L,
-        Q = 0.05,
-        min.obs = 1,
-        bin_size_colname = "scmp_bin_size",
-        bin_members_colname = "scmp_bin_members",
-        MT.adjust = "BH",
-        step.method = "backward",
-        epsilon = 1e-8,
-        useWeights = TRUE,
-        offset = TRUE,
-        useInverseWeights = FALSE,
-        logOffset = FALSE,
-        max_it = 100L,
-        logWeights = FALSE,
-        annotation_col = "cell_type"
+  "paramClass",
+  representation(
+    bin_pseudotime_colname = "character",
+    path_prefix = "character",
+    root_label = "character",
+    pseudotime_colname = "character",
+    step.method = "character",
+    bin_method = "character",
+    path_colname = "character",
+    bin_colname = "character",
+    bin_size_colname = "character",
+    bin_members_colname = "character",
+    annotation_col = "character",
+    g = "integer",
+    Q = "numeric",
+    min.obs = "numeric",
+    MT.adjust = "character",
+    epsilon = "numeric",
+    useWeights = "logical",
+    offset = "logical",
+    useInverseWeights = "logical",
+    logOffset = "logical",
+    logWeights = "logical",
+    max_it = "integer"
+  ),
+  validity = function(object) {
+    errors <- character(0)
+
+    # Check if any character slots are empty or not of type character
+    char_slots <- c(
+      "bin_pseudotime_colname", "path_prefix", "root_label",
+      "pseudotime_colname", "bin_method",
+      "path_colname", "bin_colname", "bin_size_colname",
+      "bin_members_colname", "MT.adjust", "step.method",
+      "annotation_col"
     )
+
+    for (slot_name in char_slots) {
+      slot_value <- slot(object, slot_name) # Corrected line
+      if (length(slot_value) == 0 || !is.character(slot_value)) { # Corrected line
+        errors <- c(errors, paste(slot_name, "must not be empty and should be of type character."))
+      }
+    }
+
+    # Check for slot g
+    if (!is.integer(object@g)) {
+      stop("Slot 'g' must be an integer.")
+    }
+
+
+    # Check for slot Q
+    if (!is.numeric(object@Q)) {
+      stop("Slot 'Q' must be numeric.")
+    }
+
+    if (!is.numeric(object@epsilon)) {
+      stop("Slot 'epsilon' must be numeric.")
+    }
+
+    # Check for slot min.obs
+    if (!is.numeric(object@min.obs)) {
+      stop("Slot 'min.obs' must be an integer.")
+    }
+
+    # Check if any of the character slots have multiple values
+    for (slot_name in char_slots) {
+      slot_value <- slot(object, slot_name) # Corrected line
+      if (length(slot_value) > 1) { # Corrected line
+        errors <- c(errors, paste(slot_name, "should not contain multiple values."))
+      }
+    }
+
+    if (length(errors) == 0) TRUE else errors
+  },
+  prototype = list(
+    bin_pseudotime_colname = "scmp_binned_pseudotime",
+    path_prefix = "Path",
+    root_label = "root",
+    pseudotime_colname = "Pseudotime",
+    path_colname = "Path",
+    bin_method = "Sturges",
+    bin_colname = "scmp_bin",
+    g = 0L,
+    Q = 0.05,
+    min.obs = 1,
+    bin_size_colname = "scmp_bin_size",
+    bin_members_colname = "scmp_bin_members",
+    MT.adjust = "BH",
+    step.method = "backward",
+    epsilon = 1e-8,
+    useWeights = TRUE,
+    offset = TRUE,
+    useInverseWeights = FALSE,
+    logOffset = FALSE,
+    max_it = 100L,
+    logWeights = FALSE,
+    annotation_col = "cell_type"
+  )
 )
 
 ###############################################################################
@@ -146,10 +146,10 @@ setClass(
 #' A class to represent the ScMaSigPro analysis results and associated data.
 #' Inherits from \code{SingleCellExperiment}.
 #'
-#' @slot sce Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.
+#' @slot sparse Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.
 #' @slot scPVector Object of Class scPVectorClass See \pkg{scPVectorClass} for more details.
 #' @slot scTFit Object of Class scTFitClass. See \code{\link{scTFitClass}} for more details.
-#' @slot compress.sce ABC
+#' @slot dense ABC
 #' @slot edesign Object of Class edesignClass. See \code{\link{edesignClass}} for more details.
 #' @slot param Object of Class paramClass. See \code{\link{paramClass}} for more details.
 #' @slot sig.genes ABC
@@ -183,19 +183,19 @@ setClass(
 setClass(
   "scMaSigProClass",
   representation(
-    sce = "SingleCellExperiment",
+    sparse = "SingleCellExperiment",
     scPVector = "scPVectorClass",
     scTFit = "scTFitClass",
-    compress.sce = "SingleCellExperiment",
+    dense = "SingleCellExperiment",
     edesign = "edesignClass",
     param = "paramClass",
     sig.genes = "sigClass",
     distribution = "ANY"
   ),
   validity = function(object) {
-    # Check sce slot
-    if (!validObject(object@sce)) {
-      stop("sce slot is not a valid SingleCellExperiment object.")
+    # Check sparse slot
+    if (!validObject(object@sparse)) {
+      stop("sparse slot is not a valid SingleCellExperiment object.")
     }
 
     # Check scPVectorClass slot
@@ -208,9 +208,9 @@ setClass(
       stop("scTFitClass slot is not a valid scTFitClass object.")
     }
 
-    # Check compress.sce slot
-    if (!validObject(object@compress.sce)) {
-      stop("compress.sce slot is not a valid SingleCellExperiment object.")
+    # Check dense slot
+    if (!validObject(object@dense)) {
+      stop("dense slot is not a valid SingleCellExperiment object.")
     }
 
     # Check edesignClass slot
@@ -236,19 +236,19 @@ setClass(
   )
 )
 
-scMaSigProClass <- function(sce = new("SingleCellExperiment"), # Remove default sce
+scMaSigProClass <- function(sparse = new("SingleCellExperiment"), # Remove default sparse
                             scPVector = new("scPVectorClass"),
                             scTFit = new("scTFitClass"),
-                            compress.sce = new("SingleCellExperiment"),
+                            dense = new("SingleCellExperiment"),
                             edesign = new("edesignClass"),
                             param = new("paramClass"),
                             sig.genes = new("sigClass"),
                             distribution = negative.binomial(theta = 10)) {
   new("scMaSigProClass",
-    sce = sce,
+    sparse = sparse,
     scPVector = scPVector,
     scTFit = scTFit,
-    compress.sce = compress.sce,
+    dense = dense,
     edesign = edesign,
     paramClass = param,
     sig.genes = sig.genes, # new("sigClass"),

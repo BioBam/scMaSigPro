@@ -24,6 +24,6 @@ sc.set.poly(
 Returns the 'scmpObject' with an updated 'edesign' slot.
 }
 \description{
-This function creates a design matrix using the 'compress.sce' slot of a 'scMaSigProClass' object.
+This function creates a design matrix using the 'dense' slot of a 'scMaSigProClass' object.
 It generates an 'edesignClass' object which is then stored in the 'edesign' slot of the 'scMaSigProClass' object.
 }

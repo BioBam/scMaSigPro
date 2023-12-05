@@ -97,7 +97,7 @@ sc.squeeze <- function(scmpObject,
   )
 
   # Extract cell metadata
-  raw_cell_metadata <- as.data.frame(colData(scmpObject@sce))
+  raw_cell_metadata <- as.data.frame(colData(scmpObject@sparse))
 
   # Drop Columns if exist
   cols_to_drop <- c(
@@ -110,7 +110,7 @@ sc.squeeze <- function(scmpObject,
   # Count slot
   assert_that(
     all(
-      assay_name %in% names(scmpObject@sce@assays@data@listData)
+      assay_name %in% names(scmpObject@sparse@assays@data@listData)
     ),
     msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObject.")
   )
@@ -368,14 +368,14 @@ sc.squeeze <- function(scmpObject,
     binned.path.frame <- merge(binned.path.frame, bin_table_sub, by = bin.time.col)
 
     return(list(
-      sce = processed.path.frame,
+      sparse = processed.path.frame,
       compressed = binned.path.frame
     ))
   })
 
   # Bind rows and convert to data frame, then drop 'cell' column
   processed_cell_metadata.list <- lapply(discrete.list, function(element) {
-    return(element[["sce"]])
+    return(element[["sparse"]])
   })
   processed_binned_cell_metadata.list <- lapply(discrete.list, function(element) {
     return(element[["compressed"]])
@@ -388,7 +388,7 @@ sc.squeeze <- function(scmpObject,
     as.data.frame()
 
   ## Add Processed Cell Matadata back with slot update
-  scmpObject@sce@colData <- DataFrame(processed_cell_metadata)
+  scmpObject@sparse@colData <- DataFrame(processed_cell_metadata)
 
   # Set the 'cell' column as rownames
   rownames(processed_cell_metadata) <- processed_cell_metadata$cell
@@ -461,9 +461,9 @@ sc.squeeze <- function(scmpObject,
     processed_binned_cell_metadata <- pB.frame
   }
 
-  compressed.sce <- SingleCellExperiment(assays = list(bulk.counts = as(matrix(NA, nrow = 0, ncol = nrow(processed_binned_cell_metadata)), "dgCMatrix")))
-  compressed.sce@colData <- DataFrame(processed_binned_cell_metadata)
-  scmpObject@compress.sce <- compressed.sce
+  compressed.sparse <- SingleCellExperiment(assays = list(bulk.counts = as(matrix(NA, nrow = 0, ncol = nrow(processed_binned_cell_metadata)), "dgCMatrix")))
+  compressed.sparse@colData <- DataFrame(processed_binned_cell_metadata)
+  scmpObject@dense <- compressed.sparse
 
   # Get Counts
   scmpObject <- make.pseudobulk.counts(

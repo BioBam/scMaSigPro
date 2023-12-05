@@ -10,6 +10,7 @@
 #' @return A `scMaSigProClass` object, subsetted based on the specified paths.
 #'
 #' @importFrom igraph get.data.frame
+#' @importFrom SingleCellExperiment reducedDims
 #'
 #' @export
 #'

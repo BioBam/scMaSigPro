@@ -67,7 +67,7 @@ Additional Details
 data("splat.sim", package = "scMaSigPro")
 
 # Step-2: Convert to ScMaSigPro Object
-# Here, we convert the SCE object to an scMaSigPro object
+# Here, we convert the sce object to an scMaSigPro object
 scmp.sce <- as.scmp(
   object = splat.sim, from = "sce",
   align_pseudotime = TRUE,

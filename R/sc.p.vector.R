@@ -74,7 +74,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   edesign <- scmpObj@edesign@edesign
 
   # Convert 'scmpObj' to matrix and select relevant columns based on 'design' rows
-  dat <- as.matrix(scmpObj@compress.sce@assays@data@listData$bulk.counts)
+  dat <- as.matrix(scmpObj@dense@assays@data@listData$bulk.counts)
   dat <- dat[, as.character(rownames(dis))]
   G <- nrow(dat)
 
@@ -88,7 +88,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
 
   # if(verbose){
   #     message(paste("'min.obs' is set at", min.obs))
-  #     message(paste("After filtering with 'min.obs'", scmpObj@compress.sce@assays@data@listData$bulk.counts@Dim[1] - dat@Dim[1], "gene are dropped"))
+  #     message(paste("After filtering with 'min.obs'", scmpObj@dense@assays@data@listData$bulk.counts@Dim[1] - dat@Dim[1], "gene are dropped"))
   # }
 
   # Removing rows with all zeros:
@@ -129,7 +129,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   # Check for weight usage
   if (useWeights) {
     # Get the pathframe
-    compressed.data <- as.data.frame(scmpObj@compress.sce@colData)
+    compressed.data <- as.data.frame(scmpObj@dense@colData)
 
     # Get bin_name and bin size
     weight_df <- compressed.data[, c(scmpObj@param@bin_size_colname), drop = TRUE]

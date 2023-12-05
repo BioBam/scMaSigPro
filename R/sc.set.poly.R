@@ -1,6 +1,6 @@
 #' Create design matrix for 'scMaSigProClass' object
 #'
-#' This function creates a design matrix using the 'compress.sce' slot of a 'scMaSigProClass' object.
+#' This function creates a design matrix using the 'dense' slot of a 'scMaSigProClass' object.
 #' It generates an 'edesignClass' object which is then stored in the 'edesign' slot of the 'scMaSigProClass' object.
 #'
 #' @param scmpObject A 'scMaSigProClass' object.
@@ -23,7 +23,7 @@ sc.set.poly <- function(scmpObject,
   )
 
   # Extract cell metadata
-  comp.cell.metadata <- as.data.frame(scmpObject@compress.sce@colData)
+  comp.cell.metadata <- as.data.frame(scmpObject@dense@colData)
 
   # pseudotime_colname
   assert_that((bin_pseudotime_colname %in% colnames(comp.cell.metadata)),

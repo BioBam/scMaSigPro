@@ -12,7 +12,7 @@ plotBinTile(
 )
 }
 \arguments{
-\item{scmpObj}{A SingleCellExperiment object with an additional slot '@compress.sce' that contains compression information.}
+\item{scmpObj}{A SingleCellExperiment object with an additional slot '@dense' that contains compression information.}
 
 \item{path_colname}{A logical flag indicating whether to add a tile (heatmap) plot alongside the bar plot. Default is TRUE.}
 

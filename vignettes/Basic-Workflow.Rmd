@@ -122,7 +122,7 @@ branching path each of the cell belongs. We can view this information by executi
 print(head(as.data.frame(splat.sim@colData), 5))
 ```
 
-We will use `as_scmp()` from `scMaSigPro` and direct it to use the columns present in
+We will use `as.scmp()` from `scMaSigPro` and direct it to use the columns present in
 the dataset as the columns for `Pseudotime` and `Path`. To do this, we have to enable
 the parameter `labels_exist` and then pass the existing column names as a named list.
 

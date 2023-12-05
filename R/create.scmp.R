@@ -46,32 +46,32 @@ create.scmp <- function(counts,
   }
 
   # Create Single-Cell Experiment Object
-  sce_tmp <- SingleCellExperiment(
+  sparse_tmp <- SingleCellExperiment(
     list(counts = counts),
     colData = DataFrame(cell_data)
   )
 
   # Initate scMaSigPro
   scmpObj <- new("scMaSigProClass",
-    sce = sce_tmp,
-    compress.sce = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
+    sparse = sparse_tmp,
+    dense = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
   )
-  sce_tmp <- NULL
+  sparse_tmp <- NULL
 
   # Use as bin
   if (use_as_bin) {
     # Set bin size coulmn name
     cell_data[["scmp_bin_size"]] <- as.numeric(1)
 
-    # Create SCE
-    sce_tmp <- SingleCellExperiment(
+    # Create sparse
+    sparse_tmp <- SingleCellExperiment(
       list(bulk.counts = counts),
       colData = DataFrame(cell_data)
     )
 
     # Transfer Data
-    scmpObj@compress.sce <- sce_tmp
-    sce_tmp <- NULL
+    scmpObj@dense <- sparse_tmp
+    sparse_tmp <- NULL
 
     # Update the slots
     scmpObj@param@bin_pseudotime_colname <- pseudotime_colname

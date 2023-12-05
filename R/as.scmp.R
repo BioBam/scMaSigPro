@@ -39,7 +39,7 @@
 #' data("splat.sim", package = "scMaSigPro")
 #'
 #' # Step-2: Convert to ScMaSigPro Object
-#' # Here, we convert the SCE object to an scMaSigPro object
+#' # Here, we convert the sce object to an scMaSigPro object
 #' scmp.sce <- as.scmp(
 #'   object = splat.sim, from = "sce",
 #'   align_pseudotime = TRUE,
@@ -79,7 +79,7 @@ as.scmp <- function(object, from = "cds",
   assert_that(
     all(isS4(object) & all(is(object, "cell_data_set") | is(object, "SingleCellExperiment"))),
     msg = "Please provide object from one of the class 'cds/CellDataSet',
-    or 'SingleCellExperiment/SCE'."
+    or 'SingleCellExperiment/sce'."
   )
 
   # Check and validate additional parameters
@@ -96,7 +96,7 @@ as.scmp <- function(object, from = "cds",
       )
     } else if (from == "sce") {
       assert_that(all(names(additional_params) %in% c("existing_pseudotime_colname", "existing_path_colname", "labels_exist")),
-        msg = "Allowed additional parameters for SCE are 'existing_pseudotime_colname',
+        msg = "Allowed additional parameters for sce are 'existing_pseudotime_colname',
                   'existing_path_colname', and 'labels_exist'."
       )
     }
@@ -133,8 +133,8 @@ as.scmp <- function(object, from = "cds",
 
     # Create Object
     scmpObj <- new("scMaSigProClass",
-      sce = annotated_sce,
-      compress.sce = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
+      sparse = annotated_sce,
+      dense = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
     )
 
     # Update the param slot

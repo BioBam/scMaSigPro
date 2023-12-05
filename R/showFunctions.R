@@ -214,7 +214,7 @@ showSigProf <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FAL
   # Extract
   sol <- showSol(scmpObj, view = FALSE, return = TRUE, includeInflu = includeInflu) %>% as.data.frame()
   # Extract rownames
-  bulk.counts <- scmpObj@compress.sce@assays@data@listData$bulk.counts
+  bulk.counts <- scmpObj@dense@assays@data@listData$bulk.counts
   bulk.counts <- bulk.counts[rownames(bulk.counts) %in% rownames(sol), , drop = FALSE]
 
   if (!includeInflu) {
@@ -379,12 +379,12 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
 .scmp_show <- function(object) {
   # Show Basic information
   cat("Class: scmpClass\n")
-  cat(paste0("nCells: ", ncol(object@sce), "\n"))
-  cat(paste0("nFeatures: ", nrow(object@sce), "\n"))
-  cat("Pseudotime Range:", paste(range(colData(object@sce)[[object@param@pseudotime_colname]])))
+  cat(paste0("nCells: ", ncol(object@sparse), "\n"))
+  cat(paste0("nFeatures: ", nrow(object@sparse), "\n"))
+  cat("Pseudotime Range:", paste(range(colData(object@sparse)[[object@param@pseudotime_colname]])))
 
   # Calculate the Compression
-  compressed.cell.metadata <- object@compress.sce@colData %>% as.data.frame()
+  compressed.cell.metadata <- object@dense@colData %>% as.data.frame()
   if (length(compressed.cell.metadata) > 0) {
     cat(paste("\nPaths:", paste(levels(as.factor(compressed.cell.metadata[[object@param@path_colname]])), collapse = ", ")))
     cat(paste0(

@@ -44,16 +44,16 @@ make.pseudobulk.counts <- function(scmpObject,
   # Count slot
   assert_that(
     all(
-      assay_name %in% names(scmpObject@sce@assays@data@listData)
+      assay_name %in% names(scmpObject@sparse@assays@data@listData)
     ),
     msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObject.")
   )
 
   # Get assay
-  counts <- scmpObject@sce@assays@data@listData[[assay_name]]
+  counts <- scmpObject@sparse@assays@data@listData[[assay_name]]
 
   # Get Pseudobulk Profile
-  pseudo_bulk_profile <- as.data.frame(colData(scmpObject@compress.sce))
+  pseudo_bulk_profile <- as.data.frame(colData(scmpObject@dense))
 
   assert_that(bin_members_colname %in% colnames(pseudo_bulk_profile),
     msg = paste0("'", bin_members_colname, "' does not exist in level.meta.data")
@@ -96,7 +96,7 @@ make.pseudobulk.counts <- function(scmpObject,
   colnames(pb.counts) <- meta.info[[bin_colname]]
 
   # Return the counts
-  scmpObject@compress.sce@assays@data@listData$bulk.counts <- as(pb.counts, "dgCMatrix")
+  scmpObject@dense@assays@data@listData$bulk.counts <- as(pb.counts, "dgCMatrix")
 
   # return
   return(scmpObject)

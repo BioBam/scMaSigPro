@@ -36,7 +36,7 @@ plotTrend <-
     edesign.frame <- scmpObj@edesign@edesign %>% as.data.frame()
 
     # Extract the bulk counts
-    bulk.counts <- scmpObj@compress.sce@assays@data@listData$bulk.counts
+    bulk.counts <- scmpObj@dense@assays@data@listData$bulk.counts
 
     # Check
     assert_that(all(feature_id %in% rownames(bulk.counts)),
@@ -73,7 +73,7 @@ plotTrend <-
     colnames(line.df) <- c("x", "y", scmpObj@param@path_colname)
     colnames(line.df) <- c("x", "y", scmpObj@param@path_colname)
     curve_data <- NULL
-    path.names <- unique(scmpObj@compress.sce@colData[[scmpObj@param@path_colname]])
+    path.names <- unique(scmpObj@dense@colData[[scmpObj@param@path_colname]])
 
     # Get x and y
     x <- y <- rep(0, nrow(edesign.frame))
@@ -82,7 +82,7 @@ plotTrend <-
     points.df <- data.frame(
       pooled.time = edesign.frame[, scmpObj@param@bin_pseudotime_colname],
       pb.counts = as.vector(yy),
-      path = scmpObj@compress.sce@colData[[scmpObj@param@path_colname]]
+      path = scmpObj@dense@colData[[scmpObj@param@path_colname]]
     )
 
     for (i in path.names) {
