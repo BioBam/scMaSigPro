@@ -2,10 +2,10 @@
 #'
 #' @description
 #' `sc.filter()` creates lists of significant genes for a set of variables
-#' whose significance value has been computed with the \code{sc.T.fit} function.
+#' whose significance value has been computed with the \code{sc.t.fit} function.
 #'
 #' @param scmpObj Object of Class \code{\link{scmp}} in which the
-#' \code{sc.T.fit} has been run.
+#' \code{sc.t.fit} has been run.
 #' @param rsq Cut-off level at the R-squared value for the stepwise regression fit.
 #' @param includeInflu description
 #' @param Q overall model significance

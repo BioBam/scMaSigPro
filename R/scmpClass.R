@@ -323,6 +323,34 @@ setClass(
   )
 )
 ###############################################################################
+#' sigClass
+#'
+#'
+#' @slot sig.genes list
+#' @slot feature.clusters list
+#'
+#' @name sigClass
+#' @aliases sigClass-class
+#' @rdname sigClass-class
+#' @importFrom methods is new as
+#' @keywords classes
+setClass(
+    "sigClass",
+    representation(
+        sig.genes = "list",
+        feature.clusters = "list"
+    ),
+    validity = function(object) {
+        if (!is.list(object@sig.genes)) {
+            stop("sig.genes slot must be a list")
+        }
+    },
+    prototype = list(
+        sig.genes = list(),
+        feature.clusters = list()
+    )
+)
+###############################################################################
 #' scmp
 #'
 #' A class to represent the ScMaSigPro analysis results and associated data.
@@ -343,24 +371,6 @@ setClass(
 #' @importFrom methods is new as
 #' @keywords classes
 
-# SigClass
-setClass(
-  "sigClass",
-  representation(
-    sig.genes = "list",
-    feature.clusters = "list"
-  ),
-  validity = function(object) {
-    if (!is.list(object@sig.genes)) {
-      stop("sig.genes slot must be a list")
-    }
-  },
-  prototype = list(
-    sig.genes = list(),
-    feature.clusters = list()
-  )
-)
-###############################################################################
 setClass(
   "scmp",
   representation(
@@ -413,30 +423,4 @@ setClass(
     param = new("paramClass"), # Assuming you've defined estimateClass with its prototype
     sig.genes = new("sigClass")
   )
-)
-
-scmp <- function(sparse = new("SingleCellExperiment"), # Remove default sparse
-                 profile = new("sigProfileClass"),
-                 estimate = new("estimateClass"),
-                 dense = new("SingleCellExperiment"),
-                 design = new("designClass"),
-                 param = new("paramClass"),
-                 sig.genes = new("sigClass")) {
-  new("scmp",
-    sparse = sparse,
-    profile = profile,
-    estimate = estimate,
-    dense = dense,
-    design = design,
-    paramClass = param,
-    sig.genes = sig.genes # new("sigClass"),
-  )
-}
-
-setMethod(
-  "show",
-  "scmp",
-  function(object) {
-    .scmp_show(object)
-  }
 )

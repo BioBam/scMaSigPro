@@ -1,7 +1,7 @@
 Package: scMaSigPro
 Type: Package
 Title: Application of MaSigPro Bioconductor Package for scRNA Trajectory data
-Version: 1.0.2
+Version: 0.0.1
 Authors@R: c(
     person("Ana", "Conesa", role = c("aut"), email = "ana@example.com"),
     person("Maria Jose", "Nueda", role = c("aut"), email = "mjnueda@example.com"),

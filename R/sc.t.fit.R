@@ -1,6 +1,6 @@
 #' Makes a stepwise regression fit for time series gene expression experiments
 #'
-#' \code{T.fit} selects the best regression model for each gene using stepwise regression.
+#' \code{s.t.fit} selects the best regression model for each gene using stepwise regression.
 #'
 #' @param scmpObj Can either be a \code{\link{p.vector}} object or a matrix containing expression scmpObj with the same requirements as for
 #' the \code{\link{p.vector}} function.
@@ -59,7 +59,7 @@
 #' @keywords regression
 #' @keywords models
 #' @export
-sc.T.fit <- function(scmpObj,
+sc.t.fit <- function(scmpObj,
                      step.method = "backward",
                      Q = scmpObj@param@Q,
                      nvar.correction = FALSE,

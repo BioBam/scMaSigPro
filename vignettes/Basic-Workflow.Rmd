@@ -279,14 +279,14 @@ The console output reveals that `scMaSigPro` detected 51 genes with non-flat pro
 ### Model Refinement
 
 Having identified genes with significant profiles, we can refine their polynomial
-models using `sc.T.fit()`. This function evaluates each term of the polynomial model.
+models using `sc.t.fit()`. This function evaluates each term of the polynomial model.
 In our case, it will assess which among "beta0 + beta1\*Path2vsPath1 + 
 beta2\*scmp_binned_pseudotime + beta3*scmp_binned_pseudotimexPath2" 
-significantly contributes to the differences. To execute `sc.T.fit()`, we proceed as follows:
+significantly contributes to the differences. To execute `sc.t.fit()`, we proceed as follows:
 
 ```{r, "Model Refinement",eval=TRUE, echo=TRUE}
 # Model refinement
-scmp.ob <- sc.T.fit(scmp.ob, verbose = FALSE)
+scmp.ob <- sc.t.fit(scmp.ob, verbose = FALSE)
 scmp.ob
 ```
 
