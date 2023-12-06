@@ -52,9 +52,16 @@ sc.set.poly <- function(scmpObject,
   col.vec <- colnames(com.cell.meta)[colnames(com.cell.meta) != bin_pseudotime_colname]
 
   # Add Replicate Column
-  com.cell.meta <- com.cell.meta %>%
-    mutate(Replicate = data.table::rleid(Reduce(paste, com.cell.meta))) %>%
-    as.data.frame()
+  # com.cell.meta <- com.cell.meta %>%
+  #   mutate(Replicate = data.table::rleid(Reduce(paste, com.cell.meta))) %>%
+  #   as.data.frame()
+  com.cell.meta$Replicate <- with(com.cell.meta, {
+      # Create a concatenated string of all columns
+      combined <- apply(com.cell.meta, 1, paste, collapse = "-")
+      # Use rle (run length encoding) to find runs of identical values
+      rle_ids <- with(rle(combined), rep(seq_along(lengths), lengths))
+      return(rle_ids)
+  })
 
   # Order
   ord <- c(c(1, ncol(com.cell.meta)), c(2:c(ncol(com.cell.meta) - 1)))
