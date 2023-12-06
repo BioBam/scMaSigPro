@@ -56,11 +56,11 @@ sc.set.poly <- function(scmpObject,
   #   mutate(Replicate = data.table::rleid(Reduce(paste, com.cell.meta))) %>%
   #   as.data.frame()
   com.cell.meta$Replicate <- with(com.cell.meta, {
-      # Create a concatenated string of all columns
-      combined <- apply(com.cell.meta, 1, paste, collapse = "-")
-      # Use rle (run length encoding) to find runs of identical values
-      rle_ids <- with(rle(combined), rep(seq_along(lengths), lengths))
-      return(rle_ids)
+    # Create a concatenated string of all columns
+    combined <- apply(com.cell.meta, 1, paste, collapse = "-")
+    # Use rle (run length encoding) to find runs of identical values
+    rle_ids <- with(rle(combined), rep(seq_along(lengths), lengths))
+    return(rle_ids)
   })
 
   # Order

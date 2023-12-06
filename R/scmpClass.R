@@ -335,20 +335,20 @@ setClass(
 #' @importFrom methods is new as
 #' @keywords classes
 setClass(
-    "sigClass",
-    representation(
-        sig.genes = "list",
-        feature.clusters = "list"
-    ),
-    validity = function(object) {
-        if (!is.list(object@sig.genes)) {
-            stop("sig.genes slot must be a list")
-        }
-    },
-    prototype = list(
-        sig.genes = list(),
-        feature.clusters = list()
-    )
+  "sigClass",
+  representation(
+    sig.genes = "list",
+    feature.clusters = "list"
+  ),
+  validity = function(object) {
+    if (!is.list(object@sig.genes)) {
+      stop("sig.genes slot must be a list")
+    }
+  },
+  prototype = list(
+    sig.genes = list(),
+    feature.clusters = list()
+  )
 )
 ###############################################################################
 #' scmp
