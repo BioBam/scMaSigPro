@@ -44,16 +44,13 @@ plotTrend <-
     )
 
     if (significant) {
-      assert_that(all(feature_id %in% unique(unlist(scmpObj@sig.genes@sig.genes))),
+      assert_that(any(feature_id %in% unique(unlist(scmpObj@sig.genes@sig.genes))),
         msg = "Feature Id didn't pass the R2 threshold, please re-run sc.get.sigenes, with lower a value or set 'significant' to 'FALSE'"
       )
     }
 
     # gene_i
     yy <- bulk.counts[rownames(bulk.counts) %in% feature_id, , drop = FALSE]
-
-    # Extract the bulk counts
-    alloc <- alloc.frame
 
     # group Vector
     groups.vector <- scmpObj@design@groups.vector
@@ -81,10 +78,12 @@ plotTrend <-
     # Create Point df
     points.df <- data.frame(
       pooled.time = alloc.frame[, scmpObj@param@bin_pseudotime_colname],
-      pb.counts = as.vector(yy),
+      pb.counts = as.vector(t(yy)),
       path = scmpObj@dense@colData[[scmpObj@param@path_colname]]
     )
-
+    #View(yy)
+    #View(points.df)
+    #stop()
     for (i in path.names) {
       # Extract Coeff
       a <- reg.coeffs(
@@ -145,12 +144,19 @@ plotTrend <-
     }
 
     # Convert Negative values to 0
-    curve.df[curve.df$y < 0, "y"] <- 0
+    #curve.df[curve.df$y < 0, "y"] <- 0
     # points.df[points.df$pb.counts < 0, "pb.counts"] <- 0
-
+    
+    # Generate line.df
+    line.df <- points.df
+    
+    line.df <- line.df %>%
+        group_by(pooled.time, path) %>%
+        summarize(mean_pb_counts = mean(pb.counts),  .groups = "drop")
+    
     p <- ggplot() +
       geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.5, size = 2, stroke = 1, shape = 21) +
-      geom_line(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), linetype = "dotted", linewidth = 1) +
+      geom_line(data = line.df, aes(x = pooled.time, y = mean_pb_counts, color = path), linetype = "dotted", linewidth = 1) +
       geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "solid", linewidth = 1.5) +
       ggtitle(
         paste("Feature Id:", feature_id),

@@ -189,7 +189,9 @@ expect_equal(matrix(scmp.ob@profile@p.vector, dimnames = list(names(scmp.ob@prof
 ```
 
 ```{r}
-expect_equal(matrix(scmp.ob@profile@FDR, dimnames = list(names(scmp.ob@profile@p.vector), "p.value")), expected = as.matrix(fit$p.vector[,1, drop =FALSE]))
+pad <- scmp.ob@profile@p.adjusted
+names(pad) <- NULL
+expect_equal(pad, expected = fit$p.adjusted)
 ```
 
 ## t fit
@@ -209,6 +211,55 @@ gc <- capture.output(tstep <- T.fit(fit, step.method = "backward", alfa = 0.05))
 expect_equal(showSol(scmp.ob), expected = tstep$sol)
 ```
 
+```{r}
+expect_equal(showCoeff(scmp.ob), expected = tstep$coefficients)
+```
+
+```{r}
+expect_equal(showGroupCoeff(scmp.ob), expected = tstep$group.coeffs)
+```
+
+```{r}
+sigs <- get.siggenes(tstep, rsq = 0.6, vars = "groups")  
+```
+
+```{r}
+scmp.ob <- sc.filter(scmp.ob, rsq = 0.6, vars = "groups")  
+```
+
+```{r}
+expect_equal(scmp.ob@sig.genes@sig.genes$ColdvsControl,
+             expected = sigs$summary$ColdvsControl)
+```
+
+```{r}
+expect_equal(scmp.ob@sig.genes@sig.genes$ColdvsControl,
+             expected = sigs$summary$ColdvsControl)
+```
+
+```{r}
+STMDE66 <- data.abiotic[rownames(data.abiotic)=="STMDE66", ]
+ PlotGroups (STMDE66, edesign = edesign.abiotic, show.fit = T,
+             dis = design$dis, groups.vector = design$groups.vector)
+```
+
+```{r}
+plotTrend(scmp.ob, "STMDE66", logs = F, pseudoCount = 0,
+          smoothness = 1, significant = F)
+```
+
+```{r}
+see.genes(sigs$sig.genes$ColdvsControl, show.fit = T, dis =design$dis,
+cluster.method="hclust" ,cluster.data = 1, k = 9)
+```
+```{r}
+scmp.ob <- sc.cluster.trend(scmp.ob, k = 9,
+                            cluster.method = "hclust")
+```
+
+```{r}
+plotTrendCluster(scmp.ob)
+```
 
 ---
 
