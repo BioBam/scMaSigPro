@@ -1,8 +1,26 @@
+#' Get or set the sparse column data of a scmp object
+#'
+#' This function can be used to either retrieve or set the `colData` 
+#' from the `sparse` slot of a `scmp` object.
+#'
+#' @param object An object of class `scmp`.
+#' @param value The new value for the `colData` slot to set. 
+#'              This parameter is optional for getting the data.
+#' @return Returns the `colData` slot when getting. 
+#'         Returns the modified `scmp` object when setting.
 #' @export
 cSparse <- function(object, value = "missing") {
     standardGeneric("cSparse")
 }
 
+#' Replacement method for cSparse
+#'
+#' This method allows replacing the `colData` of the `sparse` slot
+#' of a `scmp` object.
+#'
+#' @param object An object of class `scmp`.
+#' @param value The new value to set in the `colData` slot.
+#' @return Returns the modified `scmp` object.
 #' @export
 `cSparse<-` <- function(object, value) {
     standardGeneric("cSparse<-")
