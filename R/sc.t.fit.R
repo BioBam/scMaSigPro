@@ -12,10 +12,7 @@
 #' @param verbose Name of the analyzed item to show on the screen while \code{T.fit} is in process.
 #' @param offset Whether ro use offset for normalization
 #' @param parallel description
-#' @param useWeights Use bin size as weights
 #' @param logOffset description
-#' @param logWeights description
-#' @param useInverseWeights description
 #' @param max_it description
 #'
 #' @details
@@ -68,9 +65,6 @@ sc.t.fit <- function(scmpObj,
                      offset = scmpObj@param@offset,
                      verbose = TRUE,
                      parallel = TRUE,
-                     useWeights = scmpObj@param@useWeights,
-                     useInverseWeights = scmpObj@param@useInverseWeights,
-                     logWeights = scmpObj@param@logWeights,
                      logOffset = scmpObj@param@logOffset,
                      max_it = scmpObj@param@max_it) {
   assert_that(is(scmpObj, "scmp"),
@@ -103,6 +97,7 @@ sc.t.fit <- function(scmpObj,
   }
 
   # Check for weight usage
+  useWeights = FALSE
   if (useWeights) {
     # Get the pathframe
     compressed.data <- as.data.frame(scmpObj@dense@colData)
@@ -349,11 +344,8 @@ sc.t.fit <- function(scmpObj,
 
   # Update Parameter Slot
   scmpObj@param@Q <- Q
-  scmpObj@param@useWeights <- useWeights
   scmpObj@param@logOffset <- logOffset
-  scmpObj@param@logWeights <- logWeights
   scmpObj@param@max_it <- as.integer(max_it)
-  scmpObj@param@useInverseWeights <- useInverseWeights
   scmpObj@param@offset <- offset
   scmpObj@param@epsilon <- epsilon
   scmpObj@param@step.method <- step.method

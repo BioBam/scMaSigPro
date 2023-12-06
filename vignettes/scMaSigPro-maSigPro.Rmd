@@ -1,0 +1,218 @@
+---
+title: "scMaSigPro: Bridging maSigPro Analysis"
+subtitle: "Guide to Applying maSigPro Methods with scMaSigPro"
+author: "Priyansh Srivastava"
+package: "scMaSigPro"
+abstract: |
+  `scMaSigPro` is an R package designed for the serial analysis of single-cell 
+  RNA-seq (scRNA-Seq) data along inferred pseudotime. It builds upon the [`maSigPro`](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html)
+  Bioconductor package to identify genes with significant expression changes across different 
+  branching paths in a pseudotime-ordered scRNA-Seq dataset. This vignette illustrates
+  the workflow of the original [`maSigPro`](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html) Bioconductor package of using `scMaSigPro`. 
+output: BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{scMaSigPro Basic Workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, "setup", include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(scMaSigPro)
+```
+
+## Introduction
+`scMaSigPro` is a polynomial regression-based approach inspired by the [maSigPro](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html)
+Bioconductor package tailored for scRNA-Seq data. It first discretizes single cell
+expression along inferred pseudotime while preserving order. Afterwards it applies
+the [maSigPro model](https://academic.oup.com/bioinformatics/article/22/9/1096/200371)
+to pinpoint genes exhibiting significant expression profile differences among
+branching paths and pseudotime.
+
+## Overview of `maSigPro`
+maSigPro (microarray significant profiles) is a bioconductor package. Originally
+designed for microarray data analysis, maSigPro focuses on identifying genes
+with significant expression profiles that vary among different experimental
+groups, particularly in time-course experiments.
+
+## Adaptation for Bulk-RNA Seq Data
+In 2016, the maSigPro package was adapted for bulk-RNA seq data, a crucial
+development given the distinct differences between microarray and RNA-Seq
+technologies. Unlike the distributions typically seen in microarray data,
+bulk-RNA Seq data generally follows a Negative Binomial Distribution, which is
+more apt for count data like RNA-Seq, characterized by variance often exceeding
+the mean. 
+
+This adaptation brought in explicit theta parameterization, critical
+for RNA-Seq data analysis as the theta parameter represents the dispersion in
+the Negative Binomial Distribution. Such parameterization enhances the accuracy
+in modeling gene expression variability, a key factor in identifying significant
+changes in gene expression, thereby marking a significant step forward in the
+application of maSigPro to the more complex RNA-Seq data.
+
+## Set-p and Installation
+### Installing `scMaSigPro`
+Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
+
+```{r, "scMaSigPro-install", echo=TRUE, eval=FALSE}
+# Use public PAT
+publicPat <- "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"
+
+# Install devtools if not already installed
+if (!requireNamespace("devtools", quietly = TRUE)) {
+  install.packages("devtools")
+}
+
+# Install scMaSigPro
+devtools::install_github("spriyansh/scMaSigPro",
+  ref = "dev",
+  auth_token = publicPat,
+  build_vignettes = TRUE,
+  build_manual = TRUE,
+  upgrade = "never",
+  force = TRUE,
+  quiet = TRUE,
+)
+```
+
+### Installing `maSigPro`
+maSigPro can be easily installed from Bioconductor as follows:
+
+```{r, "maSigPro-install", echo=TRUE, eval=FALSE}
+# Install Bioconductor if not already installed
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+# install maSigPro
+BiocManager::install("maSigPro")
+```
+
+### Set up
+```{r, "set up", echo=TRUE, eval=TRUE}
+# load scMaSigPro
+library(scMaSigPro)
+
+# load maSigPro
+library(maSigPro)
+
+# We will also keep checking the output
+library(testthat)
+```
+
+### Setting up the data
+For this tutorial we will make use of the datasets from maSigPro and will try to
+reproduce the same analysis pipeline with scMaSigPro. More details on the analysis
+of the data are given in the original [`maSigPro` vignette-userguide](https://www.bioconductor.org/packages/release/bioc/vignettes/maSigPro/inst/doc/maSigProUsersGuide.pdf)
+
+```{r, "get-data", echo=TRUE, eval=TRUE}
+# load counts
+data(data.abiotic)
+
+# load Design file
+data(edesign.abiotic)
+
+# save with different names for scMaSigPro
+count <- data.abiotic
+metadata <- as.data.frame(edesign.abiotic)
+```
+
+Let's quickly view what each of the dataset has
+```{r, "view-data", echo=TRUE, eval=TRUE}
+print(data.abiotic[c(1:5),c(1:5)])
+
+# load Design file
+print(edesign.abiotic[c(1:5),c(1:5)])
+```
+
+Since we already have the groups binarized we will first convert them into a single colum
+```{r, "non-binarize", echo=TRUE, eval=TRUE}
+# Add group column
+metadata$Group <- apply(metadata[,c(3:6)], 1, FUN = function(x){
+    return(names(x[x == 1]))})
+
+# Remove binary columns
+metadata <- metadata[,!(colnames(metadata) %in% c("Control", "Cold", "Heat","Salt")), drop = FALSE]
+```
+
+## Creatin objects for maSigPro and scMaSigPro
+
+```{r, "create-scmpObject", echo=TRUE, eval=TRUE}
+scmp.ob <- create.scmp(
+    counts = count,
+    cell_data = metadata,
+    pseudotime_colname = "Time",
+    path_colname = "Group",
+    use_as_bin = T
+)
+```
+
+```{r}
+expect_equal(eDense(scmp.ob), expected = data.abiotic)
+```
+
+## Creatin of design file 
+
+```{r}
+design <- make.design.matrix(edesign.abiotic, degree = 2)
+```
+
+```{r}
+scmp.ob <- sc.set.poly(scmp.ob, poly_degree = 2)
+```
+
+```{r}
+expect_equal(bAlloc(scmp.ob), expected = edesign.abiotic)
+```
+
+```{r}
+expect_equal(scmp.ob@design@predictor, expected = design$dis)
+```
+
+## Pvector
+```{r}
+gc <- capture_output(fit <- p.vector(data.abiotic, design, Q = 0.05,
+                                     MT.adjust = "BH", min.obs = 20))
+```
+
+```{r}
+scmp.ob <- sc.p.vector(scmp.ob,
+                       min.na = 20,
+                       offset = F,
+                       max_it = 25,
+                       epsilon = 0.00001,
+                       family = gaussian())
+```
+
+
+```{r}
+expect_equal(matrix(scmp.ob@profile@p.vector, dimnames = list(names(scmp.ob@profile@p.vector), "p.value")), expected = as.matrix(fit$p.vector[,1, drop =FALSE]))
+```
+
+```{r}
+expect_equal(matrix(scmp.ob@profile@FDR, dimnames = list(names(scmp.ob@profile@p.vector), "p.value")), expected = as.matrix(fit$p.vector[,1, drop =FALSE]))
+```
+
+## t fit
+
+```{r}
+scmp.ob <- sc.t.fit(scmp.ob,
+                       offset = F,
+                       epsilon = 0.00001,
+                       family = gaussian())
+```
+
+```{r}
+gc <- capture.output(tstep <- T.fit(fit, step.method = "backward", alfa = 0.05))
+```
+
+```{r}
+expect_equal(showSol(scmp.ob), expected = tstep$sol)
+```
+
+
+---
+
+### Session Info
+```{r, "Session Info"}
+sessionInfo(package = "scMaSigPro")
+```

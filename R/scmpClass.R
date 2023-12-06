@@ -19,15 +19,12 @@
 #' @slot annotation_col A character string representing the column name for cell type annotation.
 #' @slot g Integer. Number of genes taken in the regression fit.
 #' @slot Q Numeric. Significance Level.
-#' @slot min.obs Numeric. Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).
+#' @slot min.na Numeric. Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).
 #' @slot MT.adjust A character string specifying the Pvalue correction method used.
 #' @slot epsilon Numeric. Convergence tolerance.
 #' @slot step.method A character string specifying the imputed step method for stepwise regression.
-#' @slot useWeights A logical value specifying whether to use weights during model fitting.
 #' @slot offset A logical value specifying whether to use offset during model fitting.
-#' @slot useInverseWeights A logical value specifying whether to take inverse of the weights.
 #' @slot logOffset A logical value specifying whether to take the logarithm of the offsets during model fitting.
-#' @slot logWeights A logical value specifying whether to take the logarithm of the weights during model fitting.
 #' @slot max_it Integer. Maximum number of iterations to fit the model.
 #' @slot poly_degree Integer with the polynomial degree to fit the regression. 1
 #' @slot distribution Distribution used
@@ -55,14 +52,11 @@ setClass(
     annotation_col = "character",
     g = "integer",
     Q = "numeric",
-    min.obs = "numeric",
+    min.na = "numeric",
     MT.adjust = "character",
     epsilon = "numeric",
-    useWeights = "logical",
     offset = "logical",
-    useInverseWeights = "logical",
     logOffset = "logical",
-    logWeights = "logical",
     max_it = "integer",
     poly_degree = "integer",
     distribution = "ANY"
@@ -101,9 +95,9 @@ setClass(
       stop("Slot 'epsilon' must be numeric.")
     }
 
-    # Check for slot min.obs
-    if (!is.numeric(object@min.obs)) {
-      stop("Slot 'min.obs' must be an integer.")
+    # Check for slot min.na
+    if (!is.numeric(object@min.na)) {
+      stop("Slot 'min.na' must be an integer.")
     }
 
     # Check if any of the character slots have multiple values
@@ -126,18 +120,15 @@ setClass(
     bin_colname = "scmp_bin",
     g = 0L,
     Q = 0.05,
-    min.obs = 1,
+    min.na = 6,
     bin_size_colname = "scmp_bin_size",
     bin_members_colname = "scmp_bin_members",
     MT.adjust = "BH",
     step.method = "backward",
     epsilon = 1e-8,
-    useWeights = TRUE,
     offset = TRUE,
-    useInverseWeights = FALSE,
     logOffset = FALSE,
     max_it = 100L,
-    logWeights = FALSE,
     annotation_col = "cell_type",
     poly_degree = 2L,
     distribution = MASS::negative.binomial(10)

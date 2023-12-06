@@ -194,6 +194,44 @@ setMethod("eDense<-", "scmp", function(object, i, value) {
   return(invisible(object))
 })
 ##############################################################################
+#' Get or set the branch allocation matrix
+#' @param object An object of class `scmp`.
+#' @param value The new value for the `colData` slot to set. Optional for getting.
+#' @return `colData` when getting, modified `scmp` object when setting.
+#' @export
+setGeneric("bAlloc", function(object, value = "missing") standardGeneric("bAlloc"))
+
+#' Replacement method for bAlloc
+#' @param object An object of class `scmp`.
+#' @param value The new value for the `colData` slot.
+#' @return Modified `scmp` object.
+#' @export
+setGeneric("bAlloc<-", function(object, value) standardGeneric("bAlloc<-"))
+
+#' Set or get the Sparse Column Data of an scmp Object
+#' @param object An object of class `scmp`.
+#' @param value The new value for the `colData` slot. Optional for getting.
+#' @return `colData` when getting, modified `scmp` object when setting.
+#' @export
+setMethod("bAlloc", "scmp", function(object, value) {
+    if (identical(value, "missing")) {
+        return(object@design@alloc) # Getter
+    } else {
+        object@design@alloc <- as.matrix(value) # Setter
+        return(invisible(object))
+    }
+})
+
+#' Replacement method for bAlloc
+#' @param object An object of class `scmp`.
+#' @param value The new value for the `colData` slot.
+#' @return Modified `scmp` object.
+#' @export
+setReplaceMethod("bAlloc", "scmp", function(object, value) {
+    object@design@alloc <- as.matrix(value)
+    return(object)
+})
+##############################################################################
 setMethod(
   "show",
   "scmp",

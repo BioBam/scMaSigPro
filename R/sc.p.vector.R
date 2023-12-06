@@ -6,7 +6,7 @@
 #' @param scmpObj matrix containing normalized gene expression data. Genes must be in rows and arrays in columns.
 #' @param Q significance level. Default is 0.05.
 #' @param MT.adjust argument to pass to \code{p.adjust} function indicating the method for multiple testing adjustment of p.value.
-#' @param min.obs genes with less than this number of true numerical values will be excluded from the analysis.
+#' @param min.na genes with less than this number of true numerical values will be excluded from the analysis.
 #'   Minimum value to estimate the model is (degree+1) x Groups + 1. Default is 6.
 #' @param family the distribution function to be used in the glm model.
 #'   It must be specified as a function: \code{gaussian()}, \code{poisson()}, \code{negative.binomial(theta)}...
@@ -15,11 +15,8 @@
 #' @param verbose Name of the analyzed item to show on the screen while \code{T.fit} is in process.
 #' @param offset Whether ro use offset for normalization
 #' @param parallel description
-#' @param useWeights Use bin size as weights
 #' @param logOffset description
-#' @param useInverseWeights description
 #' @param max_it description
-#' @param logWeights description
 #' @details \code{rownames(design)} and \code{colnames(data)} must be identical vectors
 #'   and indicate array naming. \code{rownames(data)} should contain unique gene IDs.
 #'   \code{colnames(design)} are the given names for the variables in the regression model.
@@ -52,15 +49,12 @@
 #'
 #' @export
 #'
-sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
+sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
                         family = negative.binomial(theta = 10),
                         epsilon = 1e-8,
                         verbose = TRUE,
                         offset = TRUE,
                         parallel = FALSE,
-                        useWeights = TRUE,
-                        useInverseWeights = FALSE,
-                        logWeights = FALSE,
                         logOffset = FALSE,
                         max_it = 100) {
   # Check the type of the 'design' parameter and set the corresponding variables
@@ -79,20 +73,23 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
   G <- nrow(dat)
 
   # Add check
-  # assert_that((dat@Dim[1] > 1), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
-  assert_that(min.obs <= ncol(dat), msg = paste(min.obs, "for 'min.obs' is too high. Try lowering the threshold."))
+  # assert_that((dat@Dim[1] > 1), msg = paste(min.na, "for 'min.na' is too high. Try lowering the threshold."))
+  assert_that(min.na <= ncol(dat), msg = paste(min.na, "for 'min.na' is too high. Try lowering the threshold."))
 
   # Removing rows with many missings:
   count.na <- function(x) (length(x) - length(x[is.na(x)]))
-  dat <- dat[apply(dat, 1, count.na) >= min.obs, ]
-
+  dat <- dat[apply(dat, 1, count.na) >= min.na, ]
   # if(verbose){
-  #     message(paste("'min.obs' is set at", min.obs))
-  #     message(paste("After filtering with 'min.obs'", scmpObj@dense@assays@data@listData$bulk.counts@Dim[1] - dat@Dim[1], "gene are dropped"))
+  #     message(paste("'min.na' is set at", min.na))
+  #     message(paste("After filtering with 'min.na'", scmpObj@dense@assays@data@listData$bulk.counts@Dim[1] - dat@Dim[1], "gene are dropped"))
   # }
 
   # Removing rows with all zeros:
-  dat <- dat[rowSums(dat) != 0, , drop = FALSE]
+  #dat[is.na(dat)] <- 0
+  #dat <- dat[rowSums(dat) != 0, , drop = FALSE]
+  sumatot <- apply(dat, 1, sum)
+  counts0 <- which(sumatot == 0)
+  if (length(counts0) > 0) { dat <- dat[-counts0,] } 
 
   # Get dimensions for the input
   g <- dim(dat)[1]
@@ -126,7 +123,8 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     numCores <- 1
   }
 
-  # Check for weight usage
+  #Check for weight usage
+  useWeights = FALSE
   if (useWeights) {
     # Get the pathframe
     compressed.data <- as.data.frame(scmpObj@dense@colData)
@@ -226,14 +224,14 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.obs = 6,
     scmpObj@profile <- profile.obj
 
     # Update Parameter Slot useInverseWeights
-    scmpObj@param@useWeights <- useWeights
+    #scmpObj@param@useWeights <- useWeights
     scmpObj@param@logOffset <- logOffset
-    scmpObj@param@logWeights <- logWeights
+    #scmpObj@param@logWeights <- logWeights
     scmpObj@param@max_it <- as.integer(max_it)
-    scmpObj@param@useInverseWeights <- useInverseWeights
+    #scmpObj@param@useInverseWeights <- useInverseWeights
     scmpObj@param@offset <- offset
     scmpObj@param@Q <- Q
-    scmpObj@param@min.obs <- min.obs
+    scmpObj@param@min.na <- min.na
     scmpObj@param@g <- g
     scmpObj@param@MT.adjust <- MT.adjust
     scmpObj@param@epsilon <- epsilon

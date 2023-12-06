@@ -35,7 +35,7 @@ A Class holding information about the parameters used.
 
 \item{\code{Q}}{Numeric. Significance Level.}
 
-\item{\code{min.obs}}{Numeric. Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).}
+\item{\code{min.na}}{Numeric. Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).}
 
 \item{\code{MT.adjust}}{A character string specifying the Pvalue correction method used.}
 
@@ -43,15 +43,9 @@ A Class holding information about the parameters used.
 
 \item{\code{step.method}}{A character string specifying the imputed step method for stepwise regression.}
 
-\item{\code{useWeights}}{A logical value specifying whether to use weights during model fitting.}
-
 \item{\code{offset}}{A logical value specifying whether to use offset during model fitting.}
 
-\item{\code{useInverseWeights}}{A logical value specifying whether to take inverse of the weights.}
-
 \item{\code{logOffset}}{A logical value specifying whether to take the logarithm of the offsets during model fitting.}
-
-\item{\code{logWeights}}{A logical value specifying whether to take the logarithm of the weights during model fitting.}
 
 \item{\code{max_it}}{Integer. Maximum number of iterations to fit the model.}
 

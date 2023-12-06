@@ -14,9 +14,6 @@ sc.t.fit(
   offset = scmpObj@param@offset,
   verbose = TRUE,
   parallel = TRUE,
-  useWeights = scmpObj@param@useWeights,
-  useInverseWeights = scmpObj@param@useInverseWeights,
-  logWeights = scmpObj@param@logWeights,
   logOffset = scmpObj@param@logOffset,
   max_it = scmpObj@param@max_it
 )
@@ -40,12 +37,6 @@ the \code{\link{p.vector}} function.}
 \item{verbose}{Name of the analyzed item to show on the screen while \code{T.fit} is in process.}
 
 \item{parallel}{description}
-
-\item{useWeights}{Use bin size as weights}
-
-\item{useInverseWeights}{description}
-
-\item{logWeights}{description}
 
 \item{logOffset}{description}
 
