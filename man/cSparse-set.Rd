@@ -9,12 +9,11 @@ cSparse(object) <- value
 \arguments{
 \item{object}{An object of class `scmp`.}
 
-\item{value}{The new value to set in the `colData` slot.}
+\item{value}{The new value for the `colData` slot.}
 }
 \value{
-Returns the modified `scmp` object.
+Modified `scmp` object.
 }
 \description{
-This method allows replacing the `colData` of the `sparse` slot
-of a `scmp` object.
+Replacement method for cSparse
 }

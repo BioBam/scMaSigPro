@@ -1,31 +1,134 @@
 #' Get or set the sparse column data of a scmp object
-#'
-#' This function can be used to either retrieve or set the `colData` 
-#' from the `sparse` slot of a `scmp` object.
-#'
 #' @param object An object of class `scmp`.
-#' @param value The new value for the `colData` slot to set. 
-#'              This parameter is optional for getting the data.
-#' @return Returns the `colData` slot when getting. 
-#'         Returns the modified `scmp` object when setting.
+#' @param value The new value for the `colData` slot to set. Optional for getting.
+#' @return `colData` when getting, modified `scmp` object when setting.
 #' @export
-cSparse <- function(object, value = "missing") {
-    standardGeneric("cSparse")
-}
+setGeneric("cSparse", function(object, value = "missing") standardGeneric("cSparse"))
 
 #' Replacement method for cSparse
-#'
-#' This method allows replacing the `colData` of the `sparse` slot
-#' of a `scmp` object.
-#'
 #' @param object An object of class `scmp`.
-#' @param value The new value to set in the `colData` slot.
-#' @return Returns the modified `scmp` object.
+#' @param value The new value for the `colData` slot.
+#' @return Modified `scmp` object.
 #' @export
-`cSparse<-` <- function(object, value) {
-    standardGeneric("cSparse<-")
-}
+setGeneric("cSparse<-", function(object, value) standardGeneric("cSparse<-"))
 
+#' Set or get the Sparse Column Data of an scmp Object
+#' @param object An object of class `scmp`.
+#' @param value The new value for the `colData` slot. Optional for getting.
+#' @return `colData` when getting, modified `scmp` object when setting.
+#' @export
+setMethod("cSparse", "scmp", function(object, value) {
+    if (identical(value, "missing")) {
+        return(as.data.frame(object@sparse@colData))  # Getter
+    } else {
+        object@sparse@colData <- DataFrame(value)  # Setter
+        return(invisible(object))
+    }
+})
+
+#' Replacement method for cSparse
+#' @param object An object of class `scmp`.
+#' @param value The new value for the `colData` slot.
+#' @return Modified `scmp` object.
+#' @export
+setReplaceMethod("cSparse", "scmp", function(object, value) {
+    object@sparse@colData <- DataFrame(value)
+    return(object)
+})
+###############################################################################
+#' Get or set the sparse column data of a scmp object
+#' @param object An object of class `scmp`.
+#' @param value The new value for the `colData` slot to set. Optional for getting.
+#' @return `colData` when getting, modified `scmp` object when setting.
+#' @export
+setGeneric("cDense", function(object, value = "missing") standardGeneric("cDense"))
+
+#' Replacement method for cSparse
+#' @param object An object of class `scmp`.
+#' @param value The new value for the `colData` slot.
+#' @return Modified `scmp` object.
+#' @export
+setGeneric("cDense<-", function(object, value) standardGeneric("cDense<-"))
+
+#' Set or get the Sparse Column Data of an scmp Object
+#' @param object An object of class `scmp`.
+#' @param value The new value for the `colData` slot. Optional for getting.
+#' @return `colData` when getting, modified `scmp` object when setting.
+#' @export
+setMethod("cDense", "scmp", function(object, value) {
+    if (identical(value, "missing")) {
+        return(as.data.frame(object@dense@colData))  # Getter
+    } else {
+        object@dense@colData <- DataFrame(value)  # Setter
+        return(invisible(object))
+    }
+})
+
+#' Replacement method for cSparse
+#' @param object An object of class `scmp`.
+#' @param value The new value for the `colData` slot.
+#' @return Modified `scmp` object.
+#' @export
+setReplaceMethod("cDense", "scmp", function(object, value) {
+    object@dense@colData <- DataFrame(value)
+    return(object)
+})
+###############################################################################
+#' Set eSparse value for an object
+#'
+#' @description
+#' `eSparse<-` is a generic function for setting eSparse value in an object.
+#' Currently, this functionality is not implemented for all object types.
+#'
+#' @param object The object to be modified.
+#' @param value The value to be set for eSparse.
+#' @return None
+#' @export
+setGeneric("eSparse<-", function(object, i, value) standardGeneric("eSparse<-"))
+
+#' eSparse value of an object
+#'
+#' @description
+#' `eSparse` is a generic function that can act as both a getter and a setter for the eSparse value of an object.
+#' The setter functionality is not implemented for all object types.
+#'
+#' @param object The object to be accessed or modified.
+#' @param value The value to be set for eSparse, if it's a setter.
+#' @return The eSparse value of the object if it's a getter.
+#' @export
+setGeneric("eSparse", function(object, value = "missing") standardGeneric("eSparse"))
+
+#' Get eSparse value for scmp objects
+#'
+#' @description
+#' Method to get the eSparse value from scmp class objects.
+#' 
+#' @param object The scmp object.
+#' @param value Dummy parameter, not used.
+#' @return The eSparse value from the scmp object.
+#' @export
+setMethod("eSparse", "scmp", function(object, value = "missing") {
+    if (identical(value, "missing")) {
+        return(assay(object@sparse))  # Getter: Replace 'assay' with the appropriate getter function for your object
+    } else {
+        return(assay(object@sparse, value))  # Assuming you don't want a setter for this method
+    }
+})
+
+#' Set eSparse value for scmp objects (Not Implemented)
+#'
+#' @description
+#' Method to set the eSparse value for scmp class objects.
+#' This method is currently not implemented.
+#'
+#' @param object The scmp object.
+#' @param value The value to set.
+#' @return None
+#' @export
+setMethod("eSparse<-", "scmp", function(object, i, value) {
+    assay(object@sparse, i) <- value
+    return(invisible(object))
+})
 ##############################################################################
 setMethod(
     "show",
@@ -34,37 +137,8 @@ setMethod(
         .scmp_show(object)
     }
 )
-#' Set the Sparse Column Data of an scmp Object
-#' 
-#' @param object An object of class `scmp`.
-#' @param value The new value for the `colData` slot to set.
-#' @return Returns the `colData` slot when getting, and the modified `scmp` object when setting.
-#' @export
-setMethod("cSparse", "scmp", function(object, value) {
-    if (identical(value, "missing")) {
-        return(object@sparse@colData)  # Getter
-    } else {
-        object@sparse@colData <- value  # Setter
-        return(invisible(object))
-    }
-})
-
-#' Set the Sparse Column Data of an scmp Object
-#'
-#' This method allows setting the `colData` of the `sparse` slot of a `scmp` object.
-#'
-#' @param object An object of class `scmp`.
-#' @param value The new value to set in the `colData` slot.
-#' @return Returns the modified `scmp` object.
-#' @export
-setReplaceMethod("cSparse", "scmp", function(object, value) {
-    object@sparse@colData <- value
-    return(object)
-})
-
-
-
 ###############################################################################
+# Constructor
 scmp <- function(sparse = new("SingleCellExperiment"), 
                  profile = new("sigProfileClass"),
                  estimate = new("estimateClass"),
