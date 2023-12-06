@@ -34,7 +34,12 @@ setMethod(
         .scmp_show(object)
     }
 )
-
+#' Set the Sparse Column Data of an scmp Object
+#' 
+#' @param object An object of class `scmp`.
+#' @param value The new value for the `colData` slot to set.
+#' @return Returns the `colData` slot when getting, and the modified `scmp` object when setting.
+#' @export
 setMethod("cSparse", "scmp", function(object, value) {
     if (identical(value, "missing")) {
         return(object@sparse@colData)  # Getter
@@ -44,10 +49,20 @@ setMethod("cSparse", "scmp", function(object, value) {
     }
 })
 
+#' Set the Sparse Column Data of an scmp Object
+#'
+#' This method allows setting the `colData` of the `sparse` slot of a `scmp` object.
+#'
+#' @param object An object of class `scmp`.
+#' @param value The new value to set in the `colData` slot.
+#' @return Returns the modified `scmp` object.
+#' @export
 setReplaceMethod("cSparse", "scmp", function(object, value) {
     object@sparse@colData <- value
     return(object)
 })
+
+
 
 ###############################################################################
 scmp <- function(sparse = new("SingleCellExperiment"), 
