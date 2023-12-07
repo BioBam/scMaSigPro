@@ -122,13 +122,13 @@ branching path each of the cell belongs. We can view this information by executi
 print(head(as.data.frame(splat.sim@colData), 5))
 ```
 
-We will use `as_scmp()` from `scMaSigPro` and direct it to use the columns present in
+We will use `as.scmp()` from `scMaSigPro` and direct it to use the columns present in
 the dataset as the columns for `Pseudotime` and `Path`. To do this, we have to enable
 the parameter `labels_exist` and then pass the existing column names as a named list.
 
 ```{r, "Convert to `scMaSigPro` Object", eval=TRUE, echo=TRUE}
 # Helper Function to convert annotated SCE object to scmpObject
-scmp.ob <- as_scmp(
+scmp.ob <- as.scmp(
   object = splat.sim, from = "sce",
   align_pseudotime = FALSE,
   verbose = TRUE,
@@ -148,17 +148,17 @@ of genes), the available branching paths, and the range of pseudotime.
 scmp.ob
 ```
 
-### Pseudo-bulking along the continuum with `squeeze()`
+### Pseudo-bulking along the continuum with `sc.squeeze()`
 
 `scMaSigPro` provides a comprehensive function for pseudo-bulking along the
-pseudotime continuum, named `squeeze()`. This function discretizes the original 
-pseudotime values into bins using histogram binning methods. The `squeeze()`
+pseudotime continuum, named `sc.squeeze()`. This function discretizes the original 
+pseudotime values into bins using histogram binning methods. The `sc.squeeze()`
 function includes various parameters that can be tailored depending on the 
 characteristics of the data. Here, we will show the basic usage with the default
 parameters:
 
-```{r, "Pseudo-bulking along the continuum with `squeeze()`",eval=TRUE, echo=TRUE}
-scmp.ob <- squeeze(scmp.ob)
+```{r, "Pseudo-bulking along the continuum with `sc.squeeze()`",eval=TRUE, echo=TRUE}
+scmp.ob <- sc.squeeze(scmp.ob)
 ```
 
 The console output of `scMaSigPro` is dynamic and displays more attributes as the
@@ -179,7 +179,7 @@ bin for each path.
 We can also visually inspect the binning process using a tile plot:
 
 ```{r, "Visualize bins",eval=TRUE, echo=TRUE}
-sc.plot.bins.tile(scmp.ob)
+plotBinTile(scmp.ob)
 ```
 
 The tile plot provides a clear view of the number of cells in each bin and how the
@@ -203,11 +203,11 @@ Y_{i} &\\sim \\text{NegativeBinomial}(\\mu_{i}, \\theta = 10) \\\\
 ")
 ```
 
-To construct this model, we use `sc.make.design.matrix()` to include quadratic terms:
+To construct this model, we use `sc.set.poly()` to include quadratic terms:
 
 ```{r, "Polynomial Degree 2",eval=TRUE, echo=TRUE}
 # Polynomial Degree 2
-scmp.ob <- sc.make.design.matrix(scmp.ob, poly_degree = 2)
+scmp.ob <- sc.set.poly(scmp.ob, poly_degree = 2)
 ```
 
 #### Visualize the model
@@ -222,7 +222,7 @@ Similarly, we can fit a cubic polynomial by setting the polynomial degree to 3:
 
 ```{r, "Polynomial Degree 3",eval=TRUE, echo=TRUE}
 # Polynomial Degree 3
-scmp.ob <- sc.make.design.matrix(scmp.ob, poly_degree = 3)
+scmp.ob <- sc.set.poly(scmp.ob, poly_degree = 3)
 showPoly(scmp.ob)
 ```
 
@@ -232,7 +232,7 @@ exponential and nonlinear gene expression patterns:
 
 ```{r, "# Polynomial Degree 1", eval=TRUE, echo=TRUE}
 # Polynomial Degree 1
-scmp.ob <- sc.make.design.matrix(scmp.ob, poly_degree = 1)
+scmp.ob <- sc.set.poly(scmp.ob, poly_degree = 1)
 showPoly(scmp.ob)
 ```
 
@@ -260,16 +260,15 @@ to continuous values. To account for library size differences, it uses `offsets`
 which are the log of size factors, similar to DESeq2.
 
 For those who prefer to supply continuous data normalized using methods like log(1+x),
-the distribution can be changed during model fitting. The `weight` parameter accounts
-for variation in bin sizes, enabling uniform modeling of small and large bins.
+the distribution can be changed during model fitting.
 
 We can execute `sc.p.vector()` as follows:
 
 ```{r, "Detecting Genes with Non-Flat Profiles", eval=TRUE, echo=TRUE}
 # Detect non-flat profiles
 scmp.ob <- sc.p.vector(scmp.ob,
-  offset = TRUE, Q = 0.05,
-  useWeights = TRUE, logOffset = TRUE, verbose = FALSE
+  offset = TRUE, Q = 0.05, verbose = FALSE,
+  logOffset = TRUE
 )
 scmp.ob
 ```
@@ -279,14 +278,14 @@ The console output reveals that `scMaSigPro` detected 51 genes with non-flat pro
 ### Model Refinement
 
 Having identified genes with significant profiles, we can refine their polynomial
-models using `sc.T.fit()`. This function evaluates each term of the polynomial model.
+models using `sc.t.fit()`. This function evaluates each term of the polynomial model.
 In our case, it will assess which among "beta0 + beta1\*Path2vsPath1 + 
 beta2\*scmp_binned_pseudotime + beta3*scmp_binned_pseudotimexPath2" 
-significantly contributes to the differences. To execute `sc.T.fit()`, we proceed as follows:
+significantly contributes to the differences. To execute `sc.t.fit()`, we proceed as follows:
 
 ```{r, "Model Refinement",eval=TRUE, echo=TRUE}
 # Model refinement
-scmp.ob <- sc.T.fit(scmp.ob, verbose = FALSE)
+scmp.ob <- sc.t.fit(scmp.ob, verbose = FALSE)
 scmp.ob
 ```
 
@@ -296,7 +295,7 @@ scmp.ob
 
 With our refined models in hand, we now focus on identifying genes showing significant differences with pseudotime, among paths, or both. For this purpose, we use the `sc.get.siggenes()` function. Our aim is to select models with a relatively high $R^2$, indicating simple linear relationships. The `vars` parameter in `sc.get.siggenes()` allows us to extract different sets of significant genes. Setting `vars = 'all'` retrieves all non-flat profiles identified in `sc.p.vector()` with $R^2>=$ the specified threshold. The option `vars = 'groups` fetches genes per path, resulting in two gene lists that demonstrate associative significance among paths, helping us identify genes associated with one path or the other along the pseudotime continuum. The `vars = 'each'` option finds significance for each term in the polynomial. In our case, we are interested in genes differentially expressed between paths and over pseudotime continum, so we will choose `vars = 'groups`.
 ```{r, "vars = groups",eval=TRUE, echo=TRUE}
-scmp.ob <- sc.get.siggenes(
+scmp.ob <- sc.filter(
   scmpObj = scmp.ob,
   rsq = 0.7,
   vars = "groups",
@@ -307,7 +306,7 @@ scmp.ob <- sc.get.siggenes(
 
 By setting the vars parameter to "groups", the function will add genes with $R^2$ >= 0.7 to the object. To explore the number of genes per group, we will make an upset plot:
 ```{r, "uspet",eval=TRUE, echo=TRUE}
-sc.path.intersection(scmp.ob)
+plotIntersect(scmp.ob)
 ```
 
 Here, we observe that 21 genes belong to both Path2vsPath1 and Path1, indicating
@@ -317,10 +316,10 @@ uniquely associated with Path2vsPath1. This implies that Path2 has 12 genes that
 are significantly differentially expressed over time, using Path1 genes as a
 reference. Let's explore a few of these genes:
 ```{r, "trend",eval=TRUE, echo=TRUE}
-FigureA <- sc.PlotGroups(scmp.ob, "Gene9", logs = T, logType = "log")
-FigureB <- sc.PlotGroups(scmp.ob, "Gene95", logs = T, logType = "log")
-FigureC <- sc.PlotGroups(scmp.ob, "Gene10", logs = T, logType = "log")
-FigureD <- sc.PlotGroups(scmp.ob, "Gene92", logs = T, logType = "log")
+FigureA <- plotTrend(scmp.ob, "Gene9", logs = T, logType = "log")
+FigureB <- plotTrend(scmp.ob, "Gene95", logs = T, logType = "log")
+FigureC <- plotTrend(scmp.ob, "Gene10", logs = T, logType = "log")
+FigureD <- plotTrend(scmp.ob, "Gene92", logs = T, logType = "log")
 (FigureA + FigureB) / (FigureC + FigureD)
 ```
 
@@ -336,19 +335,14 @@ print(groundTruth[groundTruth$Gene %in% c("Gene9", "Gene95", "Gene10", "Gene92")
 The ground truth data reveals, for example, that Gene9 has a base gene mean of 0.5, a fold change of 1.5 in Path1, and remains at the same expression level for Path2. This trend is accurately captured in our analysis, as shown in Figure-A. Similarly, Gene92 does not show a significant difference between the paths but demonstrates a downtrend along pseudotime in both paths, a finding we successfully recapitulate in Figure-D.
 
 ### Cluster Trends
-To discern general trends among the genes, we can cluster them together using the `sc.cluster.features()`. By default, this function employs hierarchical clustering (hclust) and we will divide the genes into 4 clusters.
+To discern general trends among the genes, we can cluster and visualize them together using the `plotTrendCluster()`. By default, this function employs hierarchical clustering (hclust) and we will divide the genes into 4 clusters.
 ```{r, "Cluster Trends"}
-scmp.ob <- sc.cluster.features(
+plotTrendCluster(
   scmp.ob,
-  cluster.method = "hclust",
-  k = 4
+  geneSet = "Path2vsPath1",
+  cluster_by = "counts",
+  logs = T, smoothness = 1
 )
-```
-
-Once the genes are clustered, we can visualize their profiles as follows:
-
-```{r, "profiles"}
-sc.PlotProfiles(scmp.ob, groupBy = "feature", logs = T)
 ```
 
 This visualization helps in understanding the collective behavior of genes

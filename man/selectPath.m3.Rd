@@ -13,7 +13,7 @@ selectPath.m3(
 )
 }
 \arguments{
-\item{cdsObj}{An cdsObject of class `scMaSigProClass`. This cdsObject will be checked
+\item{cdsObj}{An cdsObject of class `scmp`. This cdsObject will be checked
 to ensure it's the right type.}
 
 \item{redDim}{Dimension to use for the plot}
@@ -25,7 +25,7 @@ to ensure it's the right type.}
 \item{path_col}{Name of the column with Path}
 }
 \value{
-A `scMaSigProClass` object, subsetted based on the specified paths.
+A `scmp` object, subsetted based on the specified paths.
 }
 \description{
 Subset a CDS object interactively with Shiny

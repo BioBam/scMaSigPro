@@ -1,7 +1,7 @@
 Package: scMaSigPro
 Type: Package
 Title: Application of MaSigPro Bioconductor Package for scRNA Trajectory data
-Version: 1.0.2
+Version: 0.0.1
 Authors@R: c(
     person("Ana", "Conesa", role = c("aut"), email = "ana@example.com"),
     person("Maria Jose", "Nueda", role = c("aut"), email = "mjnueda@example.com"),
@@ -16,10 +16,10 @@ Description: scMaSigPro is a polynomial regression-based approach inspired by
     significant expression profile differences among branching paths.
 License: MIT + file LICENSE
 Imports:
-    assertthat, e1071, data.table, dplyr, entropy, ggplot2, igraph,
-    magrittr, maSigPro, MASS, MatrixGenerics, methods, parallel, parallelly,
-    plotly, RColorConesa, rlang, S4Vectors, scales, shiny, SingleCellExperiment,
-    stats, stringr, utils, ComplexUpset, mclust
+    assertthat, e1071, dplyr, entropy, ggplot2, igraph, magrittr, maSigPro,
+    MASS, MatrixGenerics, methods, parallel, parallelly, plotly, RColorConesa,
+    rlang, S4Vectors, scales, shiny, SingleCellExperiment, stats, stringr,
+    utils, ComplexUpset, mclust, SummarizedExperiment
 Depends: R (>= 4.0)
 Encoding: UTF-8
 LazyData: true

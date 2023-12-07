@@ -12,7 +12,9 @@ getPattern <- function(frame, trend, group, groups_vector) {
   if (trend == "up") {
     frame <- frame[rowSums(frame) > 0, , drop = FALSE]
   } else if (trend == "down") {
-    frame <- frame[rowSums(frame) <= 0, , drop = FALSE]
+    frame <- frame[rowSums(frame) < 0, , drop = FALSE]
+  } else if (trend == "stable") {
+    frame <- frame[rowSums(frame) == 0, , drop = FALSE]
   } else if (trend == "any") {
     frame <- frame
   }

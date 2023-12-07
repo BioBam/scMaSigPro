@@ -39,7 +39,7 @@
 #'  plotPCA(splat.sim, colour_by = "Step")
 #'  plotPCA(splat.sim, colour_by = "Group")
 #'
-#' # Create SCE and transfer data
+#' # Create sce and transfer data
 #' sce <- SingleCellExperiment(list(counts = splat.sim@@assays@@data@@listData$counts))
 #' sce@@colData <- splat.sim@@colData
 #' rowData(sce) <- rowData(splat.sim)

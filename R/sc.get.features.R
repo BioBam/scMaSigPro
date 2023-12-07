@@ -1,11 +1,11 @@
-#' Get Features from scMaSigProClass Object
+#' Get Features from scmp Object
 #'
-#' This function extracts features from an object of class 'scMaSigProClass'
+#' This function extracts features from an object of class 'scmp'
 #' based on a specified query and group. The function supports two types of
 #' queries: 'unique' or 'union', and allows for the selection of a specific
 #' group from the available groups in the object.
 #'
-#' @param scmpObj An object of class 'scMaSigProClass'.
+#' @param scmpObj An object of class 'scmp'.
 #' @param query A string specifying the type of query.
 #'              Valid options are 'unique' or 'union'.
 #'              Default is 'unique'.
@@ -37,7 +37,7 @@ sc.get.features <- function(scmpObj,
                             union.ref = "Path1",
                             union.target = "Path2vsPath1",
                             rsq = 0.7,
-                            Q = scmpObj@addParams@Q,
+                            Q = scmpObj@param@Q,
                             vars = "groups",
                             significant.intercept = "dummy",
                             term.Q = 0.05,
@@ -46,8 +46,8 @@ sc.get.features <- function(scmpObj,
                             union.ref.trend = "any",
                             union.target.trend = "any") {
   # Check Validity of the object
-  assert_that(is(scmpObj, "scMaSigProClass"),
-    msg = "Please provide object of class 'scMaSigProClass'"
+  assert_that(is(scmpObj, "scmp"),
+    msg = "Please provide object of class 'scmp'"
   )
 
   # Check
@@ -59,7 +59,7 @@ sc.get.features <- function(scmpObj,
   )
 
   # Extract avail groups
-  avail_groups <- unique(scmpObj@scTFit@groups.vector)
+  avail_groups <- unique(scmpObj@estimate@path)
 
   # Check if group exist
   assert_that(
@@ -70,7 +70,7 @@ sc.get.features <- function(scmpObj,
   )
 
   # Override
-  scmpObj <- sc.get.siggenes(scmpObj,
+  scmpObj <- sc.filter(scmpObj,
     rsq = rsq,
     vars = vars,
     significant.intercept = significant.intercept,
@@ -80,7 +80,7 @@ sc.get.features <- function(scmpObj,
   )
 
   # Create Intersection
-  interserction <- sc.path.intersection(scmpObj)
+  interserction <- plotIntersect(scmpObj)
 
   # Get intersection Data
   interserction.data <- interserction[[1]][["data"]][, c("gene", avail_groups),
@@ -110,12 +110,12 @@ sc.get.features <- function(scmpObj,
         if (unique.trend == "up") {
           res <- rownames(getPattern(
             frame = coeff.df.sub, trend = "up", group = unique.group,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@path
           ))
         } else if (unique.trend == "down") {
           res <- rownames(getPattern(
             frame = coeff.df.sub, trend = "down", group = unique.group,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@path
           ))
         }
       }
@@ -140,7 +140,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = "up", group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@path
           )
           return(rownames(res.frame))
         })
@@ -153,7 +153,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = "down", group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@path
           )
 
           return(rownames(res.frame))
@@ -173,7 +173,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = trend_value, group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@path
           )
 
           return(rownames(res.frame))
@@ -193,7 +193,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = trend_value, group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@path
           )
 
           return(rownames(res.frame))
@@ -213,7 +213,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = trend_value, group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@path
           )
 
           return(rownames(res.frame))
@@ -233,7 +233,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = trend_value, group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@path
           )
 
           return(rownames(res.frame))
@@ -253,7 +253,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = trend_value, group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@path
           )
 
           return(rownames(res.frame))
@@ -273,7 +273,7 @@ sc.get.features <- function(scmpObj,
           res.frame <- getPattern(
             frame = coeff.df.sub,
             trend = trend_value, group = group_i,
-            groups_vector = scmpObj@scTFit@groups.vector
+            groups_vector = scmpObj@estimate@path
           )
 
           return(rownames(res.frame))
