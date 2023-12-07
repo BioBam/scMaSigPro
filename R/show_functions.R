@@ -397,12 +397,12 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
   cat("Class: scmpClass\n")
   cat(paste0("nCells: ", ncol(object@sparse), "\n"))
   cat(paste0("nFeatures: ", nrow(object@sparse), "\n"))
-  cat("Pseudotime Range:", paste(range(colData(object@sparse)[[object@param@pseudotime_colname]])))
+  cat("Pseudotime Range:", paste(round(range(colData(object@sparse)[[object@param@pseudotime_colname]]), 3)))
+  cat(paste("\nBranching Paths:", paste(unique(colData(object@sparse)[[object@param@path_colname]]), collapse = ", ")))
 
   # Calculate the Compression
-  compressed.cell.metadata <- object@dense@colData %>% as.data.frame()
+  compressed.cell.metadata <- cDense(object)
   if (length(compressed.cell.metadata) > 0) {
-    cat(paste("\nPaths:", paste(levels(as.factor(compressed.cell.metadata[[object@param@path_colname]])), collapse = ", ")))
     cat(paste0(
       "\nBinned Pseudotime: ", paste(range(compressed.cell.metadata[[object@param@bin_pseudotime_colname]]), collapse = "-"), "(Range), ",
       round(mean(compressed.cell.metadata[[object@param@bin_pseudotime_colname]]), 2), "(Mean), "

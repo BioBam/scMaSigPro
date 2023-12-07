@@ -156,7 +156,7 @@ as.scmp <- function(object, from = "cds",
     }
 
     if (interactive) {
-      scmpObj <- selectPath.m3(
+      scmpObj <- m3_select_path(
         cdsObj = object,
         annotation_col = annotation_colname,
         pseudotime_col = pseudotime_colname,

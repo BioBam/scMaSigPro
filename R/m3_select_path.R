@@ -6,6 +6,7 @@
 #' @param annotation_col A character vector indicating the paths to be selected.
 #' @param pseudotime_col Name of the column with Pseudotime
 #' @param path_col Name of the column with Path
+#' @param use_shiny description
 #'
 #' @return A `scmp` object, subsetted based on the specified paths.
 #'
@@ -15,10 +16,11 @@
 #' @export
 #'
 #'
-selectPath.m3 <- function(cdsObj, redDim = "umap",
+m3_select_path <- function(cdsObj, redDim = "umap",
                           annotation_col = "cell.type",
                           pseudotime_col = "Pseudotime",
-                          path_col = "Path") {
+                          path_col = "Path",
+                          use_shiny = TRUE) {
   # Validate is supplied opject is a valid
   assert_that(is(cdsObj, "cell_data_set"),
     msg = "Please supply a valid monocle3 cdsObject"
@@ -132,26 +134,25 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
   # Create trajectory DF
   trajectory.df <- merge(edges_df, pgraph.coords, by.x = "to", by.y = "node")
   colnames(trajectory.df) <- c("from", "to", weight_colnames, "x_from", "y_from", "x_to", "y_to")
-
-  # # Run Shiny
-  # selection.list <- list(
-  #   root = "Y_14",
-  #   path1 = c("Y_2","Y_14","Y_29","Y_33","Y_34","Y_35","Y_40"),
-  #   path2 = c("Y_6","Y_14","Y_16","Y_19","Y_27","Y_41")
-  # )
-
-  # View(trajectory.df)
-  # View(anno.df)
-  # View(pgraph.coords)
-  #
-  selection.list <- shinySelect(
+  
+  # Run Shiny Select
+  if(use_shiny){
+  selection.list <- shiny_select(
     trajectory_data = trajectory.df,
     annotation_data = anno.df,
     label_coords = pgraph.coords,
     inputType = "Monocle3",
     pseudotime_colname = pseudotime_col
   )
-
+  }else{
+  selection.list <- list(
+      root = "Y_50",
+      path1 = c("Y_2", "Y_12", "Y_50", "Y_52", "Y_54", "Y_59", "Y_80", "Y_104", "Y_123"),
+      path2 = c("Y_8", "Y_36", "Y_50", "Y_75", "Y_87", "Y_95", "Y_108", "Y_133", "Y_134", "Y_149"),
+      path1_label = "EMP", path2_label = "LMPP"
+  )    
+  }
+  
   if (is.null(selection.list)) {
     warning("Nothing Returned")
   } else {
@@ -168,7 +169,7 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
 
     # Subset the cell-meta
     cell.metadata.sub <- cell.metadata[rownames(cell.metadata) %in% vertex.relation.frame.sub$cell, , drop = FALSE]
-
+    
     # Add annotation_col in the frame
     # cell.metadata.sub[[path_col]] <- NA
 
@@ -184,14 +185,14 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     # Generate subset vectors
     path1_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% path1_nodes, , drop = FALSE]
     path2_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% path2_nodes, , drop = FALSE]
-    # root_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% root_nodes, , drop = F]
+    #root_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% root_nodes, , drop = F]
 
     # Add Root
-    cell.metadata.sub[rownames(cell.metadata.sub) %in% path1_cells$cell, path_col] <- "Path1"
-    cell.metadata.sub[rownames(cell.metadata.sub) %in% path2_cells$cell, path_col] <- "Path2"
-
+    cell.metadata.sub[rownames(cell.metadata.sub) %in% path1_cells$cell, path_col] <- selection.list[["path1_label"]]
+    cell.metadata.sub[rownames(cell.metadata.sub) %in% path2_cells$cell, path_col] <- selection.list[["path2_label"]]
+    #cell.metadata.sub[rownames(cell.metadata.sub) %in% root_cells$cell, path_col] <- "Root"
+    
     cell.metadata.sub <- cell.metadata.sub[!is.na(cell.metadata.sub[[path_col]]), , drop = FALSE]
-    # cell.metadata.sub[rownames(cell.metadata.sub) %in% root_cells$cell, path_col] <- "Root"
 
     # Attach Pseudotime Info
     anno.df.sub <- anno.df[anno.df$cell %in% rownames(cell.metadata.sub), , drop = FALSE]
@@ -201,9 +202,7 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     rawCounts <- cdsObj@assays@data@listData$counts
     rawCounts <- rawCounts[, colnames(rawCounts) %in% rownames(cell.metadata.sub), drop = FALSE]
 
-    # return(list(rawCounts=rawCounts,
-    #             cell.metadata.sub=cell.metadata.sub)
-    #        )
+
     # Call the ScMaSigPro Creator
     scmpObj <- create.scmp(
       counts = rawCounts,
