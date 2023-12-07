@@ -97,7 +97,9 @@ sc.t.fit <- function(scmpObj,
   }
 
   # Check for weight usage
-  useWeights = FALSE
+  useWeights <- FALSE
+  useInverseWeights <- FALSE
+  logWeights <- FALSE
   if (useWeights) {
     # Get the pathframe
     compressed.data <- as.data.frame(scmpObj@dense@colData)

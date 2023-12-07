@@ -168,7 +168,7 @@ setGeneric("eDense", function(object, value = "missing") standardGeneric("eDense
 #' @param value Dummy parameter, not used.
 #' @return The eDense value from the scmp object.
 #'
-#' @importFrom SummarizedExperiment assay
+#' @importFrom SummarizedExperiment assay `assay<-`
 #' @export
 setMethod("eDense", "scmp", function(object, value = "missing") {
   if (identical(value, "missing")) {
@@ -214,12 +214,12 @@ setGeneric("bAlloc<-", function(object, value) standardGeneric("bAlloc<-"))
 #' @return `colData` when getting, modified `scmp` object when setting.
 #' @export
 setMethod("bAlloc", "scmp", function(object, value) {
-    if (identical(value, "missing")) {
-        return(object@design@alloc) # Getter
-    } else {
-        object@design@alloc <- as.matrix(value) # Setter
-        return(invisible(object))
-    }
+  if (identical(value, "missing")) {
+    return(object@design@alloc) # Getter
+  } else {
+    object@design@alloc <- as.matrix(value) # Setter
+    return(invisible(object))
+  }
 })
 
 #' Replacement method for bAlloc
@@ -228,8 +228,8 @@ setMethod("bAlloc", "scmp", function(object, value) {
 #' @return Modified `scmp` object.
 #' @export
 setReplaceMethod("bAlloc", "scmp", function(object, value) {
-    object@design@alloc <- as.matrix(value)
-    return(object)
+  object@design@alloc <- as.matrix(value)
+  return(object)
 })
 ##############################################################################
 setMethod(

@@ -260,16 +260,15 @@ to continuous values. To account for library size differences, it uses `offsets`
 which are the log of size factors, similar to DESeq2.
 
 For those who prefer to supply continuous data normalized using methods like log(1+x),
-the distribution can be changed during model fitting. The `weight` parameter accounts
-for variation in bin sizes, enabling uniform modeling of small and large bins.
+the distribution can be changed during model fitting.
 
 We can execute `sc.p.vector()` as follows:
 
 ```{r, "Detecting Genes with Non-Flat Profiles", eval=TRUE, echo=TRUE}
 # Detect non-flat profiles
 scmp.ob <- sc.p.vector(scmp.ob,
-  offset = TRUE, Q = 0.05,
-  useWeights = TRUE, logOffset = TRUE, verbose = FALSE
+  offset = TRUE, Q = 0.05, verbose = FALSE,
+  logOffset = TRUE
 )
 scmp.ob
 ```
@@ -336,19 +335,14 @@ print(groundTruth[groundTruth$Gene %in% c("Gene9", "Gene95", "Gene10", "Gene92")
 The ground truth data reveals, for example, that Gene9 has a base gene mean of 0.5, a fold change of 1.5 in Path1, and remains at the same expression level for Path2. This trend is accurately captured in our analysis, as shown in Figure-A. Similarly, Gene92 does not show a significant difference between the paths but demonstrates a downtrend along pseudotime in both paths, a finding we successfully recapitulate in Figure-D.
 
 ### Cluster Trends
-To discern general trends among the genes, we can cluster them together using the `sc.cluster.trend()`. By default, this function employs hierarchical clustering (hclust) and we will divide the genes into 4 clusters.
+To discern general trends among the genes, we can cluster and visualize them together using the `plotTrendCluster()`. By default, this function employs hierarchical clustering (hclust) and we will divide the genes into 4 clusters.
 ```{r, "Cluster Trends"}
-scmp.ob <- sc.cluster.trend(
+plotTrendCluster(
   scmp.ob,
-  cluster.method = "hclust",
-  k = 4
+  geneSet = "Path2vsPath1",
+  cluster_by = "counts",
+  logs = T, smoothness = 1
 )
-```
-
-Once the genes are clustered, we can visualize their profiles as follows:
-
-```{r, "profiles"}
-plotTrendCluster(scmp.ob, groupBy = "feature", logs = T)
 ```
 
 This visualization helps in understanding the collective behavior of genes

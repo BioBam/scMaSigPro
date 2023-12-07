@@ -78,12 +78,12 @@ plotTrend <-
     # Create Point df
     points.df <- data.frame(
       pooled.time = alloc.frame[, scmpObj@param@bin_pseudotime_colname],
-      pb.counts = as.vector(t(yy)),
+      pb.counts = as.vector(t(as.matrix(yy))),
       path = scmpObj@dense@colData[[scmpObj@param@path_colname]]
     )
-    #View(yy)
-    #View(points.df)
-    #stop()
+    # View(yy)
+    # View(points.df)
+    # stop()
     for (i in path.names) {
       # Extract Coeff
       a <- reg.coeffs(
@@ -144,16 +144,16 @@ plotTrend <-
     }
 
     # Convert Negative values to 0
-    #curve.df[curve.df$y < 0, "y"] <- 0
+    # curve.df[curve.df$y < 0, "y"] <- 0
     # points.df[points.df$pb.counts < 0, "pb.counts"] <- 0
-    
+
     # Generate line.df
     line.df <- points.df
-    
+
     line.df <- line.df %>%
-        group_by(pooled.time, path) %>%
-        summarize(mean_pb_counts = mean(pb.counts),  .groups = "drop")
-    
+      group_by(pooled.time, path) %>%
+      summarize(mean_pb_counts = mean(pb.counts), .groups = "drop")
+
     p <- ggplot() +
       geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.5, size = 2, stroke = 1, shape = 21) +
       geom_line(data = line.df, aes(x = pooled.time, y = mean_pb_counts, color = path), linetype = "dotted", linewidth = 1) +

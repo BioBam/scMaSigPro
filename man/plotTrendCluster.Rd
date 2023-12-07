@@ -6,23 +6,32 @@
 \usage{
 plotTrendCluster(
   scmpObj,
+  geneSet,
   xlab = "Pooled Pseudotime",
   ylab = "Pseudobulk Expression",
-  groupBy = "coeff",
+  cluster_by = "coeff",
+  cluster_method = "hclust",
   logs = TRUE,
   logType = "log",
   smoothness = 0.01,
-  includeInflu = TRUE
+  k = 9,
+  includeInflu = TRUE,
+  distance = "cor",
+  hclust.agglo_method = "ward.D"
 )
 }
 \arguments{
 \item{scmpObj}{object of class scmpObj}
 
+\item{geneSet}{description}
+
 \item{xlab}{X-axis label. Default is "Pooled Pseudotime".}
 
 \item{ylab}{Y-axis label. Default is "Pseudobulk Expression".}
 
-\item{groupBy}{A vector of maximum length 6 or a single feature of ID}
+\item{cluster_by}{description}
+
+\item{cluster_method}{description}
 
 \item{logs}{Whether to plot log of counts}
 
@@ -30,7 +39,13 @@ plotTrendCluster(
 
 \item{smoothness}{description}
 
+\item{k}{description}
+
 \item{includeInflu}{description}
+
+\item{distance}{description}
+
+\item{hclust.agglo_method}{description}
 }
 \value{
 Generates a plot.

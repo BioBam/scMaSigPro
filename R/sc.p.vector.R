@@ -85,11 +85,13 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
   # }
 
   # Removing rows with all zeros:
-  #dat[is.na(dat)] <- 0
-  #dat <- dat[rowSums(dat) != 0, , drop = FALSE]
+  # dat[is.na(dat)] <- 0
+  # dat <- dat[rowSums(dat) != 0, , drop = FALSE]
   sumatot <- apply(dat, 1, sum)
   counts0 <- which(sumatot == 0)
-  if (length(counts0) > 0) { dat <- dat[-counts0,] } 
+  if (length(counts0) > 0) {
+    dat <- dat[-counts0, ]
+  }
 
   # Get dimensions for the input
   g <- dim(dat)[1]
@@ -123,8 +125,10 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
     numCores <- 1
   }
 
-  #Check for weight usage
-  useWeights = FALSE
+  # Check for weight usage
+  useWeights <- FALSE
+  logWeights <- FALSE
+  useInverseWeights <- FALSE
   if (useWeights) {
     # Get the pathframe
     compressed.data <- as.data.frame(scmpObj@dense@colData)
@@ -224,11 +228,11 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
     scmpObj@profile <- profile.obj
 
     # Update Parameter Slot useInverseWeights
-    #scmpObj@param@useWeights <- useWeights
+    # scmpObj@param@useWeights <- useWeights
     scmpObj@param@logOffset <- logOffset
-    #scmpObj@param@logWeights <- logWeights
+    # scmpObj@param@logWeights <- logWeights
     scmpObj@param@max_it <- as.integer(max_it)
-    #scmpObj@param@useInverseWeights <- useInverseWeights
+    # scmpObj@param@useInverseWeights <- useInverseWeights
     scmpObj@param@offset <- offset
     scmpObj@param@Q <- Q
     scmpObj@param@min.na <- min.na

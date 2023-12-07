@@ -1,6 +1,6 @@
 ---
 title: "scMaSigPro: Bridging maSigPro Analysis"
-subtitle: "Guide to Applying maSigPro Methods with scMaSigPro"
+subtitle: "Guide to applying maSigPro workflow with scMaSigPro"
 author: "Priyansh Srivastava"
 package: "scMaSigPro"
 abstract: |
@@ -11,7 +11,7 @@ abstract: |
   the workflow of the original [`maSigPro`](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html) Bioconductor package of using `scMaSigPro`. 
 output: BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{scMaSigPro Basic Workflow}
+  %\VignetteIndexEntry{MaSigPro workflow}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -80,8 +80,9 @@ maSigPro can be easily installed from Bioconductor as follows:
 
 ```{r, "maSigPro-install", echo=TRUE, eval=FALSE}
 # Install Bioconductor if not already installed
-if (!require("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
+if (!require("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
 
 # install maSigPro
 BiocManager::install("maSigPro")
@@ -118,31 +119,32 @@ metadata <- as.data.frame(edesign.abiotic)
 
 Let's quickly view what each of the dataset has
 ```{r, "view-data", echo=TRUE, eval=TRUE}
-print(data.abiotic[c(1:5),c(1:5)])
+print(data.abiotic[c(1:5), c(1:5)])
 
 # load Design file
-print(edesign.abiotic[c(1:5),c(1:5)])
+print(edesign.abiotic[c(1:5), c(1:5)])
 ```
 
 Since we already have the groups binarized we will first convert them into a single colum
 ```{r, "non-binarize", echo=TRUE, eval=TRUE}
 # Add group column
-metadata$Group <- apply(metadata[,c(3:6)], 1, FUN = function(x){
-    return(names(x[x == 1]))})
+metadata$Group <- apply(metadata[, c(3:6)], 1, FUN = function(x) {
+  return(names(x[x == 1]))
+})
 
 # Remove binary columns
-metadata <- metadata[,!(colnames(metadata) %in% c("Control", "Cold", "Heat","Salt")), drop = FALSE]
+metadata <- metadata[, !(colnames(metadata) %in% c("Control", "Cold", "Heat", "Salt")), drop = FALSE]
 ```
 
 ## Creatin objects for maSigPro and scMaSigPro
 
 ```{r, "create-scmpObject", echo=TRUE, eval=TRUE}
 scmp.ob <- create.scmp(
-    counts = count,
-    cell_data = metadata,
-    pseudotime_colname = "Time",
-    path_colname = "Group",
-    use_as_bin = T
+  counts = count,
+  cell_data = metadata,
+  pseudotime_colname = "Time",
+  path_colname = "Group",
+  use_as_bin = T
 )
 ```
 
@@ -170,22 +172,25 @@ expect_equal(scmp.ob@design@predictor, expected = design$dis)
 
 ## Pvector
 ```{r}
-gc <- capture_output(fit <- p.vector(data.abiotic, design, Q = 0.05,
-                                     MT.adjust = "BH", min.obs = 20))
+gc <- capture_output(fit <- p.vector(data.abiotic, design,
+  Q = 0.05,
+  MT.adjust = "BH", min.obs = 20
+))
 ```
 
 ```{r}
 scmp.ob <- sc.p.vector(scmp.ob,
-                       min.na = 20,
-                       offset = F,
-                       max_it = 25,
-                       epsilon = 0.00001,
-                       family = gaussian())
+  min.na = 20,
+  offset = F,
+  max_it = 25,
+  epsilon = 0.00001,
+  family = gaussian()
+)
 ```
 
 
 ```{r}
-expect_equal(matrix(scmp.ob@profile@p.vector, dimnames = list(names(scmp.ob@profile@p.vector), "p.value")), expected = as.matrix(fit$p.vector[,1, drop =FALSE]))
+expect_equal(matrix(scmp.ob@profile@p.vector, dimnames = list(names(scmp.ob@profile@p.vector), "p.value")), expected = as.matrix(fit$p.vector[, 1, drop = FALSE]))
 ```
 
 ```{r}
@@ -198,9 +203,10 @@ expect_equal(pad, expected = fit$p.adjusted)
 
 ```{r}
 scmp.ob <- sc.t.fit(scmp.ob,
-                       offset = F,
-                       epsilon = 0.00001,
-                       family = gaussian())
+  offset = F,
+  epsilon = 0.00001,
+  family = gaussian()
+)
 ```
 
 ```{r}
@@ -220,45 +226,56 @@ expect_equal(showGroupCoeff(scmp.ob), expected = tstep$group.coeffs)
 ```
 
 ```{r}
-sigs <- get.siggenes(tstep, rsq = 0.6, vars = "groups")  
+sigs <- get.siggenes(tstep, rsq = 0.6, vars = "groups")
 ```
 
 ```{r}
-scmp.ob <- sc.filter(scmp.ob, rsq = 0.6, vars = "groups")  
-```
-
-```{r}
-expect_equal(scmp.ob@sig.genes@sig.genes$ColdvsControl,
-             expected = sigs$summary$ColdvsControl)
+scmp.ob <- sc.filter(scmp.ob, rsq = 0.6, vars = "groups")
 ```
 
 ```{r}
 expect_equal(scmp.ob@sig.genes@sig.genes$ColdvsControl,
-             expected = sigs$summary$ColdvsControl)
+  expected = sigs$summary$ColdvsControl
+)
 ```
 
 ```{r}
-STMDE66 <- data.abiotic[rownames(data.abiotic)=="STMDE66", ]
- PlotGroups (STMDE66, edesign = edesign.abiotic, show.fit = T,
-             dis = design$dis, groups.vector = design$groups.vector)
+expect_equal(scmp.ob@sig.genes@sig.genes$ColdvsControl,
+  expected = sigs$summary$ColdvsControl
+)
 ```
 
 ```{r}
-plotTrend(scmp.ob, "STMDE66", logs = F, pseudoCount = 0,
-          smoothness = 1, significant = F)
+STMDE66 <- data.abiotic[rownames(data.abiotic) == "STMDE66", ]
+PlotGroups(STMDE66,
+  edesign = edesign.abiotic, show.fit = T,
+  dis = design$dis, groups.vector = design$groups.vector
+)
 ```
 
 ```{r}
-see.genes(sigs$sig.genes$ColdvsControl, show.fit = T, dis =design$dis,
-cluster.method="hclust" ,cluster.data = 1, k = 9)
-```
-```{r}
-scmp.ob <- sc.cluster.trend(scmp.ob, k = 9,
-                            cluster.method = "hclust")
+plotTrend(scmp.ob, "STMDE66",
+  logs = F, pseudoCount = 0,
+  smoothness = 1, significant = F
+)
 ```
 
 ```{r}
-plotTrendCluster(scmp.ob)
+see.genes(sigs$sig.genes$ColdvsControl,
+  show.fit = T, dis = design$dis,
+  cluster.method = "hclust", cluster.data = 1, k = 9
+)
+```
+```{r}
+plotTrendCluster(
+  scmpObj = scmp.ob,
+  geneSet = "ColdvsControl",
+  cluster_by = "counts",
+  k = 9,
+  logs = F,
+  smoothness = 1,
+  cluster_method = "hclust"
+)
 ```
 
 ---
