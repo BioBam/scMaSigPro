@@ -2,17 +2,17 @@
 % Please edit documentation in R/sc.set.poly.R
 \name{sc.set.poly}
 \alias{sc.set.poly}
-\title{Create design matrix for 'scMaSigProClass' object}
+\title{Create design matrix for 'scmp' object}
 \usage{
 sc.set.poly(
   scmpObject,
   poly_degree = 2,
-  bin_pseudotime_colname = scmpObject@addParams@bin_pseudotime_colname,
-  path_colname = scmpObject@addParams@path_colname
+  bin_pseudotime_colname = scmpObject@param@bin_pseudotime_colname,
+  path_colname = scmpObject@param@path_colname
 )
 }
 \arguments{
-\item{scmpObject}{A 'scMaSigProClass' object.}
+\item{scmpObject}{A 'scmp' object.}
 
 \item{poly_degree}{Degree of the design matrix (default: 2).}
 
@@ -21,9 +21,9 @@ sc.set.poly(
 \item{path_colname}{Name of the path column.}
 }
 \value{
-Returns the 'scmpObject' with an updated 'edesign' slot.
+Returns the 'scmpObject' with an updated 'design' slot.
 }
 \description{
-This function creates a design matrix using the 'compress.sce' slot of a 'scMaSigProClass' object.
-It generates an 'edesignClass' object which is then stored in the 'edesign' slot of the 'scMaSigProClass' object.
+This function creates a design matrix using the 'dense' slot of a 'scmp' object.
+It generates an 'designClass' object which is then stored in the 'design' slot of the 'scmp' object.
 }

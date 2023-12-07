@@ -16,7 +16,7 @@
 #' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
 #' (Default is `path_prefix`)
 #' @param align_pseudotime Whether to automatically align two different pseudotimes.
-#' See \code{\link{align.pseudotime}} for more details. (Default is FALSE).
+#' See \code{\link{align_pseudotime}} for more details. (Default is FALSE).
 #' @param interactive Whether to use the shiny application to select paths. (Default is TRUE).
 #' @param annotation_colname Column name in cell level metadata containing cell type
 #' annotations. (Default is "cell_type").
@@ -39,7 +39,7 @@
 #' data("splat.sim", package = "scMaSigPro")
 #'
 #' # Step-2: Convert to ScMaSigPro Object
-#' # Here, we convert the SCE object to an scMaSigPro object
+#' # Here, we convert the sce object to an scMaSigPro object
 #' scmp.sce <- as.scmp(
 #'   object = splat.sim, from = "sce",
 #'   align_pseudotime = TRUE,
@@ -79,7 +79,7 @@ as.scmp <- function(object, from = "cds",
   assert_that(
     all(isS4(object) & all(is(object, "cell_data_set") | is(object, "SingleCellExperiment"))),
     msg = "Please provide object from one of the class 'cds/CellDataSet',
-    or 'SingleCellExperiment/SCE'."
+    or 'SingleCellExperiment/sce'."
   )
 
   # Check and validate additional parameters
@@ -96,7 +96,7 @@ as.scmp <- function(object, from = "cds",
       )
     } else if (from == "sce") {
       assert_that(all(names(additional_params) %in% c("existing_pseudotime_colname", "existing_path_colname", "labels_exist")),
-        msg = "Allowed additional parameters for SCE are 'existing_pseudotime_colname',
+        msg = "Allowed additional parameters for sce are 'existing_pseudotime_colname',
                   'existing_path_colname', and 'labels_exist'."
       )
     }
@@ -132,16 +132,16 @@ as.scmp <- function(object, from = "cds",
     )
 
     # Create Object
-    scmpObj <- new("scMaSigProClass",
-      sce = annotated_sce,
-      compress.sce = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
+    scmpObj <- new("scmp",
+      sparse = annotated_sce,
+      dense = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
     )
 
-    # Update the AddParams slot
-    scmpObj@addParams@pseudotime_colname <- pseudotime_colname
-    scmpObj@addParams@root_label <- root_label
-    scmpObj@addParams@path_prefix <- path_prefix
-    scmpObj@addParams@path_colname <- path_colname
+    # Update the param slot
+    scmpObj@param@pseudotime_colname <- pseudotime_colname
+    scmpObj@param@root_label <- root_label
+    scmpObj@param@path_prefix <- path_prefix
+    scmpObj@param@path_colname <- path_colname
 
     # Return Object
     return(scmpObj)
@@ -168,7 +168,7 @@ as.scmp <- function(object, from = "cds",
     }
     # return(scmpObj)
     if (align_pseudotime) {
-      scmpObj <- align.pseudotime(
+      scmpObj <- align_pseudotime(
         scmpObj = scmpObj,
         method = "rescale",
         pseudotime_col = pseudotime_colname,

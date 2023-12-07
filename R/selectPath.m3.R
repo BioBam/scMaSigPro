@@ -1,15 +1,16 @@
 #' Subset a CDS object interactively with Shiny
 #'
-#' @param cdsObj An cdsObject of class `scMaSigProClass`. This cdsObject will be checked
+#' @param cdsObj An cdsObject of class `scmp`. This cdsObject will be checked
 #'   to ensure it's the right type.
 #' @param redDim Dimension to use for the plot
 #' @param annotation_col A character vector indicating the paths to be selected.
 #' @param pseudotime_col Name of the column with Pseudotime
 #' @param path_col Name of the column with Path
 #'
-#' @return A `scMaSigProClass` object, subsetted based on the specified paths.
+#' @return A `scmp` object, subsetted based on the specified paths.
 #'
 #' @importFrom igraph get.data.frame
+#' @importFrom SingleCellExperiment reducedDims
 #'
 #' @export
 #'
@@ -213,7 +214,7 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     )
 
     # Add annotation column
-    scmpObj@addParams@annotation_col <- annotation_col
+    scmpObj@param@annotation_col <- annotation_col
 
     return(scmpObj)
   }

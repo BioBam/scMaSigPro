@@ -6,7 +6,7 @@
 #' the optimal number of bins using one of the supported methods. The bin sizes
 #' are also calculated and merged with the input cell_metadata.
 #'
-#' @param scmpObject object of Class scMaSigPro. See \code{\link{scMaSigProClass}}
+#' @param scmpObject object of Class scMaSigPro. See \code{\link{scmp}}
 #' for more details.
 #' @param pseudotime_colname Name of the column in `cell.metadata` storing
 #' Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment}
@@ -70,8 +70,8 @@
 #' @export
 
 sc.squeeze <- function(scmpObject,
-                       pseudotime_colname = scmpObject@addParams@pseudotime_colname,
-                       path_colname = scmpObject@addParams@path_colname,
+                       pseudotime_colname = scmpObject@param@pseudotime_colname,
+                       path_colname = scmpObject@param@path_colname,
                        bin_method = "Sturges",
                        drop_fac = 1,
                        verbose = FALSE,
@@ -92,17 +92,17 @@ sc.squeeze <- function(scmpObject,
   cell <- "cell"
 
   # Check Object Validity
-  assert_that(is(scmpObject, "scMaSigProClass"),
+  assert_that(is(scmpObject, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'."
   )
 
   # Extract cell metadata
-  raw_cell_metadata <- as.data.frame(colData(scmpObject@sce))
+  raw_cell_metadata <- as.data.frame(colData(scmpObject@sparse))
 
   # Drop Columns if exist
   cols_to_drop <- c(
-    scmpObject@addParams@bin_size_colname,
-    scmpObject@addParams@bin_pseudotime_colname,
+    scmpObject@param@bin_size_colname,
+    scmpObject@param@bin_pseudotime_colname,
     "scmp_u_bound", "scmp_l_bound"
   )
   raw_cell_metadata <- raw_cell_metadata[, !colnames(raw_cell_metadata) %in% cols_to_drop, drop = FALSE]
@@ -110,7 +110,7 @@ sc.squeeze <- function(scmpObject,
   # Count slot
   assert_that(
     all(
-      assay_name %in% names(scmpObject@sce@assays@data@listData)
+      assay_name %in% names(scmpObject@sparse@assays@data@listData)
     ),
     msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObject.")
   )
@@ -218,7 +218,7 @@ sc.squeeze <- function(scmpObject,
     )
 
     # Get Bin Table
-    bin_table <- extract.intervals(
+    bin_table <- extract_interval(
       time.vector = time_vector,
       nBins = estBins,
       bin = bin, bin.size = bin.size, lbound = lbound,
@@ -256,7 +256,7 @@ sc.squeeze <- function(scmpObject,
         }
 
         # Call your 'optimize.bin.width' function
-        bin_table <- optimize.bin.max(
+        bin_table <- optimize_bin_max(
           bin_table = bin_table,
           max_allowed = max.allowed,
           verbose = verbose,
@@ -368,14 +368,14 @@ sc.squeeze <- function(scmpObject,
     binned.path.frame <- merge(binned.path.frame, bin_table_sub, by = bin.time.col)
 
     return(list(
-      sce = processed.path.frame,
+      sparse = processed.path.frame,
       compressed = binned.path.frame
     ))
   })
 
   # Bind rows and convert to data frame, then drop 'cell' column
   processed_cell_metadata.list <- lapply(discrete.list, function(element) {
-    return(element[["sce"]])
+    return(element[["sparse"]])
   })
   processed_binned_cell_metadata.list <- lapply(discrete.list, function(element) {
     return(element[["compressed"]])
@@ -388,7 +388,7 @@ sc.squeeze <- function(scmpObject,
     as.data.frame()
 
   ## Add Processed Cell Matadata back with slot update
-  scmpObject@sce@colData <- DataFrame(processed_cell_metadata)
+  scmpObject@sparse@colData <- DataFrame(processed_cell_metadata)
 
   # Set the 'cell' column as rownames
   rownames(processed_cell_metadata) <- processed_cell_metadata$cell
@@ -461,12 +461,12 @@ sc.squeeze <- function(scmpObject,
     processed_binned_cell_metadata <- pB.frame
   }
 
-  compressed.sce <- SingleCellExperiment(assays = list(bulk.counts = as(matrix(NA, nrow = 0, ncol = nrow(processed_binned_cell_metadata)), "dgCMatrix")))
-  compressed.sce@colData <- DataFrame(processed_binned_cell_metadata)
-  scmpObject@compress.sce <- compressed.sce
+  compressed.sparse <- SingleCellExperiment(assays = list(bulk.counts = as(matrix(NA, nrow = 0, ncol = nrow(processed_binned_cell_metadata)), "dgCMatrix")))
+  compressed.sparse@colData <- DataFrame(processed_binned_cell_metadata)
+  scmpObject@dense <- compressed.sparse
 
   # Get Counts
-  scmpObject <- make.pseudobulk.counts(
+  scmpObject <- pb_counts(
     scmpObject = scmpObject,
     bin_members_colname = bin_members_colname,
     bin_colname = bin_colname,
@@ -475,12 +475,12 @@ sc.squeeze <- function(scmpObject,
   )
 
   # Update Slots
-  scmpObject@addParams@pseudotime_colname <- pseudotime_colname
-  scmpObject@addParams@path_colname <- path_colname
-  scmpObject@addParams@bin_method <- bin_method
-  scmpObject@addParams@bin_pseudotime_colname <- bin_pseudotime_colname
-  scmpObject@addParams@bin_colname <- bin_colname
-  scmpObject@addParams@bin_members_colname <- bin_members_colname
-  scmpObject@addParams@bin_size_colname <- bin_size_colname
+  scmpObject@param@pseudotime_colname <- pseudotime_colname
+  scmpObject@param@path_colname <- path_colname
+  scmpObject@param@bin_method <- bin_method
+  scmpObject@param@bin_pseudotime_colname <- bin_pseudotime_colname
+  scmpObject@param@bin_colname <- bin_colname
+  scmpObject@param@bin_members_colname <- bin_members_colname
+  scmpObject@param@bin_size_colname <- bin_size_colname
   return(scmpObject)
 }

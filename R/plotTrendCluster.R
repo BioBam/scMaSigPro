@@ -3,102 +3,222 @@
 #' This function generates plots based on various parameters.
 #'
 #' @param scmpObj object of class scmpObj
-#' @param groupBy A vector of maximum length 6 or a single feature of ID
 #' @param xlab X-axis label. Default is "Pooled Pseudotime".
 #' @param ylab Y-axis label. Default is "Pseudobulk Expression".
+#' @param cluster_by description
+#' @param geneSet description
+#' @param cluster_method description
+#' @param hclust.agglo_method description
+#' @param distance description
 #' @param smoothness description
 #' @param logs Whether to plot log of counts
 #' @param logType Log type required
 #' @param includeInflu description
+#' @param k description
 #'
 #' @import ggplot2
+#' @importFrom stats complete.cases cutree hclust
 #' @importFrom RColorConesa getConesaColors
 #' @return Generates a plot.
 #' @export
+plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab = "Pseudobulk Expression",
+                             cluster_by = "coeff",
+                             cluster_method = "hclust", logs = TRUE, logType = "log",
+                             smoothness = 0.01, k = 9, includeInflu = TRUE, distance = "cor",
+                             hclust.agglo_method = "ward.D") {
+  # Check if the gene set exists
+  assert_that(any(geneSet %in% names(scmpObj@sig.genes@sig.genes)),
+    msg = paste(
+      paste0("'", geneSet, "'"), "does not exist. Please use one of",
+      paste(names(scmpObj@sig.genes@sig.genes), collapse = ", ")
+    )
+  )
+  assert_that(any(cluster_by %in% c("coeff", "counts")),
+    msg = paste(
+      paste0("'", cluster_by, "'"), "is not a valid option. Please use one of",
+      paste(c("coeff", "counts"), collapse = ", ")
+    )
+  )
+  assert_that(any(cluster_method %in% c("hclust", "kmeans")),
+    msg = paste(
+      paste0("'", cluster_method, "'"), "is not a valid method. Please use one of",
+      paste(c("hclust", "kmeans"), collapse = ", ")
+    )
+  )
 
-plotTrendCluster <-
-  function(scmpObj,
-           xlab = "Pooled Pseudotime",
-           ylab = "Pseudobulk Expression",
-           groupBy = "coeff",
-           logs = TRUE,
-           logType = "log",
-           smoothness = 0.01,
-           includeInflu = TRUE) {
-    # Get the names of the genes that are significant
-    sig_gene_list <- scmpObj@sig.genes@sig.genes
-    sig_genes <- unlist(sig_gene_list)
-    cluster_list <- scmpObj@sig.genes@feature.clusters
+  # Get gene set vector
+  gene_set_vector <- scmpObj@sig.genes@sig.genes[[geneSet]]
 
-    # Create Data list
-    trend.data.list <- lapply(sig_genes, function(gene_i, group_by = groupBy, sigGeneList = sig_gene_list,
-                                                  clusterList = cluster_list) {
-      # Create the plot
-      plt <- plotTrend(
-        scmpObj = scmpObj,
-        feature_id = gene_i,
-        smoothness = smoothness,
-        xlab = xlab, ylab = ylab,
-        logs = logs, logType = logType
-      )
-
-      # Extract point data
-      point.data <- plt$layers[[1]][["data"]]
-
-      # Extract
-      if (group_by == "feature") {
-        trend.data <- plt$layers[[2]][["data"]]
-        trend.data[["feature"]] <- gene_i
-        clusterList <- clusterList[["sigCounts"]]
-        clusterLabel <- clusterList[[gene_i]]
-        trend.data[["scmpCluster"]] <- paste("cluster", clusterLabel)
-      } else if (group_by == "coeff") {
-        trend.data <- plt$layers[[3]][["data"]]
-        trend.data[["feature"]] <- gene_i
-        clusterList <- clusterList[["sigCoeff"]]
-        clusterLabel <- clusterList[[gene_i]]
-        trend.data[["scmpCluster"]] <- paste("cluster", clusterLabel)
-      }
-
-      # Reset columns
-      colnames(trend.data) <- c("x_axis", "y_axis", "path", "feature_id", "scmpCluster_id")
-
-      return(trend.data)
-    })
-
-    # Get list
-    trend.data <- do.call("rbind", trend.data.list)
-    rownames(trend.data) <- NULL
-
-    # Assuming feature_id and cluster_id are factors
-    p <- ggplot(
-      data = trend.data,
-      aes(
-        x = .data$x_axis, y = .data$y_axis,
-        group = interaction(.data$feature_id, .data$path),
-        color = .data$path, shape = .data$path, linetype = .data$path
-      )
-    ) +
-      geom_line(
-        linewidth = 0.4
-      ) + # Draw lines
-      geom_point(
-        size = 1, alpha = 0.5, stroke = 1
-      ) + # Draw points
-      facet_wrap(~ .data$scmpCluster_id, scales = "free_y") + # Create a panel for each cluster_id
-      scale_color_manual(values = colorConesa(length(unique(trend.data$path)))) + # Custom colors for paths
-      theme_classic(base_size = 10) +
-      theme(
-        strip.background = element_blank(),
-        strip.text.x = element_text(size = 10, angle = 0),
-        legend.position = "bottom",
-        panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
-        panel.grid.minor = element_blank(),
-        axis.text.x = element_text(angle = 45, hjust = 1) # Rotate x-axis text if necessary
-      ) +
-      labs(title = "Gene Expression over Pseudotime", color = "Path") +
-      xlab(xlab) +
-      ylab(ylab)
-    # guides(color = guide_legend(title = "Path")) # Adjust legend for paths
-    return(p)
+  # Extract data based on 'cluster_by'
+  if (cluster_by == "counts") {
+    # Extract bulk counts
+    cluster_matrix_input <- as.matrix(showSigProf(scmpObj, includeInflu = includeInflu))
+    cluster_matrix_input <- cluster_matrix_input[rownames(cluster_matrix_input) %in% gene_set_vector, , drop = FALSE]
+  } else if (cluster_by == "coeff") {
+    # Extract coefficients
+    cluster_matrix_input <- as.matrix(showCoeff(scmpObj, includeInflu = includeInflu))
+    cluster_matrix_input <- cluster_matrix_input[rownames(cluster_matrix_input) %in% gene_set_vector, , drop = FALSE]
   }
+
+  # Check method
+  if (cluster_method == "hclust") {
+    cluster_matrix_input <- cluster_matrix_input[complete.cases(cluster_matrix_input), , drop = FALSE]
+
+    # Compute the distance matrix
+    dist_matrix <- dist(cluster_matrix_input)
+
+    # Perform hierarchical clustering
+    hc <- hclust(dist_matrix)
+
+    # Cut the tree to form nine clusters
+    clusters <- cutree(hc, k = k)
+
+    # Convert to matrix for mathcing
+    clusters_df <- data.frame(
+      scmp_clusters = clusters,
+      feature_id = names(clusters)
+    )
+    clusters_df[["scmp_clusters"]] <- paste("Cluster:", clusters_df[["scmp_clusters"]])
+    rownames(clusters_df) <- NULL
+  } else {
+    stop("not coded")
+    # else if (cluster_method == "kmeans") {
+    #     # Standardizing the data can be important for k-means
+    #     standardized_data <- scale(sig.element)
+    #
+    #     # Run k-means clustering
+    #     clustering.result <- kmeans(standardized_data, centers = numClus, nstart = 25)
+    #     # nstart parameter is used to set the number of random sets chosen
+    #
+    #     # Extract Vector
+    #     cluster.vector <- as.vector(clustering.result$cluster)
+    #     names(cluster.vector) <- rownames(sig.element)
+    # } else if (cluster_method == "mclust") {
+    #     # Run Mclust
+    #     # Mclust automatically determines the optimal number of clusters
+    #     # You can specify the number of clusters if desired using the G parameter
+    #     clustering.result <- Mclust(sig.element, G = numClus)
+    #
+    #     # Extract the best model and get cluster assignments
+    #     bestModel <- summary(clustering.result, parameters = TRUE)
+    #     cluster.vector <- as.vector(as.integer(bestModel$classification))
+    #
+    #     # Optionally, you can extract the BIC values and other model details
+    #     # bic_values <- clustering.result$BIC
+    #
+    #     # Assign row names
+    #     names(cluster.vector) <- rownames(sig.element)
+    # }
+  }
+
+  curve.line.point.list <- mclapply(unique(clusters_df[["feature_id"]]), function(gene_i) {
+    # Plot data
+    plt <- plotTrend(
+      scmpObj = scmpObj,
+      feature_id = gene_i,
+      smoothness = smoothness,
+      xlab = xlab, ylab = ylab,
+      logs = logs, logType = logType
+    )
+
+    # Extract layers
+    point.data <- plt$layers[[1]][["data"]]
+    line.data <- plt$layers[[2]][["data"]]
+    curve.data <- plt$layers[[3]][["data"]]
+
+    # Add gene names
+    point.data[["feature_id"]] <- gene_i
+    line.data[["feature_id"]] <- gene_i
+    curve.data[["feature_id"]] <- gene_i
+
+    # Add cluster levelinfo
+    line.data <- merge(line.data, clusters_df, by = "feature_id")
+    point.data <- merge(point.data, clusters_df, by = "feature_id")
+    curve.data <- merge(curve.data, clusters_df, by = "feature_id")
+
+    return(
+      list(
+        curve.data = curve.data,
+        point.data = point.data,
+        line.data = line.data
+      )
+    )
+  }, mc.cores = availableCores())
+
+  # Sepatarte List
+  line.list <- lapply(curve.line.point.list, function(x) {
+    return(x[[3]])
+  })
+  point.list <- lapply(curve.line.point.list, function(x) {
+    return(x[[2]])
+  })
+  curve.list <- lapply(curve.line.point.list, function(x) {
+    return(x[[1]])
+  })
+
+  # Bind
+  point.df <- do.call("rbind", point.list)
+  line.df <- do.call("rbind", line.list)
+  curve.df <- do.call("rbind", curve.list)
+
+  # Create factors
+  point.df[["scmp_clusters"]] <- as.factor(point.df[["scmp_clusters"]])
+  line.df[["scmp_clusters"]] <- as.factor(line.df[["scmp_clusters"]])
+  curve.df[["scmp_clusters"]] <- as.factor(curve.df[["scmp_clusters"]])
+  point.df[["feature_id"]] <- as.factor(point.df[["feature_id"]])
+  line.df[["feature_id"]] <- as.factor(line.df[["feature_id"]])
+  curve.df[["feature_id"]] <- as.factor(curve.df[["feature_id"]])
+
+  # Set names
+  colnames(point.df) <- c("feature_id", "pooled.time", "pb.counts", "path", "scmp_clusters")
+  colnames(line.df) <- c("feature_id", "pooled.time", "path", "pb.counts", "scmp_clusters")
+  colnames(curve.df) <- c("feature_id", "pooled.time", "pb.counts", "path", "scmp_clusters")
+
+  # Drop features
+  line.df <- line.df[, colnames(line.df) != "feature_id", drop = FALSE]
+  curve.df <- curve.df[, colnames(curve.df) != "feature_id", drop = FALSE]
+
+  # Take medians
+  line.df <- line.df %>%
+    group_by(path, scmp_clusters, pooled.time) %>%
+    summarize(pb.counts.mean = median(pb.counts), .groups = "drop")
+  curve.df <- curve.df %>%
+    group_by(path, scmp_clusters, pooled.time) %>%
+    summarize(pb.counts.mean = median(pb.counts), .groups = "drop")
+
+  # Plot
+  p <- ggplot() +
+    geom_point(
+      data = point.df, aes(x = pooled.time, y = pb.counts, color = path),
+      fill = "#102C57", alpha = 0.5, size = 0.5, stroke = 0.5, shape = 21
+    ) +
+    geom_line(
+      data = line.df,
+      aes(
+        x = .data$pooled.time, y = .data$pb.counts.mean,
+        color = .data$path, group = .data$path,
+      ), linetype = "solid", linewidth = 0.5
+    ) +
+    geom_line(
+      data = curve.df,
+      aes(
+        x = .data$pooled.time, y = .data$pb.counts.mean,
+        color = .data$path, group = .data$path,
+      ), linetype = "dotted", linewidth = 0.5
+    ) +
+    facet_wrap(~ .data$scmp_clusters, scales = "free_y") + # Create a panel for each cluster_id
+    scale_color_manual(values = colorConesa(length(unique(point.df$path)))) + # Custom colors for paths
+    theme_classic(base_size = 10) +
+    theme(
+      strip.background = element_blank(),
+      strip.text.x = element_text(size = 10, angle = 0),
+      legend.position = "bottom",
+      panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
+      panel.grid.minor = element_blank(),
+      axis.text.x = element_text(angle = 45, hjust = 1) # Rotate x-axis text if necessary
+    ) +
+    labs(title = "Gene Expression over Pseudotime", color = "Path") +
+    xlab(xlab) +
+    ylab(ylab)
+  return(p)
+}

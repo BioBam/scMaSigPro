@@ -1,7 +1,7 @@
-#' @title Create scMaSigProClass Object
+#' @title Create scmp Object
 #'
 #' @description
-#' `create.scmp()` initializes a scMaSigProClass object with the given counts,
+#' `create.scmp()` initializes a scmp object with the given counts,
 #' cell level metadata, and other optional parameters.
 #'
 #' @param counts A matrix containing the raw expression counts.
@@ -13,7 +13,7 @@
 #' @param path_colname A character string specifying the column name for the path in the cell level metadata.
 #' @param use_as_bin A logical indicating whether to use the raw counts and cell level data as binned. Defaults to FALSE.
 #'
-#' @return A scMaSigProClass object containing the inputted counts, cell data, and additional parameters.
+#' @return A scmp object containing the inputted counts, cell data, and additional parameters.
 #'
 #'
 #' @export
@@ -46,40 +46,40 @@ create.scmp <- function(counts,
   }
 
   # Create Single-Cell Experiment Object
-  sce_tmp <- SingleCellExperiment(
+  sparse_tmp <- SingleCellExperiment(
     list(counts = counts),
     colData = DataFrame(cell_data)
   )
 
   # Initate scMaSigPro
-  scmpObj <- new("scMaSigProClass",
-    sce = sce_tmp,
-    compress.sce = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
+  scmpObj <- new("scmp",
+    sparse = sparse_tmp,
+    dense = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
   )
-  sce_tmp <- NULL
+  sparse_tmp <- NULL
 
   # Use as bin
   if (use_as_bin) {
     # Set bin size coulmn name
     cell_data[["scmp_bin_size"]] <- as.numeric(1)
 
-    # Create SCE
-    sce_tmp <- SingleCellExperiment(
+    # Create sparse
+    sparse_tmp <- SingleCellExperiment(
       list(bulk.counts = counts),
       colData = DataFrame(cell_data)
     )
 
     # Transfer Data
-    scmpObj@compress.sce <- sce_tmp
-    sce_tmp <- NULL
+    scmpObj@dense <- sparse_tmp
+    sparse_tmp <- NULL
 
     # Update the slots
-    scmpObj@addParams@bin_pseudotime_colname <- pseudotime_colname
+    scmpObj@param@bin_pseudotime_colname <- pseudotime_colname
   }
 
   # Update the slots
-  scmpObj@addParams@pseudotime_colname <- pseudotime_colname
-  scmpObj@addParams@path_colname <- path_colname
+  scmpObj@param@pseudotime_colname <- pseudotime_colname
+  scmpObj@param@path_colname <- path_colname
 
 
   return(scmpObj)

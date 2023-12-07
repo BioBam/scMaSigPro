@@ -6,13 +6,13 @@
 \usage{
 plotBinTile(
   scmpObj,
-  path_colname = scmpObj@addParams@path_colname,
-  bin_size_colname = scmpObj@addParams@bin_size_colname,
-  bin_pseudotime_colname = scmpObj@addParams@bin_pseudotime_colname
+  path_colname = scmpObj@param@path_colname,
+  bin_size_colname = scmpObj@param@bin_size_colname,
+  bin_pseudotime_colname = scmpObj@param@bin_pseudotime_colname
 )
 }
 \arguments{
-\item{scmpObj}{A SingleCellExperiment object with an additional slot '@compress.sce' that contains compression information.}
+\item{scmpObj}{A SingleCellExperiment object with an additional slot '@dense' that contains compression information.}
 
 \item{path_colname}{A logical flag indicating whether to add a tile (heatmap) plot alongside the bar plot. Default is TRUE.}
 

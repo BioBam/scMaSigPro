@@ -2,10 +2,10 @@
 #'
 #' @description
 #' `sc.filter()` creates lists of significant genes for a set of variables
-#' whose significance value has been computed with the \code{sc.T.fit} function.
+#' whose significance value has been computed with the \code{sc.t.fit} function.
 #'
-#' @param scmpObj Object of Class \code{\link{scMaSigProClass}} in which the
-#' \code{sc.T.fit} has been run.
+#' @param scmpObj Object of Class \code{\link{scmp}} in which the
+#' \code{sc.t.fit} has been run.
 #' @param rsq Cut-off level at the R-squared value for the stepwise regression fit.
 #' @param includeInflu description
 #' @param Q overall model significance
@@ -53,14 +53,14 @@
 #' @export
 sc.filter <- function(scmpObj,
                       rsq = 0.7,
-                      Q = scmpObj@addParams@Q,
+                      Q = scmpObj@param@Q,
                       vars = c("all", "each", "groups"),
                       significant.intercept = "dummy",
                       term.Q = 0.05,
                       includeInflu = TRUE) {
   # Check Validity of the object
-  assert_that(is(scmpObj, "scMaSigProClass"),
-    msg = "Please provide object of class 'scMaSigProClass'"
+  assert_that(is(scmpObj, "scmp"),
+    msg = "Please provide object of class 'scmp'"
   )
 
   assert_that(
@@ -101,7 +101,7 @@ sc.filter <- function(scmpObj,
     sol.sub <- sol[, !(colnames(sol) %in% c("p-value", "R-squared")), drop = FALSE]
 
     # Get group_vector, from T fit
-    group_vector <- scmpObj@scTFit@groups.vector
+    group_vector <- scmpObj@estimate@path
 
     # Based on the dummy, none and all
     if (significant.intercept == "all") {
@@ -145,13 +145,13 @@ sc.filter <- function(scmpObj,
   # # Create a named tstep
   ## Donot remove this ##
   # tstep <- list(
-  #   dis = scmpObj@edesign@dis,
-  #   edesign = scmpObj@edesign@edesign,
-  #   groups.vector = scmpObj@scTFit@groups.vector,
+  #   dis = scmpObj@design@predictor,
+  #   edesign = scmpObj@design@alloc,
+  #   groups.vector = scmpObj@estimate@path,
   #   sol = showSol(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
   #   coefficients = showCoeff(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
   #   sig.profiles = showSigProf(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
-  #   group.coeffs = scmpObj@scTFit@group.coeffs
+  #   group.coeffs = scmpObj@estimate@group.coeffs
   # )
 
   # sig.genes.s3 <- get.siggenes(tstep,

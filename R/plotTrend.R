@@ -33,10 +33,10 @@ plotTrend <-
     path <- "path"
 
     # Extract edisgn
-    edesign.frame <- scmpObj@edesign@edesign %>% as.data.frame()
+    alloc.frame <- scmpObj@design@alloc %>% as.data.frame()
 
     # Extract the bulk counts
-    bulk.counts <- scmpObj@compress.sce@assays@data@listData$bulk.counts
+    bulk.counts <- scmpObj@dense@assays@data@listData$bulk.counts
 
     # Check
     assert_that(all(feature_id %in% rownames(bulk.counts)),
@@ -44,7 +44,7 @@ plotTrend <-
     )
 
     if (significant) {
-      assert_that(all(feature_id %in% unique(unlist(scmpObj@sig.genes@sig.genes))),
+      assert_that(any(feature_id %in% unique(unlist(scmpObj@sig.genes@sig.genes))),
         msg = "Feature Id didn't pass the R2 threshold, please re-run sc.get.sigenes, with lower a value or set 'significant' to 'FALSE'"
       )
     }
@@ -52,39 +52,38 @@ plotTrend <-
     # gene_i
     yy <- bulk.counts[rownames(bulk.counts) %in% feature_id, , drop = FALSE]
 
-    # Extract the bulk counts
-    edesign <- edesign.frame
-
     # group Vector
-    groups.vector <- scmpObj@scPVector@groups.vector
+    groups.vector <- scmpObj@design@groups.vector
 
     # Prepare for Tfit
     rm <- matrix(yy, nrow = 1, ncol = length(yy))
     rownames(rm) <- c("ratio medio")
-    colnames(rm) <- rownames(scmpObj@edesign@dis)
+    colnames(rm) <- rownames(scmpObj@design@predictor)
 
     # Extract the beta
     betas.table <- showCoeff(scmpObj, view = FALSE, return = TRUE)
     betas <- betas.table[rownames(betas.table) %in% feature_id, , drop = FALSE]
 
     # Set Data
-    curve.df <- data.frame(x = 0, y = 0, path = scmpObj@addParams@path_prefix)
-    line.df <- data.frame(x = 0, y = 0, path = scmpObj@addParams@path_prefix)
-    colnames(line.df) <- c("x", "y", scmpObj@addParams@path_colname)
-    colnames(line.df) <- c("x", "y", scmpObj@addParams@path_colname)
+    curve.df <- data.frame(x = 0, y = 0, path = scmpObj@param@path_prefix)
+    line.df <- data.frame(x = 0, y = 0, path = scmpObj@param@path_prefix)
+    colnames(line.df) <- c("x", "y", scmpObj@param@path_colname)
+    colnames(line.df) <- c("x", "y", scmpObj@param@path_colname)
     curve_data <- NULL
-    path.names <- unique(scmpObj@compress.sce@colData[[scmpObj@addParams@path_colname]])
+    path.names <- unique(scmpObj@dense@colData[[scmpObj@param@path_colname]])
 
     # Get x and y
-    x <- y <- rep(0, nrow(edesign.frame))
+    x <- y <- rep(0, nrow(alloc.frame))
 
     # Create Point df
     points.df <- data.frame(
-      pooled.time = edesign.frame[, scmpObj@addParams@bin_pseudotime_colname],
-      pb.counts = as.vector(yy),
-      path = scmpObj@compress.sce@colData[[scmpObj@addParams@path_colname]]
+      pooled.time = alloc.frame[, scmpObj@param@bin_pseudotime_colname],
+      pb.counts = as.vector(t(as.matrix(yy))),
+      path = scmpObj@dense@colData[[scmpObj@param@path_colname]]
     )
-
+    # View(yy)
+    # View(points.df)
+    # stop()
     for (i in path.names) {
       # Extract Coeff
       a <- reg.coeffs(
@@ -96,7 +95,7 @@ plotTrend <-
       a[is.na(a)] <- 0
 
       # Extract the time
-      time <- edesign.frame[edesign.frame[[i]] == 1, scmpObj@addParams@bin_pseudotime_colname]
+      time <- alloc.frame[alloc.frame[[i]] == 1, scmpObj@param@bin_pseudotime_colname]
 
       # Create a data frame with time values
       x <- seq(from = min(time), to = max(time), by = smoothness)
@@ -145,12 +144,19 @@ plotTrend <-
     }
 
     # Convert Negative values to 0
-    curve.df[curve.df$y < 0, "y"] <- 0
+    # curve.df[curve.df$y < 0, "y"] <- 0
     # points.df[points.df$pb.counts < 0, "pb.counts"] <- 0
+
+    # Generate line.df
+    line.df <- points.df
+
+    line.df <- line.df %>%
+      group_by(pooled.time, path) %>%
+      summarize(mean_pb_counts = mean(pb.counts), .groups = "drop")
 
     p <- ggplot() +
       geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.5, size = 2, stroke = 1, shape = 21) +
-      geom_line(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), linetype = "dotted", linewidth = 1) +
+      geom_line(data = line.df, aes(x = pooled.time, y = mean_pb_counts, color = path), linetype = "dotted", linewidth = 1) +
       geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "solid", linewidth = 1.5) +
       ggtitle(
         paste("Feature Id:", feature_id),

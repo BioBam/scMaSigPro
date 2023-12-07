@@ -4,7 +4,7 @@
 #' It produces a bar plot and, optionally, a tile (heatmap) plot to display the bin sizes across different
 #' binned time intervals and paths.
 #'
-#' @param scmpObj A SingleCellExperiment object with an additional slot '@compress.sce' that contains compression information.
+#' @param scmpObj A SingleCellExperiment object with an additional slot '@dense' that contains compression information.
 #' @param path_colname A logical flag indicating whether to add a tile (heatmap) plot alongside the bar plot. Default is TRUE.
 #' @param bin_size_colname A title of the barplot
 #' @param bin_pseudotime_colname description
@@ -13,20 +13,20 @@
 #' If add_tile is TRUE, returns a combined ggplot object with both plots; otherwise, only the bar plot is printed.
 #' @export
 plotBinTile <- function(scmpObj,
-                        path_colname = scmpObj@addParams@path_colname,
-                        bin_size_colname = scmpObj@addParams@bin_size_colname,
-                        bin_pseudotime_colname = scmpObj@addParams@bin_pseudotime_colname) {
+                        path_colname = scmpObj@param@path_colname,
+                        bin_size_colname = scmpObj@param@bin_size_colname,
+                        bin_pseudotime_colname = scmpObj@param@bin_pseudotime_colname) {
   # Check Object Validity
-  assert_that(is(scmpObj, "scMaSigProClass"),
+  assert_that(is(scmpObj, "scmp"),
     msg = "Please provide object of class 'scMaSigPro'."
   )
 
   # Check whether the compression data exist or not
-  compression.info <- as.data.frame(colData(scmpObj@compress.sce))
+  compression.info <- as.data.frame(colData(scmpObj@dense))
 
   # Check for extended data
   if (nrow(compression.info) < 1) {
-    compression.info <- as.data.frame(colData(scmpObj@sce))
+    compression.info <- as.data.frame(colData(scmpObj@sparse))
   }
 
   # Check if values are binned

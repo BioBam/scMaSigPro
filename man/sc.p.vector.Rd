@@ -8,15 +8,12 @@ sc.p.vector(
   scmpObj,
   Q = 0.05,
   MT.adjust = "BH",
-  min.obs = 6,
+  min.na = 6,
   family = negative.binomial(theta = 10),
   epsilon = 1e-08,
   verbose = TRUE,
   offset = TRUE,
   parallel = FALSE,
-  useWeights = TRUE,
-  useInverseWeights = FALSE,
-  logWeights = FALSE,
   logOffset = FALSE,
   max_it = 100
 )
@@ -28,7 +25,7 @@ sc.p.vector(
 
 \item{MT.adjust}{argument to pass to \code{p.adjust} function indicating the method for multiple testing adjustment of p.value.}
 
-\item{min.obs}{genes with less than this number of true numerical values will be excluded from the analysis.
+\item{min.na}{genes with less than this number of true numerical values will be excluded from the analysis.
 Minimum value to estimate the model is (degree+1) x Groups + 1. Default is 6.}
 
 \item{family}{the distribution function to be used in the glm model.
@@ -42,12 +39,6 @@ If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = 
 \item{offset}{Whether ro use offset for normalization}
 
 \item{parallel}{description}
-
-\item{useWeights}{Use bin size as weights}
-
-\item{useInverseWeights}{description}
-
-\item{logWeights}{description}
 
 \item{logOffset}{description}
 

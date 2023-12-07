@@ -6,8 +6,8 @@
 \usage{
 sc.squeeze(
   scmpObject,
-  pseudotime_colname = scmpObject@addParams@pseudotime_colname,
-  path_colname = scmpObject@addParams@path_colname,
+  pseudotime_colname = scmpObject@param@pseudotime_colname,
+  path_colname = scmpObject@param@path_colname,
   bin_method = "Sturges",
   drop_fac = 1,
   verbose = FALSE,
@@ -25,7 +25,7 @@ sc.squeeze(
 )
 }
 \arguments{
-\item{scmpObject}{object of Class scMaSigPro. See \code{\link{scMaSigProClass}}
+\item{scmpObject}{object of Class scMaSigPro. See \code{\link{scmp}}
 for more details.}
 
 \item{pseudotime_colname}{Name of the column in `cell.metadata` storing

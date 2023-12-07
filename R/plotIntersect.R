@@ -22,7 +22,7 @@ plotIntersect <- function(scmpObj, min_interaction_size = 2,
                           width_ratio = 0.1, show_sets_size = FALSE) {
   # Check the data
   assert_that(
-    is(scmpObj, "scMaSigProClass"),
+    is(scmpObj, "scmp"),
     msg = "Please supply an object of the class 'scMaSigPro'"
   )
 
