@@ -224,7 +224,7 @@ sc.squeeze <- function(scmpObject,
       bin = bin, bin.size = bin.size, lbound = lbound,
       ubound = ubound
     )
-
+    
     # Client-Verbose
     if (verbose) {
       message(paste(
@@ -392,7 +392,7 @@ sc.squeeze <- function(scmpObject,
 
   # Set the 'cell' column as rownames
   rownames(processed_cell_metadata) <- processed_cell_metadata$cell
-  processed_cell_metadata <- processed_cell_metadata %>% select(-"cell")
+  processed_cell_metadata <- processed_cell_metadata[,colnames(processed_cell_metadata) != "cell", drop=FALSE] 
   rownames(processed_binned_cell_metadata) <- processed_binned_cell_metadata[[bin_colname]]
 
   # Prune and Trails

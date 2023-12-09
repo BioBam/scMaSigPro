@@ -9,7 +9,7 @@
 #' @importFrom shiny reactiveVal titlePanel sidebarPanel HTML actionButton mainPanel
 #' @importFrom shiny fluidRow column uiOutput sliderInput showNotification modalDialog
 #' @importFrom shiny modalButton tagList removeModal runApp shinyApp sidebarLayout stopApp
-#' @importFrom shiny verbatimTextOutput radioButtons
+#' @importFrom shiny verbatimTextOutput radioButtons hr reactive
 #' @importFrom plotly ggplotly layout plotlyOutput renderPlotly event_data config
 #'
 #' @keywords internal
