@@ -9,7 +9,11 @@ m3_select_path(
   redDim = "umap",
   annotation_col = "cell.type",
   pseudotime_col = "Pseudotime",
-  path_col = "Path"
+  path_col = "Path",
+  use_shiny = TRUE,
+  plot_purity = FALSE,
+  m3_pp = list(root_pp = c(""), path1_pp = c(""), path2_pp = c(""), path1_name = NULL,
+    path2_name = NULL)
 )
 }
 \arguments{
@@ -23,6 +27,12 @@ to ensure it's the right type.}
 \item{pseudotime_col}{Name of the column with Pseudotime}
 
 \item{path_col}{Name of the column with Path}
+
+\item{use_shiny}{description}
+
+\item{plot_purity}{description}
+
+\item{m3_pp}{description}
 }
 \value{
 A `scmp` object, subsetted based on the specified paths.

@@ -7,6 +7,8 @@
 #' @param pseudotime_col Name of the column with Pseudotime
 #' @param path_col Name of the column with Path
 #' @param use_shiny description
+#' @param m3_pp description
+#' @param plot_purity description
 #'
 #' @return A `scmp` object, subsetted based on the specified paths.
 #'
@@ -16,11 +18,35 @@
 #' @export
 #'
 #'
-m3_select_path <- function(cdsObj, redDim = "umap",
-                          annotation_col = "cell.type",
-                          pseudotime_col = "Pseudotime",
-                          path_col = "Path",
-                          use_shiny = TRUE) {
+m3_select_path <- function(cdsObj,
+                           redDim = "umap",
+                           annotation_col = "cell.type",
+                           pseudotime_col = "Pseudotime",
+                           path_col = "Path",
+                           use_shiny = TRUE,
+                           plot_purity = FALSE,
+                           m3_pp = list(
+                             root_pp = c(""), path1_pp = c(""), path2_pp = c(""),
+                             path1_name = NULL, path2_name = NULL
+                           )) {
+  if (use_shiny == FALSE) {
+    # Check whether the lower dimensions are calculated
+    assert_that(
+      all(names(m3_pp) %in% c(
+        "root_pp", "path1_pp", "path2_pp", "path1_name",
+        "path2_name"
+      )),
+      msg = paste("Accepted values should be one of 'root_pp',
+                              'path1_pp','path2_pp', 'path1_name','path2_name'")
+    )
+    if (is.null(m3_pp[["path1_name"]])) {
+      m3_pp[["path1_name"]] <- "Path1"
+    }
+    if (is.null(m3_pp[["path2_name"]])) {
+      m3_pp[["path2_name"]] <- "Path2"
+    }
+  }
+
   # Validate is supplied opject is a valid
   assert_that(is(cdsObj, "cell_data_set"),
     msg = "Please supply a valid monocle3 cdsObject"
@@ -34,6 +60,7 @@ m3_select_path <- function(cdsObj, redDim = "umap",
   assert_that(nrow(as.data.frame(reducedDims(cdsObj)[[toupper(redDim)]])) == ncol(cdsObj),
     msg = paste("Dimensions of", redDim, "do not correspond to dimensions of counts")
   )
+
 
   # Extract UMAP
   dims <- reducedDims(cdsObj)[[toupper(redDim)]] %>% as.data.frame()
@@ -134,25 +161,62 @@ m3_select_path <- function(cdsObj, redDim = "umap",
   # Create trajectory DF
   trajectory.df <- merge(edges_df, pgraph.coords, by.x = "to", by.y = "node")
   colnames(trajectory.df) <- c("from", "to", weight_colnames, "x_from", "y_from", "x_to", "y_to")
-  
+
+  # Get supplied nodes
+  supplied_nodes <- unlist(m3_pp[c("root_pp", "path1_pp", "path2_pp")])
+
   # Run Shiny Select
-  if(use_shiny){
-  selection.list <- shiny_select(
-    trajectory_data = trajectory.df,
-    annotation_data = anno.df,
-    label_coords = pgraph.coords,
-    inputType = "Monocle3",
-    pseudotime_colname = pseudotime_col
-  )
-  }else{
-  selection.list <- list(
-      root = "Y_50",
-      path1 = c("Y_2", "Y_12", "Y_50", "Y_52", "Y_54", "Y_59", "Y_80", "Y_104", "Y_123"),
-      path2 = c("Y_8", "Y_36", "Y_50", "Y_75", "Y_87", "Y_95", "Y_108", "Y_133", "Y_134", "Y_149"),
-      path1_label = "EMP", path2_label = "LMPP"
-  )    
+  if (use_shiny) {
+    selection.list <- shiny_select(
+      trajectory_data = trajectory.df,
+      annotation_data = anno.df,
+      label_coords = pgraph.coords,
+      inputType = "Monocle3",
+      pseudotime_colname = pseudotime_col
+    )
+  } else if (plot_purity & !all(supplied_nodes %in% anno.df[["node"]])) {
+    # Tranfer data
+    data <- anno.df
+
+    # Order nodes by their median Pseudotime
+    node_order <- data %>%
+      group_by(node) %>%
+      summarise(median_pseudotime = median(Pseudotime, na.rm = TRUE)) %>%
+      arrange(median_pseudotime) %>%
+      pull(node)
+
+    # Convert the 'node' column to an ordered factor based on median Pseudotime
+    data$node <- factor(data$node, levels = node_order)
+
+    # Now, count the number of instances for each 'anno' within each 'node' and calculate fractions
+    data_summary <- data %>%
+      group_by(node, anno) %>%
+      summarise(count = n(), .groups = "drop")
+
+    data_summary <- data_summary[data_summary$count >= (mean(data_summary$count) + sd(data_summary$count)), ]
+
+    # Plotting the data
+    fraction_bar <- ggplot(data_summary, aes(x = node, y = count, fill = anno)) +
+      geom_bar(stat = "identity", position = "stack") +
+      theme_minimal() +
+      coord_flip() +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+      labs(x = "Prinicpal Node", y = "Count of cells", fill = "Annotation") +
+      ggtitle("Number of cells per principal point",
+        subtitle = "Decide nodes for  'root_pp', 'path1_pp','path2_pp'"
+      )
+
+    return(fraction_bar)
+  } else if (all(supplied_nodes %in% anno.df[["node"]])) {
+    selection.list <- list(
+      path1 = m3_pp[["path1_pp"]],
+      path2 = m3_pp[["path2_pp"]],
+      root = m3_pp[["root_pp"]],
+      path1_label = m3_pp[["path1_name"]],
+      path2_label = m3_pp[["path2_name"]]
+    )
   }
-  
+
   if (is.null(selection.list)) {
     warning("Nothing Returned")
   } else {
@@ -169,7 +233,7 @@ m3_select_path <- function(cdsObj, redDim = "umap",
 
     # Subset the cell-meta
     cell.metadata.sub <- cell.metadata[rownames(cell.metadata) %in% vertex.relation.frame.sub$cell, , drop = FALSE]
-    
+
     # Add annotation_col in the frame
     # cell.metadata.sub[[path_col]] <- NA
 
@@ -185,13 +249,13 @@ m3_select_path <- function(cdsObj, redDim = "umap",
     # Generate subset vectors
     path1_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% path1_nodes, , drop = FALSE]
     path2_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% path2_nodes, , drop = FALSE]
-    #root_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% root_nodes, , drop = F]
+    # root_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% root_nodes, , drop = F]
 
     # Add Root
     cell.metadata.sub[rownames(cell.metadata.sub) %in% path1_cells$cell, path_col] <- selection.list[["path1_label"]]
     cell.metadata.sub[rownames(cell.metadata.sub) %in% path2_cells$cell, path_col] <- selection.list[["path2_label"]]
-    #cell.metadata.sub[rownames(cell.metadata.sub) %in% root_cells$cell, path_col] <- "Root"
-    
+    # cell.metadata.sub[rownames(cell.metadata.sub) %in% root_cells$cell, path_col] <- "Root"
+
     cell.metadata.sub <- cell.metadata.sub[!is.na(cell.metadata.sub[[path_col]]), , drop = FALSE]
 
     # Attach Pseudotime Info

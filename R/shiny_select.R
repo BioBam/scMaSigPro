@@ -16,21 +16,20 @@
 #'
 
 shiny_select <- function(trajectory_data,
-                        annotation_data,
-                        label_coords,
-                        pseudotime_colname,
-                        inputType = "Monocle3") {
-    
-    # Set viridis
-    viridis_colors <- rev(c("#f0f921", "#f89540", "#cc4778", "#7e03a8", "#0d0887"))
-    cell_colors <- c(
-        "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231",
-        "#911eb4", "#46f0f0", "#f032e6", "#bcf60c", "#fabebe",
-        "#008080", "#e6beff", "#9a6324", "#fffac8", "#800000",
-        "#aaffc3", "#808000", "#ffd8b1", "#000075", "#808080"
-    )
-    
-    
+                         annotation_data,
+                         label_coords,
+                         pseudotime_colname,
+                         inputType = "Monocle3") {
+  # Set viridis
+  viridis_colors <- rev(c("#f0f921", "#f89540", "#cc4778", "#7e03a8", "#0d0887"))
+  cell_colors <- c(
+    "#e6194b", "#3cb44b", "#ffe119", "#4363d8", "#f58231",
+    "#911eb4", "#46f0f0", "#f032e6", "#bcf60c", "#fabebe",
+    "#008080", "#e6beff", "#9a6324", "#fffac8", "#800000",
+    "#aaffc3", "#808000", "#ffd8b1", "#000075", "#808080"
+  )
+
+
   # SetUI
   ui <- fluidPage(
     titlePanel("scMaSigPro"),
@@ -99,8 +98,12 @@ shiny_select <- function(trajectory_data,
     # Server
     server <- function(input, output, session) {
       selected_paths <- reactiveVal(list())
-      path1_label <- reactive({ input$path1_label })
-      path2_label <- reactive({ input$path2_label })
+      path1_label <- reactive({
+        input$path1_label
+      })
+      path2_label <- reactive({
+        input$path2_label
+      })
       root_node <- reactiveVal(NULL)
       path1 <- reactiveVal(NULL)
       path2 <- reactiveVal(NULL)
@@ -170,11 +173,11 @@ shiny_select <- function(trajectory_data,
             labs(x = "UMAP-1", y = "UMAP-2")
 
           if (input$trPlotCellColor == "pTime") {
-              trajectory.map <- trajectory.map + scale_color_gradientn(colors = viridis_colors)
-        } else if (input$trPlotCellColor == "anno") {
+            trajectory.map <- trajectory.map + scale_color_gradientn(colors = viridis_colors)
+          } else if (input$trPlotCellColor == "anno") {
             trajectory.map <- trajectory.map + scale_color_manual(values = cell_colors)
-        }
-              
+          }
+
           ggplotly(trajectory.map, source = "trajectoryPlot", tooltip = colName) %>%
             plotly::layout(dragmode = "lasso") %>%
             config(displaylogo = FALSE)
@@ -360,23 +363,25 @@ shiny_select <- function(trajectory_data,
           theme_minimal() +
           xlab("UMAP-1") +
           ylab("UMAP-2")
-        
+
         if (input$trPlotCellColor == "pTime") {
-            sub.trajectory.map <- sub.trajectory.map + scale_color_gradientn(colors = viridis_colors)
-      } else if (input$trPlotCellColor == "anno") {
+          sub.trajectory.map <- sub.trajectory.map + scale_color_gradientn(colors = viridis_colors)
+        } else if (input$trPlotCellColor == "anno") {
           sub.trajectory.map <- sub.trajectory.map + scale_color_manual(values = cell_colors)
-      }
+        }
 
         ggplotly(sub.trajectory.map) %>% config(displaylogo = FALSE)
       })
-      
+
       # Save button behavior
       observeEvent(input$save, {
         # Get variables
         if (length(path1()) > 2 & length(path2()) > 2 & length(root_node()) == 1) {
           # Set Reactive
-          selected_paths(list(root = root_node(), path1 = path1(), path2 = path2(),
-                              path1_label = path1_label(), path2_label = path2_label()))
+          selected_paths(list(
+            root = root_node(), path1 = path1(), path2 = path2(),
+            path1_label = path1_label(), path2_label = path2_label()
+          ))
 
           # Check before close
           if (length(selected_paths()) != 5) {
