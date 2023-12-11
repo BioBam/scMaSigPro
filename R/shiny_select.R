@@ -9,7 +9,7 @@
 #' @importFrom shiny reactiveVal titlePanel sidebarPanel HTML actionButton mainPanel
 #' @importFrom shiny fluidRow column uiOutput sliderInput showNotification modalDialog
 #' @importFrom shiny modalButton tagList removeModal runApp shinyApp sidebarLayout stopApp
-#' @importFrom shiny verbatimTextOutput radioButtons hr reactive
+#' @importFrom shiny verbatimTextOutput radioButtons hr reactive textInput
 #' @importFrom plotly ggplotly layout plotlyOutput renderPlotly event_data config
 #'
 #' @keywords internal
@@ -274,13 +274,13 @@ shiny_select <- function(trajectory_data,
           } else {
             # Check if exist in root
             if (root_node() %in% path2_vector) {
-              if (length(path2_vector[path1() %in% path2_vector]) <= 1) {
+              # if (length(path2_vector[path1() %in% path2_vector]) <= 1) {
                 path2(path2_vector)
                 # Log
                 showNotification(paste("Selected nodes for Path2:", paste(path2(), collapse = ", ")), type = "message")
-              } else {
-                showNotification(paste("Path2 cannot share nodes with Path1, other than root node", root_node()), type = "error")
-              }
+              # } else {
+              #   showNotification(paste("Path2 cannot share nodes with Path1, other than root node", root_node()), type = "error")
+              # }
             } else {
               showNotification(paste("Root node is not a part of selected Path2", root_node(), "should exist in Path2"), type = "error")
             }

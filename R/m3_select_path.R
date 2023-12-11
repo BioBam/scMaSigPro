@@ -14,6 +14,7 @@
 #'
 #' @importFrom igraph get.data.frame
 #' @importFrom SingleCellExperiment reducedDims
+#' @importFrom dplyr pull arrange n
 #'
 #' @export
 #'
