@@ -339,9 +339,10 @@ To discern general trends among the genes, we can cluster and visualize them tog
 ```{r, "Cluster Trends"}
 plotTrendCluster(
   scmp.ob,
-  geneSet = "Path2vsPath1",
+  geneSet = "shared",
   cluster_by = "counts",
-  logs = T, smoothness = 1
+  logs = T, smoothness = 1,
+  result = "plot"
 )
 ```
 

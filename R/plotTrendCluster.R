@@ -93,7 +93,9 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
     )
     
     if(result == "return"){
-        scmpObj@sig.genes@feature.clusters <- clusters
+        cluster.list <- list(clusters)
+        names(cluster.list) <- geneSet
+        scmpObj@sig.genes@feature.clusters <- cluster.list
         return(scmpObj)
     }
     
