@@ -31,10 +31,10 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
                              result = "plot",
                              significant = FALSE) {
   # Check if the gene set exists
-  assert_that(any(geneSet %in% c(names(scmpObj@sig.genes@sig.genes), "shared")),
+  assert_that(any(geneSet %in% c(names(scmpObj@sig.genes@sig.genes), "intersect", "union")),
     msg = paste(
       paste0("'", geneSet, "'"), "does not exist. Please use one of",
-      paste(c(names(scmpObj@sig.genes@sig.genes), "shared"), collapse = ", ")
+      paste(c(names(scmpObj@sig.genes@sig.genes), "intersect", "union"), collapse = ", ")
     )
   )
   assert_that(any(cluster_by %in% c("coeff", "counts")),
@@ -57,8 +57,11 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
   )
 
   # Get gene set vector
-  if(geneSet == "shared"){
+  if(geneSet == "intersect"){
       gene_set_vector <- Reduce(intersect, scmpObj@sig.genes@sig.genes)
+  }
+  else if(geneSet == "union"){
+      gene_set_vector <- Reduce(union, scmpObj@sig.genes@sig.genes)
   }
   else{
       gene_set_vector <- scmpObj@sig.genes@sig.genes[[geneSet]]
