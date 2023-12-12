@@ -16,6 +16,7 @@
 #' @param includeInflu description
 #' @param k description
 #' @param result description
+#' @param significant description
 #'
 #' @import ggplot2
 #' @importFrom stats complete.cases cutree hclust
@@ -27,7 +28,8 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
                              cluster_method = "hclust", logs = TRUE, logType = "log",
                              smoothness = 0.01, k = 9, includeInflu = TRUE, distance = "cor",
                              hclust.agglo_method = "ward.D",
-                             result = "plot") {
+                             result = "plot",
+                             significant = FALSE) {
   # Check if the gene set exists
   assert_that(any(geneSet %in% c(names(scmpObj@sig.genes@sig.genes), "shared")),
     msg = paste(
@@ -139,7 +141,8 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
       feature_id = gene_i,
       smoothness = smoothness,
       xlab = xlab, ylab = ylab,
-      logs = logs, logType = logType
+      logs = logs, logType = logType,
+      significant = significant
     )
 
     # Extract layers
