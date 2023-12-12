@@ -29,10 +29,10 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
                              hclust.agglo_method = "ward.D",
                              result = "plot") {
   # Check if the gene set exists
-  assert_that(any(geneSet %in% names(scmpObj@sig.genes@sig.genes)),
+  assert_that(any(geneSet %in% c(names(scmpObj@sig.genes@sig.genes)), "shared"),
     msg = paste(
       paste0("'", geneSet, "'"), "does not exist. Please use one of",
-      paste(names(scmpObj@sig.genes@sig.genes), collapse = ", ")
+      paste(c(names(scmpObj@sig.genes@sig.genes), "shared"), collapse = ", ")
     )
   )
   assert_that(any(cluster_by %in% c("coeff", "counts")),
@@ -55,7 +55,12 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
   )
 
   # Get gene set vector
-  gene_set_vector <- scmpObj@sig.genes@sig.genes[[geneSet]]
+  if(geneSet == "shared"){
+      gene_set_vector <- Reduce(intersect, scmpObj@sig.genes@sig.genes)
+  }
+  else{
+      gene_set_vector <- scmpObj@sig.genes@sig.genes[[geneSet]]
+      }
 
   # Extract data based on 'cluster_by'
   if (cluster_by == "counts") {
@@ -67,7 +72,7 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
     cluster_matrix_input <- as.matrix(showCoeff(scmpObj, includeInflu = includeInflu))
     cluster_matrix_input <- cluster_matrix_input[rownames(cluster_matrix_input) %in% gene_set_vector, , drop = FALSE]
   }
-
+  
   # Check method
   if (cluster_method == "hclust") {
     cluster_matrix_input <- cluster_matrix_input[complete.cases(cluster_matrix_input), , drop = FALSE]
@@ -86,6 +91,12 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
       scmp_clusters = clusters,
       feature_id = names(clusters)
     )
+    
+    if(result == "return"){
+        scmpObj@sig.genes@feature.clusters <- clusters
+        return(scmpObj)
+    }
+    
     clusters_df[["scmp_clusters"]] <- paste("Cluster:", clusters_df[["scmp_clusters"]])
     rownames(clusters_df) <- NULL
   } else {
@@ -118,12 +129,6 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
     #     names(cluster.vector) <- rownames(sig.element)
     # }
   }
-  
-  if(result == "return"){
-      scmpObj@sig.genes@feature.clusters <- clusters_df
-      return(scmpObj)
-  }
-  
   
   curve.line.point.list <- mclapply(unique(clusters_df[["feature_id"]]), function(gene_i) {
     # Plot data
