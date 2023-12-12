@@ -15,6 +15,7 @@
 #' @param logType Log type required
 #' @param includeInflu description
 #' @param k description
+#' @param result description
 #'
 #' @import ggplot2
 #' @importFrom stats complete.cases cutree hclust
@@ -25,7 +26,8 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
                              cluster_by = "coeff",
                              cluster_method = "hclust", logs = TRUE, logType = "log",
                              smoothness = 0.01, k = 9, includeInflu = TRUE, distance = "cor",
-                             hclust.agglo_method = "ward.D") {
+                             hclust.agglo_method = "ward.D",
+                             result = "plot") {
   # Check if the gene set exists
   assert_that(any(geneSet %in% names(scmpObj@sig.genes@sig.genes)),
     msg = paste(
@@ -44,6 +46,12 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
       paste0("'", cluster_method, "'"), "is not a valid method. Please use one of",
       paste(c("hclust", "kmeans"), collapse = ", ")
     )
+  )
+  assert_that(any(result %in% c("return", "plot")),
+              msg = paste(
+                  paste0("'", result, "'"), "is not a valid option. Please use one of",
+                  paste(c("return", "plot"), collapse = ", ")
+              )
   )
 
   # Get gene set vector
@@ -110,7 +118,13 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
     #     names(cluster.vector) <- rownames(sig.element)
     # }
   }
-
+  
+  if(result == "return"){
+      scmpObj@sig.genes@feature.clusters <- clusters_df
+      return(scmpObj)
+  }
+  
+  
   curve.line.point.list <- mclapply(unique(clusters_df[["feature_id"]]), function(gene_i) {
     # Plot data
     plt <- plotTrend(
@@ -185,6 +199,8 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
   curve.df <- curve.df %>%
     group_by(path, scmp_clusters, pooled.time) %>%
     summarize(pb.counts.mean = median(pb.counts), .groups = "drop")
+  
+if(result == "plot"){
 
   # Plot
   p <- ggplot() +
@@ -221,4 +237,5 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
     xlab(xlab) +
     ylab(ylab)
   return(p)
+  }
 }
