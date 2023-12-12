@@ -29,7 +29,7 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
                              hclust.agglo_method = "ward.D",
                              result = "plot") {
   # Check if the gene set exists
-  assert_that(any(geneSet %in% c(names(scmpObj@sig.genes@sig.genes)), "shared"),
+  assert_that(any(geneSet %in% c(names(scmpObj@sig.genes@sig.genes), "shared")),
     msg = paste(
       paste0("'", geneSet, "'"), "does not exist. Please use one of",
       paste(c(names(scmpObj@sig.genes@sig.genes), "shared"), collapse = ", ")
