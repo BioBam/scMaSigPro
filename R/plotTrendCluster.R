@@ -50,22 +50,20 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
     )
   )
   assert_that(any(result %in% c("return", "plot")),
-              msg = paste(
-                  paste0("'", result, "'"), "is not a valid option. Please use one of",
-                  paste(c("return", "plot"), collapse = ", ")
-              )
+    msg = paste(
+      paste0("'", result, "'"), "is not a valid option. Please use one of",
+      paste(c("return", "plot"), collapse = ", ")
+    )
   )
 
   # Get gene set vector
-  if(geneSet == "intersect"){
-      gene_set_vector <- Reduce(intersect, scmpObj@sig.genes@sig.genes)
+  if (geneSet == "intersect") {
+    gene_set_vector <- Reduce(intersect, scmpObj@sig.genes@sig.genes)
+  } else if (geneSet == "union") {
+    gene_set_vector <- Reduce(union, scmpObj@sig.genes@sig.genes)
+  } else {
+    gene_set_vector <- scmpObj@sig.genes@sig.genes[[geneSet]]
   }
-  else if(geneSet == "union"){
-      gene_set_vector <- Reduce(union, scmpObj@sig.genes@sig.genes)
-  }
-  else{
-      gene_set_vector <- scmpObj@sig.genes@sig.genes[[geneSet]]
-      }
 
   # Extract data based on 'cluster_by'
   if (cluster_by == "counts") {
@@ -77,10 +75,11 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
     cluster_matrix_input <- as.matrix(showCoeff(scmpObj, includeInflu = includeInflu))
     cluster_matrix_input <- cluster_matrix_input[rownames(cluster_matrix_input) %in% gene_set_vector, , drop = FALSE]
   }
-  
+
   # Check method
   if (cluster_method == "hclust") {
-    cluster_matrix_input <- cluster_matrix_input[complete.cases(cluster_matrix_input), , drop = FALSE]
+    cluster_matrix_input[is.na(cluster_matrix_input)] <- 0
+    # cluster_matrix_input <- cluster_matrix_input[complete.cases(cluster_matrix_input), , drop = FALSE]
 
     # Compute the distance matrix
     dist_matrix <- dist(cluster_matrix_input)
@@ -96,14 +95,14 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
       scmp_clusters = clusters,
       feature_id = names(clusters)
     )
-    
-    if(result == "return"){
-        cluster.list <- list(clusters)
-        names(cluster.list) <- geneSet
-        scmpObj@sig.genes@feature.clusters <- cluster.list
-        return(scmpObj)
+
+    if (result == "return") {
+      cluster.list <- list(clusters)
+      names(cluster.list) <- geneSet
+      scmpObj@sig.genes@feature.clusters <- cluster.list
+      return(scmpObj)
     }
-    
+
     clusters_df[["scmp_clusters"]] <- paste("Cluster:", clusters_df[["scmp_clusters"]])
     rownames(clusters_df) <- NULL
   } else {
@@ -136,7 +135,7 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
     #     names(cluster.vector) <- rownames(sig.element)
     # }
   }
-  
+
   curve.line.point.list <- mclapply(unique(clusters_df[["feature_id"]]), function(gene_i) {
     # Plot data
     plt <- plotTrend(
@@ -212,43 +211,42 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
   curve.df <- curve.df %>%
     group_by(path, scmp_clusters, pooled.time) %>%
     summarize(pb.counts.mean = median(pb.counts), .groups = "drop")
-  
-if(result == "plot"){
 
-  # Plot
-  p <- ggplot() +
-    geom_point(
-      data = point.df, aes(x = pooled.time, y = pb.counts, color = path),
-      fill = "#102C57", alpha = 0.5, size = 0.5, stroke = 0.5, shape = 21
-    ) +
-    geom_line(
-      data = line.df,
-      aes(
-        x = .data$pooled.time, y = .data$pb.counts.mean,
-        color = .data$path, group = .data$path,
-      ), linetype = "solid", linewidth = 0.5
-    ) +
-    geom_line(
-      data = curve.df,
-      aes(
-        x = .data$pooled.time, y = .data$pb.counts.mean,
-        color = .data$path, group = .data$path,
-      ), linetype = "dotted", linewidth = 0.5
-    ) +
-    facet_wrap(~ .data$scmp_clusters, scales = "free_y") + # Create a panel for each cluster_id
-    scale_color_manual(values = colorConesa(length(unique(point.df$path)))) + # Custom colors for paths
-    theme_classic(base_size = 10) +
-    theme(
-      strip.background = element_blank(),
-      strip.text.x = element_text(size = 10, angle = 0),
-      legend.position = "bottom",
-      panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
-      panel.grid.minor = element_blank(),
-      axis.text.x = element_text(angle = 45, hjust = 1) # Rotate x-axis text if necessary
-    ) +
-    labs(title = "Gene Expression over Pseudotime", color = "Path") +
-    xlab(xlab) +
-    ylab(ylab)
-  return(p)
+  if (result == "plot") {
+    # Plot
+    p <- ggplot() +
+      geom_point(
+        data = point.df, aes(x = pooled.time, y = pb.counts, color = path),
+        fill = "#102C57", alpha = 0.5, size = 0.5, stroke = 0.5, shape = 21
+      ) +
+      geom_line(
+        data = line.df,
+        aes(
+          x = .data$pooled.time, y = .data$pb.counts.mean,
+          color = .data$path, group = .data$path,
+        ), linetype = "solid", linewidth = 0.5
+      ) +
+      geom_line(
+        data = curve.df,
+        aes(
+          x = .data$pooled.time, y = .data$pb.counts.mean,
+          color = .data$path, group = .data$path,
+        ), linetype = "dotted", linewidth = 0.5
+      ) +
+      facet_wrap(~ .data$scmp_clusters, scales = "free_y") + # Create a panel for each cluster_id
+      scale_color_manual(values = colorConesa(length(unique(point.df$path)))) + # Custom colors for paths
+      theme_classic(base_size = 10) +
+      theme(
+        strip.background = element_blank(),
+        strip.text.x = element_text(size = 10, angle = 0),
+        legend.position = "bottom",
+        panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
+        panel.grid.minor = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1) # Rotate x-axis text if necessary
+      ) +
+      labs(title = "Gene Expression over Pseudotime", color = "Path") +
+      xlab(xlab) +
+      ylab(ylab)
+    return(p)
   }
 }

@@ -275,9 +275,9 @@ shiny_select <- function(trajectory_data,
             # Check if exist in root
             if (root_node() %in% path2_vector) {
               # if (length(path2_vector[path1() %in% path2_vector]) <= 1) {
-                path2(path2_vector)
-                # Log
-                showNotification(paste("Selected nodes for Path2:", paste(path2(), collapse = ", ")), type = "message")
+              path2(path2_vector)
+              # Log
+              showNotification(paste("Selected nodes for Path2:", paste(path2(), collapse = ", ")), type = "message")
               # } else {
               #   showNotification(paste("Path2 cannot share nodes with Path1, other than root node", root_node()), type = "error")
               # }

@@ -53,7 +53,7 @@ An instance of the 'scmpClass'.
 }
 \description{
 `as.scmp()` converts a cds/CellDataSet object from Monocle3 or a SingleCellExperiment
-object from Slingshot to an instance of the scmpClass object.
+object to an instance of the scmpClass object.
 }
 \details{
 Additional Details

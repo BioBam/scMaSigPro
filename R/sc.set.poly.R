@@ -1,7 +1,4 @@
-#' Create design matrix for 'scmp' object
-#'
-#' This function creates a design matrix using the 'dense' slot of a 'scmp' object.
-#' It generates an 'designClass' object which is then stored in the 'design' slot of the 'scmp' object.
+#' Create predictors and set polynomial.  Adaption of maSigPro::make.design.matrix()
 #'
 #' @param scmpObject A 'scmp' object.
 #' @param poly_degree Degree of the design matrix (default: 2).

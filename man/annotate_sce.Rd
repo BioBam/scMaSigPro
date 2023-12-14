@@ -2,7 +2,8 @@
 % Please edit documentation in R/annotate_sce.R
 \name{annotate_sce}
 \alias{annotate_sce}
-\title{Annotate 'SingleCellExperiment' class object with pseudotime and path information.}
+\title{Annotate `SingleCellExperiment` class object with pseudotime and path
+information.}
 \usage{
 annotate_sce(
   sce,
@@ -17,7 +18,7 @@ annotate_sce(
 )
 }
 \arguments{
-\item{sce}{A SingleCellExperiment object to be annotated.}
+\item{sce}{A `SingleCellExperiment` object to be annotated.}
 
 \item{pseudotime_colname}{Column name in `cell.metadata`  storing
 information for Pseudotime. It is generated using `colData` from the
@@ -46,7 +47,7 @@ should be overwritten (Default is TRUE).}
 A SingleCellExperiment object with updated cell metadata.
 }
 \description{
-`annotate_sce()` annotates a SingleCellExperiment class object with pseudotime
+`annotate_sce()` annotates a `SingleCellExperiment` class object with pseudotime
 and path information in its `cell.metadata` generated using `colData` from the
 \pkg{SingleCellExperiment} package.
 }

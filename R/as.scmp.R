@@ -2,7 +2,7 @@
 #'
 #' @description
 #' `as.scmp()` converts a cds/CellDataSet object from Monocle3 or a SingleCellExperiment
-#' object from Slingshot to an instance of the scmpClass object.
+#' object to an instance of the scmpClass object.
 #'
 #' @param object An S4 object of class `cds/CellDataSet` or `SingleCellExperiment`.
 #' @param from Character string specifying the class of 'object'. Use "cds" for

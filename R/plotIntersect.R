@@ -1,14 +1,14 @@
-#' Perform UpSet Plot on Intersection of Significant Genes from SCMP Object
+#' @title Generate UpSet Plot on Intersection of Significant Genes from scmpObject
 #'
-#' This function takes a Single Cell MultiPathway (SCMP) object, extracts the list of
-#' significant genes for each pathway, and performs an UpSet plot to visualize their intersections.
-#'
-#' @param scmpObj An object of class SCMP, which should contain the @siggenes@summary slot
-#' filled with the summary of significant genes for each pathway.
-#' @param min_interaction_size description
-#' @param width_ratio description
-#' @param keep_empty_groups description
-#' @param show_sets_size description
+#' @param scmpObj An object of class scmp
+#' @param min_intersection_size minimal number of observations in an intersection
+#' for it to be included.
+#' @param width_ratio ratio of the overall set size width to intersection matrix
+#' width.
+#' @param keep_empty_groups whether empty sets should be kept (including sets
+#' which are only empty after filtering by size)
+#' @param show_sets_size the overall set sizes plot, e.g. from upset_set_size()
+#' (FALSE to hide)
 #'
 #' @return An UpSet plot visualizing the intersections of significant genes across pathways.
 #' @importFrom S4Vectors isEmpty
@@ -17,7 +17,7 @@
 #'
 #' @export
 #'
-plotIntersect <- function(scmpObj, min_interaction_size = 2,
+plotIntersect <- function(scmpObj, min_intersection_size = 2,
                           keep_empty_groups = TRUE,
                           width_ratio = 0.1, show_sets_size = FALSE) {
   # Check the data
@@ -27,7 +27,7 @@ plotIntersect <- function(scmpObj, min_interaction_size = 2,
   )
 
   # Check if siggenes results exist for groups
-  assert_that(!S4Vectors::isEmpty(scmpObj@sig.genes@sig.genes),
+  assert_that(!isEmpty(scmpObj@sig.genes@sig.genes),
     msg = "'sig.genes@Summary' slot is empty, please run 'sc.get.siggenes'"
   )
 
@@ -58,7 +58,7 @@ plotIntersect <- function(scmpObj, min_interaction_size = 2,
     data = gene_df,
     intersect = colnames(gene_df)[-1],
     width_ratio = width_ratio,
-    min_size = min_interaction_size,
+    min_size = min_intersection_size,
     keep_empty_groups = keep_empty_groups,
     name = "Vars",
     # wrap=FALSE,

@@ -35,7 +35,7 @@ Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
 
 ```{r, echo=TRUE, eval=FALSE}
 # Use public PAT
-publicPat <- "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"
+publicPat <- "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"
 
 # Install devtools if not already installed
 if (!requireNamespace("devtools", quietly = TRUE)) {
@@ -309,10 +309,10 @@ By setting the vars parameter to "groups", the function will add genes with $R^2
 plotIntersect(scmp.ob)
 ```
 
-Here, we observe that 21 genes belong to both Path2vsPath1 and Path1, indicating
+Here, we observe that 23 genes belong to both Path2vsPath1 and Path1, indicating
 that these genes not only change along pseudotime but also exhibit significantly
-different expression between the two paths. Additionally, there are 12 genes
-uniquely associated with Path2vsPath1. This implies that Path2 has 12 genes that
+different expression between the two paths. Additionally, there are 10 genes
+uniquely associated with Path2vsPath1. This implies that Path2 has 10 genes that
 are significantly differentially expressed over time, using Path1 genes as a
 reference. Let's explore a few of these genes:
 ```{r, "trend",eval=TRUE, echo=TRUE}
@@ -339,7 +339,7 @@ To discern general trends among the genes, we can cluster and visualize them tog
 ```{r, "Cluster Trends"}
 plotTrendCluster(
   scmp.ob,
-  geneSet = "shared",
+  geneSet = "intersect",
   cluster_by = "counts",
   logs = T, smoothness = 1,
   result = "plot"

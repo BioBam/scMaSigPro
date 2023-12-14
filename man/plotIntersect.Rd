@@ -2,32 +2,34 @@
 % Please edit documentation in R/plotIntersect.R
 \name{plotIntersect}
 \alias{plotIntersect}
-\title{Perform UpSet Plot on Intersection of Significant Genes from SCMP Object}
+\title{Generate UpSet Plot on Intersection of Significant Genes from scmpObject}
 \usage{
 plotIntersect(
   scmpObj,
-  min_interaction_size = 2,
+  min_intersection_size = 2,
   keep_empty_groups = TRUE,
   width_ratio = 0.1,
   show_sets_size = FALSE
 )
 }
 \arguments{
-\item{scmpObj}{An object of class SCMP, which should contain the @siggenes@summary slot
-filled with the summary of significant genes for each pathway.}
+\item{scmpObj}{An object of class scmp}
 
-\item{min_interaction_size}{description}
+\item{min_intersection_size}{minimal number of observations in an intersection
+for it to be included.}
 
-\item{keep_empty_groups}{description}
+\item{keep_empty_groups}{whether empty sets should be kept (including sets
+which are only empty after filtering by size)}
 
-\item{width_ratio}{description}
+\item{width_ratio}{ratio of the overall set size width to intersection matrix
+width.}
 
-\item{show_sets_size}{description}
+\item{show_sets_size}{the overall set sizes plot, e.g. from upset_set_size()
+(FALSE to hide)}
 }
 \value{
 An UpSet plot visualizing the intersections of significant genes across pathways.
 }
 \description{
-This function takes a Single Cell MultiPathway (SCMP) object, extracts the list of
-significant genes for each pathway, and performs an UpSet plot to visualize their intersections.
+Generate UpSet Plot on Intersection of Significant Genes from scmpObject
 }

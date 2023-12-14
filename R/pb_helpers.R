@@ -1,3 +1,10 @@
+#################################################
+## Author: Priyansh Srivastava ##################
+## Year: 2023 ###################################
+## Email: spriyansh29@gmail.com #################
+#################################################
+# Internal function for pseudo-bulking counts along Pseudotime. They are called
+# by sc.squeeze()
 ###############################################################################
 #' @title Calculate Bin Size Function
 #'
@@ -29,9 +36,7 @@ calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
   # Convert the 'size' variable to a numeric value and return it as the result of the function
   return(as.numeric(size))
 }
-
 ###############################################################################
-
 #' @title Convert Vector Elements to Path Names (Internal)
 #'
 #' @description
@@ -48,7 +53,6 @@ calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
 #' @importFrom stats setNames
 #'
 #' @keywords internal
-
 convert_to_path <- function(vec, path_prefix, root_label) {
   # Exclude "root" from the transformation and get the unique values
   unique_vals <- unique(vec[vec != root_label])
@@ -61,9 +65,7 @@ convert_to_path <- function(vec, path_prefix, root_label) {
 
   return(vec)
 }
-
 ###############################################################################
-
 #' @title Create Range Function
 #'
 #' @description
@@ -92,7 +94,6 @@ convert_to_path <- function(vec, path_prefix, root_label) {
 #' @importFrom stringr str_remove_all
 #'
 #' @keywords internal
-
 create_range <- function(x, bin_size_colname = "scmp_bin_size",
                          bin_colname = "scmp_bin", verbose = TRUE) {
   # Convert the factor column "bin" to character
@@ -122,9 +123,7 @@ create_range <- function(x, bin_size_colname = "scmp_bin_size",
   # Return the numeric vector
   return(as.numeric(rangeVec))
 }
-
 ###############################################################################
-
 #' @title estBinSize
 #'
 #' @description
@@ -204,23 +203,20 @@ estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
 
   return(estBins)
 }
-
 ###############################################################################
-
 #' @title Extract Fitting
 #'
-#' @param reg description
-#' @param lmf description
-#' @param model.glm.0 description
-#' @param dis description
-#' @param family description
+#' @param reg Regression Result form `stats::glm()`
+#' @param lmf Full model object generated from the `stats::glm()`
+#' @param model.glm.0 Intercept model object generated from the `stats::glm()`
+#' @param dis Dataframe for the predictors
+#' @param family Family used for modelling the data.
 #' @param name description
 #' @param vars.in description
-#' @param alfa description
+#' @param alfa Significance threshold (Q-Value)
 #' @param influ.info description
 #'
 #' @keywords internal
-
 extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, alfa, influ.info) {
   sol <- coefficients <- group.coeffs <- t.score <- sig.profiles <- NULL
   y <- reg$y
@@ -241,11 +237,6 @@ extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, a
   }
   result <- summary(reg)
   if ((!(result$aic == -Inf) & !is.na(result$aic) & family$family == "gaussian") | family$family != "gaussian") {
-    # k <- i
-
-    # Computing p-values
-    # model.glm.0 <- glm(y ~ 1, family = family, epsilon = epsilon, offset = offsetData)
-
     if (family$family == "gaussian") {
       test <- anova(model.glm.0, reg, test = "F")
       p.value <- test[6][2, 1]
@@ -254,7 +245,6 @@ extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, a
       p.value <- test[5][2, 1]
     }
     # Computing goodness of fitting:
-
     bondad <- (reg$null.deviance - reg$deviance) / reg$null.deviance
     if (bondad < 0) {
       bondad <- 0
@@ -303,7 +293,6 @@ extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, a
       rownames(sig.profiles)[h] <- name
     }
   }
-
   # Return Calculation
   return(list(
     p_value = p.value,
@@ -321,13 +310,12 @@ extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, a
 ###############################################################################
 #' @title Extract Intervals
 #'
-#' @param time.vector description
-#' @param nBins description
-#' @param bin description
-#' @param bin.size description
-#' @param lbond description
-#' @param ubond description
-#'
+#' @param time.vector Numeric vector of Pseudotime values.
+#' @param nBins Expected number of bins.
+#' @param bin Column name for the bin column.
+#' @param bin.size Column name for the bin size column.
+#' @param lbond Column name for the lower bound column.
+#' @param ubond Column name for the upper bound column.
 #' @keywords internal
 
 extract_interval <- function(time.vector, nBins = 1, bin, bin.size, lbound, ubound) {
@@ -476,4 +464,111 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
 
   # Return the new data
   return(uniform_bin_df)
+}
+
+################################################################################
+#' @title Create Pseduo-bulk Counts
+#'
+#' @description
+#' `pb_counts()` creates a dataframe of pseudo bulk counts from single
+#' cell counts. It does this by either taking the mean or sum of counts across
+#' cells in each bin, depending on the specified method.
+#'
+#' @param scmpObject object of Class scMaSigPro. See \code{\link{scmp}}
+#' for more details.
+#' @param bin_members_colname Column name in the dense metadata storing information
+#' about the members of the bins. (Default is 'scmp_bin_members').
+#' @param bin_colname  Column name in the dense metadata storing information
+#' about the bin labels. (Default is 'scmp_bin').
+#' @param cluster_count_by A character string specifying the method to use to
+#' aggregate counts within each cluster. Available options are 'mean' or 'sum'.
+#' (Default = "sum").
+#' @param assay_name Name of the Assay in the assay_name object from which
+#' retrieve the counts. (Default = "counts").
+#'
+#' @return
+#' A matrix. The matrix includes pseudo bulk counts with each row being
+#' a gene and each column being a bin.
+#'
+#' @details
+#' The function operates by iterating over each row of the pseudo_bulk_profile.
+#' For each bin, it identifies the cells that belong to the bin and selects their
+#' counts from the counts data frame. It then calculates the mean or sum of these
+#' counts (depending on the specified method), and adds these to a new data frame
+#' of pseudo bulk counts. The result is a pseudo bulk counts data frame where
+#' each row is a gene and each column is a bin.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
+#' @keywords internal
+
+pb_counts <- function(scmpObject,
+                      bin_members_colname = scmpObject@param@bin_members_colname,
+                      bin_colname = scmpObject@param@bin_colname,
+                      assay_name = "counts",
+                      cluster_count_by = "sum") {
+  # Check Object Validity
+  assert_that(is(scmpObject, "scmp"),
+    msg = "Please provide object of class 'scMaSigPro'."
+  )
+
+  # Count slot
+  assert_that(
+    all(
+      assay_name %in% names(scmpObject@sparse@assays@data@listData)
+    ),
+    msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObject.")
+  )
+
+  # Get assay
+  counts <- scmpObject@sparse@assays@data@listData[[assay_name]]
+
+  # Get Pseudobulk Profile
+  pseudo_bulk_profile <- as.data.frame(colData(scmpObject@dense))
+
+  assert_that(bin_members_colname %in% colnames(pseudo_bulk_profile),
+    msg = paste0("'", bin_members_colname, "' does not exist in level.meta.data")
+  )
+  assert_that(bin_colname %in% colnames(pseudo_bulk_profile),
+    msg = paste0("'", bin_colname, "' does not exist in level.meta.data")
+  )
+
+  # Get the meta-information for pseudobulking
+  meta.info <- pseudo_bulk_profile[, c(bin_members_colname, bin_colname)]
+
+  # Run mclapply
+  pb.counts <- lapply(1:nrow(meta.info), function(i) {
+    # Get the bin.info
+    bin <- meta.info[i, , drop = FALSE]
+
+    # Split the row
+    cell.vector <- c(str_split(bin[1], "\\|"))[[1]]
+
+    # Get col cells
+    col_indices <- which(colnames(counts) %in% cell.vector)
+
+    # Subset the matrix using these indices
+    bin_matrix <- as.matrix(counts[, col_indices, drop = FALSE])
+
+    # Get Pseudobulked-counts
+    pb.vector <- switch(cluster_count_by,
+      "mean" = as.matrix(round(rowMeans(bin_matrix))),
+      "sum"  = as.matrix(rowSums(bin_matrix)),
+      stop("Invalid cluster_count_by value. Please choose either 'mean' or 'sum'.")
+    )
+
+    # Return
+    return(pb.vector)
+  })
+
+  # Convert the list output of mclapply to a matrix and set the row names
+  pb.counts <- do.call(cbind, pb.counts)
+  rownames(pb.counts) <- rownames(counts)
+  colnames(pb.counts) <- meta.info[[bin_colname]]
+
+  # Return the counts
+  scmpObject@dense@assays@data@listData$bulk.counts <- as(pb.counts, "dgCMatrix")
+
+  # return
+  return(scmpObject)
 }

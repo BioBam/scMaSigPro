@@ -7,17 +7,17 @@
 extract_interval(time.vector, nBins = 1, bin, bin.size, lbound, ubound)
 }
 \arguments{
-\item{time.vector}{description}
+\item{time.vector}{Numeric vector of Pseudotime values.}
 
-\item{nBins}{description}
+\item{nBins}{Expected number of bins.}
 
-\item{bin}{description}
+\item{bin}{Column name for the bin column.}
 
-\item{bin.size}{description}
+\item{bin.size}{Column name for the bin size column.}
 
-\item{lbond}{description}
+\item{lbond}{Column name for the lower bound column.}
 
-\item{ubond}{description}
+\item{ubond}{Column name for the upper bound column.}
 }
 \description{
 Extract Intervals

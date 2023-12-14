@@ -9,9 +9,12 @@
 #' @param feature_data A data frame containing the feature level metadata.
 #' @param bin_counts A matrix containing the binned counts.
 #' @param bin_cell_data A data frame containing the binned cell level metadata.
-#' @param pseudotime_colname A character string specifying the column name for Pseudotime in the cell level metadata.
-#' @param path_colname A character string specifying the column name for the path in the cell level metadata.
-#' @param use_as_bin A logical indicating whether to use the raw counts and cell level data as binned. Defaults to FALSE.
+#' @param pseudotime_colname A character string specifying the column name for
+#' Pseudotime in the cell level metadata.
+#' @param path_colname A character string specifying the column name for the
+#' path in the cell level metadata.
+#' @param use_as_bin A logical indicating whether to use the raw counts and
+#' cell level data as binned. Defaults to FALSE.
 #'
 #' @return A scmp object containing the inputted counts, cell data, and additional parameters.
 #'

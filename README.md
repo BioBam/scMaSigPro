@@ -24,8 +24,8 @@ if (!requireNamespace("devtools", quietly = TRUE)) {
 # Install scMaSigPro
 devtools::install_github("spriyansh/scMaSigPro",
                          ref = "dev",
-                         auth_token = "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",
-                         build_vignettes = TRUE,
+                         auth_token = "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",
+                         build_vignettes = FALSE,
                          build_manual = TRUE,
                          upgrade = "never",
                          force = TRUE,

@@ -1,14 +1,24 @@
-#' Subset a CDS object interactively with Shiny
+#' @title Select branching paths from a 'Cell Dataset' object from Monocle3
 #'
-#' @param cdsObj An cdsObject of class `scmp`. This cdsObject will be checked
-#'   to ensure it's the right type.
-#' @param redDim Dimension to use for the plot
-#' @param annotation_col A character vector indicating the paths to be selected.
-#' @param pseudotime_col Name of the column with Pseudotime
-#' @param path_col Name of the column with Path
-#' @param use_shiny description
-#' @param m3_pp description
-#' @param plot_purity description
+#' @description
+#' `m3_select_path()` helps select branching paths from a from a 'Cell Dataset'
+#' object from Monocle3 TI Analysis. This function also has an in-built shiny app
+#' thats enabled interactive selection.
+#' @param cdsObj An cdsObject from Monocle3.
+#' @param redDim Dimension to use for the plot. (Default is "umap")
+#' @param annotation_col Name of the column in `cell.metadata` storing
+#' annotations. (Default is "cell_type")
+#' @param pseudotime_col The name used for the Pesudotime column in the scmpObject.
+#' (Default is "Pseudotime")
+#' @param path_col The name used for the branching path column in the  scmpObject.
+#' (Default is "Path")
+#' @param use_shiny Enable the selection for shiny-selection wizard.
+#' (Default is TRUE)
+#' @param m3_pp A list containing the character vectors for principal points ("Y_")
+#' to be used for the branch selection.
+#' @param plot_purity Plot a bar plot, showing the the principal points against
+#' the of `annotation_col`. This will show the count of annotations for each of
+#' the principal points. (Default is TRUE)
 #'
 #' @return A `scmp` object, subsetted based on the specified paths.
 #'
@@ -17,11 +27,9 @@
 #' @importFrom dplyr pull arrange n
 #'
 #' @export
-#'
-#'
 m3_select_path <- function(cdsObj,
                            redDim = "umap",
-                           annotation_col = "cell.type",
+                           annotation_col = "cell_type",
                            pseudotime_col = "Pseudotime",
                            path_col = "Path",
                            use_shiny = TRUE,

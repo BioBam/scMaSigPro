@@ -19,21 +19,24 @@ plotTrend(
 \arguments{
 \item{scmpObj}{object of class scmpObj}
 
-\item{feature_id}{A vector of maximum length 6 or a single feature of ID}
+\item{feature_id}{Name of the gene to be plotted. Should correspond to one of
+the feature in the count table.}
 
 \item{xlab}{X-axis label. Default is "Pooled Pseudotime".}
 
 \item{ylab}{Y-axis label. Default is "Pseudobulk Expression".}
 
-\item{smoothness}{abc}
+\item{smoothness}{How smooth the trend should be. Default is 0.01, setting to
+higher values will result in more linear trends.}
 
-\item{logs}{Whether to plot log of counts}
+\item{logs}{Whether to plot log of counts.}
 
-\item{logType}{Log type required}
+\item{logType}{Log Available options 'log', 'log2', 'log10'}
 
-\item{pseudoCount}{add pseucount for log}
+\item{pseudoCount}{Add a pseudo-count before taking the log.}
 
-\item{significant}{description}
+\item{significant}{Default is FALSE. Set to TRUE to plot genes, that don't pass
+R-Square threshold from 'sc.filter()'.}
 }
 \value{
 Generates a plot.

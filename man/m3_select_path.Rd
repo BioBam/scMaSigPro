@@ -2,12 +2,12 @@
 % Please edit documentation in R/m3_select_path.R
 \name{m3_select_path}
 \alias{m3_select_path}
-\title{Subset a CDS object interactively with Shiny}
+\title{Select branching paths from a 'Cell Dataset' object from Monocle3}
 \usage{
 m3_select_path(
   cdsObj,
   redDim = "umap",
-  annotation_col = "cell.type",
+  annotation_col = "cell_type",
   pseudotime_col = "Pseudotime",
   path_col = "Path",
   use_shiny = TRUE,
@@ -17,26 +17,34 @@ m3_select_path(
 )
 }
 \arguments{
-\item{cdsObj}{An cdsObject of class `scmp`. This cdsObject will be checked
-to ensure it's the right type.}
+\item{cdsObj}{An cdsObject from Monocle3.}
 
-\item{redDim}{Dimension to use for the plot}
+\item{redDim}{Dimension to use for the plot. (Default is "umap")}
 
-\item{annotation_col}{A character vector indicating the paths to be selected.}
+\item{annotation_col}{Name of the column in `cell.metadata` storing
+annotations. (Default is "cell_type")}
 
-\item{pseudotime_col}{Name of the column with Pseudotime}
+\item{pseudotime_col}{The name used for the Pesudotime column in the scmpObject.
+(Default is "Pseudotime")}
 
-\item{path_col}{Name of the column with Path}
+\item{path_col}{The name used for the branching path column in the  scmpObject.
+(Default is "Path")}
 
-\item{use_shiny}{description}
+\item{use_shiny}{Enable the selection for shiny-selection wizard.
+(Default is TRUE)}
 
-\item{plot_purity}{description}
+\item{plot_purity}{Plot a bar plot, showing the the principal points against
+the of `annotation_col`. This will show the count of annotations for each of
+the principal points. (Default is TRUE)}
 
-\item{m3_pp}{description}
+\item{m3_pp}{A list containing the character vectors for principal points ("Y_")
+to be used for the branch selection.}
 }
 \value{
 A `scmp` object, subsetted based on the specified paths.
 }
 \description{
-Subset a CDS object interactively with Shiny
+`m3_select_path()` helps select branching paths from a from a 'Cell Dataset'
+object from Monocle3 TI Analysis. This function also has an in-built shiny app
+thats enabled interactive selection.
 }

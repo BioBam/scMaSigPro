@@ -48,15 +48,15 @@ for RNA-Seq data analysis as the theta parameter represents the dispersion in
 the Negative Binomial Distribution. Such parameterization enhances the accuracy
 in modeling gene expression variability, a key factor in identifying significant
 changes in gene expression, thereby marking a significant step forward in the
-application of maSigPro to the more complex RNA-Seq data.
+application of `maSigPro` to the more complex RNA-Seq data.
 
-## Set-p and Installation
+## Setup and Installation
 ### Installing `scMaSigPro`
-Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
+`scMaSigPro` is currently available on GitHub. Follow these steps to install it:
 
 ```{r, "scMaSigPro-install", echo=TRUE, eval=FALSE}
 # Use public PAT
-publicPat <- "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"
+publicPat <- "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"
 
 # Install devtools if not already installed
 if (!requireNamespace("devtools", quietly = TRUE)) {
@@ -67,7 +67,7 @@ if (!requireNamespace("devtools", quietly = TRUE)) {
 devtools::install_github("spriyansh/scMaSigPro",
   ref = "dev",
   auth_token = publicPat,
-  build_vignettes = TRUE,
+  build_vignettes = FALSE,
   build_manual = TRUE,
   upgrade = "never",
   force = TRUE,
@@ -76,7 +76,7 @@ devtools::install_github("spriyansh/scMaSigPro",
 ```
 
 ### Installing `maSigPro`
-maSigPro can be easily installed from Bioconductor as follows:
+You can easily install `maSigPro` from Bioconductor using the following steps:
 
 ```{r, "maSigPro-install", echo=TRUE, eval=FALSE}
 # Install Bioconductor if not already installed
@@ -88,7 +88,11 @@ if (!require("BiocManager", quietly = TRUE)) {
 BiocManager::install("maSigPro")
 ```
 
-### Set up
+### Setup
+First, we need to load both `scMaSigPro` and `maSigPro`. Additionally, we will load
+`testthat`, a user-friendly testing framework for R that integrates well with
+existing workflows. We will use testthat to verify if `scMaSigPro` produces 
+the same results as `maSigPro` when used in bulk mode.
 ```{r, "set up", echo=TRUE, eval=TRUE}
 # load scMaSigPro
 library(scMaSigPro)
@@ -101,9 +105,9 @@ library(testthat)
 ```
 
 ### Setting up the data
-For this tutorial we will make use of the datasets from maSigPro and will try to
-reproduce the same analysis pipeline with scMaSigPro. More details on the analysis
-of the data are given in the original [`maSigPro` vignette-userguide](https://www.bioconductor.org/packages/release/bioc/vignettes/maSigPro/inst/doc/maSigProUsersGuide.pdf)
+In this tutorial, we will use datasets from `maSigPro` and aim to replicate the 
+same analysis pipeline using `scMaSigPro`. For more detailed information about
+the data analysis, refer to the original [`maSigPro` vignette-userguide](https://www.bioconductor.org/packages/release/bioc/vignettes/maSigPro/inst/doc/maSigProUsersGuide.pdf)
 
 ```{r, "get-data", echo=TRUE, eval=TRUE}
 # load counts
@@ -117,15 +121,21 @@ count <- data.abiotic
 metadata <- as.data.frame(edesign.abiotic)
 ```
 
-Let's quickly view what each of the dataset has
+Let's briefly examine each dataset:
 ```{r, "view-data", echo=TRUE, eval=TRUE}
+# View a subset of count data
 print(data.abiotic[c(1:5), c(1:5)])
 
-# load Design file
+# View a subset of the design file
 print(edesign.abiotic[c(1:5), c(1:5)])
 ```
 
-Since we already have the groups binarized we will first convert them into a single colum
+In edesign.abiotic, there are four groups, including one control group. The
+experiment features experimental capture times, which are distinct from Pseudotime,
+and includes temporal replicates.
+
+To simplify the analysis, we'll convert the binarized groups into a single column.
+`scMaSigPro` automatically binarizes groups internally, reducing the likelihood of errors.
 ```{r, "non-binarize", echo=TRUE, eval=TRUE}
 # Add group column
 metadata$Group <- apply(metadata[, c(3:6)], 1, FUN = function(x) {
@@ -133,154 +143,261 @@ metadata$Group <- apply(metadata[, c(3:6)], 1, FUN = function(x) {
 })
 
 # Remove binary columns
-metadata <- metadata[, !(colnames(metadata) %in% c("Control", "Cold", "Heat", "Salt")), drop = FALSE]
+metadata <- metadata[, !(colnames(metadata) %in%
+  c("Control", "Cold", "Heat", "Salt")),
+drop = FALSE
+]
+
+# View
+print(metadata[c(1:5), ])
 ```
 
-## Creatin objects for maSigPro and scMaSigPro
+## Creating objects for `scMaSigPro`
+`scMaSigPro` utilizes S4 classes, and therefore, the initial step involves creating
+an object of the `scMaSigPro` class, also known as scmpObject. To do this, we use
+the `create.scmp()` function. We will use the same object throughout the tutorial
+to show the concept of S4 classes. On the other hand for `maSigPro` we will be making
+different S3 objects as shown in the [`original tutorial.](https://www.bioconductor.org/packages/release/bioc/vignettes/maSigPro/inst/doc/maSigProUsersGuide.pdf) 
 
+As we are using `scMaSigPro` in bulk mode, we will set use_as_bin = TRUE. This 
+directs the data to the dense slot of the scmpObject, allowing us to proceed with
+the analysis without using `sc.squeeze()`, which is specifically designed for scRNA-Seq
+pseudo-bulking.
 ```{r, "create-scmpObject", echo=TRUE, eval=TRUE}
 scmp.ob <- create.scmp(
   counts = count,
   cell_data = metadata,
   pseudotime_colname = "Time",
   path_colname = "Group",
-  use_as_bin = T
+  use_as_bin = TRUE
 )
+
+# Print Console output
+scmp.ob
 ```
 
-```{r}
-expect_equal(eDense(scmp.ob), expected = data.abiotic)
+In the console output, we can observe that the data has been transferred to the
+dense slot. We can visualize this using `plotBinTile()`.
+
+```{r, "plot-bin-tile"}
+plotBinTile(scmp.ob)
+```
+ 
+Next, we need to verify if `scMaSigPro` has created the appropriate count matrix.
+For this, we will use `testthat::expect_identical()`. This function highlights any 
+mismatches; if everything is identical, it will not throw an error. 
+The `eDense()` function retrieves the dense expression file from the `scMaSigPro` object.
+ 
+```{r, "eDense(scmp.ob)"}
+expect_identical(eDense(scmp.ob), expected = data.abiotic)
 ```
 
-## Creatin of design file 
+No errors were thrown, indicating that our setup is correct and we can proceed
+with the analysis.
 
-```{r}
+## Creatin of Regression Matrix 
+The function `maSigPro::make.design.matrix()` is used to create a regression matrix
+for fitting the full regression model. In `scMaSigPro`, this task is accomplished
+using `sc.set.poly()`, where the regression matrix is referred to as "predictor".
+We will also verify that `scMaSigPro` has correctly performed binarization, as
+specified in `edesign.abiotic`.
+
+### `maSigPro::make.design.matrix()` and `scMaSigPro::sc.set.poly()`
+```{r, "make.design.matrix"}
+# Using maSigPro
 design <- make.design.matrix(edesign.abiotic, degree = 2)
-```
 
-```{r}
+# Using scMaSigPro
 scmp.ob <- sc.set.poly(scmp.ob, poly_degree = 2)
-```
 
-```{r}
+# Comparing binarization results
 expect_equal(bAlloc(scmp.ob), expected = edesign.abiotic)
+
+# Comparing regression matrices
+expect_identical(scmp.ob@design@predictor, expected = design$dis)
 ```
 
-```{r}
-expect_equal(scmp.ob@design@predictor, expected = design$dis)
-```
+No errors were thrown, so we can proceed with the analysis.
 
-## Pvector
-```{r}
+## Detecting Non-Flat Profiles with `maSigPro::p.vector()`
+To compute a regression fit for each gene, `maSigPro` uses `p.vector()`, while `scMaSigPro`
+uses `sc.p.vector()`. The main difference is the offset parameter in `scMaSigPro`,
+which accounts for variations in bin sizes. Since we are not dealing with
+scRNA-Seq data, we will disable this parameter.
+```{r, "compare p.vetor"}
+# Using maSigPro
 gc <- capture_output(fit <- p.vector(data.abiotic, design,
   Q = 0.05,
   MT.adjust = "BH", min.obs = 20
 ))
-```
 
-```{r}
+# Using ScMaSigPro
 scmp.ob <- sc.p.vector(scmp.ob,
   min.na = 20,
-  offset = F,
+  verbose = FALSE,
+  offset = FALSE,
   max_it = 25,
   epsilon = 0.00001,
   family = gaussian()
 )
 ```
 
+Now, we'll compare the S3 object `fit from `maSigPro::p.vector()` with the 
+results from `sc.p.vector()`:
 
-```{r}
-expect_equal(matrix(scmp.ob@profile@p.vector, dimnames = list(names(scmp.ob@profile@p.vector), "p.value")), expected = as.matrix(fit$p.vector[, 1, drop = FALSE]))
-```
+```{r, "testthat pvector"}
+# Compare p-values
+expect_identical(
+  matrix(scmp.ob@profile@p.vector,
+    dimnames = list(names(scmp.ob@profile@p.vector), "p.value")
+  ),
+  expected = as.matrix(fit$p.vector[, 1, drop = FALSE])
+)
 
-```{r}
+# Compare adjusted p-values
 pad <- scmp.ob@profile@p.adjusted
 names(pad) <- NULL
-expect_equal(pad, expected = fit$p.adjusted)
+expect_identical(pad, expected = fit$p.adjusted)
 ```
 
-## t fit
+## Detecting Significant Polynomial Terms with `maSigPro::T.fit()`
+Next, we apply a variable selection procedure to identify significant polynomial
+terms for each gene, using `T.fit()` and `sc.t.fit()`.
+```{r, "run sc.t.fit"}
+# Using maSigPro
+gc <- capture_output(tstep <- T.fit(fit, step.method = "backward", alfa = 0.05))
 
-```{r}
+# Using scMaSigPro
 scmp.ob <- sc.t.fit(scmp.ob,
-  offset = F,
+  offset = FALSE,
+  verbose = FALSE,
   epsilon = 0.00001,
   family = gaussian()
 )
 ```
 
-```{r}
-gc <- capture.output(tstep <- T.fit(fit, step.method = "backward", alfa = 0.05))
+We will compare the s3 object `tstep` from `maSigPro::T.fit()` with the results from `sc.t.fit()`:
+
+```{r, "comapte sc.t.fit"}
+# Solutions
+expect_identical(showSol(scmp.ob), expected = tstep$sol)
+
+# Coefficients
+expect_identical(showCoeff(scmp.ob), expected = tstep$coefficients)
+
+# Group Coefficients
+expect_identical(showGroupCoeff(scmp.ob), expected = tstep$group.coeffs)
 ```
 
-```{r}
-expect_equal(showSol(scmp.ob), expected = tstep$sol)
-```
+## R-Square Filter with `maSigPro::get.siggenes()`
+The next step is to generate lists of significant genes based on desired biological question.
+This is achieved using the `get.siggenes()` function in `maSigPro` and `sc.filter()` in `scMaSigPro`.
 
-```{r}
-expect_equal(showCoeff(scmp.ob), expected = tstep$coefficients)
-```
-
-```{r}
-expect_equal(showGroupCoeff(scmp.ob), expected = tstep$group.coeffs)
-```
-
-```{r}
+```{r, "RUn r2 filter"}
+# maSigPro
 sigs <- get.siggenes(tstep, rsq = 0.6, vars = "groups")
-```
 
-```{r}
+# scMASigPro
 scmp.ob <- sc.filter(scmp.ob, rsq = 0.6, vars = "groups")
 ```
 
+We'll compare the s3 object (sigs) from `maSigPro::get.siggenes()' with the results from sc.filter()':
+
 ```{r}
-expect_equal(scmp.ob@sig.genes@sig.genes$ColdvsControl,
+# Compare Cold vs Control
+expect_identical(scmp.ob@sig.genes@sig.genes$ColdvsControl,
   expected = sigs$summary$ColdvsControl
+)
+
+# Compare Heat vs Control
+expect_identical(scmp.ob@sig.genes@sig.genes$HeatvsControl,
+  expected = sigs$summary$HeatvsControl[sigs$summary$HeatvsControl != " "]
+)
+
+# Compare Salt vs Control
+expect_identical(scmp.ob@sig.genes@sig.genes$SaltvsControl,
+  expected = sigs$summary$SaltvsControl[sigs$summary$SaltvsControl != " "]
+)
+
+# Compare Control
+expect_identical(scmp.ob@sig.genes@sig.genes$Control,
+  expected = sigs$summary$Control[sigs$summary$Control != " "]
 )
 ```
 
-```{r}
-expect_equal(scmp.ob@sig.genes@sig.genes$ColdvsControl,
-  expected = sigs$summary$ColdvsControl
+All comparisons indicate equality, confirming that the results are reproducible
+up to this point.
+
+## Visualizing the trends and Intersection
+
+Having confirmed that the numerical values are identical for both methods, 
+our next step is to assess whether the actual trends are also consistent.
+
+### Visualizing Intersection `maSigPro::suma2Venn()`
+```{r, "upset and venn"}
+# Venn Diagram of maSigPro
+suma2Venn(sigs$summary[, c(1:4)])
+
+# Upset plot of scMaSigPro
+plotIntersect(
+  scmpObj = scmp.ob,
+  min_intersection_size = 0
 )
 ```
 
-```{r}
+
+### Visualizing Single trend with `maSigPro::PlotGroups()`
+The `PlotGroups()` function in `maSigPro` generates a plot of gene expression profiles
+with time as the x-axis and gene expression on the y-axis. In these plots, gene
+expression from the same experimental group is represented in the same color, and
+lines are drawn to join the averages of each time-group to visualize the trend of
+each group over time. For `scMaSigPro`, this functionality is achieved using 
+`plotTrend()`.
+```{r, "STMDE66"}
+# Extracting gene "STMDE66" from data
 STMDE66 <- data.abiotic[rownames(data.abiotic) == "STMDE66", ]
+
+# Plotting with maSigPro
 PlotGroups(STMDE66,
-  edesign = edesign.abiotic, show.fit = T,
+  edesign = edesign.abiotic, show.fit = TRUE,
   dis = design$dis, groups.vector = design$groups.vector
 )
-```
 
-```{r}
+# Plotting the same gene with scMaSigPro
 plotTrend(scmp.ob, "STMDE66",
-  logs = F, pseudoCount = 0,
-  smoothness = 1, significant = F
+  logs = FALSE, pseudoCount = 0,
+  smoothness = 1, significant = FALSE
 )
 ```
 
-```{r}
-see.genes(sigs$sig.genes$ColdvsControl,
-  show.fit = T, dis = design$dis,
-  cluster.method = "hclust", cluster.data = 1, k = 9
-)
-```
-```{r}
-plotTrendCluster(
-  scmpObj = scmp.ob,
-  geneSet = "ColdvsControl",
-  cluster_by = "counts",
-  k = 9,
-  logs = F,
-  smoothness = 1,
-  cluster_method = "hclust"
-)
-```
+<!-- ### Visualizing Cluster trend with `maSigPro::PlotProfiles()` -->
+<!-- ```{r, "Cluster Plots", fig.width=7} -->
+<!-- # Plot clustered Trend -->
+<!-- gc <- capture_output( -->
+<!--     see.genes(sigs$sig.genes$ColdvsControl, show.fit = T, dis =design$dis, -->
+<!-- cluster.method="hclust" , cluster.data = 1, k = 9) -->
+<!-- ) -->
+
+<!-- # ScMaSigPro -->
+<!-- plotTrendCluster(scmp.ob, -->
+<!--                  geneSet = "ColdvsControl", -->
+<!--                  logs = F, -->
+<!--                  cluster_by = "counts", -->
+<!--                  k = 9) -->
+<!-- ``` -->
+
+<!-- ```{r, "Cluster Plots2"} -->
+<!-- plotTrendCluster(scmp.ob, -->
+<!--                  geneSet = "ColdvsControl", -->
+<!--                  logs = F, -->
+<!--                  cluster_by = "counts", -->
+<!--                  k = 9) -->
+<!-- ``` -->
 
 ---
 
-### Session Info
+## Session Info
 ```{r, "Session Info"}
 sessionInfo(package = "scMaSigPro")
+sessionInfo(package = "maSigPro")
 ```

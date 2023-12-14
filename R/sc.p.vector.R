@@ -1,7 +1,7 @@
-#' Make regression fit for time series gene expression experiments
+#' Make regression fit for Binned Pseudotime. Adaption of maSigPro::p.vector()
 #'
-#' \code{sc.p.vector} performs a regression fit for each gene taking all variables present in the model given by a regression matrix
-#' and returns a list of FDR corrected significant genes.
+#' \code{sc.p.vector} performs a regression fit for each gene taking all variables
+#' present in the model given by a regression matrix #' and returns a list of FDR corrected significant genes.
 #'
 #' @param scmpObj matrix containing normalized gene expression data. Genes must be in rows and arrays in columns.
 #' @param Q significance level. Default is 0.05.
@@ -14,29 +14,21 @@
 #' @param epsilon argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.
 #' @param verbose Name of the analyzed item to show on the screen while \code{T.fit} is in process.
 #' @param offset Whether ro use offset for normalization
-#' @param parallel description
-#' @param logOffset description
-#' @param max_it description
+#' @param parallel Enable parallel processing
+#' @param logOffset Take the log of teh offset. Similar to
+#' 'log(estimateSizeFactorsForMatrix)' from DESeq2.
+#' @param max_it Integer giving the maximal number of IWLS iterations.
 #' @details \code{rownames(design)} and \code{colnames(data)} must be identical vectors
 #'   and indicate array naming. \code{rownames(data)} should contain unique gene IDs.
 #'   \code{colnames(design)} are the given names for the variables in the regression model.
 #'
-#' @return A list containing:
-#' \item{SELEC}{matrix containing the expression values for significant genes}
-#' \item{sc.p.vector}{vector containing the computed p-values}
-#' \item{G}{total number of input genes}
-#' \item{g}{number of genes taken in the regression fit}
-#' \item{FDR}{p-value at FDR \code{Q} control when Benjamini & Hochberg (BH) correction is used}
-#' \item{i}{number of significant genes}
-#' \item{dis}{design matrix used in the regression fit}
-#' \item{dat}{matrix of expression value data used in the regression fit}
-#' \item{...}{additional values from input parameters}
-#'
+#' @return scmp object
+
 #' @references Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
 #' maSigPro: a Method to Identify Significant Differential Expression Profiles in Time-Course Microarray Experiments.
 #' Bioinformatics 22, 1096-1102
 #'
-#' @author Ana Conesa and Maria Jose Nueda, \email{mj.nueda@@ua.es}
+#' @author Ana Conesa, Maria Jose Nueda and Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @seealso \code{\link{T.fit}}, \code{\link{lm}}
 #'

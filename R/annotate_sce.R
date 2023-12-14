@@ -1,11 +1,12 @@
-#' @title Annotate 'SingleCellExperiment' class object with pseudotime and path information.
+#' @title Annotate `SingleCellExperiment` class object with pseudotime and path
+#' information.
 #'
 #' @description
-#' `annotate_sce()` annotates a SingleCellExperiment class object with pseudotime
+#' `annotate_sce()` annotates a `SingleCellExperiment` class object with pseudotime
 #' and path information in its `cell.metadata` generated using `colData` from the
 #' \pkg{SingleCellExperiment} package.
 #'
-#' @param sce A SingleCellExperiment object to be annotated.
+#' @param sce A `SingleCellExperiment` object to be annotated.
 #' @param pseudotime_colname Column name in `cell.metadata`  storing
 #' information for Pseudotime. It is generated using `colData` from the
 #' \pkg{SingleCellExperiment} package. (Default is "Pseudotime").

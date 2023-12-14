@@ -3,20 +3,22 @@
 #' This function generates plots based on various parameters. It calculates the summary mode, colors, and other visual attributes to create a plot.
 #'
 #' @param scmpObj object of class scmpObj
-#' @param feature_id A vector of maximum length 6 or a single feature of ID
+#' @param feature_id Name of the gene to be plotted. Should correspond to one of
+#' the feature in the count table.
 #' @param xlab X-axis label. Default is "Pooled Pseudotime".
 #' @param ylab Y-axis label. Default is "Pseudobulk Expression".
-#' @param smoothness abc
-#' @param logs Whether to plot log of counts
-#' @param logType Log type required
-#' @param pseudoCount add pseucount for log
-#' @param significant description
+#' @param smoothness How smooth the trend should be. Default is 0.01, setting to
+#' higher values will result in more linear trends.
+#' @param logs Whether to plot log of counts.
+#' @param logType Log Available options 'log', 'log2', 'log10'
+#' @param pseudoCount Add a pseudo-count before taking the log.
+#' @param significant Default is FALSE. Set to TRUE to plot genes, that don't pass
+#' R-Square threshold from 'sc.filter()'.
 #'
 #' @import ggplot2
 #' @importFrom RColorConesa getConesaColors
 #' @return Generates a plot.
 #' @export
-
 plotTrend <-
   function(scmpObj,
            feature_id,

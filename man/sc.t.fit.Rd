@@ -13,7 +13,7 @@ sc.t.fit(
   epsilon = scmpObj@param@epsilon,
   offset = scmpObj@param@offset,
   verbose = TRUE,
-  parallel = TRUE,
+  parallel = FALSE,
   logOffset = scmpObj@param@logOffset,
   max_it = scmpObj@param@max_it
 )
