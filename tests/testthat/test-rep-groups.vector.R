@@ -2,7 +2,7 @@ suppressPackageStartupMessages(library(testthat))
 suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(maSigPro))
 
-test_that("Check-'design$edesign' Reproducibility: Match, Dimension, Name and Value", {
+test_that("Check-'design$groups.vector' Reproducibility: Match, Dimension, Name and Value", {
   # Step-1: Load Data
   data("data.abiotic")
   data("edesign.abiotic")
@@ -38,20 +38,20 @@ test_that("Check-'design$edesign' Reproducibility: Match, Dimension, Name and Va
   test.scmp.3 <- sc.set.poly(test.scmp, poly_degree = 3)
   test.scmp.4 <- sc.set.poly(test.scmp, poly_degree = 4)
 
-  # Check-edesign
+  # Check-groups.vector
   # Poly-order-2
-  expect_equal(
-    expected = design_2$edesign,
-    object = test.scmp.2@design@alloc
+  expect_identical(
+    expected = design_2$groups.vector,
+    object = test.scmp.2@design@groups.vector
   )
   # Poly-order-3
-  expect_equal(
-    expected = design_3$edesign,
-    object = test.scmp.3@design@alloc
+  expect_identical(
+    expected = design_3$groups.vector,
+    object = test.scmp.3@design@groups.vector
   )
   # Poly-order-4
-  expect_equal(
-    expected = design_4$edesign,
-    object = test.scmp.4@design@alloc
+  expect_identical(
+    expected = design_4$groups.vector,
+    object = test.scmp.4@design@groups.vector
   )
 })
