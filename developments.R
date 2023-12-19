@@ -1,23 +1,39 @@
-library(tidyverse)
-library(assertthat)
-library(scMaSigPro)
-library(shiny)
-library(igraph)
-library(plotly)
-
-# cds <- readRDS("/supp_data/Analysis_Public_Data/rep1/rep1_cds.RDS")
+suppressPackageStartupMessages(library(scMaSigPro))
+suppressPackageStartupMessages(library(maSigPro))
 
 
-m3_select_path(cds,
-  redDim = "umap",
-  annotation_col = "cell_type",
-  path_col = "Path",
-  pseudotime_col = "Pseudotime",
-  use_shiny = F,
-  plot_purity = T
-  # m3_pp = list(
-  #     root_pp = c("Y_31", "Y_71"),
-  #         path1_pp = c("Y_82", "Y_48"),
-  #     path2_pp = c("Y_22", "Y_149")
-  #                  )
+# Step-1: Load Data
+data("data.abiotic")
+data("edesign.abiotic")
+
+# Step-2: Set-up data for scMaSigPro
+count <- as.matrix(data.abiotic)
+cell_metadata <- as.data.frame(edesign.abiotic)
+
+# Step-2.1: Add group column
+cell_metadata$Group <- apply(cell_metadata[, c(3:6)], 1, FUN = function(x) {
+  return(names(x[x == 1]))
+})
+
+# Step-2.2: Remove Binary Columns
+cell_metadata <- cell_metadata[, !(colnames(cell_metadata) %in% c("Control", "Cold", "Heat", "Salt")), drop = FALSE]
+
+# Step-3: Create scmp Object
+test.scmp <- create.scmp(
+  counts = count,
+  cell_data = cell_metadata,
+  pseudotime_colname = "Time",
+  path_colname = "Group",
+  use_as_bin = T
+)
+
+# Step-5: Set polynomial and make design
+test.scmp.2 <- sc.set.poly(test.scmp, poly_degree = 2)
+
+
+# Step-7: Run sc.p.vector
+test.scmp.2 <- sc.p.vector(test.scmp.2,
+  min.na = 20, verbose = FALSE,
+  offset = FALSE, parallel = FALSE, max_it = 25,
+  epsilon = 0.00001, family = gaussian()
 )

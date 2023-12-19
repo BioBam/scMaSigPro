@@ -109,7 +109,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
   }
 
   if (parallel) {
-    numCores <- availableCores()
+    numCores <- availableCores()-1
     if (verbose) {
       message(paste("Running with", numCores, "cores..."))
     }
@@ -143,9 +143,8 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
   } else {
     weight_df <- NULL
   }
-
   p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetdata_lapply = offsetData, pb_lapply = pb, weights_lapply = weight_df, verbose_lapply = verbose, max_it_lapply = max_it) {
-    y <- as.numeric(dat_lapply[i, ])
+  y <- as.numeric(dat_lapply[i, ])
 
     # Print prog_lapplyress every 100 g_lapplyenes
     div <- c(1:round(g_lapply / 100)) * 100
@@ -186,6 +185,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
 
     return(sc_p_val)
   }, mc.cores = numCores)
+  # Stop the cluster
 
   names(p.vector.list) <- rownames(dat)
   sc.p.vector <- unlist(p.vector.list, recursive = T, use.names = T)
