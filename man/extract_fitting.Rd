@@ -17,21 +17,21 @@ extract_fitting(
 )
 }
 \arguments{
-\item{reg}{description}
+\item{reg}{Regression Result form `stats::glm()`}
 
-\item{lmf}{description}
+\item{lmf}{Full model object generated from the `stats::glm()`}
 
-\item{model.glm.0}{description}
+\item{model.glm.0}{Intercept model object generated from the `stats::glm()`}
 
-\item{dis}{description}
+\item{dis}{Dataframe for the predictors}
 
-\item{family}{description}
+\item{family}{Family used for modelling the data.}
 
 \item{name}{description}
 
 \item{vars.in}{description}
 
-\item{alfa}{description}
+\item{alfa}{Significance threshold (Q-Value)}
 
 \item{influ.info}{description}
 }

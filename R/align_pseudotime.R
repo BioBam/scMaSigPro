@@ -20,7 +20,6 @@
 #' @param method Currently only `scales::rescale` is supported. (Default is "rescale")
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #'
-#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #' @keywords internal
 

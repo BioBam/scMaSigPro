@@ -2,7 +2,7 @@
 % Please edit documentation in R/sc.p.vector.R
 \name{sc.p.vector}
 \alias{sc.p.vector}
-\title{Make regression fit for time series gene expression experiments}
+\title{Make regression fit for Binned Pseudotime. Adaption of maSigPro::p.vector()}
 \usage{
 sc.p.vector(
   scmpObj,
@@ -38,27 +38,19 @@ If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = 
 
 \item{offset}{Whether ro use offset for normalization}
 
-\item{parallel}{description}
+\item{parallel}{Enable parallel processing}
 
-\item{logOffset}{description}
+\item{logOffset}{Take the log of teh offset. Similar to
+'log(estimateSizeFactorsForMatrix)' from DESeq2.}
 
-\item{max_it}{description}
+\item{max_it}{Integer giving the maximal number of IWLS iterations.}
 }
 \value{
-A list containing:
-\item{SELEC}{matrix containing the expression values for significant genes}
-\item{sc.p.vector}{vector containing the computed p-values}
-\item{G}{total number of input genes}
-\item{g}{number of genes taken in the regression fit}
-\item{FDR}{p-value at FDR \code{Q} control when Benjamini & Hochberg (BH) correction is used}
-\item{i}{number of significant genes}
-\item{dis}{design matrix used in the regression fit}
-\item{dat}{matrix of expression value data used in the regression fit}
-\item{...}{additional values from input parameters}
+scmp object
 }
 \description{
-\code{sc.p.vector} performs a regression fit for each gene taking all variables present in the model given by a regression matrix
-and returns a list of FDR corrected significant genes.
+\code{sc.p.vector} performs a regression fit for each gene taking all variables
+present in the model given by a regression matrix #' and returns a list of FDR corrected significant genes.
 }
 \details{
 \code{rownames(design)} and \code{colnames(data)} must be identical vectors
@@ -74,6 +66,6 @@ Bioinformatics 22, 1096-1102
 \code{\link{T.fit}}, \code{\link{lm}}
 }
 \author{
-Ana Conesa and Maria Jose Nueda, \email{mj.nueda@ua.es}
+Ana Conesa, Maria Jose Nueda and Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
 \keyword{regression}

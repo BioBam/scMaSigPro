@@ -26,11 +26,14 @@ create.scmp(
 
 \item{bin_cell_data}{A data frame containing the binned cell level metadata.}
 
-\item{pseudotime_colname}{A character string specifying the column name for Pseudotime in the cell level metadata.}
+\item{pseudotime_colname}{A character string specifying the column name for
+Pseudotime in the cell level metadata.}
 
-\item{path_colname}{A character string specifying the column name for the path in the cell level metadata.}
+\item{path_colname}{A character string specifying the column name for the
+path in the cell level metadata.}
 
-\item{use_as_bin}{A logical indicating whether to use the raw counts and cell level data as binned. Defaults to FALSE.}
+\item{use_as_bin}{A logical indicating whether to use the raw counts and
+cell level data as binned. Defaults to FALSE.}
 }
 \value{
 A scmp object containing the inputted counts, cell data, and additional parameters.

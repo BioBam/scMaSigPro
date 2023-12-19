@@ -2,7 +2,7 @@
 % Please edit documentation in R/sc.set.poly.R
 \name{sc.set.poly}
 \alias{sc.set.poly}
-\title{Create design matrix for 'scmp' object}
+\title{Create predictors and set polynomial.  Adaption of maSigPro::make.design.matrix()}
 \usage{
 sc.set.poly(
   scmpObject,
@@ -24,6 +24,5 @@ sc.set.poly(
 Returns the 'scmpObject' with an updated 'design' slot.
 }
 \description{
-This function creates a design matrix using the 'dense' slot of a 'scmp' object.
-It generates an 'designClass' object which is then stored in the 'design' slot of the 'scmp' object.
+Create predictors and set polynomial.  Adaption of maSigPro::make.design.matrix()
 }

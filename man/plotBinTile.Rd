@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotBinTile.R
 \name{plotBinTile}
 \alias{plotBinTile}
-\title{plotTile: Plot Bin Sizes Across Binned Time and Paths}
+\title{Plot Bin Sizes Across Binned Time and Paths}
 \usage{
 plotBinTile(
   scmpObj,
@@ -12,20 +12,22 @@ plotBinTile(
 )
 }
 \arguments{
-\item{scmpObj}{A SingleCellExperiment object with an additional slot '@dense' that contains compression information.}
+\item{scmpObj}{A scmp class object with an additional slot '@dense' that
+contains compression information.}
 
-\item{path_colname}{A logical flag indicating whether to add a tile (heatmap) plot alongside the bar plot. Default is TRUE.}
+\item{path_colname}{Name of the column in `cell.metadata` storing information
+for Path.}
 
 \item{bin_size_colname}{A title of the barplot}
 
 \item{bin_pseudotime_colname}{description}
 }
 \value{
-A bar plot and, optionally, a tile (heatmap) plot, visualizing the bin sizes across different binned time and paths.
-If add_tile is TRUE, returns a combined ggplot object with both plots; otherwise, only the bar plot is printed.
+A tile plot made with `geom_tile()`, visualizing the bin sizes across
+different binned time and paths.
 }
 \description{
-This function generates plots to visualize the compressed data from a SingleCellExperiment object.
-It produces a bar plot and, optionally, a tile (heatmap) plot to display the bin sizes across different
+This function generates plots to visualize the dense cell metadata from a scmp
+object. It produces tile plot to display the bin sizes across different
 binned time intervals and paths.
 }

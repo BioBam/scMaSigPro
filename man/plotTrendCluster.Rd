@@ -17,7 +17,9 @@ plotTrendCluster(
   k = 9,
   includeInflu = TRUE,
   distance = "cor",
-  hclust.agglo_method = "ward.D"
+  hclust.agglo_method = "ward.D",
+  result = "plot",
+  significant = FALSE
 )
 }
 \arguments{
@@ -46,6 +48,10 @@ plotTrendCluster(
 \item{distance}{description}
 
 \item{hclust.agglo_method}{description}
+
+\item{result}{description}
+
+\item{significant}{description}
 }
 \value{
 Generates a plot.

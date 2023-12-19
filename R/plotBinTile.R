@@ -1,16 +1,19 @@
-#' plotTile: Plot Bin Sizes Across Binned Time and Paths
+#' @title Plot Bin Sizes Across Binned Time and Paths
 #'
-#' This function generates plots to visualize the compressed data from a SingleCellExperiment object.
-#' It produces a bar plot and, optionally, a tile (heatmap) plot to display the bin sizes across different
+#' @description
+#' This function generates plots to visualize the dense cell metadata from a scmp
+#' object. It produces tile plot to display the bin sizes across different
 #' binned time intervals and paths.
 #'
-#' @param scmpObj A SingleCellExperiment object with an additional slot '@dense' that contains compression information.
-#' @param path_colname A logical flag indicating whether to add a tile (heatmap) plot alongside the bar plot. Default is TRUE.
+#' @param scmpObj A scmp class object with an additional slot '@dense' that
+#' contains compression information.
+#' @param path_colname Name of the column in `cell.metadata` storing information
+#' for Path.
 #' @param bin_size_colname A title of the barplot
 #' @param bin_pseudotime_colname description
 #'
-#' @return A bar plot and, optionally, a tile (heatmap) plot, visualizing the bin sizes across different binned time and paths.
-#' If add_tile is TRUE, returns a combined ggplot object with both plots; otherwise, only the bar plot is printed.
+#' @return A tile plot made with `geom_tile()`, visualizing the bin sizes across
+#' different binned time and paths.
 #' @export
 plotBinTile <- function(scmpObj,
                         path_colname = scmpObj@param@path_colname,
@@ -31,7 +34,7 @@ plotBinTile <- function(scmpObj,
 
   # Check if values are binned
   assert_that(nrow(compression.info) >= 1,
-    msg = "Please run 'sc.discretize' and 'make.pseudobulk.design' first."
+    msg = "Please run 'sc.squeeze()' first."
   )
 
   # get conesa colors

@@ -2,7 +2,7 @@
 % Please edit documentation in R/maSigPro_term_selection.R
 \name{sc.two.ways.stepback}
 \alias{sc.two.ways.stepback}
-\title{Polynomial term selection Methods from maSigPro}
+\title{Polynomial term selection methods from maSigPro}
 \usage{
 sc.two.ways.stepback(
   y = y,
@@ -16,7 +16,7 @@ sc.two.ways.stepback(
 )
 }
 \description{
-Polynomial term selection Methods from maSigPro
+All function are modified to include the offset
 }
 \references{
 {Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.

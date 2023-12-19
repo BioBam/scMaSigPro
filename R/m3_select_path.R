@@ -1,24 +1,61 @@
-#' Subset a CDS object interactively with Shiny
+#' @title Select branching paths from a 'Cell Dataset' object from Monocle3
 #'
-#' @param cdsObj An cdsObject of class `scmp`. This cdsObject will be checked
-#'   to ensure it's the right type.
-#' @param redDim Dimension to use for the plot
-#' @param annotation_col A character vector indicating the paths to be selected.
-#' @param pseudotime_col Name of the column with Pseudotime
-#' @param path_col Name of the column with Path
+#' @description
+#' `m3_select_path()` helps select branching paths from a from a 'Cell Dataset'
+#' object from Monocle3 TI Analysis. This function also has an in-built shiny app
+#' thats enabled interactive selection.
+#' @param cdsObj An cdsObject from Monocle3.
+#' @param redDim Dimension to use for the plot. (Default is "umap")
+#' @param annotation_col Name of the column in `cell.metadata` storing
+#' annotations. (Default is "cell_type")
+#' @param pseudotime_col The name used for the Pesudotime column in the scmpObject.
+#' (Default is "Pseudotime")
+#' @param path_col The name used for the branching path column in the  scmpObject.
+#' (Default is "Path")
+#' @param use_shiny Enable the selection for shiny-selection wizard.
+#' (Default is TRUE)
+#' @param m3_pp A list containing the character vectors for principal points ("Y_")
+#' to be used for the branch selection.
+#' @param plot_purity Plot a bar plot, showing the the principal points against
+#' the of `annotation_col`. This will show the count of annotations for each of
+#' the principal points. (Default is TRUE)
 #'
 #' @return A `scmp` object, subsetted based on the specified paths.
 #'
 #' @importFrom igraph get.data.frame
 #' @importFrom SingleCellExperiment reducedDims
+#' @importFrom dplyr pull arrange n
 #'
 #' @export
-#'
-#'
-selectPath.m3 <- function(cdsObj, redDim = "umap",
-                          annotation_col = "cell.type",
-                          pseudotime_col = "Pseudotime",
-                          path_col = "Path") {
+m3_select_path <- function(cdsObj,
+                           redDim = "umap",
+                           annotation_col = "cell_type",
+                           pseudotime_col = "Pseudotime",
+                           path_col = "Path",
+                           use_shiny = TRUE,
+                           plot_purity = FALSE,
+                           m3_pp = list(
+                             root_pp = c(""), path1_pp = c(""), path2_pp = c(""),
+                             path1_name = NULL, path2_name = NULL
+                           )) {
+  if (use_shiny == FALSE) {
+    # Check whether the lower dimensions are calculated
+    assert_that(
+      all(names(m3_pp) %in% c(
+        "root_pp", "path1_pp", "path2_pp", "path1_name",
+        "path2_name"
+      )),
+      msg = paste("Accepted values should be one of 'root_pp',
+                              'path1_pp','path2_pp', 'path1_name','path2_name'")
+    )
+    if (is.null(m3_pp[["path1_name"]])) {
+      m3_pp[["path1_name"]] <- "Path1"
+    }
+    if (is.null(m3_pp[["path2_name"]])) {
+      m3_pp[["path2_name"]] <- "Path2"
+    }
+  }
+
   # Validate is supplied opject is a valid
   assert_that(is(cdsObj, "cell_data_set"),
     msg = "Please supply a valid monocle3 cdsObject"
@@ -32,6 +69,7 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
   assert_that(nrow(as.data.frame(reducedDims(cdsObj)[[toupper(redDim)]])) == ncol(cdsObj),
     msg = paste("Dimensions of", redDim, "do not correspond to dimensions of counts")
   )
+
 
   # Extract UMAP
   dims <- reducedDims(cdsObj)[[toupper(redDim)]] %>% as.data.frame()
@@ -133,24 +171,60 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
   trajectory.df <- merge(edges_df, pgraph.coords, by.x = "to", by.y = "node")
   colnames(trajectory.df) <- c("from", "to", weight_colnames, "x_from", "y_from", "x_to", "y_to")
 
-  # # Run Shiny
-  # selection.list <- list(
-  #   root = "Y_14",
-  #   path1 = c("Y_2","Y_14","Y_29","Y_33","Y_34","Y_35","Y_40"),
-  #   path2 = c("Y_6","Y_14","Y_16","Y_19","Y_27","Y_41")
-  # )
+  # Get supplied nodes
+  supplied_nodes <- unlist(m3_pp[c("root_pp", "path1_pp", "path2_pp")])
 
-  # View(trajectory.df)
-  # View(anno.df)
-  # View(pgraph.coords)
-  #
-  selection.list <- shinySelect(
-    trajectory_data = trajectory.df,
-    annotation_data = anno.df,
-    label_coords = pgraph.coords,
-    inputType = "Monocle3",
-    pseudotime_colname = pseudotime_col
-  )
+  # Run Shiny Select
+  if (use_shiny) {
+    selection.list <- shiny_select(
+      trajectory_data = trajectory.df,
+      annotation_data = anno.df,
+      label_coords = pgraph.coords,
+      inputType = "Monocle3",
+      pseudotime_colname = pseudotime_col
+    )
+  } else if (plot_purity & !all(supplied_nodes %in% anno.df[["node"]])) {
+    # Tranfer data
+    data <- anno.df
+
+    # Order nodes by their median Pseudotime
+    node_order <- data %>%
+      group_by(node) %>%
+      summarise(median_pseudotime = median(Pseudotime, na.rm = TRUE)) %>%
+      arrange(median_pseudotime) %>%
+      pull(node)
+
+    # Convert the 'node' column to an ordered factor based on median Pseudotime
+    data$node <- factor(data$node, levels = node_order)
+
+    # Now, count the number of instances for each 'anno' within each 'node' and calculate fractions
+    data_summary <- data %>%
+      group_by(node, anno) %>%
+      summarise(count = n(), .groups = "drop")
+
+    data_summary <- data_summary[data_summary$count >= (mean(data_summary$count) + sd(data_summary$count)), ]
+
+    # Plotting the data
+    fraction_bar <- ggplot(data_summary, aes(x = node, y = count, fill = anno)) +
+      geom_bar(stat = "identity", position = "stack") +
+      theme_minimal() +
+      coord_flip() +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+      labs(x = "Prinicpal Node", y = "Count of cells", fill = "Annotation") +
+      ggtitle("Number of cells per principal point",
+        subtitle = "Decide nodes for  'root_pp', 'path1_pp','path2_pp'"
+      )
+
+    return(fraction_bar)
+  } else if (all(supplied_nodes %in% anno.df[["node"]])) {
+    selection.list <- list(
+      path1 = m3_pp[["path1_pp"]],
+      path2 = m3_pp[["path2_pp"]],
+      root = m3_pp[["root_pp"]],
+      path1_label = m3_pp[["path1_name"]],
+      path2_label = m3_pp[["path2_name"]]
+    )
+  }
 
   if (is.null(selection.list)) {
     warning("Nothing Returned")
@@ -187,11 +261,11 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     # root_cells <- vertex.relation.frame.sub[vertex.relation.frame.sub$node %in% root_nodes, , drop = F]
 
     # Add Root
-    cell.metadata.sub[rownames(cell.metadata.sub) %in% path1_cells$cell, path_col] <- "Path1"
-    cell.metadata.sub[rownames(cell.metadata.sub) %in% path2_cells$cell, path_col] <- "Path2"
+    cell.metadata.sub[rownames(cell.metadata.sub) %in% path1_cells$cell, path_col] <- selection.list[["path1_label"]]
+    cell.metadata.sub[rownames(cell.metadata.sub) %in% path2_cells$cell, path_col] <- selection.list[["path2_label"]]
+    # cell.metadata.sub[rownames(cell.metadata.sub) %in% root_cells$cell, path_col] <- "Root"
 
     cell.metadata.sub <- cell.metadata.sub[!is.na(cell.metadata.sub[[path_col]]), , drop = FALSE]
-    # cell.metadata.sub[rownames(cell.metadata.sub) %in% root_cells$cell, path_col] <- "Root"
 
     # Attach Pseudotime Info
     anno.df.sub <- anno.df[anno.df$cell %in% rownames(cell.metadata.sub), , drop = FALSE]
@@ -201,9 +275,7 @@ selectPath.m3 <- function(cdsObj, redDim = "umap",
     rawCounts <- cdsObj@assays@data@listData$counts
     rawCounts <- rawCounts[, colnames(rawCounts) %in% rownames(cell.metadata.sub), drop = FALSE]
 
-    # return(list(rawCounts=rawCounts,
-    #             cell.metadata.sub=cell.metadata.sub)
-    #        )
+
     # Call the ScMaSigPro Creator
     scmpObj <- create.scmp(
       counts = rawCounts,
