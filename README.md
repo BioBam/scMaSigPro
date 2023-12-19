@@ -2,9 +2,9 @@
 
 Implementation of MaSigPro for scRNA-Seq Data
 
-[![Lint Code Base](https://github.com/spriyansh/scMaSigPro/actions/workflows/super-linter.yml/badge.svg)](https://github.com/spriyansh/scMaSigPro/actions/workflows/super-linter.yml) 
+[![Lint Code Base](https://github.com/BioBam/scMaSigPro/actions/workflows/super-linter.yml/badge.svg)](https://github.com/spriyansh/scMaSigPro/actions/workflows/super-linter.yml) 
 
-[![R-CMD-check](https://github.com/spriyansh/scMaSigPro/actions/workflows/r.yml/badge.svg)](https://github.com/spriyansh/scMaSigPro/actions/workflows/r.yml)
+[![R-CMD-check](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml/badge.svg)](https://github.com/spriyansh/scMaSigPro/actions/workflows/r.yml)
 
 ---
 
@@ -47,7 +47,7 @@ data("splat.sim", package = "scMaSigPro")
 
 ```
 # Helper Function to convert annotated SCE object to scmpObject
-scmp.ob <- as_scmp(
+scmp.ob <- as.scmp(
   object = splat.sim, from = "sce",
   align_pseudotime = FALSE,
   verbose = TRUE,
@@ -64,48 +64,49 @@ scmp.ob <- as_scmp(
 This function discretizes a continuous pseudotime column into bins:
 
 ```
-scmp.sce <- squeeze(scmp.sce, ...)
+scmp.ob <- sc.squeeze(scmp.ob)
 ```
 
 ### 4. Setting up the Polynomial Model
 
 ```
-scmp.sce <- sc.make.design.matrix(scmp.sce, poly_degree = 2)
+scmp.ob <- sc.set.poly(scmp.ob)
 ```
 
 ### 5. Detecting Genes with Non-Flat Profiles
 
 ```
-scmp.sce <- sc.p.vector(scmp.sce, ...)
+scmp.ob <- sc.p.vector(scmp.ob)
 ```
 
 ### 6. Model Refinement
 
 ```
-scmp.sce <- sc.T.fit(scmp.sce, ...)
+scmp.ob <- sc.t.fit(scmp.ob)
 ```
 
 ### 7. Gene selection with $R^2$
 
 ```
-scmp.sce <- sc.get.siggenes(scmpObj = scmp.sce, ...)
+scmp.ob <- sc.filter(scmp.ob, vars = "all")
 ```
 
 ### 8. Gene Trend Visualization
 
 ```
-scmp.ob <- sc.cluster.features(scmp.ob, ...)
-sc.PlotProfiles(scmp.ob, groupBy = "feature")
+plotTrend(scmp.ob, "Gene10")
 ```
 
-For detailed instructions, please refer to the quick start vignette included in the package, which contains comprehensive guidance and explanations for each step in the analysis process.
+For detailed instructions and additional steps, please refer to the quick start vignette included in the package, which contains comprehensive guidance and explanations for each step in the analysis process.
 
 ## Contributing
 Contributions, including bug reports, suggestions, and pull requests, are welcome.
 
-
 ## License
 This project is licensed under the MIT - see the LICENSE.md file for details.
+
+## Funding Information 
+This project has received funding from the European Union’s Framework Programme for Research and Innovation Horizon 2020 (2014-2020) under the Marie Skłodowska-Curie Grant Agreement No 953407.
 
 ## Citation
 If you use `scMaSigPro` in your research, please cite:
