@@ -33,7 +33,7 @@ test.scmp.2 <- sc.set.poly(test.scmp, poly_degree = 2)
 
 # Step-7: Run sc.p.vector
 test.scmp.2 <- sc.p.vector(test.scmp.2,
-  min.na = 20, verbose = FALSE,
-  offset = FALSE, parallel = FALSE, max_it = 25,
+  min.na = 20, verbose = TRUE,
+  offset = FALSE, parallel = TRUE, max_it = 25,
   epsilon = 0.00001, family = gaussian()
 )
