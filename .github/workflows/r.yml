@@ -20,7 +20,6 @@ jobs:
         config:
           - {os: macos-latest, r: 'release', r-version: '4.1.1'}
           - {os: windows-latest, r: 'release', r-version: '4.1.1'}
-          - {os: ubuntu-latest, r: 'devel', r-version: '3.6.3', http-user-agent: 'release'}
           - {os: ubuntu-latest, r: 'release', r-version: '4.1.1'}
 
     steps:
