@@ -59,7 +59,7 @@ scmp.ob <- as.scmp(
 )
 ```
 
-### 3. Pseudo-bulking with `squeeze()`
+### 3. Pseudo-bulking with `sc.squeeze()`
 
 This function discretizes a continuous pseudotime column into bins:
 
