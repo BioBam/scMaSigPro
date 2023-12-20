@@ -109,7 +109,8 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
   }
 
   if (parallel) {
-    if (get_os() == "windows") {
+    os_name <- get_os()
+    if (os_name == "windows") {
       numCores <- 1
       warning("Currently, we only support sequential processing on windows based systems...")
     } else {

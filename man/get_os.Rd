@@ -17,7 +17,4 @@ Adapted from: https://www.r-bloggers.com/2015/06/identifying-the-os-from-r/
 Written by: Will on www.r-bloggers.com
 Title: Identifying the OS from R
 }
-\examples{
-get_os()
-}
 \keyword{internal}

@@ -135,7 +135,8 @@ sc.t.fit <- function(scmpObj,
   }
 
   if (parallel) {
-    if (get_os() == "windows") {
+    os_name <- get_os()
+    if (os_name == "windows") {
       numCores <- 1
       warning("Currently, we only support sequential processing on windows based systems...")
     } else {

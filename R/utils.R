@@ -7,8 +7,6 @@
 #' Title: Identifying the OS from R
 #'
 #' @return A string indicating the operating system: either 'osx', 'linux', or a lower-case version of `Sys.info()['sysname']` if the system is neither OS X nor Linux.
-#' @examples
-#' get_os()
 #' @keywords internal
 get_os <- function() {
   sysinf <- Sys.info()
