@@ -17,6 +17,7 @@
 #' @param k description
 #' @param result description
 #' @param significant description
+#' @param parallel description
 #'
 #' @import ggplot2
 #' @importFrom stats complete.cases cutree hclust
@@ -29,7 +30,7 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
                              smoothness = 0.01, k = 9, includeInflu = TRUE, distance = "cor",
                              hclust.agglo_method = "ward.D",
                              result = "plot",
-                             significant = FALSE) {
+                             significant = FALSE, parallel = FALSE) {
   # Check if the gene set exists
   assert_that(any(geneSet %in% c(names(scmpObj@sig.genes@sig.genes), "intersect", "union")),
     msg = paste(
@@ -136,6 +137,20 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
     # }
   }
 
+  if (parallel) {
+    if (get_os() == "windows") {
+      numCores <- 1
+      warning("Currently, we only support sequential processing on windows based systems...")
+    } else {
+      numCores <- availableCores() - 1
+    }
+    if (verbose) {
+      message(paste("Running with", numCores, "cores..."))
+    }
+  } else {
+    numCores <- 1
+  }
+
   curve.line.point.list <- mclapply(unique(clusters_df[["feature_id"]]), function(gene_i) {
     # Plot data
     plt <- plotTrend(
@@ -169,7 +184,7 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
         line.data = line.data
       )
     )
-  }, mc.cores = availableCores())
+  }, mc.cores = numCores)
 
   # Sepatarte List
   line.list <- lapply(curve.line.point.list, function(x) {

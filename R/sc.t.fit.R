@@ -134,9 +134,13 @@ sc.t.fit <- function(scmpObj,
     offsetData <- NULL
   }
 
-  # If parallel is requested
   if (parallel) {
-    numCores <- availableCores()
+    if (get_os() == "windows") {
+      numCores <- 1
+      warning("Currently, we only support sequential processing on windows based systems...")
+    } else {
+      numCores <- availableCores() - 1
+    }
     if (verbose) {
       message(paste("Running with", numCores, "cores..."))
     }

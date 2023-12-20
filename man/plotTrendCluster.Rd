@@ -19,7 +19,8 @@ plotTrendCluster(
   distance = "cor",
   hclust.agglo_method = "ward.D",
   result = "plot",
-  significant = FALSE
+  significant = FALSE,
+  parallel = FALSE
 )
 }
 \arguments{
@@ -52,6 +53,8 @@ plotTrendCluster(
 \item{result}{description}
 
 \item{significant}{description}
+
+\item{parallel}{description}
 }
 \value{
 Generates a plot.
