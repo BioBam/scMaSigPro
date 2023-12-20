@@ -2,9 +2,7 @@
 
 Implementation of MaSigPro for scRNA-Seq Data
 
-[![Lint Code Base](https://github.com/BioBam/scMaSigPro/actions/workflows/super-linter.yml/badge.svg)](https://github.com/BioBam/scMaSigPro/actions/workflows/super-linter.yml) 
-
-[![R-CMD-check](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml/badge.svg)](https://github.com/spriyansh/BioBam/actions/workflows/r.yml)
+[![Lint Code Base](https://github.com/BioBam/scMaSigPro/actions/workflows/super-linter.yml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/super-linter.yml)
 
 ---
 
