@@ -109,7 +109,13 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
   }
 
   if (parallel) {
-    numCores <- availableCores()-1
+    os_name <- get_os()
+    if (os_name == "windows") {
+      numCores <- 1
+      warning("Currently, we only support sequential processing on windows based systems...")
+    } else {
+      numCores <- availableCores() - 1
+    }
     if (verbose) {
       message(paste("Running with", numCores, "cores..."))
     }
@@ -144,7 +150,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
     weight_df <- NULL
   }
   p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetdata_lapply = offsetData, pb_lapply = pb, weights_lapply = weight_df, verbose_lapply = verbose, max_it_lapply = max_it) {
-  y <- as.numeric(dat_lapply[i, ])
+    y <- as.numeric(dat_lapply[i, ])
 
     # Print prog_lapplyress every 100 g_lapplyenes
     div <- c(1:round(g_lapply / 100)) * 100
