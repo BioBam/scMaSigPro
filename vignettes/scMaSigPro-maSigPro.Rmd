@@ -380,7 +380,7 @@ cluster_vector <- res$cut
 ```
 
 ```{r, "Cluster Plots2"}
-scmp.ob <-plotTrendCluster(scmp.ob,
+scmp.ob <- plotTrendCluster(scmp.ob,
   geneSet = "ColdvsControl",
   logs = F,
   cluster_method = "hclust",

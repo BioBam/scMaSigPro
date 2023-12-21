@@ -170,8 +170,6 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
     )
   }
   
-  if()
-
   # Convert to df
   clusters_df <- as.data.frame(cut)
   colnames(clusters_df) <- scmp_clusters
