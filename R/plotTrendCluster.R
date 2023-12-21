@@ -8,7 +8,7 @@
 #' @param cluster_by description
 #' @param geneSet description
 #' @param cluster_method description
-#' @param hclust.agglo_method description
+#' @param hclust_agglo_method description
 #' @param distance description
 #' @param smoothness description
 #' @param logs Whether to plot log of counts
@@ -18,19 +18,42 @@
 #' @param result description
 #' @param significant description
 #' @param parallel description
+#' @param verbose description
+#' @param summary_mode description
+#' @param kmeans_iter_max description
+#' @param mclust_k description
+#' @param pseudoCount description
+#' @param scale_counts description
+#' @param summary_mode description
 #'
 #' @import ggplot2
 #' @importFrom stats complete.cases cutree hclust
 #' @importFrom RColorConesa getConesaColors
+#' @importFrom mclust Mclust
+#' @importFrom stats as.dist cor kmeans
 #' @return Generates a plot.
 #' @export
 plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab = "Pseudobulk Expression",
                              cluster_by = "coeff",
-                             cluster_method = "hclust", logs = TRUE, logType = "log",
-                             smoothness = 0.01, k = 9, includeInflu = TRUE, distance = "cor",
-                             hclust.agglo_method = "ward.D",
+                             cluster_method = "hclust",
+                             hclust_agglo_method = "ward.D",
+                             kmeans_iter_max = 500,
+                             distance = "cor",
+                             summary_mode = "median",
+                             logs = TRUE, logType = "log",
+                             smoothness = 0.01, k = 9, includeInflu = TRUE,
                              result = "plot",
+                             mclust_k = FALSE,
+                             verbose = FALSE,
+                             pseudoCount = 1,
+                             scale_counts = TRUE,
                              significant = FALSE, parallel = FALSE) {
+  # Global vars
+  scmp_clusters <- "scmp_clusters"
+  pooled.time <- "pooled.time"
+  pb.counts <- "pb.counts"
+  path <- "path"
+
   # Check if the gene set exists
   assert_that(any(geneSet %in% c(names(scmpObj@sig.genes@sig.genes), "intersect", "union")),
     msg = paste(
@@ -44,10 +67,10 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
       paste(c("coeff", "counts"), collapse = ", ")
     )
   )
-  assert_that(any(cluster_method %in% c("hclust", "kmeans")),
+  assert_that(any(cluster_method %in% c("hclust", "kmeans", "Mclust")),
     msg = paste(
       paste0("'", cluster_method, "'"), "is not a valid method. Please use one of",
-      paste(c("hclust", "kmeans"), collapse = ", ")
+      paste(c("hclust", "kmeans", "Mclust"), collapse = ", ")
     )
   )
   assert_that(any(result %in% c("return", "plot")),
@@ -77,66 +100,84 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
     cluster_matrix_input <- cluster_matrix_input[rownames(cluster_matrix_input) %in% gene_set_vector, , drop = FALSE]
   }
 
-  # Check method
-  if (cluster_method == "hclust") {
-    cluster_matrix_input[is.na(cluster_matrix_input)] <- 0
-    # cluster_matrix_input <- cluster_matrix_input[complete.cases(cluster_matrix_input), , drop = FALSE]
+  # Remove NA
+  time <- scmpObj@design@alloc[, scmpObj@param@bin_pseudotime_colname, drop = TRUE]
+  repvect <- scmpObj@design@alloc[, "Replicate", drop = TRUE]
+  dat <- as.data.frame(cluster_matrix_input[, (ncol(cluster_matrix_input) - length(time) + 1):ncol(cluster_matrix_input)])
+  count.noNa <- function(x) (length(x) - length(x[is.na(x)]))
+  clusterdata <- dat[which(apply(as.matrix(dat), 1, count.noNa) >= length(unique(repvect))), ]
 
-    # Compute the distance matrix
-    dist_matrix <- dist(cluster_matrix_input)
-
-    # Perform hierarchical clustering
-    hc <- hclust(dist_matrix)
-
-    # Cut the tree to form nine clusters
-    clusters <- cutree(hc, k = k)
-
-    # Convert to matrix for mathcing
-    clusters_df <- data.frame(
-      scmp_clusters = clusters,
-      feature_id = names(clusters)
-    )
-
-    if (result == "return") {
-      cluster.list <- list(clusters)
-      names(cluster.list) <- geneSet
-      scmpObj@sig.genes@feature.clusters <- cluster.list
-      return(scmpObj)
+  # NA Treatment
+  if (any(is.na(clusterdata))) {
+    if (cluster_method == "kmeans" || cluster_method == "Mclust") {
+      clusterdata[is.na(clusterdata)] <- 0
+      mean.replic <- function(x) {
+        tapply(as.numeric(x), repvect, mean, na.rm = TRUE)
+        MR <- t(apply(clusterdata, 1, mean.replic))
+        # por si acaso todos los valores de una misma r?plica son NAs:
+        if (any(is.na(MR))) {
+          row.mean <- t(apply(MR, 1, mean, na.rm = TRUE))
+          MRR <- matrix(row.mean, nrow(MR), ncol(MR))
+          MR[is.na(MR)] <- MRR[is.na(MR)]
+        }
+        data.noNA <- matrix(NA, nrow(clusterdata), ncol(clusterdata))
+        u.repvect <- unique(repvect)
+        for (i in 1:nrow(clusterdata)) {
+          for (j in 1:length(u.repvect)) {
+            data.noNA[i, repvect == u.repvect[j]] <- MR[i, u.repvect[j]]
+          }
+        }
+        clusterdata <- data.noNA
+      }
     }
-
-    clusters_df[["scmp_clusters"]] <- paste("Cluster:", clusters_df[["scmp_clusters"]])
-    rownames(clusters_df) <- NULL
-  } else {
-    stop("not coded")
-    # else if (cluster_method == "kmeans") {
-    #     # Standardizing the data can be important for k-means
-    #     standardized_data <- scale(sig.element)
-    #
-    #     # Run k-means clustering
-    #     clustering.result <- kmeans(standardized_data, centers = numClus, nstart = 25)
-    #     # nstart parameter is used to set the number of random sets chosen
-    #
-    #     # Extract Vector
-    #     cluster.vector <- as.vector(clustering.result$cluster)
-    #     names(cluster.vector) <- rownames(sig.element)
-    # } else if (cluster_method == "mclust") {
-    #     # Run Mclust
-    #     # Mclust automatically determines the optimal number of clusters
-    #     # You can specify the number of clusters if desired using the G parameter
-    #     clustering.result <- Mclust(sig.element, G = numClus)
-    #
-    #     # Extract the best model and get cluster assignments
-    #     bestModel <- summary(clustering.result, parameters = TRUE)
-    #     cluster.vector <- as.vector(as.integer(bestModel$classification))
-    #
-    #     # Optionally, you can extract the BIC values and other model details
-    #     # bic_values <- clustering.result$BIC
-    #
-    #     # Assign row names
-    #     names(cluster.vector) <- rownames(sig.element)
-    # }
   }
 
+  # Clustering
+  if (!is.null(clusterdata)) {
+    k <- min(k, nrow(dat), na.rm = TRUE)
+
+    if (cluster_method == "hclust") {
+      if (distance == "cor") {
+        dcorrel <- matrix(rep(1, nrow(clusterdata)^2), nrow(clusterdata), nrow(clusterdata)) - cor(t(clusterdata),
+          use = "pairwise.complete.obs"
+        )
+        clust <- hclust(as.dist(dcorrel), method = hclust_agglo_method)
+        c.algo.used <- paste(cluster_method, "cor", hclust_agglo_method, sep = "_")
+      } else {
+        clust <- hclust(dist(clusterdata, method = distance), method = hclust_agglo_method)
+        c.algo.used <- paste(cluster_method, distance,
+          hclust_agglo_method,
+          sep = "_"
+        )
+      }
+      cut <- cutree(clust, k = k)
+    } else if (cluster_method == "kmeans") {
+      cut <- kmeans(clusterdata, k, kmeans_iter_max)$cluster
+      c.algo.used <- paste("kmeans", k, kmeans_iter_max, sep = "_")
+    } else if (cluster_method == "Mclust") {
+      if (mclust_k) {
+        my.mclust <- Mclust(clusterdata, verbose = FALSE)
+        k <- my.mclust$G
+      } else {
+        my.mclust <- Mclust(clusterdata, k, verbose = FALSE)
+      }
+      cut <- my.mclust$class
+      c.algo.used <- paste("Mclust", k, sep = "_")
+    }
+  } else {
+    return(
+      warning("Impossible to compute hierarchical clustering")
+    )
+  }
+  
+  if()
+
+  # Convert to df
+  clusters_df <- as.data.frame(cut)
+  colnames(clusters_df) <- scmp_clusters
+  clusters_df[["feature_id"]] <- rownames(clusters_df)
+
+  # If paralle requested
   if (parallel) {
     os_name <- get_os()
     if (os_name == "windows") {
@@ -160,7 +201,9 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
       smoothness = smoothness,
       xlab = xlab, ylab = ylab,
       logs = logs, logType = logType,
-      significant = significant
+      pseudoCount = pseudoCount,
+      significant = significant,
+      summary_mode = summary_mode
     )
 
     # Extract layers
@@ -204,17 +247,17 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
   curve.df <- do.call("rbind", curve.list)
 
   # Create factors
-  point.df[["scmp_clusters"]] <- as.factor(point.df[["scmp_clusters"]])
-  line.df[["scmp_clusters"]] <- as.factor(line.df[["scmp_clusters"]])
-  curve.df[["scmp_clusters"]] <- as.factor(curve.df[["scmp_clusters"]])
+  point.df[[scmp_clusters]] <- as.factor(point.df[[scmp_clusters]])
+  line.df[[scmp_clusters]] <- as.factor(line.df[[scmp_clusters]])
+  curve.df[[scmp_clusters]] <- as.factor(curve.df[[scmp_clusters]])
   point.df[["feature_id"]] <- as.factor(point.df[["feature_id"]])
   line.df[["feature_id"]] <- as.factor(line.df[["feature_id"]])
   curve.df[["feature_id"]] <- as.factor(curve.df[["feature_id"]])
 
   # Set names
-  colnames(point.df) <- c("feature_id", "pooled.time", "pb.counts", "path", "scmp_clusters")
-  colnames(line.df) <- c("feature_id", "pooled.time", "path", "pb.counts", "scmp_clusters")
-  colnames(curve.df) <- c("feature_id", "pooled.time", "pb.counts", "path", "scmp_clusters")
+  colnames(point.df) <- c("feature_id", pooled.time, pb.counts, path, scmp_clusters)
+  colnames(line.df) <- c("feature_id", pooled.time, path, pb.counts, scmp_clusters)
+  colnames(curve.df) <- c("feature_id", pooled.time, pb.counts, path, scmp_clusters)
 
   # Drop features
   line.df <- line.df[, colnames(line.df) != "feature_id", drop = FALSE]
@@ -222,17 +265,17 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
 
   # Take medians
   line.df <- line.df %>%
-    group_by(path, scmp_clusters, pooled.time) %>%
-    summarize(pb.counts.mean = median(pb.counts), .groups = "drop")
+    group_by(!!sym(path), !!sym(scmp_clusters), !!sym(pooled.time)) %>%
+    summarize(pb.counts.mean = median(!!sym(pb.counts)), .groups = "drop")
   curve.df <- curve.df %>%
-    group_by(path, scmp_clusters, pooled.time) %>%
-    summarize(pb.counts.mean = median(pb.counts), .groups = "drop")
+    group_by(!!sym(path), !!sym(scmp_clusters), !!(pooled.time)) %>%
+    summarize(pb.counts.mean = median(!!sym(pb.counts)), .groups = "drop")
 
   if (result == "plot") {
     # Plot
     p <- ggplot() +
       geom_point(
-        data = point.df, aes(x = pooled.time, y = pb.counts, color = path),
+        data = point.df, aes(x = .data$pooled.time, y = .data$pb.counts, color = .data$path),
         fill = "#102C57", alpha = 0.5, size = 0.5, stroke = 0.5, shape = 21
       ) +
       geom_line(
@@ -245,7 +288,7 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
       geom_line(
         data = curve.df,
         aes(
-          x = .data$pooled.time, y = .data$pb.counts.mean,
+          x = .data$pooled.time, y = .data$pb.counts,
           color = .data$path, group = .data$path,
         ), linetype = "dotted", linewidth = 0.5
       ) +
@@ -260,7 +303,7 @@ plotTrendCluster <- function(scmpObj, geneSet, xlab = "Pooled Pseudotime", ylab 
         panel.grid.minor = element_blank(),
         axis.text.x = element_text(angle = 45, hjust = 1) # Rotate x-axis text if necessary
       ) +
-      labs(title = "Gene Expression over Pseudotime", color = "Path") +
+      labs(title = "Gene Expression over Pseudotime", color = "Branching Path") +
       xlab(xlab) +
       ylab(ylab)
     return(p)

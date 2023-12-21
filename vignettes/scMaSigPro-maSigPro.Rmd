@@ -55,18 +55,14 @@ application of `maSigPro` to the more complex RNA-Seq data.
 `scMaSigPro` is currently available on GitHub. Follow these steps to install it:
 
 ```{r, "scMaSigPro-install", echo=TRUE, eval=FALSE}
-# Use public PAT
-publicPat <- "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"
-
 # Install devtools if not already installed
 if (!requireNamespace("devtools", quietly = TRUE)) {
   install.packages("devtools")
 }
 
 # Install scMaSigPro
-devtools::install_github("spriyansh/scMaSigPro",
-  ref = "dev",
-  auth_token = publicPat,
+devtools::install_github("BioBam/scMaSigPro",
+  ref = "main",
   build_vignettes = FALSE,
   build_manual = TRUE,
   upgrade = "never",
@@ -366,33 +362,36 @@ PlotGroups(STMDE66,
 # Plotting the same gene with scMaSigPro
 plotTrend(scmp.ob, "STMDE66",
   logs = FALSE, pseudoCount = 0,
-  smoothness = 1, significant = FALSE
+  smoothness = 0.01, significant = FALSE,
+  summary_mode = "mean"
 )
 ```
 
-<!-- ### Visualizing Cluster trend with `maSigPro::PlotProfiles()` -->
-<!-- ```{r, "Cluster Plots", fig.width=7} -->
-<!-- # Plot clustered Trend -->
-<!-- gc <- capture_output( -->
-<!--     see.genes(sigs$sig.genes$ColdvsControl, show.fit = T, dis =design$dis, -->
-<!-- cluster.method="hclust" , cluster.data = 1, k = 9) -->
-<!-- ) -->
+### Visualizing Cluster trend with `maSigPro::PlotProfiles()`
+```{r, "Cluster Plots", fig.width=7}
+# Plot clustered Trend
+gc <- capture_output(
+  res <- see.genes(sigs$sig.genes$ColdvsControl,
+    show.fit = T, dis = design$dis,
+    cluster.method = "hclust", cluster.data = 1, k = 9
+  )
+)
+cluster_vector <- res$cut
+```
 
-<!-- # ScMaSigPro -->
-<!-- plotTrendCluster(scmp.ob, -->
-<!--                  geneSet = "ColdvsControl", -->
-<!--                  logs = F, -->
-<!--                  cluster_by = "counts", -->
-<!--                  k = 9) -->
-<!-- ``` -->
-
-<!-- ```{r, "Cluster Plots2"} -->
-<!-- plotTrendCluster(scmp.ob, -->
-<!--                  geneSet = "ColdvsControl", -->
-<!--                  logs = F, -->
-<!--                  cluster_by = "counts", -->
-<!--                  k = 9) -->
-<!-- ``` -->
+```{r, "Cluster Plots2"}
+scmp.ob <-plotTrendCluster(scmp.ob,
+  geneSet = "ColdvsControl",
+  logs = F,
+  cluster_method = "hclust",
+  cluster_by = "counts",
+  k = 9,
+  parallel = F,
+  scale_counts = F,
+  pseudoCount = 0,
+  result = "return"
+)
+```
 
 ---
 

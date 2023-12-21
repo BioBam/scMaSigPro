@@ -11,14 +11,20 @@ plotTrendCluster(
   ylab = "Pseudobulk Expression",
   cluster_by = "coeff",
   cluster_method = "hclust",
+  hclust_agglo_method = "ward.D",
+  kmeans_iter_max = 500,
+  distance = "cor",
+  summary_mode = "median",
   logs = TRUE,
   logType = "log",
   smoothness = 0.01,
   k = 9,
   includeInflu = TRUE,
-  distance = "cor",
-  hclust.agglo_method = "ward.D",
   result = "plot",
+  mclust_k = FALSE,
+  verbose = FALSE,
+  pseudoCount = 1,
+  scale_counts = TRUE,
   significant = FALSE,
   parallel = FALSE
 )
@@ -36,6 +42,14 @@ plotTrendCluster(
 
 \item{cluster_method}{description}
 
+\item{hclust_agglo_method}{description}
+
+\item{kmeans_iter_max}{description}
+
+\item{distance}{description}
+
+\item{summary_mode}{description}
+
 \item{logs}{Whether to plot log of counts}
 
 \item{logType}{Log type required}
@@ -46,11 +60,15 @@ plotTrendCluster(
 
 \item{includeInflu}{description}
 
-\item{distance}{description}
-
-\item{hclust.agglo_method}{description}
-
 \item{result}{description}
+
+\item{mclust_k}{description}
+
+\item{verbose}{description}
+
+\item{pseudoCount}{description}
+
+\item{scale_counts}{description}
 
 \item{significant}{description}
 
