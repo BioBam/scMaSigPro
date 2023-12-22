@@ -380,14 +380,15 @@ gc <- capture_output(
 # Compute Clusters
 scmp.ob <- sc.cluster.trend(scmp.ob,
   geneSet = "ColdvsControl",
-  cluster_by = "counts")
+  cluster_by = "counts"
+)
 ```
 
 ### Plot cluster Trends 
 ```{r, "Plot Clustered Trends"}
-plotTrendCluster(
-    scmpObj = scmp.ob,
-    plot = "counts"
+gene.cluster.df <- plotTrendCluster(
+  scmpObj = scmp.ob,
+  plot = "coeff"
 )
 ```
 

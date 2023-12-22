@@ -66,7 +66,6 @@ setClass(
     cluster.method = "character",
     cluster.fill.dim = "character",
     cluster.fill.na = "character"
-    
   ),
   validity = function(object) {
     errors <- character(0)

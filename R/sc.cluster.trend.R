@@ -122,36 +122,36 @@ sc.cluster.trend <- function(scmpObj,
   if (fill_dim == "col") {
     # Transpose the matrix
     cluster_data <- cluster_matrix_input
-  } else if(fill_dim == "row") {
+  } else if (fill_dim == "row") {
     cluster_data <- t(cluster_matrix_input)
   }
-  
+
   # Perform Clustering
   if (cluster_method == "hclust") {
-      if (hclust.distance == "cor") {
-          # Compute correlation-based distance for rows
-          correlation_matrix <- cor(t(cluster_data), use = "pairwise.complete.obs")
-          dcorrel <- as.dist(1 - correlation_matrix)
-          clust <- hclust(dcorrel, method = hclust.agglo.method)
-      } else {
-          # Compute distance based on the specified method for rows
-          clust <- hclust(dist(t(cluster_data), method = hclust.distance), method = hclust.agglo.method)
-      }
-      # Cut the dendrogram to get cluster assignments
-      cluster_results <- cutree(clust, k = k)
-  }  else if (cluster_method == "kmeans") {
-      kmeans_result <- kmeans(cluster_data, centers = k, iter.max = kmeans.iter.max)
-      cluster_results <- kmeans_result$cluster
-  }else if (cluster_method == "Mclust") {
-      if (mclust.k) {
-          mclust_res <- Mclust(cluster_data,verbose = FALSE)
-          k <- mclust_res$G
-      } else {
-          mclust_res <- Mclust(cluster_data, G = k, verbose = FALSE)
-      }
-      cluster_results <- mclust_res$classification
+    if (hclust.distance == "cor") {
+      # Compute correlation-based distance for rows
+      correlation_matrix <- cor(t(cluster_data), use = "pairwise.complete.obs")
+      dcorrel <- as.dist(1 - correlation_matrix)
+      clust <- hclust(dcorrel, method = hclust.agglo.method)
+    } else {
+      # Compute distance based on the specified method for rows
+      clust <- hclust(dist(t(cluster_data), method = hclust.distance), method = hclust.agglo.method)
+    }
+    # Cut the dendrogram to get cluster assignments
+    cluster_results <- cutree(clust, k = k)
+  } else if (cluster_method == "kmeans") {
+    kmeans_result <- kmeans(cluster_data, centers = k, iter.max = kmeans.iter.max)
+    cluster_results <- kmeans_result$cluster
+  } else if (cluster_method == "Mclust") {
+    if (mclust.k) {
+      mclust_res <- Mclust(cluster_data, verbose = FALSE)
+      k <- mclust_res$G
+    } else {
+      mclust_res <- Mclust(cluster_data, G = k, verbose = FALSE)
+    }
+    cluster_results <- mclust_res$classification
   }
-  
+
   # Convert to df
   clusters_df <- as.data.frame(cluster_results)
   colnames(clusters_df) <- scmp_clusters
@@ -160,11 +160,11 @@ sc.cluster.trend <- function(scmpObj,
   cluster.vector <- clusters_df[["scmp_clusters"]]
   names(cluster.vector) <- clusters_df[["feature_id"]]
   scmpObj@sig.genes@feature.clusters <- as.list(cluster.vector)
-  
+
   # Update Parameters
   scmpObj@param@cluster.method <- cluster_method
   scmpObj@param@cluster.fill.dim <- fill_dim
   scmpObj@param@cluster.fill.na <- fill_na_by
-  
+
   return(scmpObj)
 }

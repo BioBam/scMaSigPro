@@ -335,16 +335,25 @@ print(groundTruth[groundTruth$Gene %in% c("Gene9", "Gene95", "Gene10", "Gene92")
 The ground truth data reveals, for example, that Gene9 has a base gene mean of 0.5, a fold change of 1.5 in Path1, and remains at the same expression level for Path2. This trend is accurately captured in our analysis, as shown in Figure-A. Similarly, Gene92 does not show a significant difference between the paths but demonstrates a downtrend along pseudotime in both paths, a finding we successfully recapitulate in Figure-D.
 
 ### Cluster Trends
-<!-- To discern general trends among the genes, we can cluster and visualize them together using the `plotTrendCluster()`. By default, this function employs hierarchical clustering (hclust) and we will divide the genes into 4 clusters. -->
-<!-- ```{r, "Cluster Trends"} -->
-<!-- plotTrendCluster( -->
-<!--   scmp.ob, -->
-<!--   geneSet = "intersect", -->
-<!--   cluster_by = "counts", -->
-<!--   logs = T, smoothness = 1, -->
-<!--   result = "plot" -->
-<!-- ) -->
-<!-- ``` -->
+To discern general trends among the genes, we can cluster and visualize them together using the `sc.cluster.trend()` and `plotTrendCluster()`. By default, this function employs hierarchical clustering (hclust) and we will divide the genes into 4 clusters.
+```{r, "Cluster Trends"}
+# Cluster Trend
+scmp.ob <- sc.cluster.trend(
+  scmp.ob,
+  geneSet = "union",
+  k = 4
+)
+```
+
+```{r, "plot"}
+# Plot
+plotTrendCluster(
+  scmpObj = scmp.ob,
+  plot = "coeff",
+  logs = TRUE,
+  verbose = FALSE
+)
+```
 
 This visualization helps in understanding the collective behavior of genes
 within each cluster, highlighting patterns and trends that might be relevant for
