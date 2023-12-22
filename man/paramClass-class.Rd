@@ -51,7 +51,13 @@ A Class holding information about the parameters used.
 
 \item{\code{poly_degree}}{Integer with the polynomial degree to fit the regression. 1}
 
-\item{\code{distribution}}{Distribution used
+\item{\code{distribution}}{Distribution used}
+
+\item{\code{cluster.method}}{Description}
+
+\item{\code{cluster.fill.dim}}{description}
+
+\item{\code{cluster.fill.na}}{description
 specifies a linear regression, 2 a quadratic regression, etc.}
 }}
 

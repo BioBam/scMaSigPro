@@ -376,22 +376,20 @@ gc <- capture_output(
     cluster.method = "hclust", cluster.data = 1, k = 9
   )
 )
-cluster_vector <- res$cut
+
+# Compute Clusters
+scmp.ob <- sc.cluster.trend(scmp.ob,
+  geneSet = "ColdvsControl",
+  cluster_by = "counts")
 ```
 
-<!-- ```{r, "Cluster Plots2"} -->
-<!-- scmp.ob <- plotTrendCluster(scmp.ob, -->
-<!--   geneSet = "ColdvsControl", -->
-<!--   logs = F, -->
-<!--   cluster_method = "hclust", -->
-<!--   cluster_by = "counts", -->
-<!--   k = 9, -->
-<!--   parallel = F, -->
-<!--   scale_counts = F, -->
-<!--   pseudoCount = 0, -->
-<!--   result = "return" -->
-<!-- ) -->
-<!-- ``` -->
+### Plot cluster Trends 
+```{r, "Plot Clustered Trends"}
+plotTrendCluster(
+    scmpObj = scmp.ob,
+    plot = "counts"
+)
+```
 
 ---
 

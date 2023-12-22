@@ -9,7 +9,7 @@ plotTrendCluster(
   geneSet,
   xlab = "Pooled Pseudotime",
   ylab = "Pseudobulk Expression",
-  cluster_by = "coeff",
+  plot = "coeff",
   cluster_method = "hclust",
   hclust_agglo_method = "ward.D",
   kmeans_iter_max = 500,
@@ -38,7 +38,7 @@ plotTrendCluster(
 
 \item{ylab}{Y-axis label. Default is "Pseudobulk Expression".}
 
-\item{cluster_by}{description}
+\item{plot}{description}
 
 \item{cluster_method}{description}
 
