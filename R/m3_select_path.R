@@ -56,6 +56,13 @@ m3_select_path <- function(cdsObj,
     }
   }
 
+  # Set global variables
+  node <- "node"
+  Pseudotime <- "Pseudotime"
+  median_pseudotime <- "median_pseudotime"
+  anno <- "anno"
+  count <- "count"
+
   # Validate is supplied opject is a valid
   assert_that(is(cdsObj, "cell_data_set"),
     msg = "Please supply a valid monocle3 cdsObject"
@@ -93,14 +100,14 @@ m3_select_path <- function(cdsObj,
   )
 
   # Check pseudotime
-  assert_that(!is.null(cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$pseudotime),
+  assert_that(!is.null(cdsObj@principal_graph_aux@listData[[toupper(redDim)]][["pseudotime"]]),
     msg = paste("No Pseudotime information found")
   )
 
   # Create Pseudotime frame
   pTime.frame <- data.frame(
-    Pseudotime = cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$pseudotime,
-    cell = names(cdsObj@principal_graph_aux@listData[[toupper(redDim)]]$pseudotime)
+    Pseudotime = cdsObj@principal_graph_aux@listData[[toupper(redDim)]][["pseudotime"]],
+    cell = names(cdsObj@principal_graph_aux@listData[[toupper(redDim)]][["pseudotime"]])
   )
 
   # Create close vertex frames
@@ -190,22 +197,22 @@ m3_select_path <- function(cdsObj,
     # Order nodes by their median Pseudotime
     node_order <- data %>%
       group_by(node) %>%
-      summarise(median_pseudotime = median(Pseudotime, na.rm = TRUE)) %>%
-      arrange(median_pseudotime) %>%
-      pull(node)
+      summarise(median_pseudotime = median(!!sym(Pseudotime), na.rm = TRUE)) %>%
+      arrange(!!sym(median_pseudotime)) %>%
+      pull(!!sym(node))
 
     # Convert the 'node' column to an ordered factor based on median Pseudotime
     data$node <- factor(data$node, levels = node_order)
 
     # Now, count the number of instances for each 'anno' within each 'node' and calculate fractions
     data_summary <- data %>%
-      group_by(node, anno) %>%
+      group_by(!!sym(node), !!sym(anno)) %>%
       summarise(count = n(), .groups = "drop")
 
     data_summary <- data_summary[data_summary$count >= (mean(data_summary$count) + sd(data_summary$count)), ]
 
     # Plotting the data
-    fraction_bar <- ggplot(data_summary, aes(x = node, y = count, fill = anno)) +
+    fraction_bar <- ggplot(data_summary, aes(x = .data$node, y = .data$count, fill = .data$anno)) +
       geom_bar(stat = "identity", position = "stack") +
       theme_minimal() +
       coord_flip() +

@@ -13,7 +13,8 @@ plotTrend(
   logs = TRUE,
   logType = "log",
   pseudoCount = 1,
-  significant = TRUE
+  significant = TRUE,
+  summary_mode = "median"
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ higher values will result in more linear trends.}
 
 \item{significant}{Default is FALSE. Set to TRUE to plot genes, that don't pass
 R-Square threshold from 'sc.filter()'.}
+
+\item{summary_mode}{description}
 }
 \value{
 Generates a plot.

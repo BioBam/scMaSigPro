@@ -6,19 +6,16 @@
 \usage{
 plotTrendCluster(
   scmpObj,
-  geneSet,
   xlab = "Pooled Pseudotime",
   ylab = "Pseudobulk Expression",
-  cluster_by = "coeff",
-  cluster_method = "hclust",
-  logs = TRUE,
+  plot = "counts",
+  summary_mode = "median",
+  logs = FALSE,
   logType = "log",
-  smoothness = 0.01,
-  k = 9,
+  smoothness = 1,
   includeInflu = TRUE,
-  distance = "cor",
-  hclust.agglo_method = "ward.D",
-  result = "plot",
+  verbose = TRUE,
+  pseudoCount = 1,
   significant = FALSE,
   parallel = FALSE
 )
@@ -26,15 +23,13 @@ plotTrendCluster(
 \arguments{
 \item{scmpObj}{object of class scmpObj}
 
-\item{geneSet}{description}
-
 \item{xlab}{X-axis label. Default is "Pooled Pseudotime".}
 
 \item{ylab}{Y-axis label. Default is "Pseudobulk Expression".}
 
-\item{cluster_by}{description}
+\item{plot}{description}
 
-\item{cluster_method}{description}
+\item{summary_mode}{description}
 
 \item{logs}{Whether to plot log of counts}
 
@@ -42,15 +37,11 @@ plotTrendCluster(
 
 \item{smoothness}{description}
 
-\item{k}{description}
-
 \item{includeInflu}{description}
 
-\item{distance}{description}
+\item{verbose}{description}
 
-\item{hclust.agglo_method}{description}
-
-\item{result}{description}
+\item{pseudoCount}{description}
 
 \item{significant}{description}
 

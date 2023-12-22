@@ -2,7 +2,7 @@ suppressPackageStartupMessages(library(testthat))
 suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(maSigPro))
 
-test_that("Check-'fit$p.adjusted' Reproducibility: Match, Dimension, Name and Value", {
+test_that("Check-'fit$p.adjusted'", {
   # Step-1: Load Data
   data("data.abiotic")
   data("edesign.abiotic")

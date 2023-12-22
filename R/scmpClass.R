@@ -28,6 +28,9 @@
 #' @slot max_it Integer. Maximum number of iterations to fit the model.
 #' @slot poly_degree Integer with the polynomial degree to fit the regression. 1
 #' @slot distribution Distribution used
+#' @slot cluster.method Description
+#' @slot cluster.fill.dim description
+#' @slot cluster.fill.na description
 #' specifies a linear regression, 2 a quadratic regression, etc.
 #'
 #' @name paramClass
@@ -59,7 +62,10 @@ setClass(
     logOffset = "logical",
     max_it = "integer",
     poly_degree = "integer",
-    distribution = "ANY"
+    distribution = "ANY",
+    cluster.method = "character",
+    cluster.fill.dim = "character",
+    cluster.fill.na = "character"
   ),
   validity = function(object) {
     errors <- character(0)
@@ -70,7 +76,8 @@ setClass(
       "pseudotime_colname", "bin_method",
       "path_colname", "bin_colname", "bin_size_colname",
       "bin_members_colname", "MT.adjust", "step.method",
-      "annotation_col"
+      "annotation_col", "cluster.method", "cluster.fill.dim",
+      "cluster.fill.na"
     )
 
     for (slot_name in char_slots) {
@@ -131,7 +138,10 @@ setClass(
     max_it = 100L,
     annotation_col = "cell_type",
     poly_degree = 2L,
-    distribution = MASS::negative.binomial(10)
+    distribution = MASS::negative.binomial(10),
+    cluster.method = "hclust",
+    cluster.fill.dim = "col",
+    cluster.fill.na = "zero"
   )
 )
 

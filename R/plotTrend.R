@@ -14,6 +14,7 @@
 #' @param pseudoCount Add a pseudo-count before taking the log.
 #' @param significant Default is FALSE. Set to TRUE to plot genes, that don't pass
 #' R-Square threshold from 'sc.filter()'.
+#' @param summary_mode description
 #'
 #' @import ggplot2
 #' @importFrom RColorConesa getConesaColors
@@ -28,11 +29,20 @@ plotTrend <-
            logs = TRUE,
            logType = "log",
            pseudoCount = 1,
-           significant = TRUE) {
+           significant = TRUE,
+           summary_mode = "median") {
     # Invoke Variables
     pb.counts <- "pb.counts"
     pooled.time <- "pooled.time"
     path <- "path"
+
+    # Check summary_mode
+    assert_that(any(summary_mode %in% c("median", "mean")),
+      msg = paste(
+        paste0("'", summary_mode, "'"), "is not a valid option. Please use one of",
+        paste(c("median", "mean"), collapse = ", ")
+      )
+    )
 
     # Extract edisgn
     alloc.frame <- scmpObj@design@alloc %>% as.data.frame()
@@ -145,21 +155,25 @@ plotTrend <-
       }
     }
 
-    # Convert Negative values to 0
-    # curve.df[curve.df$y < 0, "y"] <- 0
-    # points.df[points.df$pb.counts < 0, "pb.counts"] <- 0
-
     # Generate line.df
     line.df <- points.df
 
-    line.df <- line.df %>%
-      group_by(pooled.time, path) %>%
-      summarize(mean_pb_counts = mean(pb.counts), .groups = "drop")
+    # Apply Summary Operation
+    if (summary_mode == "mean") {
+      line.df <- line.df %>%
+        group_by(pooled.time, path) %>%
+        summarize(pb.counts = mean(pb.counts), .groups = "drop")
+    } else if (summary_mode == "median") {
+      line.df <- line.df %>%
+        group_by(pooled.time, path) %>%
+        summarize(pb.counts = median(pb.counts), .groups = "drop")
+    }
 
+    # Plot
     p <- ggplot() +
       geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.5, size = 2, stroke = 1, shape = 21) +
-      geom_line(data = line.df, aes(x = pooled.time, y = mean_pb_counts, color = path), linetype = "dotted", linewidth = 1) +
-      geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "solid", linewidth = 1.5) +
+      geom_line(data = line.df, aes(x = pooled.time, y = .data$pb.counts, color = path), linetype = "solid", linewidth = 1, alpha = 0.7) +
+      geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "dashed", linewidth = 1, alpha = 0.7) +
       ggtitle(
         paste("Feature Id:", feature_id),
         subtitle = paste("R2:", round(data.sol[, 2], 3), "| p-Value:", round(data.sol[, 1], 3))

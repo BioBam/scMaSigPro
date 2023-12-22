@@ -2,7 +2,7 @@ suppressPackageStartupMessages(library(testthat))
 suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(maSigPro))
 
-test_that("Check-'design$groups.vector' Reproducibility: Match, Dimension, Name and Value", {
+test_that("Check-'design$groups.vector'", {
   # Step-1: Load Data
   data("data.abiotic")
   data("edesign.abiotic")
@@ -17,7 +17,10 @@ test_that("Check-'design$groups.vector' Reproducibility: Match, Dimension, Name 
   })
 
   # Step-2.2: Remove Binary Columns
-  cell_metadata <- cell_metadata[, !(colnames(cell_metadata) %in% c("Control", "Cold", "Heat", "Salt")), drop = FALSE]
+  cell_metadata <- cell_metadata[, !(colnames(cell_metadata) %in%
+    c("Control", "Cold", "Heat", "Salt")),
+  drop = FALSE
+  ]
 
   # Step-3: Create scmp Object
   test.scmp <- create.scmp(
