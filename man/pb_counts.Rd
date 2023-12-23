@@ -13,7 +13,7 @@ pb_counts(
 )
 }
 \arguments{
-\item{scmpObject}{object of Class scMaSigPro. See \code{\link{scmp}}
+\item{scmpObject}{object of Class scMaSigPro. See \code{\link{ScMaSigPro}}
 for more details.}
 
 \item{bin_members_colname}{Column name in the dense metadata storing information

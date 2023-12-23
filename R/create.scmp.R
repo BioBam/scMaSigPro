@@ -1,7 +1,7 @@
-#' @title Create scmp Object
+#' @title Create ScMaSigPro Object
 #'
 #' @description
-#' `create.scmp()` initializes a scmp object with the given counts,
+#' `create.scmp()` initializes a ScMaSigPro object with the given counts,
 #' cell level metadata, and other optional parameters.
 #'
 #' @param counts A matrix containing the raw expression counts.
@@ -16,12 +16,12 @@
 #' @param use_as_bin A logical indicating whether to use the raw counts and
 #' cell level data as binned. Defaults to FALSE.
 #'
-#' @return A scmp object containing the inputted counts, cell data, and additional parameters.
+#' @return A ScMaSigPro object containing the inputted counts, cell data, and additional parameters.
 #'
 #'
 #' @export
 
-# Create scmp
+# Create ScMaSigPro
 create.scmp <- function(counts,
                         cell_data,
                         feature_data,
@@ -55,7 +55,7 @@ create.scmp <- function(counts,
   )
 
   # Initate scMaSigPro
-  scmpObj <- new("scmp",
+  scmpObj <- new("ScMaSigPro",
     sparse = sparse_tmp,
     dense = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
   )
@@ -77,7 +77,7 @@ create.scmp <- function(counts,
     sparse_tmp <- NULL
 
     # Update the slots
-    scmpObj@param@bin_pseudotime_colname <- pseudotime_colname
+    scmpObj@param@bin_ptime_col <- pseudotime_colname
   }
 
   # Update the slots

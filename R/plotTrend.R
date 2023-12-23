@@ -89,7 +89,7 @@ plotTrend <-
 
     # Create Point df
     points.df <- data.frame(
-      pooled.time = alloc.frame[, scmpObj@param@bin_pseudotime_colname],
+      pooled.time = alloc.frame[, scmpObj@param@bin_ptime_col],
       pb.counts = as.vector(t(as.matrix(yy))),
       path = scmpObj@dense@colData[[scmpObj@param@path_colname]]
     )
@@ -107,7 +107,7 @@ plotTrend <-
       a[is.na(a)] <- 0
 
       # Extract the time
-      time <- alloc.frame[alloc.frame[[i]] == 1, scmpObj@param@bin_pseudotime_colname]
+      time <- alloc.frame[alloc.frame[[i]] == 1, scmpObj@param@bin_ptime_col]
 
       # Create a data frame with time values
       x <- seq(from = min(time), to = max(time), by = smoothness)

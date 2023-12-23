@@ -1,8 +1,8 @@
 #' Create predictors and set polynomial.  Adaption of maSigPro::make.design.matrix()
 #'
-#' @param scmpObject A 'scmp' object.
+#' @param scmpObject A 'ScMaSigPro' object.
 #' @param poly_degree Degree of the design matrix (default: 2).
-#' @param bin_pseudotime_colname Name of the time column.
+#' @param bin_ptime_col Name of the time column.
 #' @param path_colname Name of the path column.
 #'
 #' @return Returns the 'scmpObject' with an updated 'design' slot.
@@ -12,10 +12,10 @@
 #'
 sc.set.poly <- function(scmpObject,
                         poly_degree = 2,
-                        bin_pseudotime_colname = scmpObject@param@bin_pseudotime_colname,
+                        bin_ptime_col = scmpObject@param@bin_ptime_col,
                         path_colname = scmpObject@param@path_colname) {
   # Check Object Validity
-  assert_that(is(scmpObject, "scmp"),
+  assert_that(is(scmpObject, "ScMaSigPro"),
     msg = "Please provide object of class 'scMaSigPro'"
   )
 
@@ -23,8 +23,8 @@ sc.set.poly <- function(scmpObject,
   comp.cell.metadata <- as.data.frame(scmpObject@dense@colData)
 
   # pseudotime_colname
-  assert_that((bin_pseudotime_colname %in% colnames(comp.cell.metadata)),
-    msg = paste0("'", bin_pseudotime_colname, "' ", "doesn't exit in cell.metadata.")
+  assert_that((bin_ptime_col %in% colnames(comp.cell.metadata)),
+    msg = paste0("'", bin_ptime_col, "' ", "doesn't exit in cell.metadata.")
   )
   # path_colname
   assert_that((path_colname %in% colnames(comp.cell.metadata)),
@@ -32,7 +32,7 @@ sc.set.poly <- function(scmpObject,
   )
 
   # Subset cell metadata
-  com.cell.meta <- comp.cell.metadata[, colnames(comp.cell.metadata) %in% c(bin_pseudotime_colname, path_colname)]
+  com.cell.meta <- comp.cell.metadata[, colnames(comp.cell.metadata) %in% c(bin_ptime_col, path_colname)]
 
   # Get available paths
   avail.paths <- as.vector(unique(com.cell.meta[[path_colname]]))
@@ -46,7 +46,7 @@ sc.set.poly <- function(scmpObject,
   com.cell.meta <- com.cell.meta[, colnames(com.cell.meta) != path_colname, drop = FALSE]
 
   # Get colvec
-  col.vec <- colnames(com.cell.meta)[colnames(com.cell.meta) != bin_pseudotime_colname]
+  col.vec <- colnames(com.cell.meta)[colnames(com.cell.meta) != bin_ptime_col]
 
   # Add Replicate Column
   # com.cell.meta <- com.cell.meta %>%
@@ -75,7 +75,7 @@ sc.set.poly <- function(scmpObject,
   )
 
   # Create Object
-  designObj <- new("designClass",
+  designObj <- new("MatrixDesign",
     predictor = as.matrix(designList$dis),
     groups.vector = designList$groups.vector,
     alloc = as.matrix(designList$edesign)

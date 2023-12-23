@@ -67,8 +67,8 @@ sc.t.fit <- function(scmpObj,
                      parallel = FALSE,
                      logOffset = scmpObj@param@logOffset,
                      max_it = scmpObj@param@max_it) {
-  assert_that(is(scmpObj, "scmp"),
-    msg = "Please provide object of class 'scmp'"
+  assert_that(is(scmpObj, "ScMaSigPro"),
+    msg = "Please provide object of class 'ScMaSigPro'"
   )
 
   # Transfer Data
@@ -337,7 +337,7 @@ sc.t.fit <- function(scmpObj,
   # influ.info <- influ.info[, -1]
 
   # Create a constructor for the class
-  t.fit.object <- new("estimateClass",
+  t.fit.object <- new("Estimates",
     sol = sol,
     coefficients = coefficients,
     group.coeffs = group.coeffs,

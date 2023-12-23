@@ -7,12 +7,12 @@
 bAlloc(object, value = "missing")
 }
 \arguments{
-\item{object}{An object of class `scmp`.}
+\item{object}{An object of class `ScMaSigPro`.}
 
 \item{value}{The new value for the `colData` slot to set. Optional for getting.}
 }
 \value{
-`colData` when getting, modified `scmp` object when setting.
+`colData` when getting, modified `ScMaSigPro` object when setting.
 }
 \description{
 Get or set the branch allocation matrix

@@ -22,7 +22,7 @@
 #'   and indicate array naming. \code{rownames(data)} should contain unique gene IDs.
 #'   \code{colnames(design)} are the given names for the variables in the regression model.
 #'
-#' @return scmp object
+#' @return ScMaSigPro object
 
 #' @references Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
 #' maSigPro: a Method to Identify Significant Differential Expression Profiles in Time-Course Microarray Experiments.
@@ -50,8 +50,8 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
                         logOffset = FALSE,
                         max_it = 100) {
   # Check the type of the 'design' parameter and set the corresponding variables
-  assert_that(is(scmpObj, "scmp"),
-    msg = "Please provide object of class 'scmp'"
+  assert_that(is(scmpObj, "ScMaSigPro"),
+    msg = "Please provide object of class 'ScMaSigPro'"
   )
 
   # Extract from s4
@@ -215,7 +215,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
     names(sc.p.vector) <- rownames(dat)
 
     # Add Data to the class
-    profile.obj <- new("sigProfileClass",
+    profile.obj <- new("VariableProfiles",
       non.flat = rownames(SELEC),
       p.vector = sc.p.vector,
       p.adjusted = p.adjusted,

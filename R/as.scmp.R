@@ -25,7 +25,7 @@
 #'
 #' @details Additional Details
 #'
-#' @return An instance of the 'scmpClass'.
+#' @return An instance of the 'ScMaSigProClass'.
 #'
 #' @seealso `colData` from the \pkg{SingleCellExperiment} package, `new_cell_data_set`
 #' function in \pkg{monocle3}
@@ -132,7 +132,7 @@ as.scmp <- function(object, from = "cds",
     )
 
     # Create Object
-    scmpObj <- new("scmp",
+    scmpObj <- new("ScMaSigPro",
       sparse = annotated_sce,
       dense = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
     )
