@@ -40,10 +40,10 @@ sc.cluster.trend <- function(scmpObj,
   scmp_clusters <- "scmp_clusters"
 
   # Check if the gene set exists
-  assert_that(any(geneSet %in% c(names(scmpObj@sig.genes@sig.genes), "intersect", "union")),
+  assert_that(any(geneSet %in% c(names(scmpObj@significant@genes), "intersect", "union")),
     msg = paste(
       paste0("'", geneSet, "'"), "does not exist. Please use one of",
-      paste(c(names(scmpObj@sig.genes@sig.genes), "intersect", "union"), collapse = ", ")
+      paste(c(names(scmpObj@significant@genes), "intersect", "union"), collapse = ", ")
     )
   )
   assert_that(any(cluster_by %in% c("coeff", "counts")),
@@ -73,11 +73,11 @@ sc.cluster.trend <- function(scmpObj,
 
   # Get gene set vector
   if (geneSet == "intersect") {
-    gene_set_vector <- Reduce(intersect, scmpObj@sig.genes@sig.genes)
+    gene_set_vector <- Reduce(intersect, scmpObj@significant@genes)
   } else if (geneSet == "union") {
-    gene_set_vector <- Reduce(union, scmpObj@sig.genes@sig.genes)
+    gene_set_vector <- Reduce(union, scmpObj@significant@genes)
   } else {
-    gene_set_vector <- scmpObj@sig.genes@sig.genes[[geneSet]]
+    gene_set_vector <- scmpObj@significant@genes[[geneSet]]
   }
 
   # Extract data based on 'cluster_by'
@@ -159,7 +159,7 @@ sc.cluster.trend <- function(scmpObj,
 
   cluster.vector <- clusters_df[["scmp_clusters"]]
   names(cluster.vector) <- clusters_df[["feature_id"]]
-  scmpObj@sig.genes@feature.clusters <- as.list(cluster.vector)
+  scmpObj@significant@clusters <- as.list(cluster.vector)
 
   # Update Parameters
   scmpObj@param@cluster.method <- cluster_method

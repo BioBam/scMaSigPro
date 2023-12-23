@@ -311,8 +311,9 @@ setClass(
 #' @description
 #' S4 class to store significantly selected features and their clusters.
 #'
-#' @slot sig.genes list
-#' @slot feature.clusters list
+#' @slot genes Named list of genes selected based on user-specified thresholds.
+#' @slot clusters Named list of clusters selected based on user-specified
+#' thresholds.
 #'
 #' @name Significant
 #' @aliases Significant-class
@@ -322,17 +323,20 @@ setClass(
 setClass(
   "Significant",
   representation(
-    sig.genes = "list",
-    feature.clusters = "list"
+    genes = "list",
+    clusters = "list"
   ),
   validity = function(object) {
-    if (!is.list(object@sig.genes)) {
-      stop("sig.genes slot must be a list")
+    if (!is.list(object@genes)) {
+      stop("genes slot must be a list")
+    }
+    if (!is.list(object@clusters)) {
+      stop("clusters slot must be a list")
     }
   },
   prototype = list(
-    sig.genes = list(),
-    feature.clusters = list()
+    genes = list(),
+    clusters = list()
   )
 )
 ###############################################################################
@@ -348,7 +352,7 @@ setClass(
 #' @slot dense  Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.
 #' @slot design Object of Class MatrixDesign. See \code{\link{MatrixDesign}} for more details.
 #' @slot param Object of Class ParameterConfig. See \code{\link{ParameterConfig}} for more details.
-#' @slot sig.genes ABC
+#' @slot significant ABC
 #'
 #' @name ScMaSigPro
 #' @aliases ScMaSigPro-class
@@ -366,7 +370,7 @@ setClass(
     dense = "SingleCellExperiment",
     design = "MatrixDesign",
     param = "ParameterConfig",
-    sig.genes = "Significant"
+    significant = "Significant"
   ),
   validity = function(object) {
     # Check sparse slot
@@ -400,13 +404,13 @@ setClass(
     }
     # Check ParameterConfig slot
     if (!validObject(object@param)) {
-      stop("'sig.genes' slot is not a valid ParameterConfig object.")
+      stop("'significant' slot is not a valid ParameterConfig object.")
     }
   },
   prototype = list(
     profile = new("VariableProfiles"), # Assuming you've defined VariableProfiles with its prototype
     estimate = new("Estimates"), # Assuming you've defined Estimates with its prototype
     param = new("ParameterConfig"), # Assuming you've defined Estimates with its prototype
-    sig.genes = new("Significant")
+    significant = new("Significant")
   )
 )

@@ -56,7 +56,7 @@ plotTrend <-
     )
 
     if (significant) {
-      assert_that(any(feature_id %in% unique(unlist(scmpObj@sig.genes@sig.genes))),
+      assert_that(any(feature_id %in% unique(unlist(scmpObj@significant@genes))),
         msg = "Feature Id didn't pass the R2 threshold, please re-run sc.get.sigenes, with lower a value or set 'significant' to 'FALSE'"
       )
     }

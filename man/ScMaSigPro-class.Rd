@@ -24,7 +24,7 @@ parameters and associated data. Inherits slots from \code{SingleCellExperiment}.
 
 \item{\code{param}}{Object of Class ParameterConfig. See \code{\link{ParameterConfig}} for more details.}
 
-\item{\code{sig.genes}}{ABC}
+\item{\code{significant}}{ABC}
 }}
 
 \keyword{classes}

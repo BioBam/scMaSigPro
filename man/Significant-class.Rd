@@ -11,9 +11,10 @@ S4 class to store significantly selected features and their clusters.
 \section{Slots}{
 
 \describe{
-\item{\code{sig.genes}}{list}
+\item{\code{genes}}{Named list of genes selected based on user-specified thresholds.}
 
-\item{\code{feature.clusters}}{list}
+\item{\code{clusters}}{Named list of clusters selected based on user-specified
+thresholds.}
 }}
 
 \keyword{classes}

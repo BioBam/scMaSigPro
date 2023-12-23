@@ -170,11 +170,11 @@ sc.filter <- function(scmpObj,
 
   # Create Object
   siggenes.object <- new("Significant",
-    sig.genes = sig.list
+    genes = sig.list
   )
 
   # Update the slot
-  scmpObj@sig.genes <- siggenes.object
+  scmpObj@significant <- siggenes.object
 
   # Return
   return(scmpObj)

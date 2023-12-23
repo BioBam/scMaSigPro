@@ -304,22 +304,22 @@ We'll compare the s3 object (sigs) from `maSigPro::get.siggenes()' with the resu
 
 ```{r}
 # Compare Cold vs Control
-expect_identical(scmp.ob@sig.genes@sig.genes$ColdvsControl,
+expect_identical(scmp.ob@significant@genes$ColdvsControl,
   expected = sigs$summary$ColdvsControl
 )
 
 # Compare Heat vs Control
-expect_identical(scmp.ob@sig.genes@sig.genes$HeatvsControl,
+expect_identical(scmp.ob@significant@genes$HeatvsControl,
   expected = sigs$summary$HeatvsControl[sigs$summary$HeatvsControl != " "]
 )
 
 # Compare Salt vs Control
-expect_identical(scmp.ob@sig.genes@sig.genes$SaltvsControl,
+expect_identical(scmp.ob@significant@genes$SaltvsControl,
   expected = sigs$summary$SaltvsControl[sigs$summary$SaltvsControl != " "]
 )
 
 # Compare Control
-expect_identical(scmp.ob@sig.genes@sig.genes$Control,
+expect_identical(scmp.ob@significant@genes$Control,
   expected = sigs$summary$Control[sigs$summary$Control != " "]
 )
 ```
