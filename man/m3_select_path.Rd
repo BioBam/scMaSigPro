@@ -41,7 +41,7 @@ the principal points. (Default is TRUE)}
 to be used for the branch selection.}
 }
 \value{
-A `scmp` object, subsetted based on the specified paths.
+A `ScMaSigPro` object, subsetted based on the specified paths.
 }
 \description{
 `m3_select_path()` helps select branching paths from a from a 'Cell Dataset'

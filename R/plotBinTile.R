@@ -1,16 +1,16 @@
 #' @title Plot Bin Sizes Across Binned Time and Paths
 #'
 #' @description
-#' This function generates plots to visualize the dense cell metadata from a scmp
+#' This function generates plots to visualize the dense cell metadata from a ScMaSigPro
 #' object. It produces tile plot to display the bin sizes across different
 #' binned time intervals and paths.
 #'
-#' @param scmpObj A scmp class object with an additional slot '@dense' that
+#' @param scmpObj A ScMaSigPro class object with an additional slot '@dense' that
 #' contains compression information.
 #' @param path_colname Name of the column in `cell.metadata` storing information
 #' for Path.
 #' @param bin_size_colname A title of the barplot
-#' @param bin_pseudotime_colname description
+#' @param bin_ptime_col description
 #'
 #' @return A tile plot made with `geom_tile()`, visualizing the bin sizes across
 #' different binned time and paths.
@@ -18,9 +18,9 @@
 plotBinTile <- function(scmpObj,
                         path_colname = scmpObj@param@path_colname,
                         bin_size_colname = scmpObj@param@bin_size_colname,
-                        bin_pseudotime_colname = scmpObj@param@bin_pseudotime_colname) {
+                        bin_ptime_col = scmpObj@param@bin_ptime_col) {
   # Check Object Validity
-  assert_that(is(scmpObj, "scmp"),
+  assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'scMaSigPro'."
   )
 
@@ -43,8 +43,8 @@ plotBinTile <- function(scmpObj,
 
   # Create plot data
   plt.data <- data.frame(
-    pTime = as.factor(compression.info[[bin_pseudotime_colname]]),
-    bin = compression.info[[bin_pseudotime_colname]],
+    pTime = as.factor(compression.info[[bin_ptime_col]]),
+    bin = compression.info[[bin_ptime_col]],
     path = compression.info[[path_colname]],
     binSize = compression.info[[bin_size_colname]]
   )
@@ -55,7 +55,7 @@ plotBinTile <- function(scmpObj,
     scale_fill_gradient(low = "#FDA3D1", high = "#FDC659") +
     geom_text(aes(label = sprintf("%d", round(.data$binSize, 1))), vjust = 1) +
     labs(fill = bin_size_colname) +
-    xlab(bin_pseudotime_colname) +
+    xlab(bin_ptime_col) +
     ylab(path_colname) +
     theme_minimal()
 

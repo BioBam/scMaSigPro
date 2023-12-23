@@ -6,7 +6,7 @@
 #' the optimal number of bins using one of the supported methods. The bin sizes
 #' are also calculated and merged with the input cell_metadata.
 #'
-#' @param scmpObject object of Class scMaSigPro. See \code{\link{scmp}}
+#' @param scmpObject object of Class scMaSigPro. See \code{\link{ScMaSigPro}}
 #' for more details.
 #' @param pseudotime_colname Name of the column in `cell.metadata` storing
 #' Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment}
@@ -14,7 +14,7 @@
 #' @param path_colname Name of the column in `cell.metadata` storing information
 #' for Path. Generated using `colData` from the \pkg{SingleCellExperiment}
 #' package. (Default is `path_prefix`).
-#' @param bin_pseudotime_colname Name of the column to store the computed Pseudotime
+#' @param bin_ptime_col Name of the column to store the computed Pseudotime
 #' bins.
 #' @param bin_members_colname Name of the column in the 'annotated_cell_metadata'
 #' @param bin_colname Name of the bin column name
@@ -78,7 +78,7 @@ sc.squeeze <- function(scmpObject,
                        bin_members_colname = "scmp_bin_members",
                        bin_colname = "scmp_bin",
                        bin_size_colname = "scmp_bin_size",
-                       bin_pseudotime_colname = "scmp_binned_pseudotime",
+                       bin_ptime_col = "scmp_binned_pseudotime",
                        split_bins = FALSE,
                        prune_bins = FALSE,
                        assay_name = "counts",
@@ -92,7 +92,7 @@ sc.squeeze <- function(scmpObject,
   cell <- "cell"
 
   # Check Object Validity
-  assert_that(is(scmpObject, "scmp"),
+  assert_that(is(scmpObject, "ScMaSigPro"),
     msg = "Please provide object of class 'scMaSigPro'."
   )
 
@@ -102,7 +102,7 @@ sc.squeeze <- function(scmpObject,
   # Drop Columns if exist
   cols_to_drop <- c(
     scmpObject@param@bin_size_colname,
-    scmpObject@param@bin_pseudotime_colname,
+    scmpObject@param@bin_ptime_col,
     "scmp_u_bound", "scmp_l_bound"
   )
   raw_cell_metadata <- raw_cell_metadata[, !colnames(raw_cell_metadata) %in% cols_to_drop, drop = FALSE]
@@ -171,7 +171,7 @@ sc.squeeze <- function(scmpObject,
                                                 drop_factor = drop_fac, path.col = path_colname,
                                                 bin.size = bin_size_colname, bin = bin_colname,
                                                 time.col = pseudotime_colname, method.bin = bin_method,
-                                                bin.time.col = bin_pseudotime_colname,
+                                                bin.time.col = bin_ptime_col,
                                                 split = split_bins, bin.members.colname = bin_members_colname,
                                                 v = verbose, use.unique.time.points = additional_params$use_unique_time_points,
                                                 lbound = scmp_bin_lower_bound, ubound = scmp_bin_upper_bound) {
@@ -288,7 +288,7 @@ sc.squeeze <- function(scmpObject,
     }
 
     rownames(bin_table) <- NULL
-    bin_table[[bin_pseudotime_colname]] <- as.numeric(rownames(bin_table))
+    bin_table[[bin_ptime_col]] <- as.numeric(rownames(bin_table))
 
     # Loop over each row of raw_cell_metadata
     for (i in 1:nrow(path.frame)) {
@@ -327,16 +327,16 @@ sc.squeeze <- function(scmpObject,
       if (nrow(matching_bins) > 0) {
         # If two match present take the first one
         if (nrow(matching_bins) == 2) {
-          path.frame[i, bin_pseudotime_colname] <- as.numeric(matching_bins[[bin_pseudotime_colname]][1])
+          path.frame[i, bin_ptime_col] <- as.numeric(matching_bins[[bin_ptime_col]][1])
         } else {
-          path.frame[i, bin_pseudotime_colname] <- as.numeric(matching_bins[[bin_pseudotime_colname]])
+          path.frame[i, bin_ptime_col] <- as.numeric(matching_bins[[bin_ptime_col]])
         }
       }
     }
 
     # Convert result to a data frame
     processed.path.frame <- as.data.frame(path.frame)
-    processed.path.frame <- processed.path.frame[!is.na(processed.path.frame[[bin_pseudotime_colname]]), , drop = FALSE]
+    processed.path.frame <- processed.path.frame[!is.na(processed.path.frame[[bin_ptime_col]]), , drop = FALSE]
 
     # print(paste("processed.path.frame <- as.data.frame(path.frame)", path))
 
@@ -414,11 +414,11 @@ sc.squeeze <- function(scmpObject,
       ref_time <- c(1:nrow(binned.path.frame))
 
       # Align with the binned Pseudotime
-      binned.pseudotime <- binned.path.frame[[bin_pseudotime_colname]]
+      binned.pseudotime <- binned.path.frame[[bin_ptime_col]]
 
       # Check
       if (!all(ref_time == binned.pseudotime)) {
-        binned.path.frame[[bin_pseudotime_colname]] <- ref_time
+        binned.path.frame[[bin_ptime_col]] <- ref_time
         tmp.bin.name <- paste0(path, "_bin_", ref_time)
         binned.path.frame[[bin_colname]] <- tmp.bin.name
         rownames(binned.path.frame) <- tmp.bin.name
@@ -437,7 +437,7 @@ sc.squeeze <- function(scmpObject,
     # Find the maximum 'scmp_binned_pseudotime' for each 'Path'
     pB.frame_tmp <- pB.frame %>%
       group_by(!!sym(path_colname)) %>%
-      summarize(max_time = max(!!sym(bin_pseudotime_colname))) %>%
+      summarize(max_time = max(!!sym(bin_ptime_col))) %>%
       ungroup()
 
     # Find the minimum of the max 'scmp_binned_pseudotime' across all 'Path'
@@ -445,18 +445,18 @@ sc.squeeze <- function(scmpObject,
 
     # Identify rows to be removed
     rows_to_remove <- pB.frame %>%
-      filter(!!sym(bin_pseudotime_colname) > min_max_time)
+      filter(!!sym(bin_ptime_col) > min_max_time)
 
     # Print a message about the rows that will be removed
     if (verbose) {
       if (nrow(rows_to_remove) > 0) {
-        message(paste("Dropped trailing bin", rows_to_remove[[bin_pseudotime_colname]], "from", rows_to_remove[[path_colname]]))
+        message(paste("Dropped trailing bin", rows_to_remove[[bin_ptime_col]], "from", rows_to_remove[[path_colname]]))
       }
     }
 
     # Filter out rows where 'scmp_binned_pseudotime' is greater than 'min_max_time'
     pB.frame <- pB.frame %>%
-      filter(!!sym(bin_pseudotime_colname) <= min_max_time)
+      filter(!!sym(bin_ptime_col) <= min_max_time)
 
     processed_binned_cell_metadata <- pB.frame
   }
@@ -478,7 +478,7 @@ sc.squeeze <- function(scmpObject,
   scmpObject@param@pseudotime_colname <- pseudotime_colname
   scmpObject@param@path_colname <- path_colname
   scmpObject@param@bin_method <- bin_method
-  scmpObject@param@bin_pseudotime_colname <- bin_pseudotime_colname
+  scmpObject@param@bin_ptime_col <- bin_ptime_col
   scmpObject@param@bin_colname <- bin_colname
   scmpObject@param@bin_members_colname <- bin_members_colname
   scmpObject@param@bin_size_colname <- bin_size_colname

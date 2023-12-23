@@ -7,16 +7,16 @@
 sc.set.poly(
   scmpObject,
   poly_degree = 2,
-  bin_pseudotime_colname = scmpObject@param@bin_pseudotime_colname,
+  bin_ptime_col = scmpObject@param@bin_ptime_col,
   path_colname = scmpObject@param@path_colname
 )
 }
 \arguments{
-\item{scmpObject}{A 'scmp' object.}
+\item{scmpObject}{A 'ScMaSigPro' object.}
 
 \item{poly_degree}{Degree of the design matrix (default: 2).}
 
-\item{bin_pseudotime_colname}{Name of the time column.}
+\item{bin_ptime_col}{Name of the time column.}
 
 \item{path_colname}{Name of the path column.}
 }

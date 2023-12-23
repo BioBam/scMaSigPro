@@ -14,7 +14,7 @@ sc.squeeze(
   bin_members_colname = "scmp_bin_members",
   bin_colname = "scmp_bin",
   bin_size_colname = "scmp_bin_size",
-  bin_pseudotime_colname = "scmp_binned_pseudotime",
+  bin_ptime_col = "scmp_binned_pseudotime",
   split_bins = FALSE,
   prune_bins = FALSE,
   assay_name = "counts",
@@ -25,7 +25,7 @@ sc.squeeze(
 )
 }
 \arguments{
-\item{scmpObject}{object of Class scMaSigPro. See \code{\link{scmp}}
+\item{scmpObject}{object of Class scMaSigPro. See \code{\link{ScMaSigPro}}
 for more details.}
 
 \item{pseudotime_colname}{Name of the column in `cell.metadata` storing
@@ -53,7 +53,7 @@ per path iteratively. Options: "universal", "individual. (Default = "universal")
 
 \item{bin_size_colname}{Setting the name of the bin size column.}
 
-\item{bin_pseudotime_colname}{Name of the column to store the computed Pseudotime
+\item{bin_ptime_col}{Name of the column to store the computed Pseudotime
 bins.}
 
 \item{split_bins}{If bin sizes are greater than}

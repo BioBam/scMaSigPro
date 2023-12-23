@@ -20,7 +20,7 @@
 #' the of `annotation_col`. This will show the count of annotations for each of
 #' the principal points. (Default is TRUE)
 #'
-#' @return A `scmp` object, subsetted based on the specified paths.
+#' @return A `ScMaSigPro` object, subsetted based on the specified paths.
 #'
 #' @importFrom igraph get.data.frame
 #' @importFrom SingleCellExperiment reducedDims

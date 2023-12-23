@@ -46,7 +46,7 @@ If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = 
 \item{max_it}{Integer giving the maximal number of IWLS iterations.}
 }
 \value{
-scmp object
+ScMaSigPro object
 }
 \description{
 \code{sc.p.vector} performs a regression fit for each gene taking all variables

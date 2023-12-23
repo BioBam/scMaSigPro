@@ -1,23 +1,23 @@
-#' Get or set the sparse column data of a scmp object
-#' @param object An object of class `scmp`.
+#' Get or set the sparse column data of a ScMaSigPro object
+#' @param object An object of class `ScMaSigPro`.
 #' @param value The new value for the `colData` slot to set. Optional for getting.
-#' @return `colData` when getting, modified `scmp` object when setting.
+#' @return `colData` when getting, modified `ScMaSigPro` object when setting.
 #' @export
 setGeneric("cSparse", function(object, value = "missing") standardGeneric("cSparse"))
 
 #' Replacement method for cSparse
-#' @param object An object of class `scmp`.
+#' @param object An object of class `ScMaSigPro`.
 #' @param value The new value for the `colData` slot.
-#' @return Modified `scmp` object.
+#' @return Modified `ScMaSigPro` object.
 #' @export
 setGeneric("cSparse<-", function(object, value) standardGeneric("cSparse<-"))
 
-#' Set or get the Sparse Column Data of an scmp Object
-#' @param object An object of class `scmp`.
+#' Set or get the Sparse Column Data of an ScMaSigPro Object
+#' @param object An object of class `ScMaSigPro`.
 #' @param value The new value for the `colData` slot. Optional for getting.
-#' @return `colData` when getting, modified `scmp` object when setting.
+#' @return `colData` when getting, modified `ScMaSigPro` object when setting.
 #' @export
-setMethod("cSparse", "scmp", function(object, value) {
+setMethod("cSparse", "ScMaSigPro", function(object, value) {
   if (identical(value, "missing")) {
     return(as.data.frame(object@sparse@colData)) # Getter
   } else {
@@ -27,35 +27,35 @@ setMethod("cSparse", "scmp", function(object, value) {
 })
 
 #' Replacement method for cSparse
-#' @param object An object of class `scmp`.
+#' @param object An object of class `ScMaSigPro`.
 #' @param value The new value for the `colData` slot.
-#' @return Modified `scmp` object.
+#' @return Modified `ScMaSigPro` object.
 #' @export
-setReplaceMethod("cSparse", "scmp", function(object, value) {
+setReplaceMethod("cSparse", "ScMaSigPro", function(object, value) {
   object@sparse@colData <- DataFrame(value)
   return(object)
 })
 ###############################################################################
-#' Get or set the sparse column data of a scmp object
-#' @param object An object of class `scmp`.
+#' Get or set the sparse column data of a ScMaSigPro object
+#' @param object An object of class `ScMaSigPro`.
 #' @param value The new value for the `colData` slot to set. Optional for getting.
-#' @return `colData` when getting, modified `scmp` object when setting.
+#' @return `colData` when getting, modified `ScMaSigPro` object when setting.
 #' @export
 setGeneric("cDense", function(object, value = "missing") standardGeneric("cDense"))
 
 #' Replacement method for cSparse
-#' @param object An object of class `scmp`.
+#' @param object An object of class `ScMaSigPro`.
 #' @param value The new value for the `colData` slot.
-#' @return Modified `scmp` object.
+#' @return Modified `ScMaSigPro` object.
 #' @export
 setGeneric("cDense<-", function(object, value) standardGeneric("cDense<-"))
 
-#' Set or get the Sparse Column Data of an scmp Object
-#' @param object An object of class `scmp`.
+#' Set or get the Sparse Column Data of an ScMaSigPro Object
+#' @param object An object of class `ScMaSigPro`.
 #' @param value The new value for the `colData` slot. Optional for getting.
-#' @return `colData` when getting, modified `scmp` object when setting.
+#' @return `colData` when getting, modified `ScMaSigPro` object when setting.
 #' @export
-setMethod("cDense", "scmp", function(object, value) {
+setMethod("cDense", "ScMaSigPro", function(object, value) {
   if (identical(value, "missing")) {
     return(as.data.frame(object@dense@colData)) # Getter
   } else {
@@ -65,11 +65,11 @@ setMethod("cDense", "scmp", function(object, value) {
 })
 
 #' Replacement method for cSparse
-#' @param object An object of class `scmp`.
+#' @param object An object of class `ScMaSigPro`.
 #' @param value The new value for the `colData` slot.
-#' @return Modified `scmp` object.
+#' @return Modified `ScMaSigPro` object.
 #' @export
-setReplaceMethod("cDense", "scmp", function(object, value) {
+setReplaceMethod("cDense", "ScMaSigPro", function(object, value) {
   object@dense@colData <- DataFrame(value)
   return(object)
 })
@@ -99,18 +99,18 @@ setGeneric("eSparse<-", function(object, i, value) standardGeneric("eSparse<-"))
 #' @export
 setGeneric("eSparse", function(object, value = "missing") standardGeneric("eSparse"))
 
-#' Get eSparse value for scmp objects
+#' Get eSparse value for ScMaSigPro objects
 #'
 #' @description
-#' Method to get the eSparse value from scmp class objects.
+#' Method to get the eSparse value from ScMaSigPro class objects.
 #'
-#' @param object The scmp object.
+#' @param object The ScMaSigPro object.
 #' @param value Dummy parameter, not used.
-#' @return The eSparse value from the scmp object.
+#' @return The eSparse value from the ScMaSigPro object.
 #'
 #' @importFrom SummarizedExperiment assay
 #' @export
-setMethod("eSparse", "scmp", function(object, value = "missing") {
+setMethod("eSparse", "ScMaSigPro", function(object, value = "missing") {
   if (identical(value, "missing")) {
     return(assay(object@sparse)) # Getter: Replace 'assay' with the appropriate getter function for your object
   } else {
@@ -118,18 +118,18 @@ setMethod("eSparse", "scmp", function(object, value = "missing") {
   }
 })
 
-#' Set eSparse value for scmp objects (Not Implemented)
+#' Set eSparse value for ScMaSigPro objects (Not Implemented)
 #'
 #' @description
-#' Method to set the eSparse value for scmp class objects.
+#' Method to set the eSparse value for ScMaSigPro class objects.
 #' This method is currently not implemented.
 #'
-#' @param object The scmp object.
+#' @param object The ScMaSigPro object.
 #' @param value The value to set.
 #' @param i object name
 #' @return None
 #' @export
-setMethod("eSparse<-", "scmp", function(object, i, value) {
+setMethod("eSparse<-", "ScMaSigPro", function(object, i, value) {
   assay(object@sparse, i) <- value
   return(invisible(object))
 })
@@ -159,18 +159,18 @@ setGeneric("eDense<-", function(object, i, value) standardGeneric("eDense<-"))
 #' @export
 setGeneric("eDense", function(object, value = "missing") standardGeneric("eDense"))
 
-#' Get eDense value for scmp objects
+#' Get eDense value for ScMaSigPro objects
 #'
 #' @description
-#' Method to get the eDense value from scmp class objects.
+#' Method to get the eDense value from ScMaSigPro class objects.
 #'
-#' @param object The scmp object.
+#' @param object The ScMaSigPro object.
 #' @param value Dummy parameter, not used.
-#' @return The eDense value from the scmp object.
+#' @return The eDense value from the ScMaSigPro object.
 #'
 #' @importFrom SummarizedExperiment assay `assay<-`
 #' @export
-setMethod("eDense", "scmp", function(object, value = "missing") {
+setMethod("eDense", "ScMaSigPro", function(object, value = "missing") {
   if (identical(value, "missing")) {
     return(assay(object@dense)) # Getter: Replace 'assay' with the appropriate getter function for your object
   } else {
@@ -178,42 +178,42 @@ setMethod("eDense", "scmp", function(object, value = "missing") {
   }
 })
 
-#' Set eDense value for scmp objects (Not Implemented)
+#' Set eDense value for ScMaSigPro objects (Not Implemented)
 #'
 #' @description
-#' Method to set the eDense value for scmp class objects.
+#' Method to set the eDense value for ScMaSigPro class objects.
 #' This method is currently not implemented.
 #'
-#' @param object The scmp object.
+#' @param object The ScMaSigPro object.
 #' @param value The value to set.
 #' @param i object name
 #' @return None
 #' @export
-setMethod("eDense<-", "scmp", function(object, i, value) {
+setMethod("eDense<-", "ScMaSigPro", function(object, i, value) {
   assay(object@dense, i) <- value
   return(invisible(object))
 })
 ##############################################################################
 #' Get or set the branch allocation matrix
-#' @param object An object of class `scmp`.
+#' @param object An object of class `ScMaSigPro`.
 #' @param value The new value for the `colData` slot to set. Optional for getting.
-#' @return `colData` when getting, modified `scmp` object when setting.
+#' @return `colData` when getting, modified `ScMaSigPro` object when setting.
 #' @export
 setGeneric("bAlloc", function(object, value = "missing") standardGeneric("bAlloc"))
 
 #' Replacement method for bAlloc
-#' @param object An object of class `scmp`.
+#' @param object An object of class `ScMaSigPro`.
 #' @param value The new value for the `colData` slot.
-#' @return Modified `scmp` object.
+#' @return Modified `ScMaSigPro` object.
 #' @export
 setGeneric("bAlloc<-", function(object, value) standardGeneric("bAlloc<-"))
 
-#' Set or get the Sparse Column Data of an scmp Object
-#' @param object An object of class `scmp`.
+#' Set or get the Sparse Column Data of an ScMaSigPro Object
+#' @param object An object of class `ScMaSigPro`.
 #' @param value The new value for the `colData` slot. Optional for getting.
-#' @return `colData` when getting, modified `scmp` object when setting.
+#' @return `colData` when getting, modified `ScMaSigPro` object when setting.
 #' @export
-setMethod("bAlloc", "scmp", function(object, value) {
+setMethod("bAlloc", "ScMaSigPro", function(object, value) {
   if (identical(value, "missing")) {
     return(object@design@alloc) # Getter
   } else {
@@ -223,38 +223,38 @@ setMethod("bAlloc", "scmp", function(object, value) {
 })
 
 #' Replacement method for bAlloc
-#' @param object An object of class `scmp`.
+#' @param object An object of class `ScMaSigPro`.
 #' @param value The new value for the `colData` slot.
-#' @return Modified `scmp` object.
+#' @return Modified `ScMaSigPro` object.
 #' @export
-setReplaceMethod("bAlloc", "scmp", function(object, value) {
+setReplaceMethod("bAlloc", "ScMaSigPro", function(object, value) {
   object@design@alloc <- as.matrix(value)
   return(object)
 })
 ##############################################################################
 setMethod(
   "show",
-  "scmp",
+  "ScMaSigPro",
   function(object) {
-    .scmp_show(object)
+    .ScMaSigPro_show(object)
   }
 )
 ###############################################################################
 # Constructor
-scmp <- function(sparse = new("SingleCellExperiment"),
-                 profile = new("sigProfileClass"),
-                 estimate = new("estimateClass"),
-                 dense = new("SingleCellExperiment"),
-                 design = new("designClass"),
-                 param = new("paramClass"),
-                 sig.genes = new("sigClass")) {
-  new("scmp",
+ScMaSigPro <- function(sparse = new("SingleCellExperiment"),
+                       profile = new("VariableProfiles"),
+                       estimate = new("Estimates"),
+                       dense = new("SingleCellExperiment"),
+                       design = new("MatrixDesign"),
+                       param = new("ParameterConfig"),
+                       sig.genes = new("Significant")) {
+  new("ScMaSigPro",
     sparse = sparse,
     profile = profile,
     estimate = estimate,
     dense = dense,
     design = design,
-    paramClass = param,
-    sig.genes = sig.genes # new("sigClass"),
+    ParameterConfig = param,
+    sig.genes = sig.genes # new("Significant"),
   )
 }

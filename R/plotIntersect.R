@@ -1,6 +1,6 @@
 #' @title Generate UpSet Plot on Intersection of Significant Genes from scmpObject
 #'
-#' @param scmpObj An object of class scmp
+#' @param scmpObj An object of class ScMaSigPro
 #' @param min_intersection_size minimal number of observations in an intersection
 #' for it to be included.
 #' @param width_ratio ratio of the overall set size width to intersection matrix
@@ -22,8 +22,8 @@ plotIntersect <- function(scmpObj, min_intersection_size = 2,
                           width_ratio = 0.1, show_sets_size = FALSE) {
   # Check the data
   assert_that(
-    is(scmpObj, "scmp"),
-    msg = "Please supply an object of the class 'scMaSigPro'"
+    is(scmpObj, "ScMaSigPro"),
+    msg = "Please supply an object of the class 'ScMaSigPro'"
   )
 
   # Check if siggenes results exist for groups

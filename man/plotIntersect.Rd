@@ -13,7 +13,7 @@ plotIntersect(
 )
 }
 \arguments{
-\item{scmpObj}{An object of class scmp}
+\item{scmpObj}{An object of class ScMaSigPro}
 
 \item{min_intersection_size}{minimal number of observations in an intersection
 for it to be included.}

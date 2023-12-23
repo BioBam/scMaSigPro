@@ -49,7 +49,7 @@ annotations. (Default is "cell_type").}
 \item{additional_params}{A named list of additional parameters. See details.}
 }
 \value{
-An instance of the 'scmpClass'.
+An instance of the 'ScMaSigProClass'.
 }
 \description{
 `as.scmp()` converts a cds/CellDataSet object from Monocle3 or a SingleCellExperiment

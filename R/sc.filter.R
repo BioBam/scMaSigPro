@@ -4,7 +4,7 @@
 #' `sc.filter()` creates lists of significant genes for a set of variables
 #' whose significance value has been computed with the \code{sc.t.fit} function.
 #'
-#' @param scmpObj Object of Class \code{\link{scmp}} in which the
+#' @param scmpObj Object of Class \code{\link{ScMaSigPro}} in which the
 #' \code{sc.t.fit} has been run.
 #' @param rsq Cut-off level at the R-squared value for the stepwise regression fit.
 #' @param includeInflu description
@@ -59,8 +59,8 @@ sc.filter <- function(scmpObj,
                       term.Q = 0.05,
                       includeInflu = TRUE) {
   # Check Validity of the object
-  assert_that(is(scmpObj, "scmp"),
-    msg = "Please provide object of class 'scmp'"
+  assert_that(is(scmpObj, "ScMaSigPro"),
+    msg = "Please provide object of class 'ScMaSigPro'"
   )
 
   assert_that(
@@ -163,13 +163,13 @@ sc.filter <- function(scmpObj,
   # )
 
   # Create Object
-  # siggenes.object <- new("sigClass",
+  # siggenes.object <- new("Significant",
   #   summary = sig.genes.s3$summary,
   #   sig.genes = sig.genes.s3$sig.genes
   # )
 
   # Create Object
-  siggenes.object <- new("sigClass",
+  siggenes.object <- new("Significant",
     sig.genes = sig.list
   )
 

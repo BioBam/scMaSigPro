@@ -1,13 +1,16 @@
-# scmpClass with all the super-classes
-# Description
-
+# ScMaSigProClass with all the super-classes
+# Author: Priyansh Srivastava
+# Date: 2019-05-01
 
 ###############################################################################
-#' Class "paramClass"
+#' @title ParameterConfig
 #'
-#' A Class holding information about the parameters used.
+#' @description
+#' S4 Class to hold parameters used in the analysis. It is constantly updated
+#' asthe analysis progresses.
 #'
-#' @slot bin_pseudotime_colname A character string representing the column name for binned pseudotime values.
+#' @slot bin_ptime_col A character string representing the column name
+#' for binned pseudotime values in dense data.
 #' @slot path_prefix A character string representing the prefix for path labeling.
 #' @slot root_label A character string representing the label for the tree root.
 #' @slot pseudotime_colname A character string representing the column name for pseudotime values.
@@ -33,16 +36,16 @@
 #' @slot cluster.fill.na description
 #' specifies a linear regression, 2 a quadratic regression, etc.
 #'
-#' @name paramClass
-#' @aliases paramClass-class
-#' @rdname paramClass-class
+#' @name ParameterConfig
+#' @aliases ParameterConfig-class
+#' @rdname ParameterConfig-class
 #' @importFrom methods is new
 #' @keywords classes
 
 setClass(
-  "paramClass",
+  "ParameterConfig",
   representation(
-    bin_pseudotime_colname = "character",
+    bin_ptime_col = "character",
     path_prefix = "character",
     root_label = "character",
     pseudotime_colname = "character",
@@ -72,7 +75,7 @@ setClass(
 
     # Check if any character slots are empty or not of type character
     char_slots <- c(
-      "bin_pseudotime_colname", "path_prefix", "root_label",
+      "bin_ptime_col", "path_prefix", "root_label",
       "pseudotime_colname", "bin_method",
       "path_colname", "bin_colname", "bin_size_colname",
       "bin_members_colname", "MT.adjust", "step.method",
@@ -118,7 +121,7 @@ setClass(
     if (length(errors) == 0) TRUE else errors
   },
   prototype = list(
-    bin_pseudotime_colname = "scmp_binned_pseudotime",
+    bin_ptime_col = "scmp_binned_pseudotime",
     path_prefix = "Path",
     root_label = "root",
     pseudotime_colname = "Pseudotime",
@@ -146,22 +149,23 @@ setClass(
 )
 
 ###############################################################################
-#' Class "designClass"
+#' @title MatrixDesign
 #'
-#' An S4 class to represent an design object with associated data.
-#' This class contains three slots: predictor, groups.vector, and alloc.
+#' @description
+#' S4 class to store Branching Path Assignments and Prediction Matrix
 #'
-#' @slot predictor A data frame containing the design matrix of dummies for fitting the GLM.
+#' @slot predictor A data frame containing the design matrix for the experiment.
 #' @slot groups.vector A character vector specifying the experimental group to which
-#' each variable belongs to.
-#' @slot alloc A data frame describing the experimental design. Rows must contain
+#' each variable belongs.
+#' @slot alloc A data frame describing the detailed experimental design. Rows must contain
 #' cells and columns experiment descriptors. The matrix must be binarized.
 #'
-#' @name designClass
-#' @aliases designClass-class
-#' @rdname designClass-class
+#' @name MatrixDesign
+#' @aliases MatrixDesign-class
+#' @rdname MatrixDesign-class
 #' @importFrom methods is new
 #' @keywords classes
+
 #'
 #' @section Validity:
 #'   Valid objects must have:
@@ -173,7 +177,7 @@ setClass(
 #'
 
 setClass(
-  "designClass",
+  "MatrixDesign",
   representation(
     predictor = "matrix",
     groups.vector = "character",
@@ -198,31 +202,29 @@ setClass(
   }
 )
 ###############################################################################
-#' A class to store regression fit results for time series gene expression experiments
+#' @title VariableProfiles
 #'
-#' The sigProfileClass is designed to hold the results of a regression fit for each gene in a time series gene expression experiment.
-#' It contains slots to store various results, such as expression values for significant genes, computed p-values, adjusted p-values,
-#' number of input genes, number of genes taken in the regression fit, and more. This class is useful for analyzing time course
-#' microarray experiments and identifying significant differential expression profiles.
+#' @description
+#' S4 class to store results of the global model fitting for all the features.
 #'
 #' @slot non.flat a charcter vector
 #' @slot p.vector Numeric vector containing the computed p-values.
 #' @slot p.adjusted Numeric vector of FDR-adjusted p-values.
 #' @slot FDR P-value at FDR \code{Q} control when Benjamini & Hochberg (BH) correction is used.
 #'
-#' @name sigProfileClass
-#' @aliases sigProfileClass-class
-#' @rdname sigProfileClass-class
-#' @keywords classes regression
-#'
-#' @author Priyansh Srivastava <spriyansh29@gmail.com>
+#' @name VariableProfiles
+#' @aliases VariableProfiles-class
+#' @rdname VariableProfiles-class
+#' @keywords classes
+
+#' @author Priyansh Srivastava <spriyansh29@@gmail.com>
 #' @seealso \code{\link{T.fit}}, \code{\link{lm}}
 #' @importFrom stats family gaussian poisson
 #' @importFrom utils data combn
 #' @importFrom MASS negative.binomial
 
-# Define the sigProfileClass with the following slots:
-setClass("sigProfileClass",
+# Define the VariableProfiles with the following slots:
+setClass("VariableProfiles",
   slots = c(
     non.flat = "character", # Matrix containing the expression values for significant genes
     p.vector = "numeric", # Matrix containing the computed p-values
@@ -260,9 +262,10 @@ setClass("sigProfileClass",
   )
 )
 ###############################################################################
-#' @title Class "estimateClass"
+#' @title Estimates
 #'
-#' @description A class for fitting a model.
+#' @description
+#' S4 class to store results of the polynomial term selection from full model.
 #'
 #' @slot sol A data frame for summary results of the stepwise regression.
 #' For each selected gene the following values are given:
@@ -277,15 +280,13 @@ setClass("sigProfileClass",
 #' @slot path A character vector containing the branching path.
 #' @slot influ.info A matrix with genes containing influencial data.
 #'
-#' @name estimateClass
-#' @aliases estimate-class
-#' @rdname estimate-class
+#' @name Estimates
+#' @aliases Estimates-class
+#' @rdname Estimates-class
 #' @importFrom methods is new
 #' @keywords classes
-
-
 setClass(
-  "estimateClass",
+  "Estimates",
   representation(
     sol = "data.frame",
     coefficients = "data.frame",
@@ -324,19 +325,21 @@ setClass(
   )
 )
 ###############################################################################
-#' sigClass
+#' @title Significant
 #'
+#' @description
+#' S4 class to store significantly selected results features and their clusters.
 #'
 #' @slot sig.genes list
 #' @slot feature.clusters list
 #'
-#' @name sigClass
-#' @aliases sigClass-class
-#' @rdname sigClass-class
+#' @name Significant
+#' @aliases Significant-class
+#' @rdname Significant-class
 #' @importFrom methods is new as
 #' @keywords classes
 setClass(
-  "sigClass",
+  "Significant",
   representation(
     sig.genes = "list",
     feature.clusters = "list"
@@ -352,36 +355,37 @@ setClass(
   )
 )
 ###############################################################################
-#' scmp
+#' @title ScMaSigPro
 #'
-#' A class to represent the ScMaSigPro analysis results and associated data.
-#' Inherits from \code{SingleCellExperiment}.
+#' @description
+#' S4 class to store analysis of ScMaSigPro worflow. It stores results,
+#' parameters and associated data. Inherits slots from \code{SingleCellExperiment}.
 #'
 #' @slot sparse Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.
-#' @slot profile Object of Class sigProfileClass See \pkg{sigProfileClass} for more details.
-#' @slot estimate Object of Class estimateClass See \code{\link{estimateClass}} for more details.
+#' @slot profile Object of Class VariableProfiles See \pkg{VariableProfiles} for more details.
+#' @slot estimate Object of Class Estimates See \code{\link{Estimates}} for more details.
 #' @slot dense  Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.
-#' @slot design Object of Class designClass. See \code{\link{designClass}} for more details.
-#' @slot param Object of Class paramClass. See \code{\link{paramClass}} for more details.
+#' @slot design Object of Class MatrixDesign. See \code{\link{MatrixDesign}} for more details.
+#' @slot param Object of Class ParameterConfig. See \code{\link{ParameterConfig}} for more details.
 #' @slot sig.genes ABC
 #'
-#' @name scmp
-#' @aliases scmp-class
-#' @rdname scmp-class
-#' @exportClass scmp
+#' @name ScMaSigPro
+#' @aliases ScMaSigPro-class
+#' @rdname ScMaSigPro-class
+#' @exportClass ScMaSigPro
 #' @importFrom methods is new as
 #' @keywords classes
 
 setClass(
-  "scmp",
+  "ScMaSigPro",
   representation(
     sparse = "SingleCellExperiment",
-    profile = "sigProfileClass",
-    estimate = "estimateClass",
+    profile = "VariableProfiles",
+    estimate = "Estimates",
     dense = "SingleCellExperiment",
-    design = "designClass",
-    param = "paramClass",
-    sig.genes = "sigClass"
+    design = "MatrixDesign",
+    param = "ParameterConfig",
+    sig.genes = "Significant"
   ),
   validity = function(object) {
     # Check sparse slot
@@ -389,14 +393,14 @@ setClass(
       stop("sparse slot is not a valid SingleCellExperiment object.")
     }
 
-    # Check sigProfileClass slot
+    # Check VariableProfiles slot
     if (!validObject(object@profile)) {
-      stop("profile slot is not a valid sigProfileClass object.")
+      stop("profile slot is not a valid VariableProfiles object.")
     }
 
-    # Check estimateClass slot
+    # Check Estimates slot
     if (!validObject(object@estimate)) {
-      stop("estimateClass slot is not a valid estimateClass object.")
+      stop("Estimates slot is not a valid Estimates object.")
     }
 
     # Check dense slot
@@ -404,24 +408,24 @@ setClass(
       stop("dense slot is not a valid SingleCellExperiment object.")
     }
 
-    # Check designClass slot
+    # Check MatrixDesign slot
     if (!validObject(object@design)) {
-      stop("design slot is not a valid designClass object.")
+      stop("design slot is not a valid MatrixDesign object.")
     }
 
-    # Check paramClass slot
+    # Check ParameterConfig slot
     if (!validObject(object@param)) {
-      stop("param slot is not a valid paramClass object.")
+      stop("param slot is not a valid ParameterConfig object.")
     }
-    # Check paramClass slot
+    # Check ParameterConfig slot
     if (!validObject(object@param)) {
-      stop("'sig.genes' slot is not a valid paramClass object.")
+      stop("'sig.genes' slot is not a valid ParameterConfig object.")
     }
   },
   prototype = list(
-    profile = new("sigProfileClass"), # Assuming you've defined sigProfileClass with its prototype
-    estimate = new("estimateClass"), # Assuming you've defined estimateClass with its prototype
-    param = new("paramClass"), # Assuming you've defined estimateClass with its prototype
-    sig.genes = new("sigClass")
+    profile = new("VariableProfiles"), # Assuming you've defined VariableProfiles with its prototype
+    estimate = new("Estimates"), # Assuming you've defined Estimates with its prototype
+    param = new("ParameterConfig"), # Assuming you've defined Estimates with its prototype
+    sig.genes = new("Significant")
   )
 )

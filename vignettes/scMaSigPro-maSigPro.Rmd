@@ -385,10 +385,11 @@ scmp.ob <- sc.cluster.trend(scmp.ob,
 ```
 
 ### Plot cluster Trends 
-```{r, "Plot Clustered Trends"}
-gene.cluster.df <- plotTrendCluster(
+```{r, "Plot Clustered Trends", fig.width=8, fig.height=8}
+plotTrendCluster(
   scmpObj = scmp.ob,
-  plot = "coeff"
+  plot = "coeff",
+  verbose = FALSE
 )
 ```
 

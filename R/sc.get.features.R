@@ -46,8 +46,8 @@ sc.get.features <- function(scmpObj,
                             union.ref.trend = "any",
                             union.target.trend = "any") {
   # Check Validity of the object
-  assert_that(is(scmpObj, "scmp"),
-    msg = "Please provide object of class 'scmp'"
+  assert_that(is(scmpObj, "ScMaSigPro"),
+    msg = "Please provide object of class 'ScMaSigPro'"
   )
 
   # Check

@@ -7,12 +7,12 @@
 cSparse(object) <- value
 }
 \arguments{
-\item{object}{An object of class `scmp`.}
+\item{object}{An object of class `ScMaSigPro`.}
 
 \item{value}{The new value for the `colData` slot.}
 }
 \value{
-Modified `scmp` object.
+Modified `ScMaSigPro` object.
 }
 \description{
 Replacement method for cSparse
