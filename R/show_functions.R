@@ -34,12 +34,12 @@ showCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE)
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@estimate@sol) == c(0, 0)),
-    msg = "Coeff is not computed yet"
+  assert_that(!all(dim(scmpObj@estimate@coefficient_matrix) == c(0, 0)),
+    msg = "'coefficient_matrix' is not computed yet"
   )
 
   # Extract
-  coefficients <- scmpObj@estimate@coefficients %>% as.data.frame()
+  coefficients <- scmpObj@estimate@coefficient_matrix %>% as.data.frame()
 
   if (!includeInflu) {
     influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
@@ -78,12 +78,12 @@ showInflu <- function(scmpObj, view = FALSE, return = TRUE) {
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@estimate@influ.info) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@estimate@influential) == c(0, 0)),
     msg = "tscore is not computed yet"
   )
 
   # Extract
-  influ <- scmpObj@estimate@influ.info
+  influ <- scmpObj@estimate@influential
 
   # If viewing is requested
   if (view) {
@@ -118,12 +118,12 @@ showTS <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@estimate@t.score) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@estimate@t_score_matrix) == c(0, 0)),
     msg = "tscore is not computed yet"
   )
 
   # Extract
-  tscore <- scmpObj@estimate@t.score
+  tscore <- scmpObj@estimate@t_score_matrix
 
   if (!includeInflu) {
     influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
@@ -163,12 +163,12 @@ showSol <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@estimate@sol) == c(0, 0)),
-    msg = "Sol is not computed yet"
+  assert_that(!all(dim(scmpObj@estimate@significance_matrix) == c(0, 0)),
+    msg = "'significance_matrix' is not computed yet"
   )
 
   # Extract
-  sol <- scmpObj@estimate@sol %>% as.data.frame()
+  sol <- scmpObj@estimate@significance_matrix %>% as.data.frame()
 
   if (!includeInflu) {
     influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
@@ -207,7 +207,7 @@ showSigProf <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FAL
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@estimate@sol) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@estimate@significance_matrix) == c(0, 0)),
     msg = "Sol is not computed yet"
   )
 
@@ -250,12 +250,12 @@ showPoly <- function(scmpObj) {
   )
 
   # Check if the sol exist
-  assert_that(all(!is.na(colnames(scmpObj@design@predictor)) | length(colnames(scmpObj@design@predictor) > 1)),
+  assert_that(all(!is.na(colnames(scmpObj@design@predictor_matrix)) | length(colnames(scmpObj@design@predictor_matrix) > 1)),
     msg = "Please setup the model first, using 'sc.make.design.matrix()'"
   )
 
   # Extract columns
-  df.col <- colnames(scmpObj@design@predictor)
+  df.col <- colnames(scmpObj@design@predictor_matrix)
 
   # Extract betas
   beta_names <- paste0("beta", seq(1:length(df.col)))
@@ -356,12 +356,12 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@estimate@group.coeffs) == c(0, 0)),
-    msg = "group.coeffs is not computed yet"
+  assert_that(!all(dim(scmpObj@estimate@path_coefficient_matrix) == c(0, 0)),
+    msg = "path_coefficient_matrix is not computed yet"
   )
 
   # Extract
-  grpCoeff <- scmpObj@estimate@group.coeffs %>% as.data.frame()
+  grpCoeff <- scmpObj@estimate@path_coefficient_matrix %>% as.data.frame()
 
   if (!includeInflu) {
     influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
@@ -418,15 +418,15 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
   }
 
   # Influential Genes if any
-  if (length(colnames(object@design@predictor)) > 0) {
+  if (length(colnames(object@design@predictor_matrix)) > 0) {
     cat(paste("\nPolynomial Order:", object@param@poly_degree))
   }
 
   # Calculate Dynamic Information
-  if (length(object@profile@p.adjusted) > 0) {
+  if (length(object@profile@adj_p_values) > 0) {
     sig.level <- object@param@Q
-    nSigs <- length(object@profile@p.adjusted[object@profile@p.adjusted <= sig.level])
-    if (all(object@profile@p.adjusted > sig.level)) {
+    nSigs <- length(object@profile@adj_p_values[object@profile@adj_p_values <= sig.level])
+    if (all(object@profile@adj_p_values > sig.level)) {
       cat("\nSig. Profiles (P-vector): None found")
     } else {
       cat(paste("\nSig. Models (sc.p.vector):", nSigs, sep = " "))
@@ -434,8 +434,8 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
   }
 
   # Influential Genes if any
-  if (ncol(object@estimate@influ.info) > 0) {
-    cat(paste("\nNo. of Influential Features:", ncol(object@estimate@influ.info)))
+  if (ncol(object@estimate@influential) > 0) {
+    cat(paste("\nNo. of Influential Features:", ncol(object@estimate@influential)))
   }
 }
 

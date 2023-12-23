@@ -215,9 +215,9 @@ setGeneric("bAlloc<-", function(object, value) standardGeneric("bAlloc<-"))
 #' @export
 setMethod("bAlloc", "ScMaSigPro", function(object, value) {
   if (identical(value, "missing")) {
-    return(object@design@alloc) # Getter
+    return(object@design@assignment_matrix) # Getter
   } else {
-    object@design@alloc <- as.matrix(value) # Setter
+    object@design@assignment_matrix <- as.matrix(value) # Setter
     return(invisible(object))
   }
 })
@@ -228,7 +228,7 @@ setMethod("bAlloc", "ScMaSigPro", function(object, value) {
 #' @return Modified `ScMaSigPro` object.
 #' @export
 setReplaceMethod("bAlloc", "ScMaSigPro", function(object, value) {
-  object@design@alloc <- as.matrix(value)
+  object@design@assignment_matrix <- as.matrix(value)
   return(object)
 })
 ##############################################################################

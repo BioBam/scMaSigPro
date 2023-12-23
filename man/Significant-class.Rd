@@ -6,7 +6,7 @@
 \alias{Significant-class}
 \title{Significant}
 \description{
-S4 class to store significantly selected results features and their clusters.
+S4 class to store significantly selected features and their clusters.
 }
 \section{Slots}{
 

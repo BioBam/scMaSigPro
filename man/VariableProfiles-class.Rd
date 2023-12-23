@@ -11,18 +11,17 @@ S4 class to store results of the global model fitting for all the features.
 \section{Slots}{
 
 \describe{
-\item{\code{non.flat}}{a charcter vector}
+\item{\code{non_flat}}{A character vector of gene names marked as non-flat profiles.}
 
-\item{\code{p.vector}}{Numeric vector containing the computed p-values.}
+\item{\code{p_values}}{A numeric vector containing the computed p-values for
+non-flat profiles.}
 
-\item{\code{p.adjusted}}{Numeric vector of FDR-adjusted p-values.}
+\item{\code{adj_p_values}}{A numeric vector containing the computed adjusted
+p-values for non-flat profiles.}
 
-\item{\code{FDR}}{P-value at FDR \code{Q} control when Benjamini & Hochberg (BH) correction is used.}
+\item{\code{fdr}}{False Discovery Rate (FDR) value for the given significance level.}
 }}
 
-\seealso{
-\code{\link{T.fit}}, \code{\link{lm}}
-}
 \author{
 Priyansh Srivastava <spriyansh29@gmail.com>
 }

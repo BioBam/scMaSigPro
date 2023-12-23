@@ -11,23 +11,20 @@ S4 class to store results of the polynomial term selection from full model.
 \section{Slots}{
 
 \describe{
-\item{\code{sol}}{A data frame for summary results of the stepwise regression.
-For each selected gene the following values are given:
-  \itemize{
-    \item{p-value}{of the regression ANOVA.}
-    \item{R-squared}{of the model.}
-    \item{p-value}{of the regression coefficients of the selected variables.}
-  }}
+\item{\code{significance_matrix}}{A matrix storing p-values for each gene per
+polynomial term, R2 and global p-values.}
 
-\item{\code{coefficients}}{A data frame containing regression coefficients for the adjusted models.}
+\item{\code{coefficient_matrix}}{A matrix storing beta estimates for each polynomial
+term.}
 
-\item{\code{group.coeffs}}{A matrix with the coefficients of the implicit models of each experimental group.}
+\item{\code{path_coefficient_matrix}}{A matrix with the coefficients of each
+branching path.}
 
-\item{\code{t.score}}{A data frame containing tscores for each covariate in polynomial glm.}
+\item{\code{t_score_matrix}}{A matrix storing the t-scores for each polynomial term.}
 
 \item{\code{path}}{A character vector containing the branching path.}
 
-\item{\code{influ.info}}{A matrix with genes containing influencial data.}
+\item{\code{influential}}{A matrix with genes containing influential data.}
 }}
 
 \keyword{classes}

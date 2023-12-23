@@ -194,7 +194,7 @@ with the analysis.
 ## Creatin of Regression Matrix 
 The function `maSigPro::make.design.matrix()` is used to create a regression matrix
 for fitting the full regression model. In `scMaSigPro`, this task is accomplished
-using `sc.set.poly()`, where the regression matrix is referred to as "predictor".
+using `sc.set.poly()`, where the regression matrix is referred to as "predictor_matrix".
 We will also verify that `scMaSigPro` has correctly performed binarization, as
 specified in `edesign.abiotic`.
 
@@ -210,7 +210,7 @@ scmp.ob <- sc.set.poly(scmp.ob, poly_degree = 2)
 expect_equal(bAlloc(scmp.ob), expected = edesign.abiotic)
 
 # Comparing regression matrices
-expect_identical(scmp.ob@design@predictor, expected = design$dis)
+expect_identical(scmp.ob@design@predictor_matrix, expected = design$dis)
 ```
 
 No errors were thrown, so we can proceed with the analysis.
@@ -244,14 +244,14 @@ results from `sc.p.vector()`:
 ```{r, "testthat pvector"}
 # Compare p-values
 expect_identical(
-  matrix(scmp.ob@profile@p.vector,
-    dimnames = list(names(scmp.ob@profile@p.vector), "p.value")
+  matrix(scmp.ob@profile@p_values,
+    dimnames = list(names(scmp.ob@profile@p_values), "p.value")
   ),
   expected = as.matrix(fit$p.vector[, 1, drop = FALSE])
 )
 
 # Compare adjusted p-values
-pad <- scmp.ob@profile@p.adjusted
+pad <- scmp.ob@profile@adj_p_values
 names(pad) <- NULL
 expect_identical(pad, expected = fit$p.adjusted)
 ```
@@ -283,6 +283,9 @@ expect_identical(showCoeff(scmp.ob), expected = tstep$coefficients)
 
 # Group Coefficients
 expect_identical(showGroupCoeff(scmp.ob), expected = tstep$group.coeffs)
+
+# tscore
+expect_identical(as.data.frame(showTS(scmp.ob)), expected = tstep$t.score)
 ```
 
 ## R-Square Filter with `maSigPro::get.siggenes()`
@@ -293,7 +296,7 @@ This is achieved using the `get.siggenes()` function in `maSigPro` and `sc.filte
 # maSigPro
 sigs <- get.siggenes(tstep, rsq = 0.6, vars = "groups")
 
-# scMASigPro
+# scMaSigPro
 scmp.ob <- sc.filter(scmp.ob, rsq = 0.6, vars = "groups")
 ```
 

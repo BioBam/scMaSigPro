@@ -45,7 +45,7 @@ plotTrend <-
     )
 
     # Extract edisgn
-    alloc.frame <- scmpObj@design@alloc %>% as.data.frame()
+    alloc.frame <- scmpObj@design@assignment_matrix %>% as.data.frame()
 
     # Extract the bulk counts
     bulk.counts <- scmpObj@dense@assays@data@listData$bulk.counts
@@ -70,7 +70,7 @@ plotTrend <-
     # Prepare for Tfit
     rm <- matrix(yy, nrow = 1, ncol = length(yy))
     rownames(rm) <- c("ratio medio")
-    colnames(rm) <- rownames(scmpObj@design@predictor)
+    colnames(rm) <- rownames(scmpObj@design@predictor_matrix)
 
     # Extract the beta
     betas.table <- showCoeff(scmpObj, view = FALSE, return = TRUE)

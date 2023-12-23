@@ -45,16 +45,16 @@ test_that("Check-'design$edesign' Reproducibility", {
   # Poly-order-2
   expect_equal(
     expected = design_2$edesign,
-    object = test.scmp.2@design@alloc
+    object = test.scmp.2@design@assignment_matrix
   )
   # Poly-order-3
   expect_equal(
     expected = design_3$edesign,
-    object = test.scmp.3@design@alloc
+    object = test.scmp.3@design@assignment_matrix
   )
   # Poly-order-4
   expect_equal(
     expected = design_4$edesign,
-    object = test.scmp.4@design@alloc
+    object = test.scmp.4@design@assignment_matrix
   )
 })

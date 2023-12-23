@@ -72,15 +72,15 @@ sc.t.fit <- function(scmpObj,
   )
 
   # Transfer Data
-  dis <- scmpObj@design@predictor
+  dis <- scmpObj@design@predictor_matrix
   Q <- scmpObj@param@Q
   groups.vector <- scmpObj@design@groups.vector
   groups.vector <- c(groups.vector[nchar(groups.vector) == min(nchar(groups.vector))][1], groups.vector)
-  alloc <- scmpObj@design@alloc
+  alloc <- scmpObj@design@assignment_matrix
   G <- scmpObj@param@g
 
   dat.all <- scmpObj@dense@assays@data@listData$bulk.counts
-  dat <- dat.all[scmpObj@profile@non.flat, , drop = F]
+  dat <- dat.all[scmpObj@profile@non_flat, , drop = F]
   dat <- rbind(c(rep(1, ncol(dat))), dat)
   dat <- dat[, as.character(rownames(dis))]
 
@@ -338,12 +338,12 @@ sc.t.fit <- function(scmpObj,
 
   # Create a constructor for the class
   t.fit.object <- new("Estimates",
-    sol = sol,
-    coefficients = coefficients,
-    group.coeffs = group.coeffs,
-    t.score = t.score,
+    significance_matrix = as.matrix(sol),
+    coefficient_matrix = as.matrix(coefficients),
+    path_coefficient_matrix = group.coeffs,
+    t_score_matrix = as.matrix(t.score),
     path = groups.vector,
-    influ.info = influ.info
+    influential = influ.info
   )
 
   # Added Tfit

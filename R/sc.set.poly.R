@@ -1,4 +1,4 @@
-#' Create predictors and set polynomial.  Adaption of maSigPro::make.design.matrix()
+#' @title Create predictors and set polynomial.  Adaption of maSigPro::make.design.matrix()
 #'
 #' @param scmpObject A 'ScMaSigPro' object.
 #' @param poly_degree Degree of the design matrix (default: 2).
@@ -76,9 +76,9 @@ sc.set.poly <- function(scmpObject,
 
   # Create Object
   designObj <- new("MatrixDesign",
-    predictor = as.matrix(designList$dis),
+    predictor_matrix = as.matrix(designList$dis),
     groups.vector = designList$groups.vector,
-    alloc = as.matrix(designList$edesign)
+    assignment_matrix = as.matrix(designList$edesign)
   )
 
   # Update Slot

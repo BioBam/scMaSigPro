@@ -76,16 +76,16 @@ test_that("Check-'fit$p.adjusted'", {
   # Poly-order-2
   expect_identical(
     expected = rownames(fit_2$SELEC),
-    object = test.scmp.2@profile@non.flat
+    object = test.scmp.2@profile@non_flat
   )
   # Poly-order-3
   expect_identical(
     expected = rownames(fit_3$SELEC),
-    object = test.scmp.3@profile@non.flat
+    object = test.scmp.3@profile@non_flat
   )
   # Poly-order-4
   expect_identical(
     expected = rownames(fit_4$SELEC),
-    object = test.scmp.4@profile@non.flat
+    object = test.scmp.4@profile@non_flat
   )
 })

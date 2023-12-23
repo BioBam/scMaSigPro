@@ -11,23 +11,15 @@ S4 class to store Branching Path Assignments and Prediction Matrix
 \section{Slots}{
 
 \describe{
-\item{\code{predictor}}{A data frame containing the design matrix for the experiment.}
+\item{\code{predictor_matrix}}{A matrix containing independent variables for
+model fitting}
 
-\item{\code{groups.vector}}{A character vector specifying the experimental group to which
-each variable belongs.}
+\item{\code{groups.vector}}{A character vector specifying the branching path for each
+term of the polynomial GLM.}
 
-\item{\code{alloc}}{A data frame describing the detailed experimental design. Rows must contain
-cells and columns experiment descriptors. The matrix must be binarized.}
+\item{\code{assignment_matrix}}{A matrix containing binary assignment to branching paths
+Additionally has two columns for assignment of binned Pseudotime and
+replicate.}
 }}
-
-\section{Validity}{
-
-  Valid objects must have:
-  \itemize{
-    \item{predictor}{A valid data frame.}
-    \item{groups.vector}{A valid character vector.}
-    \item{alloc}{A valid data frame.}
-  }
-}
 
 \keyword{classes}

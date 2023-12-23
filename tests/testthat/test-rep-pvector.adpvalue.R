@@ -73,16 +73,16 @@ test_that("Check-'fit$p.adjusted'", {
   # Poly-order-2
   expect_identical(
     expected = as.vector(fit_2$p.adjusted),
-    object = as.vector(test.scmp.2@profile@p.adjusted)
+    object = as.vector(test.scmp.2@profile@adj_p_values)
   )
   # Poly-order-3
   expect_identical(
     expected = as.vector(fit_3$p.adjusted),
-    object = as.vector(test.scmp.3@profile@p.adjusted)
+    object = as.vector(test.scmp.3@profile@adj_p_values)
   )
   # Poly-order-4
   expect_identical(
     expected = as.vector(fit_4$p.adjusted),
-    object = as.vector(test.scmp.4@profile@p.adjusted)
+    object = as.vector(test.scmp.4@profile@adj_p_values)
   )
 })

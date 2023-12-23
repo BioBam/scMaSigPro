@@ -154,49 +154,40 @@ setClass(
 #' @description
 #' S4 class to store Branching Path Assignments and Prediction Matrix
 #'
-#' @slot predictor A data frame containing the design matrix for the experiment.
-#' @slot groups.vector A character vector specifying the experimental group to which
-#' each variable belongs.
-#' @slot alloc A data frame describing the detailed experimental design. Rows must contain
-#' cells and columns experiment descriptors. The matrix must be binarized.
+#' @slot predictor_matrix A matrix containing independent variables for
+#' model fitting
+#' @slot groups.vector A character vector specifying the branching path for each
+#' term of the polynomial GLM.
+#' @slot assignment_matrix A matrix containing binary assignment to branching paths
+#' Additionally has two columns for assignment of binned Pseudotime and
+#' replicate.
 #'
 #' @name MatrixDesign
 #' @aliases MatrixDesign-class
 #' @rdname MatrixDesign-class
 #' @importFrom methods is new
 #' @keywords classes
-
-#'
-#' @section Validity:
-#'   Valid objects must have:
-#'   \itemize{
-#'     \item{predictor}{A valid data frame.}
-#'     \item{groups.vector}{A valid character vector.}
-#'     \item{alloc}{A valid data frame.}
-#'   }
-#'
-
 setClass(
   "MatrixDesign",
   representation(
-    predictor = "matrix",
+    predictor_matrix = "matrix",
     groups.vector = "character",
-    alloc = "matrix"
+    assignment_matrix = "matrix"
   ),
   prototype = list(
-    predictor = matrix(NA, nrow = 0, ncol = 0),
+    predictor_matrix = matrix(NA, nrow = 0, ncol = 0),
     groups.vector = character(),
-    alloc = matrix(NA, nrow = 0, ncol = 0)
+    assignment_matrix = matrix(NA, nrow = 0, ncol = 0)
   ),
   validity = function(object) {
-    if (!validObject(object@predictor)) {
-      stop("predictor slot is not a valid data frame.")
+    if (!validObject(object@predictor_matrix)) {
+      stop("predictor_matrix slot is not a valid matrix.")
     }
     if (!validObject(object@groups.vector)) {
       stop("groups.vector slot is not a valid character vector.")
     }
-    if (!validObject(object@alloc)) {
-      stop("poly_degree slot is not a valid matrix")
+    if (!validObject(object@assignment_matrix)) {
+      stop("assignment_matrix slot is not a valid matrix.")
     }
     TRUE
   }
@@ -207,10 +198,12 @@ setClass(
 #' @description
 #' S4 class to store results of the global model fitting for all the features.
 #'
-#' @slot non.flat a charcter vector
-#' @slot p.vector Numeric vector containing the computed p-values.
-#' @slot p.adjusted Numeric vector of FDR-adjusted p-values.
-#' @slot FDR P-value at FDR \code{Q} control when Benjamini & Hochberg (BH) correction is used.
+#' @slot non_flat A character vector of gene names marked as non-flat profiles.
+#' @slot p_values A numeric vector containing the computed p-values for
+#' non-flat profiles.
+#' @slot adj_p_values A numeric vector containing the computed adjusted
+#' p-values for non-flat profiles.
+#' @slot fdr False Discovery Rate (FDR) value for the given significance level.
 #'
 #' @name VariableProfiles
 #' @aliases VariableProfiles-class
@@ -218,7 +211,6 @@ setClass(
 #' @keywords classes
 
 #' @author Priyansh Srivastava <spriyansh29@@gmail.com>
-#' @seealso \code{\link{T.fit}}, \code{\link{lm}}
 #' @importFrom stats family gaussian poisson
 #' @importFrom utils data combn
 #' @importFrom MASS negative.binomial
@@ -226,39 +218,31 @@ setClass(
 # Define the VariableProfiles with the following slots:
 setClass("VariableProfiles",
   slots = c(
-    non.flat = "character", # Matrix containing the expression values for significant genes
-    p.vector = "numeric", # Matrix containing the computed p-values
-    p.adjusted = "numeric", # Vector of FDR-adjusted p-values
-    FDR = "numeric" # P-value at FDR Q control when Benjamini & Hochberg (BH) correction is used
+    non_flat = "character",
+    p_values = "numeric",
+    adj_p_values = "numeric",
+    fdr = "numeric"
   ),
   validity = function(object) {
-    # Check for slot SELEC
-    if (!is.character(object@non.flat)) {
-      stop("Slot 'non.flat' must be a character")
+    if (!is.character(object@non_flat)) {
+      stop("Slot 'non_flat' must be a character vector of gene names.")
     }
-
-    # Check for slot sc.p.vector
-    if (!is.numeric(object@p.vector)) {
-      stop("Slot 'sc.p.vector' must be a numeric")
+    if (!is.numeric(object@p_values)) {
+      stop("Slot 'p_values' must be a numeric vector.")
     }
-
-    # Check for slot p.adjusted
-    if (!is.numeric(object@p.adjusted)) {
-      stop("Slot 'p.adjusted' must be numeric.")
+    if (!is.numeric(object@adj_p_values)) {
+      stop("Slot 'adj_p_values' must be a numeric vector.")
     }
-
-    # Check for slot FDR
-    if (!is.numeric(object@FDR)) {
-      stop("Slot 'FDR' must be numeric.")
+    if (!is.numeric(object@fdr)) {
+      stop("Slot 'fdr' must be numeric.")
     }
-
     TRUE
   },
   prototype = list(
-    non.flat = character(),
-    p.vector = numeric(0), # Empty matrix for sc.p.vector
-    p.adjusted = numeric(0), # Empty numeric vector for p.adjusted
-    FDR = 0 # Default FDR value is 0
+    non_flat = character(),
+    p_values = numeric(0),
+    adj_p_values = numeric(0),
+    fdr = numeric(0)
   )
 )
 ###############################################################################
@@ -267,18 +251,15 @@ setClass("VariableProfiles",
 #' @description
 #' S4 class to store results of the polynomial term selection from full model.
 #'
-#' @slot sol A data frame for summary results of the stepwise regression.
-#' For each selected gene the following values are given:
-#'   \itemize{
-#'     \item{p-value}{of the regression ANOVA.}
-#'     \item{R-squared}{of the model.}
-#'     \item{p-value}{of the regression coefficients of the selected variables.}
-#'   }
-#' @slot coefficients A data frame containing regression coefficients for the adjusted models.
-#' @slot group.coeffs A matrix with the coefficients of the implicit models of each experimental group.
-#' @slot t.score A data frame containing tscores for each covariate in polynomial glm.
+#' @slot significance_matrix A matrix storing p-values for each gene per
+#' polynomial term, R2 and global p-values.
+#' @slot coefficient_matrix A matrix storing beta estimates for each polynomial
+#' term.
+#' @slot path_coefficient_matrix A matrix with the coefficients of each
+#' branching path.
+#' @slot t_score_matrix A matrix storing the t-scores for each polynomial term.
 #' @slot path A character vector containing the branching path.
-#' @slot influ.info A matrix with genes containing influencial data.
+#' @slot influential A matrix with genes containing influential data.
 #'
 #' @name Estimates
 #' @aliases Estimates-class
@@ -288,47 +269,47 @@ setClass("VariableProfiles",
 setClass(
   "Estimates",
   representation(
-    sol = "data.frame",
-    coefficients = "data.frame",
-    group.coeffs = "matrix",
-    t.score = "data.frame",
+    significance_matrix = "matrix",
+    coefficient_matrix = "matrix",
+    path_coefficient_matrix = "matrix",
+    t_score_matrix = "matrix",
     path = "character",
-    influ.info = "matrix"
+    influential = "matrix"
   ),
   validity = function(object) {
-    if (!is.data.frame(object@sol)) {
-      stop("sol slot must be a data.frame")
+    if (!is.matrix(object@significance_matrix)) {
+      stop("significance_matrix slot must be a matrix.")
     }
-    if (!is.data.frame(object@coefficients)) {
-      stop("coefficients slot must be a data.frame")
+    if (!is.matrix(object@coefficient_matrix)) {
+      stop("coefficient_matrix slot must be a matrix.")
     }
-    if (!is.matrix(object@group.coeffs)) {
-      stop("group.coeffs slot must be a matrix.")
+    if (!is.matrix(object@path_coefficient_matrix)) {
+      stop("path_coefficient_matrix slot must be a matrix.")
     }
-    if (!is.data.frame(object@t.score)) {
-      stop("t.score slot must be a data.frame")
+    if (!is.matrix(object@t_score_matrix)) {
+      stop("t_score_matrix slot must be a matrix.")
     }
     if (!is.character(object@path)) {
       stop("path slot must be a character.")
     }
-    if (!is.matrix(object@influ.info)) {
-      stop("influ.info slot must be a matrix.")
+    if (!is.matrix(object@influential)) {
+      stop("influential slot must be a matrix.")
     }
   },
   prototype = list(
-    sol = data.frame(),
-    coefficients = data.frame(),
-    group.coeffs = matrix(0, nrow = 1, ncol = 1),
-    t.score = data.frame(),
+    significance_matrix = matrix(NA, nrow = 0, ncol = 0),
+    coefficient_matrix = matrix(NA, nrow = 0, ncol = 0),
+    path_coefficient_matrix = matrix(0, nrow = 0, ncol = 0),
+    t_score_matrix = matrix(NA, nrow = 0, ncol = 0),
     path = character(),
-    influ.info = matrix(NA, nrow = 0, ncol = 0)
+    influential = matrix(NA, nrow = 0, ncol = 0)
   )
 )
 ###############################################################################
 #' @title Significant
 #'
 #' @description
-#' S4 class to store significantly selected results features and their clusters.
+#' S4 class to store significantly selected features and their clusters.
 #'
 #' @slot sig.genes list
 #' @slot feature.clusters list

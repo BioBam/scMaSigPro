@@ -2,7 +2,7 @@ suppressPackageStartupMessages(library(testthat))
 suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(maSigPro))
 
-test_that("Check-'fit$FDR'", {
+test_that("Check-'tfit$influ.info'", {
   # Step-1: Load Data
   data("data.abiotic")
   data("edesign.abiotic")
@@ -72,20 +72,21 @@ test_that("Check-'fit$FDR'", {
     epsilon = 0.00001, family = gaussian()
   )
 
-  # Check-fdr
+  # Step-8: Run t.fit
+  gc <- capture_output(tstep_2 <- T.fit(fit_2, step.method = "backward", alfa = 0.05))
+  gc <- capture_output(tstep_3 <- T.fit(fit_3, step.method = "backward", alfa = 0.05))
+  gc <- capture_output(tstep_4 <- T.fit(fit_4, step.method = "backward", alfa = 0.05))
+
+  # Step-9: Run sc.t.fit
+  test.scmp.2 <- sc.t.fit(test.scmp.2, verbose = FALSE)
+  test.scmp.3 <- sc.t.fit(test.scmp.3, verbose = FALSE)
+  test.scmp.4 <- sc.t.fit(test.scmp.4, verbose = FALSE)
+
+  # Check-sol
   # Poly-order-2
-  expect_identical(
-    expected = fit_2$FDR,
-    object = as.vector(test.scmp.2@profile@fdr)
-  )
+  expect_identical(showInflu(test.scmp.2), expected = tstep_2$influ.info)
   # Poly-order-3
-  expect_identical(
-    expected = fit_3$FDR,
-    object = as.vector(test.scmp.3@profile@fdr)
-  )
+  expect_identical(showInflu(test.scmp.3), expected = tstep_3$influ.info)
   # Poly-order-4
-  expect_identical(
-    expected = fit_4$FDR,
-    object = as.vector(test.scmp.4@profile@fdr)
-  )
+  expect_identical(showInflu(test.scmp.4), expected = tstep_4$influ.info)
 })

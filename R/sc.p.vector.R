@@ -55,9 +55,9 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
   )
 
   # Extract from s4
-  dis <- as.data.frame(scmpObj@design@predictor)
+  dis <- as.data.frame(scmpObj@design@predictor_matrix)
   groups.vector <- scmpObj@design@groups.vector
-  alloc <- scmpObj@design@alloc
+  alloc <- scmpObj@design@assignment_matrix
 
   # Convert 'scmpObj' to matrix and select relevant columns based on 'design' rows
   dat <- as.matrix(scmpObj@dense@assays@data@listData$bulk.counts)
@@ -216,10 +216,10 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
 
     # Add Data to the class
     profile.obj <- new("VariableProfiles",
-      non.flat = rownames(SELEC),
-      p.vector = sc.p.vector,
-      p.adjusted = p.adjusted,
-      FDR = FDR
+      non_flat = rownames(SELEC),
+      p_values = sc.p.vector,
+      adj_p_values = p.adjusted,
+      fdr = FDR
     )
 
     # Update Slot
