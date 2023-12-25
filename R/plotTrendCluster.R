@@ -41,7 +41,7 @@ plotTrendCluster <- function(scmpObj,
   feature_id <- "feature_id"
 
   # Check
-  assert_that(!isEmpty(scmpObj@significant@clusters),
+  assert_that(!isEmpty(scmpObj@Significant@clusters),
     msg = "Please run 'sc.cluster.trend', before plotting cluster trends"
   )
 
@@ -53,10 +53,10 @@ plotTrendCluster <- function(scmpObj,
   )
 
   # Extract Gene_Set
-  gene_set_vector <- names(scmpObj@significant@clusters)
+  gene_set_vector <- names(scmpObj@Significant@clusters)
 
   # Extarct cluster set
-  gene_cluster_vector <- paste("cluster", as.vector(unlist(scmpObj@significant@clusters)),
+  gene_cluster_vector <- paste("cluster", as.vector(unlist(scmpObj@Significant@clusters)),
     sep = "_"
   )
 

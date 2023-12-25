@@ -13,41 +13,54 @@ asthe analysis progresses.
 
 \describe{
 \item{\code{bin_ptime_col}}{A character string representing the column name
-for binned pseudotime values in dense data.}
+for binned Pseudotime values in 'Dense' data. See `colData` from the
+\pkg{SingleCellExperiment} package.}
 
-\item{\code{path_prefix}}{A character string representing the prefix for path labeling.}
+\item{\code{path_prefix}}{Update Description..}
 
-\item{\code{root_label}}{A character string representing the label for the tree root.}
+\item{\code{root_label}}{Update Description..}
 
-\item{\code{pseudotime_colname}}{A character string representing the column name for pseudotime values.}
+\item{\code{ptime_col}}{A character string representing the column name
+for inferred Pseudotime values in 'Sparse' data. See `colData` from the
+\pkg{SingleCellExperiment} package.}
 
-\item{\code{bin_method}}{A character string representing the algorithm used for binning.}
+\item{\code{bin_method}}{A character string representing the algorithm used for
+binning.}
 
-\item{\code{path_colname}}{A character string representing the column name for path values.}
+\item{\code{path_col}}{A character string representing the column name for branching
+path assignment in 'Sparse' or 'Dense'data. See `colData` from the
+\pkg{SingleCellExperiment} package.}
 
-\item{\code{bin_colname}}{A character string representing the column name for bin values.}
+\item{\code{bin_col}}{A character string representing the name of the column in which
+bin labels are stored.}
 
-\item{\code{bin_size_colname}}{A character string representing the column name for bin sizes.}
+\item{\code{bin_size_col}}{A character string representing the name of the column in
+which bin sizes per bin are stored.}
 
-\item{\code{bin_members_colname}}{A character string representing the column name for bin members.}
+\item{\code{bin_mem_col}}{A character string representing the name of the column in
+which cells per bin are stored.}
 
-\item{\code{annotation_col}}{A character string representing the column name for cell type annotation.}
+\item{\code{anno_col}}{A character string representing the column name for cell level
+metadata containing cell level annotations. (Default is "cell_type").}
 
-\item{\code{g}}{Integer. Number of genes taken in the regression fit.}
+\item{\code{g}}{Update Description..}
 
-\item{\code{Q}}{Numeric. Significance Level.}
+\item{\code{p_value}}{Significance Level.}
 
-\item{\code{min.na}}{Numeric. Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).}
+\item{\code{min_na}}{Minimum values needed to estimate the model.}
 
-\item{\code{MT.adjust}}{A character string specifying the Pvalue correction method used.}
+\item{\code{mt_correction}}{A character string specifying the p-value correction
+method.}
 
-\item{\code{epsilon}}{Numeric. Convergence tolerance.}
+\item{\code{epsilon}}{Model convergence tolerance.}
 
-\item{\code{step.method}}{A character string specifying the imputed step method for stepwise regression.}
+\item{\code{selection_method}}{A character string specifying the method for stepwise
+regression.}
 
-\item{\code{offset}}{A logical value specifying whether to use offset during model fitting.}
+\item{\code{offset}}{A logical value specifying whether to use offset during fitting.}
 
-\item{\code{logOffset}}{A logical value specifying whether to take the logarithm of the offsets during model fitting.}
+\item{\code{log_offset}}{A logical value specifying whether to take the logarithm of
+the offsets.}
 
 \item{\code{max_it}}{Integer. Maximum number of iterations to fit the model.}
 
@@ -55,12 +68,11 @@ for binned pseudotime values in dense data.}
 
 \item{\code{distribution}}{Distribution used}
 
-\item{\code{cluster.method}}{Description}
+\item{\code{cluster_method}}{Description}
 
-\item{\code{cluster.fill.dim}}{description}
+\item{\code{use_dim}}{description}
 
-\item{\code{cluster.fill.na}}{description
-specifies a linear regression, 2 a quadratic regression, etc.}
+\item{\code{fill_na}}{description}
 }}
 
 \keyword{classes}

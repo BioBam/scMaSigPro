@@ -151,7 +151,7 @@ print(metadata[c(1:5), ])
 ## Creating objects for `scMaSigPro`
 `scMaSigPro` utilizes S4 classes, and therefore, the initial step involves creating
 an object of the `scMaSigPro` class, also known as scmpObject. To do this, we use
-the `create.scmp()` function. We will use the same object throughout the tutorial
+the `create_scmp()` function. We will use the same object throughout the tutorial
 to show the concept of S4 classes. On the other hand for `maSigPro` we will be making
 different S3 objects as shown in the [`original tutorial.](https://www.bioconductor.org/packages/release/bioc/vignettes/maSigPro/inst/doc/maSigProUsersGuide.pdf) 
 
@@ -160,11 +160,11 @@ directs the data to the dense slot of the scmpObject, allowing us to proceed wit
 the analysis without using `sc.squeeze()`, which is specifically designed for scRNA-Seq
 pseudo-bulking.
 ```{r, "create-scmpObject", echo=TRUE, eval=TRUE}
-scmp.ob <- create.scmp(
+scmp.ob <- create_scmp(
   counts = count,
   cell_data = metadata,
-  pseudotime_colname = "Time",
-  path_colname = "Group",
+  ptime_col = "Time",
+  path_col = "Group",
   use_as_bin = TRUE
 )
 
@@ -210,7 +210,7 @@ scmp.ob <- sc.set.poly(scmp.ob, poly_degree = 2)
 expect_equal(bAlloc(scmp.ob), expected = edesign.abiotic)
 
 # Comparing regression matrices
-expect_identical(scmp.ob@design@predictor_matrix, expected = design$dis)
+expect_identical(scmp.ob@Design@predictor_matrix, expected = design$dis)
 ```
 
 No errors were thrown, so we can proceed with the analysis.
@@ -229,7 +229,7 @@ gc <- capture_output(fit <- p.vector(data.abiotic, design,
 
 # Using ScMaSigPro
 scmp.ob <- sc.p.vector(scmp.ob,
-  min.na = 20,
+  min_na = 20,
   verbose = FALSE,
   offset = FALSE,
   max_it = 25,
@@ -244,14 +244,14 @@ results from `sc.p.vector()`:
 ```{r, "testthat pvector"}
 # Compare p-values
 expect_identical(
-  matrix(scmp.ob@profile@p_values,
-    dimnames = list(names(scmp.ob@profile@p_values), "p.value")
+  matrix(scmp.ob@Profile@p_values,
+    dimnames = list(names(scmp.ob@Profile@p_values), "p.value")
   ),
   expected = as.matrix(fit$p.vector[, 1, drop = FALSE])
 )
 
 # Compare adjusted p-values
-pad <- scmp.ob@profile@adj_p_values
+pad <- scmp.ob@Profile@adj_p_values
 names(pad) <- NULL
 expect_identical(pad, expected = fit$p.adjusted)
 ```
@@ -304,22 +304,22 @@ We'll compare the s3 object (sigs) from `maSigPro::get.siggenes()' with the resu
 
 ```{r}
 # Compare Cold vs Control
-expect_identical(scmp.ob@significant@genes$ColdvsControl,
+expect_identical(scmp.ob@Significant@genes$ColdvsControl,
   expected = sigs$summary$ColdvsControl
 )
 
 # Compare Heat vs Control
-expect_identical(scmp.ob@significant@genes$HeatvsControl,
+expect_identical(scmp.ob@Significant@genes$HeatvsControl,
   expected = sigs$summary$HeatvsControl[sigs$summary$HeatvsControl != " "]
 )
 
 # Compare Salt vs Control
-expect_identical(scmp.ob@significant@genes$SaltvsControl,
+expect_identical(scmp.ob@Significant@genes$SaltvsControl,
   expected = sigs$summary$SaltvsControl[sigs$summary$SaltvsControl != " "]
 )
 
 # Compare Control
-expect_identical(scmp.ob@significant@genes$Control,
+expect_identical(scmp.ob@Significant@genes$Control,
   expected = sigs$summary$Control[sigs$summary$Control != " "]
 )
 ```

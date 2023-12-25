@@ -10,83 +10,93 @@
 #' asthe analysis progresses.
 #'
 #' @slot bin_ptime_col A character string representing the column name
-#' for binned pseudotime values in dense data.
-#' @slot path_prefix A character string representing the prefix for path labeling.
-#' @slot root_label A character string representing the label for the tree root.
-#' @slot pseudotime_colname A character string representing the column name for pseudotime values.
-#' @slot bin_method A character string representing the algorithm used for binning.
-#' @slot path_colname A character string representing the column name for path values.
-#' @slot bin_colname A character string representing the column name for bin values.
-#' @slot bin_size_colname A character string representing the column name for bin sizes.
-#' @slot bin_members_colname A character string representing the column name for bin members.
-#' @slot annotation_col A character string representing the column name for cell type annotation.
-#' @slot g Integer. Number of genes taken in the regression fit.
-#' @slot Q Numeric. Significance Level.
-#' @slot min.na Numeric. Minimum value to estimate the model (degree+1) x Groups + 1. (Default = 6).
-#' @slot MT.adjust A character string specifying the Pvalue correction method used.
-#' @slot epsilon Numeric. Convergence tolerance.
-#' @slot step.method A character string specifying the imputed step method for stepwise regression.
-#' @slot offset A logical value specifying whether to use offset during model fitting.
-#' @slot logOffset A logical value specifying whether to take the logarithm of the offsets during model fitting.
+#' for binned Pseudotime values in 'Dense' data. See `colData` from the
+#' \pkg{SingleCellExperiment} package.
+#' @slot path_prefix Update Description..
+#' @slot root_label Update Description..
+#' @slot ptime_col A character string representing the column name
+#' for inferred Pseudotime values in 'Sparse' data. See `colData` from the
+#' \pkg{SingleCellExperiment} package.
+#' @slot bin_method A character string representing the algorithm used for
+#' binning.
+#' @slot path_col A character string representing the column name for branching
+#' path assignment in 'Sparse' or 'Dense'data. See `colData` from the
+#' \pkg{SingleCellExperiment} package.
+#' @slot bin_col A character string representing the name of the column in which
+#' bin labels are stored.
+#' @slot bin_size_col A character string representing the name of the column in
+#' which bin sizes per bin are stored.
+#' @slot bin_mem_col A character string representing the name of the column in
+#' which cells per bin are stored.
+#' @slot anno_col A character string representing the column name for cell level
+#' metadata containing cell level annotations. (Default is "cell_type").
+#' @slot g Update Description..
+#' @slot p_value Significance Level.
+#' @slot min_na Minimum values needed to estimate the model.
+#' @slot mt_correction A character string specifying the p-value correction
+#' method.
+#' @slot epsilon Model convergence tolerance.
+#' @slot selection_method A character string specifying the method for stepwise
+#' regression.
+#' @slot offset A logical value specifying whether to use offset during fitting.
+#' @slot log_offset A logical value specifying whether to take the logarithm of
+#' the offsets.
 #' @slot max_it Integer. Maximum number of iterations to fit the model.
 #' @slot poly_degree Integer with the polynomial degree to fit the regression. 1
 #' @slot distribution Distribution used
-#' @slot cluster.method Description
-#' @slot cluster.fill.dim description
-#' @slot cluster.fill.na description
-#' specifies a linear regression, 2 a quadratic regression, etc.
+#' @slot cluster_method Description
+#' @slot use_dim description
+#' @slot fill_na description
 #'
 #' @name ParameterConfig
 #' @aliases ParameterConfig-class
 #' @rdname ParameterConfig-class
 #' @importFrom methods is new
 #' @keywords classes
-
 setClass(
   "ParameterConfig",
   representation(
     bin_ptime_col = "character",
     path_prefix = "character",
     root_label = "character",
-    pseudotime_colname = "character",
-    step.method = "character",
+    ptime_col = "character",
+    selection_method = "character",
     bin_method = "character",
-    path_colname = "character",
-    bin_colname = "character",
-    bin_size_colname = "character",
-    bin_members_colname = "character",
-    annotation_col = "character",
+    path_col = "character",
+    bin_col = "character",
+    bin_size_col = "character",
+    bin_mem_col = "character",
+    anno_col = "character",
     g = "integer",
-    Q = "numeric",
-    min.na = "numeric",
-    MT.adjust = "character",
+    p_value = "numeric",
+    min_na = "numeric",
+    mt_correction = "character",
     epsilon = "numeric",
     offset = "logical",
-    logOffset = "logical",
+    log_offset = "logical",
     max_it = "integer",
     poly_degree = "integer",
     distribution = "ANY",
-    cluster.method = "character",
-    cluster.fill.dim = "character",
-    cluster.fill.na = "character"
+    cluster_method = "character",
+    use_dim = "character",
+    fill_na = "character"
   ),
   validity = function(object) {
     errors <- character(0)
 
     # Check if any character slots are empty or not of type character
     char_slots <- c(
-      "bin_ptime_col", "path_prefix", "root_label",
-      "pseudotime_colname", "bin_method",
-      "path_colname", "bin_colname", "bin_size_colname",
-      "bin_members_colname", "MT.adjust", "step.method",
-      "annotation_col", "cluster.method", "cluster.fill.dim",
-      "cluster.fill.na"
+      "bin_ptime_col", "path_prefix", "root_label", "ptime_col", "bin_method",
+      "path_col", "bin_col", "bin_size_col", "bin_mem_col",
+      "mt_correction", "selection_method", "anno_col", "cluster_method",
+      "use_dim", "fill_na"
     )
 
     for (slot_name in char_slots) {
-      slot_value <- slot(object, slot_name) # Corrected line
-      if (length(slot_value) == 0 || !is.character(slot_value)) { # Corrected line
-        errors <- c(errors, paste(slot_name, "must not be empty and should be of type character."))
+      slot_value <- slot(object, slot_name)
+      if (length(slot_value) == 0 || !is.character(slot_value)) {
+        errors <- c(errors, paste(slot_name, "must not be empty and should
+                                  be of type character."))
       }
     }
 
@@ -95,10 +105,9 @@ setClass(
       stop("Slot 'g' must be an integer.")
     }
 
-
     # Check for slot Q
-    if (!is.numeric(object@Q)) {
-      stop("Slot 'Q' must be numeric.")
+    if (!is.numeric(object@p_value)) {
+      stop("Slot 'p_value' must be numeric.")
     }
 
     if (!is.numeric(object@epsilon)) {
@@ -106,15 +115,18 @@ setClass(
     }
 
     # Check for slot min.na
-    if (!is.numeric(object@min.na)) {
-      stop("Slot 'min.na' must be an integer.")
+    if (!is.numeric(object@min_na)) {
+      stop("Slot 'min_na' must be an integer.")
     }
 
     # Check if any of the character slots have multiple values
     for (slot_name in char_slots) {
-      slot_value <- slot(object, slot_name) # Corrected line
-      if (length(slot_value) > 1) { # Corrected line
-        errors <- c(errors, paste(slot_name, "should not contain multiple values."))
+      slot_value <- slot(object, slot_name)
+      if (length(slot_value) > 1) {
+        errors <- c(errors, paste(
+          slot_name,
+          "should not contain multiple values."
+        ))
       }
     }
 
@@ -124,27 +136,27 @@ setClass(
     bin_ptime_col = "scmp_binned_pseudotime",
     path_prefix = "Path",
     root_label = "root",
-    pseudotime_colname = "Pseudotime",
-    path_colname = "Path",
+    ptime_col = "Pseudotime",
+    path_col = "Path",
     bin_method = "Sturges",
-    bin_colname = "scmp_bin",
+    bin_col = "scmp_bin",
     g = 0L,
-    Q = 0.05,
-    min.na = 6,
-    bin_size_colname = "scmp_bin_size",
-    bin_members_colname = "scmp_bin_members",
-    MT.adjust = "BH",
-    step.method = "backward",
+    p_value = 0.05,
+    min_na = 6,
+    bin_size_col = "scmp_bin_size",
+    bin_mem_col = "scmp_bin_members",
+    mt_correction = "BH",
+    selection_method = "backward",
     epsilon = 1e-8,
     offset = TRUE,
-    logOffset = FALSE,
+    log_offset = FALSE,
     max_it = 100L,
-    annotation_col = "cell_type",
+    anno_col = "cell_type",
     poly_degree = 2L,
     distribution = MASS::negative.binomial(10),
-    cluster.method = "hclust",
-    cluster.fill.dim = "col",
-    cluster.fill.na = "zero"
+    cluster_method = "hclust",
+    use_dim = "col",
+    fill_na = "zero"
   )
 )
 
@@ -346,13 +358,15 @@ setClass(
 #' S4 class to store analysis of ScMaSigPro worflow. It stores results,
 #' parameters and associated data. Inherits slots from \code{SingleCellExperiment}.
 #'
-#' @slot sparse Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.
-#' @slot profile Object of Class VariableProfiles See \pkg{VariableProfiles} for more details.
-#' @slot estimate Object of Class Estimates See \code{\link{Estimates}} for more details.
-#' @slot dense  Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.
-#' @slot design Object of Class MatrixDesign. See \code{\link{MatrixDesign}} for more details.
-#' @slot param Object of Class ParameterConfig. See \code{\link{ParameterConfig}} for more details.
-#' @slot significant ABC
+#' @slot Sparse Object of class \code{\link{SingleCellExperiment}}.
+#' See \pkg{SingleCellExperiment} for more details.
+#' @slot Dense Object of class \code{\link{SingleCellExperiment}}.
+#' See \pkg{SingleCellExperiment} for more details.
+#' @slot Design Object of Class \code{\link{MatrixDesign}}.
+#' @slot Profile Object of Class \code{\link{VariableProfiles}}.
+#' @slot Estimate Object of Class \code{\link{Estimates}}.
+#' @slot Significant Object of Class \code{\link{Significant}}.
+#' @slot Parameters Object of Class \code{\link{ParameterConfig}}.
 #'
 #' @name ScMaSigPro
 #' @aliases ScMaSigPro-class
@@ -364,53 +378,53 @@ setClass(
 setClass(
   "ScMaSigPro",
   representation(
-    sparse = "SingleCellExperiment",
-    profile = "VariableProfiles",
-    estimate = "Estimates",
-    dense = "SingleCellExperiment",
-    design = "MatrixDesign",
-    param = "ParameterConfig",
-    significant = "Significant"
+    Sparse = "SingleCellExperiment",
+    Dense = "SingleCellExperiment",
+    Design = "MatrixDesign",
+    Profile = "VariableProfiles",
+    Estimate = "Estimates",
+    Significant = "Significant",
+    Parameters = "ParameterConfig"
   ),
   validity = function(object) {
     # Check sparse slot
-    if (!validObject(object@sparse)) {
-      stop("sparse slot is not a valid SingleCellExperiment object.")
+    if (!validObject(object@Sparse)) {
+      stop("'Sparse' slot is not a valid 'SingleCellExperiment' class object.")
     }
 
     # Check VariableProfiles slot
-    if (!validObject(object@profile)) {
-      stop("profile slot is not a valid VariableProfiles object.")
+    if (!validObject(object@Profile)) {
+      stop("'Profile' slot is not a valid 'VariableProfiles' class object.")
     }
 
     # Check Estimates slot
-    if (!validObject(object@estimate)) {
-      stop("Estimates slot is not a valid Estimates object.")
+    if (!validObject(object@Estimate)) {
+      stop("'Estimates' slot is not a valid 'Estimates' class object.")
     }
 
     # Check dense slot
-    if (!validObject(object@dense)) {
-      stop("dense slot is not a valid SingleCellExperiment object.")
+    if (!validObject(object@Dense)) {
+      stop("'Dense' slot is not a valid 'SingleCellExperiment' class object.")
     }
 
     # Check MatrixDesign slot
-    if (!validObject(object@design)) {
-      stop("design slot is not a valid MatrixDesign object.")
+    if (!validObject(object@Design)) {
+      stop("'Design' slot is not a valid 'MatrixDesign' class object.")
     }
 
     # Check ParameterConfig slot
-    if (!validObject(object@param)) {
-      stop("param slot is not a valid ParameterConfig object.")
+    if (!validObject(object@Parameters)) {
+      stop("'Parameters' slot is not a valid 'ParameterConfig' class object.")
     }
     # Check ParameterConfig slot
-    if (!validObject(object@param)) {
-      stop("'significant' slot is not a valid ParameterConfig object.")
+    if (!validObject(object@Significant)) {
+      stop("'Significant' slot is not a valid 'Significant' object.")
     }
   },
   prototype = list(
-    profile = new("VariableProfiles"), # Assuming you've defined VariableProfiles with its prototype
-    estimate = new("Estimates"), # Assuming you've defined Estimates with its prototype
-    param = new("ParameterConfig"), # Assuming you've defined Estimates with its prototype
-    significant = new("Significant")
+    Profile = new("VariableProfiles"),
+    Estimate = new("Estimates"),
+    Parameters = new("ParameterConfig"),
+    Significant = new("Significant")
   )
 )

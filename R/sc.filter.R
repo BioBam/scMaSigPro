@@ -8,8 +8,8 @@
 #' \code{sc.t.fit} has been run.
 #' @param rsq Cut-off level at the R-squared value for the stepwise regression fit.
 #' @param includeInflu description
-#' @param Q overall model significance
-#' @param term.Q Term wise significance
+#' @param p_value overall model significance
+#' @param term_p_value Term wise significance
 #' Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).
 #' @param vars Variables for which to extract significant genes. There are 3 possible values:
 #' \itemize{
@@ -53,10 +53,10 @@
 #' @export
 sc.filter <- function(scmpObj,
                       rsq = 0.7,
-                      Q = scmpObj@param@Q,
+                      p_value = scmpObj@Parameters@p_value,
                       vars = c("all", "each", "groups"),
                       significant.intercept = "dummy",
-                      term.Q = 0.05,
+                      term_p_value = 0.05,
                       includeInflu = TRUE) {
   # Check Validity of the object
   assert_that(is(scmpObj, "ScMaSigPro"),
@@ -82,7 +82,7 @@ sc.filter <- function(scmpObj,
   sol[, !(colnames(sol) %in% c("p-value", "R-squared"))][is.na(sol[, !(colnames(sol) %in% c("p-value", "R-squared"))])] <- 1
 
   # Filter based on RSQ and P-value
-  sol <- sol[sol$`p-value` <= Q, ]
+  sol <- sol[sol$`p-value` <= p_value, ]
   sol <- sol[sol$`R-squared` >= rsq, ]
 
   # If`all`
@@ -94,14 +94,14 @@ sc.filter <- function(scmpObj,
     sol.sub <- sol[, !(colnames(sol) %in% c("p-value", "R-squared")), drop = FALSE]
 
     # Get the genes
-    sig.list <- apply(sol.sub, 2, function(column) row.names(sol.sub)[which(column <= term.Q)])
+    sig.list <- apply(sol.sub, 2, function(column) row.names(sol.sub)[which(column <= term_p_value)])
     names(sig.list) <- stringr::str_remove(names(sig.list), "p.valor_")
   } else if (vars == "groups") {
     # Subset
     sol.sub <- sol[, !(colnames(sol) %in% c("p-value", "R-squared")), drop = FALSE]
 
     # Get group_vector, from T fit
-    group_vector <- scmpObj@estimate@path
+    group_vector <- scmpObj@Estimate@path
 
     # Based on the dummy, none and all
     if (significant.intercept == "all") {
@@ -132,7 +132,7 @@ sc.filter <- function(scmpObj,
       sol.sub.term <- sol.sub[, unlist(group_term_list_sub), drop = FALSE]
 
       # Get group wise genes
-      sig.list.tmp <- row.names(sol.sub.term)[apply(sol.sub.term, 1, function(x) any(x <= term.Q))]
+      sig.list.tmp <- row.names(sol.sub.term)[apply(sol.sub.term, 1, function(x) any(x <= term_p_value))]
 
       # Return
       return(sig.list.tmp)
@@ -174,7 +174,7 @@ sc.filter <- function(scmpObj,
   )
 
   # Update the slot
-  scmpObj@significant <- siggenes.object
+  scmpObj@Significant <- siggenes.object
 
   # Return
   return(scmpObj)

@@ -3,7 +3,7 @@
 #' @param scmpObject A 'ScMaSigPro' object.
 #' @param poly_degree Degree of the design matrix (default: 2).
 #' @param bin_ptime_col Name of the time column.
-#' @param path_colname Name of the path column.
+#' @param path_col Name of the path column.
 #'
 #' @return Returns the 'scmpObject' with an updated 'design' slot.
 #'
@@ -12,38 +12,38 @@
 #'
 sc.set.poly <- function(scmpObject,
                         poly_degree = 2,
-                        bin_ptime_col = scmpObject@param@bin_ptime_col,
-                        path_colname = scmpObject@param@path_colname) {
+                        bin_ptime_col = scmpObject@Parameters@bin_ptime_col,
+                        path_col = scmpObject@Parameters@path_col) {
   # Check Object Validity
   assert_that(is(scmpObject, "ScMaSigPro"),
     msg = "Please provide object of class 'scMaSigPro'"
   )
 
   # Extract cell metadata
-  comp.cell.metadata <- as.data.frame(scmpObject@dense@colData)
+  comp.cell.metadata <- as.data.frame(scmpObject@Dense@colData)
 
   # pseudotime_colname
   assert_that((bin_ptime_col %in% colnames(comp.cell.metadata)),
     msg = paste0("'", bin_ptime_col, "' ", "doesn't exit in cell.metadata.")
   )
-  # path_colname
-  assert_that((path_colname %in% colnames(comp.cell.metadata)),
-    msg = paste0("'", path_colname, "' ", "doesn't exit in cell.metadata.")
+  # path_col
+  assert_that((path_col %in% colnames(comp.cell.metadata)),
+    msg = paste0("'", path_col, "' ", "doesn't exit in cell.metadata.")
   )
 
   # Subset cell metadata
-  com.cell.meta <- comp.cell.metadata[, colnames(comp.cell.metadata) %in% c(bin_ptime_col, path_colname)]
+  com.cell.meta <- comp.cell.metadata[, colnames(comp.cell.metadata) %in% c(bin_ptime_col, path_col)]
 
   # Get available paths
-  avail.paths <- as.vector(unique(com.cell.meta[[path_colname]]))
+  avail.paths <- as.vector(unique(com.cell.meta[[path_col]]))
 
   # Add Dummy Variables
   for (i in avail.paths) {
-    com.cell.meta[[i]] <- ifelse(com.cell.meta[[path_colname]] %in% i, 1, 0)
+    com.cell.meta[[i]] <- ifelse(com.cell.meta[[path_col]] %in% i, 1, 0)
   }
 
   # Drop path columns
-  com.cell.meta <- com.cell.meta[, colnames(com.cell.meta) != path_colname, drop = FALSE]
+  com.cell.meta <- com.cell.meta[, colnames(com.cell.meta) != path_col, drop = FALSE]
 
   # Get colvec
   col.vec <- colnames(com.cell.meta)[colnames(com.cell.meta) != bin_ptime_col]
@@ -82,10 +82,10 @@ sc.set.poly <- function(scmpObject,
   )
 
   # Update Slot
-  scmpObject@design <- designObj
+  scmpObject@Design <- designObj
 
   # Update poly degree
-  scmpObject@param@poly_degree <- as.integer(poly_degree)
+  scmpObject@Parameters@poly_degree <- as.integer(poly_degree)
 
   return(scmpObject)
 }

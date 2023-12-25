@@ -7,8 +7,8 @@
 sc.set.poly(
   scmpObject,
   poly_degree = 2,
-  bin_ptime_col = scmpObject@param@bin_ptime_col,
-  path_colname = scmpObject@param@path_colname
+  bin_ptime_col = scmpObject@Parameters@bin_ptime_col,
+  path_col = scmpObject@Parameters@path_col
 )
 }
 \arguments{
@@ -18,7 +18,7 @@ sc.set.poly(
 
 \item{bin_ptime_col}{Name of the time column.}
 
-\item{path_colname}{Name of the path column.}
+\item{path_col}{Name of the path column.}
 }
 \value{
 Returns the 'scmpObject' with an updated 'design' slot.

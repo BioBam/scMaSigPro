@@ -45,10 +45,10 @@ plotTrend <-
     )
 
     # Extract edisgn
-    alloc.frame <- scmpObj@design@assignment_matrix %>% as.data.frame()
+    alloc.frame <- scmpObj@Design@assignment_matrix %>% as.data.frame()
 
     # Extract the bulk counts
-    bulk.counts <- scmpObj@dense@assays@data@listData$bulk.counts
+    bulk.counts <- scmpObj@Dense@assays@data@listData$bulk.counts
 
     # Check
     assert_that(all(feature_id %in% rownames(bulk.counts)),
@@ -56,7 +56,7 @@ plotTrend <-
     )
 
     if (significant) {
-      assert_that(any(feature_id %in% unique(unlist(scmpObj@significant@genes))),
+      assert_that(any(feature_id %in% unique(unlist(scmpObj@Significant@genes))),
         msg = "Feature Id didn't pass the R2 threshold, please re-run sc.get.sigenes, with lower a value or set 'significant' to 'FALSE'"
       )
     }
@@ -65,33 +65,33 @@ plotTrend <-
     yy <- bulk.counts[rownames(bulk.counts) %in% feature_id, , drop = FALSE]
 
     # group Vector
-    groups.vector <- scmpObj@design@groups.vector
+    groups.vector <- scmpObj@Design@groups.vector
 
     # Prepare for Tfit
     rm <- matrix(yy, nrow = 1, ncol = length(yy))
     rownames(rm) <- c("ratio medio")
-    colnames(rm) <- rownames(scmpObj@design@predictor_matrix)
+    colnames(rm) <- rownames(scmpObj@Design@predictor_matrix)
 
     # Extract the beta
     betas.table <- showCoeff(scmpObj, view = FALSE, return = TRUE)
     betas <- betas.table[rownames(betas.table) %in% feature_id, , drop = FALSE]
 
     # Set Data
-    curve.df <- data.frame(x = 0, y = 0, path = scmpObj@param@path_prefix)
-    line.df <- data.frame(x = 0, y = 0, path = scmpObj@param@path_prefix)
-    colnames(line.df) <- c("x", "y", scmpObj@param@path_colname)
-    colnames(line.df) <- c("x", "y", scmpObj@param@path_colname)
+    curve.df <- data.frame(x = 0, y = 0, path = scmpObj@Parameters@path_prefix)
+    line.df <- data.frame(x = 0, y = 0, path = scmpObj@Parameters@path_prefix)
+    colnames(line.df) <- c("x", "y", scmpObj@Parameters@path_col)
+    colnames(line.df) <- c("x", "y", scmpObj@Parameters@path_col)
     curve_data <- NULL
-    path.names <- unique(scmpObj@dense@colData[[scmpObj@param@path_colname]])
+    path.names <- unique(scmpObj@Dense@colData[[scmpObj@Parameters@path_col]])
 
     # Get x and y
     x <- y <- rep(0, nrow(alloc.frame))
 
     # Create Point df
     points.df <- data.frame(
-      pooled.time = alloc.frame[, scmpObj@param@bin_ptime_col],
+      pooled.time = alloc.frame[, scmpObj@Parameters@bin_ptime_col],
       pb.counts = as.vector(t(as.matrix(yy))),
-      path = scmpObj@dense@colData[[scmpObj@param@path_colname]]
+      path = scmpObj@Dense@colData[[scmpObj@Parameters@path_col]]
     )
     # View(yy)
     # View(points.df)
@@ -107,7 +107,7 @@ plotTrend <-
       a[is.na(a)] <- 0
 
       # Extract the time
-      time <- alloc.frame[alloc.frame[[i]] == 1, scmpObj@param@bin_ptime_col]
+      time <- alloc.frame[alloc.frame[[i]] == 1, scmpObj@Parameters@bin_ptime_col]
 
       # Create a data frame with time values
       x <- seq(from = min(time), to = max(time), by = smoothness)

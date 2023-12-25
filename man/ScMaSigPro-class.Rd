@@ -12,19 +12,21 @@ parameters and associated data. Inherits slots from \code{SingleCellExperiment}.
 \section{Slots}{
 
 \describe{
-\item{\code{sparse}}{Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.}
+\item{\code{Sparse}}{Object of class \code{\link{SingleCellExperiment}}.
+See \pkg{SingleCellExperiment} for more details.}
 
-\item{\code{profile}}{Object of Class VariableProfiles See \pkg{VariableProfiles} for more details.}
+\item{\code{Dense}}{Object of class \code{\link{SingleCellExperiment}}.
+See \pkg{SingleCellExperiment} for more details.}
 
-\item{\code{estimate}}{Object of Class Estimates See \code{\link{Estimates}} for more details.}
+\item{\code{Design}}{Object of Class \code{\link{MatrixDesign}}.}
 
-\item{\code{dense}}{Object of Class SingleCellExperiment. See \pkg{SingleCellExperiment} for more details.}
+\item{\code{Profile}}{Object of Class \code{\link{VariableProfiles}}.}
 
-\item{\code{design}}{Object of Class MatrixDesign. See \code{\link{MatrixDesign}} for more details.}
+\item{\code{Estimate}}{Object of Class \code{\link{Estimates}}.}
 
-\item{\code{param}}{Object of Class ParameterConfig. See \code{\link{ParameterConfig}} for more details.}
+\item{\code{Significant}}{Object of Class \code{\link{Significant}}.}
 
-\item{\code{significant}}{ABC}
+\item{\code{Parameters}}{Object of Class \code{\link{ParameterConfig}}.}
 }}
 
 \keyword{classes}

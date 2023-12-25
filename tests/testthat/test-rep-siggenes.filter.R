@@ -2,7 +2,7 @@ suppressPackageStartupMessages(library(testthat))
 suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(maSigPro))
 
-test_that("Check-'fit$p.adjusted'", {
+test_that("Check-'sigs$clusters'", {
   # Step-1: Load Data
   data("data.abiotic")
   data("edesign.abiotic")
@@ -17,7 +17,10 @@ test_that("Check-'fit$p.adjusted'", {
   })
 
   # Step-2.2: Remove Binary Columns
-  cell_metadata <- cell_metadata[, !(colnames(cell_metadata) %in% c("Control", "Cold", "Heat", "Salt")), drop = FALSE]
+  cell_metadata <- cell_metadata[, !(colnames(cell_metadata) %in%
+    c("Control", "Cold", "Heat", "Salt")),
+  drop = FALSE
+  ]
 
   # Step-3: Create scmp Object
   test.scmp <- create_scmp(
@@ -69,20 +72,46 @@ test_that("Check-'fit$p.adjusted'", {
     epsilon = 0.00001, family = gaussian()
   )
 
-  # Check-fdr
+  # Step-8: Run t.fit
+  gc <- capture_output(tstep_2 <- T.fit(fit_2, step.method = "backward", alfa = 0.05))
+  gc <- capture_output(tstep_3 <- T.fit(fit_3, step.method = "backward", alfa = 0.05))
+  gc <- capture_output(tstep_4 <- T.fit(fit_4, step.method = "backward", alfa = 0.05))
+
+  # Step-9: Run sc.t.fit
+  test.scmp.2 <- sc.t.fit(test.scmp.2, verbose = FALSE)
+  test.scmp.3 <- sc.t.fit(test.scmp.3, verbose = FALSE)
+  test.scmp.4 <- sc.t.fit(test.scmp.4, verbose = FALSE)
+
+  # Step-10: Compute Clusters with maSigPro
+  sigs.2 <- get.siggenes(tstep_2, rsq = 0.6, vars = "groups")
+  sigs.3 <- get.siggenes(tstep_3, rsq = 0.6, vars = "groups")
+  sigs.4 <- get.siggenes(tstep_4, rsq = 0.6, vars = "groups")
+
+  # Step-11: Compute Clusters with scMaSigPro
+  test.scmp.2 <- sc.filter(test.scmp.2, rsq = 0.6, vars = "groups")
+  test.scmp.3 <- sc.filter(test.scmp.3, rsq = 0.6, vars = "groups")
+  test.scmp.4 <- sc.filter(test.scmp.4, rsq = 0.6, vars = "groups")
+
+  # Check-identicals
   # Poly-order-2
-  expect_identical(
-    expected = as.vector(fit_2$p.adjusted),
-    object = as.vector(test.scmp.2@Profile@adj_p_values)
+  expect_identical(test.scmp.2@Significant@genes$ColdvsControl,
+    expected = sigs.2$summary$ColdvsControl
   )
   # Poly-order-3
-  expect_identical(
-    expected = as.vector(fit_3$p.adjusted),
-    object = as.vector(test.scmp.3@Profile@adj_p_values)
+  expect_identical(test.scmp.3@Significant@genes$ColdvsControl,
+    expected = sigs.3$summary$ColdvsControl
   )
   # Poly-order-4
-  expect_identical(
-    expected = as.vector(fit_4$p.adjusted),
-    object = as.vector(test.scmp.4@Profile@adj_p_values)
+  expect_identical(test.scmp.4@Significant@genes$ColdvsControl,
+    expected = sigs.4$summary$ColdvsControl
+  )
+  expect_identical(test.scmp.2@Significant@genes$HeatvsControl,
+    expected = sigs.2$summary$HeatvsControl[sigs.2$summary$HeatvsControl != " "]
+  )
+  expect_identical(test.scmp.3@Significant@genes$HeatvsControl,
+    expected = sigs.3$summary$HeatvsControl[sigs.3$summary$HeatvsControl != " "]
+  )
+  expect_identical(test.scmp.4@Significant@genes$HeatvsControl,
+    expected = sigs.4$summary$HeatvsControl[sigs.4$summary$HeatvsControl != " "]
   )
 })

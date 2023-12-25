@@ -14,10 +14,10 @@
 #' @param union.ref A string specifying the reference group for 'union' query.
 #' @param union.target A string specifying the target group for 'union' query.
 #' @param rsq A numeric value specifying the R-squared threshold.
-#' @param Q A numeric value, derived from the scmpObj object, for analysis.
+#' @param p_value A numeric value, derived from the scmpObj object, for analysis.
 #' @param vars A string specifying the variables to be used.
 #' @param significant.intercept A string indicating the treatment of intercepts in the analysis.
-#' @param term.Q A numeric value specifying the threshold for term significance.
+#' @param term_p_value A numeric value specifying the threshold for term significance.
 #' @param includeInflu A boolean indicating whether to include influencers in the analysis.
 #' @param unique.trend A string specifying the trend type for 'unique' query.
 #' @param union.ref.trend A string specifying the trend type for the reference group in 'union' query.
@@ -37,10 +37,10 @@ sc.get.features <- function(scmpObj,
                             union.ref = "Path1",
                             union.target = "Path2vsPath1",
                             rsq = 0.7,
-                            Q = scmpObj@param@Q,
+                            p_value = scmpObj@Parameters@p_value,
                             vars = "groups",
                             significant.intercept = "dummy",
-                            term.Q = 0.05,
+                            term_p_value = 0.05,
                             includeInflu = TRUE,
                             unique.trend = "any",
                             union.ref.trend = "any",
@@ -74,8 +74,8 @@ sc.get.features <- function(scmpObj,
     rsq = rsq,
     vars = vars,
     significant.intercept = significant.intercept,
-    Q = Q,
-    term.Q = term.Q,
+    p_value = p_value,
+    term_p_value = term_p_value,
     includeInflu = includeInflu
   )
 

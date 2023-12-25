@@ -16,8 +16,8 @@ sc.cluster.trend(
   mclust.k = FALSE,
   k = 9,
   verbose = FALSE,
-  fill_na_by = "zero",
-  fill_dim = "col"
+  fill_na = "zero",
+  use_dim = "col"
 )
 }
 \arguments{
@@ -43,9 +43,9 @@ sc.cluster.trend(
 
 \item{verbose}{description}
 
-\item{fill_na_by}{description}
+\item{fill_na}{description}
 
-\item{fill_dim}{description}
+\item{use_dim}{description}
 }
 \value{
 Generates a plot.

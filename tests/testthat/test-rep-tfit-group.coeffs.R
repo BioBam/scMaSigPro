@@ -23,11 +23,11 @@ test_that("Check-'tfit$group.coeffs'", {
   ]
 
   # Step-3: Create scmp Object
-  test.scmp <- create.scmp(
+  test.scmp <- create_scmp(
     counts = count,
     cell_data = cell_metadata,
-    pseudotime_colname = "Time",
-    path_colname = "Group",
+    ptime_col = "Time",
+    path_col = "Group",
     use_as_bin = T
   )
 
@@ -57,17 +57,17 @@ test_that("Check-'tfit$group.coeffs'", {
 
   # Step-7: Run sc.p.vector
   test.scmp.2 <- sc.p.vector(test.scmp.2,
-    min.na = 20, verbose = FALSE,
+    min_na = 20, verbose = FALSE,
     offset = FALSE, parallel = FALSE, max_it = 25,
     epsilon = 0.00001, family = gaussian()
   )
   test.scmp.3 <- sc.p.vector(test.scmp.3,
-    min.na = 20, verbose = FALSE,
+    min_na = 20, verbose = FALSE,
     offset = FALSE, parallel = FALSE, max_it = 25,
     epsilon = 0.00001, family = gaussian()
   )
   test.scmp.4 <- sc.p.vector(test.scmp.4,
-    min.na = 20, verbose = FALSE,
+    min_na = 20, verbose = FALSE,
     offset = FALSE, parallel = FALSE, max_it = 25,
     epsilon = 0.00001, family = gaussian()
   )

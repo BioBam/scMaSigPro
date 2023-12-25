@@ -6,8 +6,8 @@
 \usage{
 pb_counts(
   scmpObject,
-  bin_members_colname = scmpObject@param@bin_members_colname,
-  bin_colname = scmpObject@param@bin_colname,
+  bin_mem_col = scmpObject@Parameters@bin_mem_col,
+  bin_col = scmpObject@Parameters@bin_col,
   assay_name = "counts",
   cluster_count_by = "sum"
 )
@@ -16,10 +16,10 @@ pb_counts(
 \item{scmpObject}{object of Class scMaSigPro. See \code{\link{ScMaSigPro}}
 for more details.}
 
-\item{bin_members_colname}{Column name in the dense metadata storing information
+\item{bin_mem_col}{Column name in the Dense metadata storing information
 about the members of the bins. (Default is 'scmp_bin_members').}
 
-\item{bin_colname}{Column name in the dense metadata storing information
+\item{bin_col}{Column name in the Dense metadata storing information
 about the bin labels. (Default is 'scmp_bin').}
 
 \item{assay_name}{Name of the Assay in the assay_name object from which

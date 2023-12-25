@@ -34,12 +34,12 @@ showCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE)
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@estimate@coefficient_matrix) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@Estimate@coefficient_matrix) == c(0, 0)),
     msg = "'coefficient_matrix' is not computed yet"
   )
 
   # Extract
-  coefficients <- scmpObj@estimate@coefficient_matrix %>% as.data.frame()
+  coefficients <- scmpObj@Estimate@coefficient_matrix %>% as.data.frame()
 
   if (!includeInflu) {
     influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
@@ -78,12 +78,12 @@ showInflu <- function(scmpObj, view = FALSE, return = TRUE) {
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@estimate@influential) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@Estimate@influential) == c(0, 0)),
     msg = "tscore is not computed yet"
   )
 
   # Extract
-  influ <- scmpObj@estimate@influential
+  influ <- scmpObj@Estimate@influential
 
   # If viewing is requested
   if (view) {
@@ -118,12 +118,12 @@ showTS <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@estimate@t_score_matrix) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@Estimate@t_score_matrix) == c(0, 0)),
     msg = "tscore is not computed yet"
   )
 
   # Extract
-  tscore <- scmpObj@estimate@t_score_matrix
+  tscore <- scmpObj@Estimate@t_score_matrix
 
   if (!includeInflu) {
     influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
@@ -163,12 +163,12 @@ showSol <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@estimate@significance_matrix) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@Estimate@significance_matrix) == c(0, 0)),
     msg = "'significance_matrix' is not computed yet"
   )
 
   # Extract
-  sol <- scmpObj@estimate@significance_matrix %>% as.data.frame()
+  sol <- scmpObj@Estimate@significance_matrix %>% as.data.frame()
 
   if (!includeInflu) {
     influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
@@ -207,14 +207,14 @@ showSigProf <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FAL
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@estimate@significance_matrix) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@Estimate@significance_matrix) == c(0, 0)),
     msg = "Sol is not computed yet"
   )
 
   # Extract
   sol <- showSol(scmpObj, view = FALSE, return = TRUE, includeInflu = includeInflu) %>% as.data.frame()
   # Extract rownames
-  bulk.counts <- scmpObj@dense@assays@data@listData$bulk.counts
+  bulk.counts <- scmpObj@Dense@assays@data@listData$bulk.counts
   bulk.counts <- bulk.counts[rownames(bulk.counts) %in% rownames(sol), , drop = FALSE]
 
   if (!includeInflu) {
@@ -250,12 +250,12 @@ showPoly <- function(scmpObj) {
   )
 
   # Check if the sol exist
-  assert_that(all(!is.na(colnames(scmpObj@design@predictor_matrix)) | length(colnames(scmpObj@design@predictor_matrix) > 1)),
+  assert_that(all(!is.na(colnames(scmpObj@Design@predictor_matrix)) | length(colnames(scmpObj@Design@predictor_matrix) > 1)),
     msg = "Please setup the model first, using 'sc.make.design.matrix()'"
   )
 
   # Extract columns
-  df.col <- colnames(scmpObj@design@predictor_matrix)
+  df.col <- colnames(scmpObj@Design@predictor_matrix)
 
   # Extract betas
   beta_names <- paste0("beta", seq(1:length(df.col)))
@@ -313,7 +313,7 @@ showParams <- function(scmpObj, view = FALSE, return = TRUE) {
   # Add family
   distribution.f <- data.frame(
     parameters = "distribution",
-    value = paste0(scmpObj@param@distribution[["family"]])
+    value = paste0(scmpObj@Parameters@distribution[["family"]])
   )
 
 
@@ -356,12 +356,12 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
   )
 
   # Check if the sol exist
-  assert_that(!all(dim(scmpObj@estimate@path_coefficient_matrix) == c(0, 0)),
+  assert_that(!all(dim(scmpObj@Estimate@path_coefficient_matrix) == c(0, 0)),
     msg = "path_coefficient_matrix is not computed yet"
   )
 
   # Extract
-  grpCoeff <- scmpObj@estimate@path_coefficient_matrix %>% as.data.frame()
+  grpCoeff <- scmpObj@Estimate@path_coefficient_matrix %>% as.data.frame()
 
   if (!includeInflu) {
     influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
@@ -395,22 +395,22 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
 .ScMaSigPro_show <- function(object) {
   # Show Basic information
   cat("Class: ScMaSigProClass\n")
-  cat(paste0("nCells: ", ncol(object@sparse), "\n"))
-  cat(paste0("nFeatures: ", nrow(object@sparse), "\n"))
-  cat("Pseudotime Range:", paste(round(range(colData(object@sparse)[[object@param@pseudotime_colname]]), 3)))
-  cat(paste("\nBranching Paths:", paste(unique(colData(object@sparse)[[object@param@path_colname]]), collapse = ", ")))
+  cat(paste0("nCells: ", ncol(object@Sparse), "\n"))
+  cat(paste0("nFeatures: ", nrow(object@Sparse), "\n"))
+  cat("Pseudotime Range:", paste(round(range(colData(object@Sparse)[[object@Parameters@ptime_col]]), 3)))
+  cat(paste("\nBranching Paths:", paste(unique(colData(object@Sparse)[[object@Parameters@path_col]]), collapse = ", ")))
 
   # Calculate the Compression
   compressed.cell.metadata <- cDense(object)
   if (length(compressed.cell.metadata) > 0) {
     cat(paste0(
-      "\nBinned Pseudotime: ", paste(range(compressed.cell.metadata[[object@param@bin_ptime_col]]), collapse = "-"), "(Range), ",
-      round(mean(compressed.cell.metadata[[object@param@bin_ptime_col]]), 2), "(Mean), "
+      "\nBinned Pseudotime: ", paste(range(compressed.cell.metadata[[object@Parameters@bin_ptime_col]]), collapse = "-"), "(Range), ",
+      round(mean(compressed.cell.metadata[[object@Parameters@bin_ptime_col]]), 2), "(Mean), "
     ))
 
     # Extract info
-    per_path_num_bin <- extract_info(compressed.cell.metadata, return_type = "num_bins", bin_size_col = object@param@bin_size_colname, object@param@path_colname)
-    per_path_bin_size <- round(extract_info(compressed.cell.metadata, return_type = "avg_bin_size", bin_size_col = object@param@bin_size_colname, object@param@path_colname))
+    per_path_num_bin <- extract_info(compressed.cell.metadata, return_type = "num_bins", bin_size_col = object@Parameters@bin_size_col, object@Parameters@path_col)
+    per_path_bin_size <- round(extract_info(compressed.cell.metadata, return_type = "avg_bin_size", bin_size_col = object@Parameters@bin_size_col, object@Parameters@path_col))
 
     # Paste
     cat("\nNumber of bins->", paste(names(per_path_num_bin), per_path_num_bin, sep = ": "))
@@ -418,24 +418,24 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
   }
 
   # Influential Genes if any
-  if (length(colnames(object@design@predictor_matrix)) > 0) {
-    cat(paste("\nPolynomial Order:", object@param@poly_degree))
+  if (length(colnames(object@Design@predictor_matrix)) > 0) {
+    cat(paste("\nPolynomial Order:", object@Parameters@poly_degree))
   }
 
   # Calculate Dynamic Information
-  if (length(object@profile@adj_p_values) > 0) {
-    sig.level <- object@param@Q
-    nSigs <- length(object@profile@adj_p_values[object@profile@adj_p_values <= sig.level])
-    if (all(object@profile@adj_p_values > sig.level)) {
-      cat("\nSig. Profiles (P-vector): None found")
+  if (length(object@Profile@adj_p_values) > 0) {
+    sig.level <- object@Parameters@p_value
+    nSigs <- length(object@Profile@adj_p_values[object@Profile@adj_p_values <= sig.level])
+    if (all(object@Profile@adj_p_values > sig.level)) {
+      cat("\nNo. of Significant Profiles: None found")
     } else {
-      cat(paste("\nSig. Models (sc.p.vector):", nSigs, sep = " "))
+      cat(paste("\nNo. of Significant Profiles:", nSigs, sep = " "))
     }
   }
 
   # Influential Genes if any
-  if (ncol(object@estimate@influential) > 0) {
-    cat(paste("\nNo. of Influential Features:", ncol(object@estimate@influential)))
+  if (ncol(object@Estimate@influential) > 0) {
+    cat(paste("\nNo. of Influential Features:", ncol(object@Estimate@influential)))
   }
 }
 

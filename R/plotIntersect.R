@@ -27,11 +27,11 @@ plotIntersect <- function(scmpObj, min_intersection_size = 2,
   )
 
   # Check if siggenes results exist for groups
-  assert_that(!isEmpty(scmpObj@significant@genes),
+  assert_that(!isEmpty(scmpObj@Significant@genes),
     msg = "'sig.genes@Summary' slot is empty, please run 'sc.get.siggenes'"
   )
 
-  gene_list <- scmpObj@significant@genes
+  gene_list <- scmpObj@Significant@genes
   # Create a unique list of all genes
   all_genes <- unique(unlist(gene_list))
 

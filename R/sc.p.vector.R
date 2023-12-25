@@ -4,9 +4,9 @@
 #' present in the model given by a regression matrix #' and returns a list of FDR corrected significant genes.
 #'
 #' @param scmpObj matrix containing normalized gene expression data. Genes must be in rows and arrays in columns.
-#' @param Q significance level. Default is 0.05.
-#' @param MT.adjust argument to pass to \code{p.adjust} function indicating the method for multiple testing adjustment of p.value.
-#' @param min.na genes with less than this number of true numerical values will be excluded from the analysis.
+#' @param p_value significance level. Default is 0.05.
+#' @param mt_correction argument to pass to \code{p.adjust} function indicating the method for multiple testing adjustment of p.value.
+#' @param min_na genes with less than this number of true numerical values will be excluded from the analysis.
 #'   Minimum value to estimate the model is (degree+1) x Groups + 1. Default is 6.
 #' @param family the distribution function to be used in the glm model.
 #'   It must be specified as a function: \code{gaussian()}, \code{poisson()}, \code{negative.binomial(theta)}...
@@ -15,7 +15,7 @@
 #' @param verbose Name of the analyzed item to show on the screen while \code{T.fit} is in process.
 #' @param offset Whether ro use offset for normalization
 #' @param parallel Enable parallel processing
-#' @param logOffset Take the log of teh offset. Similar to
+#' @param log_offset Take the log of teh offset. Similar to
 #' 'log(estimateSizeFactorsForMatrix)' from DESeq2.
 #' @param max_it Integer giving the maximal number of IWLS iterations.
 #' @details \code{rownames(design)} and \code{colnames(data)} must be identical vectors
@@ -41,13 +41,13 @@
 #'
 #' @export
 #'
-sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
+sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH", min_na = 6,
                         family = negative.binomial(theta = 10),
                         epsilon = 1e-8,
                         verbose = TRUE,
                         offset = TRUE,
                         parallel = FALSE,
-                        logOffset = FALSE,
+                        log_offset = FALSE,
                         max_it = 100) {
   # Check the type of the 'design' parameter and set the corresponding variables
   assert_that(is(scmpObj, "ScMaSigPro"),
@@ -55,25 +55,25 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
   )
 
   # Extract from s4
-  dis <- as.data.frame(scmpObj@design@predictor_matrix)
-  groups.vector <- scmpObj@design@groups.vector
-  alloc <- scmpObj@design@assignment_matrix
+  dis <- as.data.frame(scmpObj@Design@predictor_matrix)
+  groups.vector <- scmpObj@Design@groups.vector
+  alloc <- scmpObj@Design@assignment_matrix
 
   # Convert 'scmpObj' to matrix and select relevant columns based on 'design' rows
-  dat <- as.matrix(scmpObj@dense@assays@data@listData$bulk.counts)
+  dat <- as.matrix(scmpObj@Dense@assays@data@listData$bulk.counts)
   dat <- dat[, as.character(rownames(dis))]
   G <- nrow(dat)
 
   # Add check
-  # assert_that((dat@Dim[1] > 1), msg = paste(min.na, "for 'min.na' is too high. Try lowering the threshold."))
-  assert_that(min.na <= ncol(dat), msg = paste(min.na, "for 'min.na' is too high. Try lowering the threshold."))
+  # assert_that((dat@Dim[1] > 1), msg = paste(min_na, "for 'min_na' is too high. Try lowering the threshold."))
+  assert_that(min_na <= ncol(dat), msg = paste(min_na, "for 'min_na' is too high. Try lowering the threshold."))
 
   # Removing rows with many missings:
   count.na <- function(x) (length(x) - length(x[is.na(x)]))
-  dat <- dat[apply(dat, 1, count.na) >= min.na, ]
+  dat <- dat[apply(dat, 1, count.na) >= min_na, ]
   # if(verbose){
-  #     message(paste("'min.na' is set at", min.na))
-  #     message(paste("After filtering with 'min.na'", scmpObj@dense@assays@data@listData$bulk.counts@Dim[1] - dat@Dim[1], "gene are dropped"))
+  #     message(paste("'min_na' is set at", min_na))
+  #     message(paste("After filtering with 'min_na'", scmpObj@Dense@assays@data@listData$bulk.counts@Dim[1] - dat@Dim[1], "gene are dropped"))
   # }
 
   # Removing rows with all zeros:
@@ -101,7 +101,7 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
   if (offset) {
     dat <- dat + 1
     offsetData <- scmp_estimateSizeFactorsForMatrix(dat)
-    if (logOffset) {
+    if (log_offset) {
       offsetData <- log(offsetData)
     }
   } else {
@@ -129,10 +129,10 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
   useInverseWeights <- FALSE
   if (useWeights) {
     # Get the pathframe
-    compressed.data <- as.data.frame(scmpObj@dense@colData)
+    compressed.data <- as.data.frame(scmpObj@Dense@colData)
 
     # Get bin_name and bin size
-    weight_df <- compressed.data[, c(scmpObj@param@bin_size_colname), drop = TRUE]
+    weight_df <- compressed.data[, c(scmpObj@Parameters@bin_size_colname), drop = TRUE]
 
     # Set names
     names(weight_df) <- rownames(compressed.data)
@@ -197,11 +197,11 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
   sc.p.vector <- unlist(p.vector.list, recursive = T, use.names = T)
   #----------------------------------------------------------------------
   # Correct p-values using FDR correction and select significant genes
-  p.adjusted <- unlist(p.adjust(sc.p.vector, method = MT.adjust, n = length(sc.p.vector)),
+  p.adjusted <- unlist(p.adjust(sc.p.vector, method = mt_correction, n = length(sc.p.vector)),
     recursive = T, use.names = T
   )
   names(p.adjusted) <- names(sc.p.vector)
-  genes.selected <- rownames(dat)[which(p.adjusted <= Q)]
+  genes.selected <- rownames(dat)[which(p.adjusted <= p_value)]
   FDR <- sort(sc.p.vector)[length(genes.selected)]
 
   # Subset the expression values of significant genes
@@ -223,21 +223,21 @@ sc.p.vector <- function(scmpObj, Q = 0.05, MT.adjust = "BH", min.na = 6,
     )
 
     # Update Slot
-    scmpObj@profile <- profile.obj
+    scmpObj@Profile <- profile.obj
 
     # Update Parameter Slot useInverseWeights
-    # scmpObj@param@useWeights <- useWeights
-    scmpObj@param@logOffset <- logOffset
-    # scmpObj@param@logWeights <- logWeights
-    scmpObj@param@max_it <- as.integer(max_it)
-    # scmpObj@param@useInverseWeights <- useInverseWeights
-    scmpObj@param@offset <- offset
-    scmpObj@param@Q <- Q
-    scmpObj@param@min.na <- min.na
-    scmpObj@param@g <- g
-    scmpObj@param@MT.adjust <- MT.adjust
-    scmpObj@param@epsilon <- epsilon
-    scmpObj@param@distribution <- family
+    # scmpObj@Parameters@useWeights <- useWeights
+    scmpObj@Parameters@log_offset <- log_offset
+    # scmpObj@Parameters@logWeights <- logWeights
+    scmpObj@Parameters@max_it <- as.integer(max_it)
+    # scmpObj@Parameters@useInverseWeights <- useInverseWeights
+    scmpObj@Parameters@offset <- offset
+    scmpObj@Parameters@p_value <- p_value
+    scmpObj@Parameters@min_na <- min_na
+    scmpObj@Parameters@g <- g
+    scmpObj@Parameters@mt_correction <- mt_correction
+    scmpObj@Parameters@epsilon <- epsilon
+    scmpObj@Parameters@distribution <- family
 
     return(scmpObj)
   }
