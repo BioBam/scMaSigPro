@@ -11,10 +11,10 @@ sc.get.features(
   union.ref = "Path1",
   union.target = "Path2vsPath1",
   rsq = 0.7,
-  Q = scmpObj@param@Q,
+  p_value = scmpObj@Parameters@p_value,
   vars = "groups",
   significant.intercept = "dummy",
-  term.Q = 0.05,
+  term_p_value = 0.05,
   includeInflu = TRUE,
   unique.trend = "any",
   union.ref.trend = "any",
@@ -37,13 +37,13 @@ Default is 'Path1'.}
 
 \item{rsq}{A numeric value specifying the R-squared threshold.}
 
-\item{Q}{A numeric value, derived from the scmpObj object, for analysis.}
+\item{p_value}{A numeric value, derived from the scmpObj object, for analysis.}
 
 \item{vars}{A string specifying the variables to be used.}
 
 \item{significant.intercept}{A string indicating the treatment of intercepts in the analysis.}
 
-\item{term.Q}{A numeric value specifying the threshold for term significance.}
+\item{term_p_value}{A numeric value specifying the threshold for term significance.}
 
 \item{includeInflu}{A boolean indicating whether to include influencers in the analysis.}
 

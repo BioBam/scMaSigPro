@@ -1,4 +1,4 @@
-#' Get or set the sparse column data of a ScMaSigPro object
+#' Get or set the Sparse column data of a ScMaSigPro object
 #' @param object An object of class `ScMaSigPro`.
 #' @param value The new value for the `colData` slot to set. Optional for getting.
 #' @return `colData` when getting, modified `ScMaSigPro` object when setting.
@@ -19,9 +19,9 @@ setGeneric("cSparse<-", function(object, value) standardGeneric("cSparse<-"))
 #' @export
 setMethod("cSparse", "ScMaSigPro", function(object, value) {
   if (identical(value, "missing")) {
-    return(as.data.frame(object@sparse@colData)) # Getter
+    return(as.data.frame(object@Sparse@colData)) # Getter
   } else {
-    object@sparse@colData <- DataFrame(value) # Setter
+    object@Sparse@colData <- DataFrame(value) # Setter
     return(invisible(object))
   }
 })
@@ -32,11 +32,11 @@ setMethod("cSparse", "ScMaSigPro", function(object, value) {
 #' @return Modified `ScMaSigPro` object.
 #' @export
 setReplaceMethod("cSparse", "ScMaSigPro", function(object, value) {
-  object@sparse@colData <- DataFrame(value)
+  object@Sparse@colData <- DataFrame(value)
   return(object)
 })
 ###############################################################################
-#' Get or set the sparse column data of a ScMaSigPro object
+#' Get or set the Sparse column data of a ScMaSigPro object
 #' @param object An object of class `ScMaSigPro`.
 #' @param value The new value for the `colData` slot to set. Optional for getting.
 #' @return `colData` when getting, modified `ScMaSigPro` object when setting.
@@ -57,9 +57,9 @@ setGeneric("cDense<-", function(object, value) standardGeneric("cDense<-"))
 #' @export
 setMethod("cDense", "ScMaSigPro", function(object, value) {
   if (identical(value, "missing")) {
-    return(as.data.frame(object@dense@colData)) # Getter
+    return(as.data.frame(object@Dense@colData)) # Getter
   } else {
-    object@dense@colData <- DataFrame(value) # Setter
+    object@Dense@colData <- DataFrame(value) # Setter
     return(invisible(object))
   }
 })
@@ -70,7 +70,7 @@ setMethod("cDense", "ScMaSigPro", function(object, value) {
 #' @return Modified `ScMaSigPro` object.
 #' @export
 setReplaceMethod("cDense", "ScMaSigPro", function(object, value) {
-  object@dense@colData <- DataFrame(value)
+  object@Dense@colData <- DataFrame(value)
   return(object)
 })
 ###############################################################################
@@ -112,9 +112,9 @@ setGeneric("eSparse", function(object, value = "missing") standardGeneric("eSpar
 #' @export
 setMethod("eSparse", "ScMaSigPro", function(object, value = "missing") {
   if (identical(value, "missing")) {
-    return(assay(object@sparse)) # Getter: Replace 'assay' with the appropriate getter function for your object
+    return(assay(object@Sparse)) # Getter: Replace 'assay' with the appropriate getter function for your object
   } else {
-    return(assay(object@sparse, value)) # Assuming you don't want a setter for this method
+    return(assay(object@Sparse, value)) # Assuming you don't want a setter for this method
   }
 })
 
@@ -130,7 +130,7 @@ setMethod("eSparse", "ScMaSigPro", function(object, value = "missing") {
 #' @return None
 #' @export
 setMethod("eSparse<-", "ScMaSigPro", function(object, i, value) {
-  assay(object@sparse, i) <- value
+  assay(object@Sparse, i) <- value
   return(invisible(object))
 })
 ##############################################################################
@@ -172,9 +172,9 @@ setGeneric("eDense", function(object, value = "missing") standardGeneric("eDense
 #' @export
 setMethod("eDense", "ScMaSigPro", function(object, value = "missing") {
   if (identical(value, "missing")) {
-    return(assay(object@dense)) # Getter: Replace 'assay' with the appropriate getter function for your object
+    return(assay(object@Dense)) # Getter: Replace 'assay' with the appropriate getter function for your object
   } else {
-    return(assay(object@dense, value)) # Assuming you don't want a setter for this method
+    return(assay(object@Dense, value)) # Assuming you don't want a setter for this method
   }
 })
 
@@ -190,7 +190,7 @@ setMethod("eDense", "ScMaSigPro", function(object, value = "missing") {
 #' @return None
 #' @export
 setMethod("eDense<-", "ScMaSigPro", function(object, i, value) {
-  assay(object@dense, i) <- value
+  assay(object@Dense, i) <- value
   return(invisible(object))
 })
 ##############################################################################
@@ -215,9 +215,9 @@ setGeneric("bAlloc<-", function(object, value) standardGeneric("bAlloc<-"))
 #' @export
 setMethod("bAlloc", "ScMaSigPro", function(object, value) {
   if (identical(value, "missing")) {
-    return(object@design@alloc) # Getter
+    return(object@Design@assignment_matrix) # Getter
   } else {
-    object@design@alloc <- as.matrix(value) # Setter
+    object@Design@assignment_matrix <- as.matrix(value) # Setter
     return(invisible(object))
   }
 })
@@ -228,7 +228,7 @@ setMethod("bAlloc", "ScMaSigPro", function(object, value) {
 #' @return Modified `ScMaSigPro` object.
 #' @export
 setReplaceMethod("bAlloc", "ScMaSigPro", function(object, value) {
-  object@design@alloc <- as.matrix(value)
+  object@Design@assignment_matrix <- as.matrix(value)
   return(object)
 })
 ##############################################################################
@@ -241,20 +241,20 @@ setMethod(
 )
 ###############################################################################
 # Constructor
-ScMaSigPro <- function(sparse = new("SingleCellExperiment"),
-                       profile = new("VariableProfiles"),
-                       estimate = new("Estimates"),
-                       dense = new("SingleCellExperiment"),
-                       design = new("MatrixDesign"),
-                       param = new("ParameterConfig"),
-                       sig.genes = new("Significant")) {
+ScMaSigPro <- function(Sparse = new("SingleCellExperiment"),
+                       Profile = new("VariableProfiles"),
+                       Estimate = new("Estimates"),
+                       Dense = new("SingleCellExperiment"),
+                       Design = new("MatrixDesign"),
+                       Parameters = new("ParameterConfig"),
+                       Significant = new("Significant")) {
   new("ScMaSigPro",
-    sparse = sparse,
-    profile = profile,
-    estimate = estimate,
-    dense = dense,
-    design = design,
-    ParameterConfig = param,
-    sig.genes = sig.genes # new("Significant"),
+    Sparse = Sparse,
+    Profile = Profile,
+    Estimate = Estimate,
+    Dense = Dense,
+    Design = Design,
+    ParameterConfig = Parameters,
+    Significant = Significant # new("Significant"),
   )
 }

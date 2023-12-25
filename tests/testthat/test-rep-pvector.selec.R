@@ -23,11 +23,11 @@ test_that("Check-'fit$p.adjusted'", {
   ]
 
   # Step-3: Create scmp Object
-  test.scmp <- create.scmp(
+  test.scmp <- create_scmp(
     counts = count,
     cell_data = cell_metadata,
-    pseudotime_colname = "Time",
-    path_colname = "Group",
+    ptime_col = "Time",
+    path_col = "Group",
     use_as_bin = T
   )
 
@@ -57,17 +57,17 @@ test_that("Check-'fit$p.adjusted'", {
 
   # Step-7: Run sc.p.vector
   test.scmp.2 <- sc.p.vector(test.scmp.2,
-    min.na = 20, verbose = FALSE,
+    min_na = 20, verbose = FALSE,
     offset = FALSE, parallel = FALSE, max_it = 25,
     epsilon = 0.00001, family = gaussian()
   )
   test.scmp.3 <- sc.p.vector(test.scmp.3,
-    min.na = 20, verbose = FALSE,
+    min_na = 20, verbose = FALSE,
     offset = FALSE, parallel = FALSE, max_it = 25,
     epsilon = 0.00001, family = gaussian()
   )
   test.scmp.4 <- sc.p.vector(test.scmp.4,
-    min.na = 20, verbose = FALSE,
+    min_na = 20, verbose = FALSE,
     offset = FALSE, parallel = FALSE, max_it = 25,
     epsilon = 0.00001, family = gaussian()
   )
@@ -76,16 +76,16 @@ test_that("Check-'fit$p.adjusted'", {
   # Poly-order-2
   expect_identical(
     expected = rownames(fit_2$SELEC),
-    object = test.scmp.2@profile@non.flat
+    object = test.scmp.2@Profile@non_flat
   )
   # Poly-order-3
   expect_identical(
     expected = rownames(fit_3$SELEC),
-    object = test.scmp.3@profile@non.flat
+    object = test.scmp.3@Profile@non_flat
   )
   # Poly-order-4
   expect_identical(
     expected = rownames(fit_4$SELEC),
-    object = test.scmp.4@profile@non.flat
+    object = test.scmp.4@Profile@non_flat
   )
 })

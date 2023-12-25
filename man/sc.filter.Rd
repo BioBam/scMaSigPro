@@ -7,10 +7,10 @@
 sc.filter(
   scmpObj,
   rsq = 0.7,
-  Q = scmpObj@param@Q,
+  p_value = scmpObj@Parameters@p_value,
   vars = c("all", "each", "groups"),
   significant.intercept = "dummy",
-  term.Q = 0.05,
+  term_p_value = 0.05,
   includeInflu = TRUE
 )
 }
@@ -20,7 +20,7 @@ sc.filter(
 
 \item{rsq}{Cut-off level at the R-squared value for the stepwise regression fit.}
 
-\item{Q}{overall model significance}
+\item{p_value}{overall model significance}
 
 \item{vars}{Variables for which to extract significant genes. There are 3 possible values:
 \itemize{
@@ -31,7 +31,7 @@ sc.filter(
 
 \item{significant.intercept}{Experimental groups for which significant intercept coefficients are considered.}
 
-\item{term.Q}{Term wise significance
+\item{term_p_value}{Term wise significance
 Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).}
 
 \item{includeInflu}{description}

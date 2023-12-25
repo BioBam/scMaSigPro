@@ -2,7 +2,7 @@ suppressPackageStartupMessages(library(testthat))
 suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(maSigPro))
 
-test_that("Check-'fit$p.adjusted'", {
+test_that("Check-'tfit$group.coeffs'", {
   # Step-1: Load Data
   data("data.abiotic")
   data("edesign.abiotic")
@@ -17,7 +17,10 @@ test_that("Check-'fit$p.adjusted'", {
   })
 
   # Step-2.2: Remove Binary Columns
-  cell_metadata <- cell_metadata[, !(colnames(cell_metadata) %in% c("Control", "Cold", "Heat", "Salt")), drop = FALSE]
+  cell_metadata <- cell_metadata[, !(colnames(cell_metadata) %in%
+    c("Control", "Cold", "Heat", "Salt")),
+  drop = FALSE
+  ]
 
   # Step-3: Create scmp Object
   test.scmp <- create_scmp(
@@ -69,20 +72,21 @@ test_that("Check-'fit$p.adjusted'", {
     epsilon = 0.00001, family = gaussian()
   )
 
-  # Check-fdr
+  # Step-8: Run t.fit
+  gc <- capture_output(tstep_2 <- T.fit(fit_2, step.method = "backward", alfa = 0.05))
+  gc <- capture_output(tstep_3 <- T.fit(fit_3, step.method = "backward", alfa = 0.05))
+  gc <- capture_output(tstep_4 <- T.fit(fit_4, step.method = "backward", alfa = 0.05))
+
+  # Step-9: Run sc.t.fit
+  test.scmp.2 <- sc.t.fit(test.scmp.2, verbose = FALSE)
+  test.scmp.3 <- sc.t.fit(test.scmp.3, verbose = FALSE)
+  test.scmp.4 <- sc.t.fit(test.scmp.4, verbose = FALSE)
+
+  # Check-sol
   # Poly-order-2
-  expect_identical(
-    expected = as.vector(fit_2$p.adjusted),
-    object = as.vector(test.scmp.2@Profile@adj_p_values)
-  )
+  expect_identical(as.data.frame(showGroupCoeff(test.scmp.2)), expected = tstep_2$group.coeffs)
   # Poly-order-3
-  expect_identical(
-    expected = as.vector(fit_3$p.adjusted),
-    object = as.vector(test.scmp.3@Profile@adj_p_values)
-  )
+  expect_identical(as.data.frame(showGroupCoeff(test.scmp.3)), expected = tstep_3$group.coeffs)
   # Poly-order-4
-  expect_identical(
-    expected = as.vector(fit_4$p.adjusted),
-    object = as.vector(test.scmp.4@Profile@adj_p_values)
-  )
+  expect_identical(as.data.frame(showGroupCoeff(test.scmp.4)), expected = tstep_4$group.coeffs)
 })

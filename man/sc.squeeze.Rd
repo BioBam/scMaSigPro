@@ -6,14 +6,14 @@
 \usage{
 sc.squeeze(
   scmpObject,
-  pseudotime_colname = scmpObject@param@pseudotime_colname,
-  path_colname = scmpObject@param@path_colname,
+  ptime_col = scmpObject@Parameters@ptime_col,
+  path_col = scmpObject@Parameters@path_col,
   bin_method = "Sturges",
   drop_fac = 1,
   verbose = FALSE,
-  bin_members_colname = "scmp_bin_members",
-  bin_colname = "scmp_bin",
-  bin_size_colname = "scmp_bin_size",
+  bin_mem_col = "scmp_bin_members",
+  bin_col = "scmp_bin",
+  bin_size_col = "scmp_bin_size",
   bin_ptime_col = "scmp_binned_pseudotime",
   split_bins = FALSE,
   prune_bins = FALSE,
@@ -28,11 +28,11 @@ sc.squeeze(
 \item{scmpObject}{object of Class scMaSigPro. See \code{\link{ScMaSigPro}}
 for more details.}
 
-\item{pseudotime_colname}{Name of the column in `cell.metadata` storing
+\item{ptime_col}{Name of the column in `cell.metadata` storing
 Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment}
 package. (Default is "Pseudotime").}
 
-\item{path_colname}{Name of the column in `cell.metadata` storing information
+\item{path_col}{Name of the column in `cell.metadata` storing information
 for Path. Generated using `colData` from the \pkg{SingleCellExperiment}
 package. (Default is `path_prefix`).}
 
@@ -47,11 +47,11 @@ number of bins if the initial binning results in too many bins. (Default = 1).}
 \item{verbose}{Print detailed output in the console. (Default is TRUE)
 per path iteratively. Options: "universal", "individual. (Default = "universal").}
 
-\item{bin_members_colname}{Name of the column in the 'annotated_cell_metadata'}
+\item{bin_mem_col}{Name of the column in the 'annotated_cell_metadata'}
 
-\item{bin_colname}{Name of the bin column name}
+\item{bin_col}{Name of the bin column name}
 
-\item{bin_size_colname}{Setting the name of the bin size column.}
+\item{bin_size_col}{Setting the name of the bin size column.}
 
 \item{bin_ptime_col}{Name of the column to store the computed Pseudotime
 bins.}
@@ -78,7 +78,7 @@ A data.frame that contains the original data plus additional columns:
 - 'bin_size' : Size of the bin
 - 'binned_time' : Interval range of each bin
 This function returns the merged data.frame with new discretized
-pseudotime_colname, preserving the original rownames.
+ptime_col, preserving the original rownames.
 }
 \description{
 `squeeze()` discretizes a continuous time series column into bins

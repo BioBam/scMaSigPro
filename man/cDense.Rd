@@ -2,7 +2,7 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{cDense}
 \alias{cDense}
-\title{Get or set the sparse column data of a ScMaSigPro object}
+\title{Get or set the Sparse column data of a ScMaSigPro object}
 \usage{
 cDense(object, value = "missing")
 }
@@ -15,5 +15,5 @@ cDense(object, value = "missing")
 `colData` when getting, modified `ScMaSigPro` object when setting.
 }
 \description{
-Get or set the sparse column data of a ScMaSigPro object
+Get or set the Sparse column data of a ScMaSigPro object
 }

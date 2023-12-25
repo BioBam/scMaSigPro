@@ -4,15 +4,15 @@
 #'
 #' @param scmpObj Can either be a \code{\link{p.vector}} object or a matrix containing expression scmpObj with the same requirements as for
 #' the \code{\link{p.vector}} function.
-#' @param step.method Argument to be passed to the step function. Can be either \code{"backward"}, \code{"forward"}, \code{"two.ways.backward"}, or \code{"two.ways.forward"}.
-#' @param Q Significance level used for variable selection in the stepwise regression.
-#' @param nvar.correction Argument for correcting T.fit significance level. See details.
+#' @param selection_method Argument to be passed to the step function. Can be either \code{"backward"}, \code{"forward"}, \code{"two.ways.backward"}, or \code{"two.ways.forward"}.
+#' @param p_value Significance level used for variable selection in the stepwise regression.
+#' @param nvar_correction Argument for correcting T.fit significance level. See details.
 #' @param family The distribution function to be used in the glm model. It must be the same used in \code{p.vector}.
 #' @param epsilon Argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.
 #' @param verbose Name of the analyzed item to show on the screen while \code{T.fit} is in process.
 #' @param offset Whether ro use offset for normalization
 #' @param parallel description
-#' @param logOffset description
+#' @param log_offset description
 #' @param max_it description
 #'
 #' @details
@@ -22,7 +22,7 @@
 #' The step regression can be \code{"backward"} or \code{"forward"}, indicating whether the step procedure starts from the
 #' model with all or none variables. With the \code{"two.ways.backward"} or \code{"two.ways.forward"} options, the variables are both allowed to get in and out.
 #' At each step, the p-value of each variable is computed, and variables get in/out of the model when this p-value is
-#' lower or higher than the given threshold \code{Q}. When \code{nvar.correction} is TRUE, the given significance level is corrected by the number of variables in the model.
+#' lower or higher than the given threshold \code{p_value}. When \code{nvar_correction} is TRUE, the given significance level is corrected by the number of variables in the model.
 #'
 #' @return
 #' A list containing the following elements:
@@ -39,7 +39,7 @@
 #' \item{g}{Number of genes taken in the regression fit.}
 #' \item{dat}{Input analysis scmpObj matrix.}
 #' \item{dis}{Regression design matrix.}
-#' \item{step.method}{Imputed step method for stepwise regression.}
+#' \item{selection_method}{Imputed step method for stepwise regression.}
 #' \item{alloc}{Matrix of experimental design.}
 #' \item{influ.info}{scmpObj frame of genes containing influential scmpObj.}
 #'
@@ -57,30 +57,30 @@
 #' @keywords models
 #' @export
 sc.t.fit <- function(scmpObj,
-                     step.method = "backward",
-                     Q = scmpObj@param@Q,
-                     nvar.correction = FALSE,
-                     family = scmpObj@param@distribution,
-                     epsilon = scmpObj@param@epsilon,
-                     offset = scmpObj@param@offset,
+                     selection_method = "backward",
+                     p_value = scmpObj@Parameters@p_value,
+                     nvar_correction = FALSE,
+                     family = scmpObj@Parameters@distribution,
+                     epsilon = scmpObj@Parameters@epsilon,
+                     offset = scmpObj@Parameters@offset,
                      verbose = TRUE,
                      parallel = FALSE,
-                     logOffset = scmpObj@param@logOffset,
-                     max_it = scmpObj@param@max_it) {
+                     log_offset = scmpObj@Parameters@log_offset,
+                     max_it = scmpObj@Parameters@max_it) {
   assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'ScMaSigPro'"
   )
 
   # Transfer Data
-  dis <- scmpObj@design@predictor
-  Q <- scmpObj@param@Q
-  groups.vector <- scmpObj@design@groups.vector
+  dis <- scmpObj@Design@predictor_matrix
+  p_value <- scmpObj@Parameters@p_value
+  groups.vector <- scmpObj@Design@groups.vector
   groups.vector <- c(groups.vector[nchar(groups.vector) == min(nchar(groups.vector))][1], groups.vector)
-  alloc <- scmpObj@design@alloc
-  G <- scmpObj@param@g
+  alloc <- scmpObj@Design@assignment_matrix
+  G <- scmpObj@Parameters@g
 
-  dat.all <- scmpObj@dense@assays@data@listData$bulk.counts
-  dat <- dat.all[scmpObj@profile@non.flat, , drop = F]
+  dat.all <- scmpObj@Dense@assays@data@listData$bulk.counts
+  dat <- dat.all[scmpObj@Profile@non_flat, , drop = F]
   dat <- rbind(c(rep(1, ncol(dat))), dat)
   dat <- dat[, as.character(rownames(dis))]
 
@@ -92,8 +92,8 @@ sc.t.fit <- function(scmpObj,
   influ.info <- matrix(NA, nrow = nrow(dis), ncol = 1)
   rownames(influ.info) <- rownames(dis)
 
-  if (nvar.correction) {
-    Q <- Q / ncol(dis)
+  if (nvar_correction) {
+    p_value <- p_value / ncol(dis)
   }
 
   # Check for weight usage
@@ -102,10 +102,10 @@ sc.t.fit <- function(scmpObj,
   logWeights <- FALSE
   if (useWeights) {
     # Get the pathframe
-    compressed.data <- as.data.frame(scmpObj@dense@colData)
+    compressed.data <- as.data.frame(scmpObj@Dense@colData)
 
     # Get bin_name and bin size
-    weight_df <- compressed.data[, c(scmpObj@param@bin_size_colname), drop = TRUE]
+    weight_df <- compressed.data[, c(scmpObj@Parameters@bin_size_colname), drop = TRUE]
 
     # Set names
     names(weight_df) <- rownames(compressed.data)
@@ -127,7 +127,7 @@ sc.t.fit <- function(scmpObj,
   if (offset) {
     dat <- dat + 1
     offsetData <- scmp_estimateSizeFactorsForMatrix(dat)
-    if (logOffset) {
+    if (log_offset) {
       offsetData <- log(offsetData)
     }
   } else {
@@ -161,8 +161,8 @@ sc.t.fit <- function(scmpObj,
   names(y_input) <- rownames(dat)[-1]
 
   # Select the covariates
-  if (step.method == "backward") {
-    result_list <- parallel::mclapply(names(y_input), function(gene_name, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it) {
+  if (selection_method == "backward") {
+    result_list <- parallel::mclapply(names(y_input), function(gene_name, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = p_value, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it) {
       # result_list <- lapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info) {
       y <- y_input[[gene_name]]
 
@@ -186,8 +186,8 @@ sc.t.fit <- function(scmpObj,
       # ))
     }, mc.cores = numCores, mc.set.seed = 2023)
     # })
-  } else if (step.method == "forward") {
-    result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it) {
+  } else if (selection_method == "forward") {
+    result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = p_value, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it) {
       y <- y_input[[gene_name]]
 
       reg_scmpObj <- sc.stepfor(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply, useWeight = weights_lapply, max_it = max_it_lapply)
@@ -203,8 +203,8 @@ sc.t.fit <- function(scmpObj,
       }
       return(extract_fitting(reg = reg_scmpObj, lmf = lmf_scmpObj, model.glm.0 = model.glm.0_scmpObj, dis = dis_lapply, family = family_lapply, name = gene_name, vars.in = vars_in_lapply, alfa = Q_lapply, influ.info = influ.info_lapply))
     }, mc.cores = numCores, mc.set.seed = 2023)
-  } else if (step.method == "two.ways.backward") {
-    result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it) {
+  } else if (selection_method == "two.ways.backward") {
+    result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = p_value, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it) {
       y <- y_input[[gene_name]]
 
       reg_scmpObj <- sc.two.ways.stepback(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply, useWeight = weights_lapply, max_it = max_it_lapply)
@@ -221,8 +221,8 @@ sc.t.fit <- function(scmpObj,
       return(extract_fitting(reg = reg_scmpObj, lmf = lmf_scmpObj, model.glm.0 = model.glm.0_scmpObj, dis = dis_lapply, family = family_lapply, name = gene_name, vars.in = vars_in_lapply, alfa = Q_lapply, influ.info = influ.info_lapply))
     }, mc.cores = numCores, mc.set.seed = 2023)
     # })
-  } else if (step.method == "two.ways.forward") {
-    result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = Q, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it) {
+  } else if (selection_method == "two.ways.forward") {
+    result_list <- parallel::mclapply(names(y_input), function(gene_name, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetData_lapply = offsetData, pb_lapply = pb, verbose_lapply = verbose, vars_in_lapply = vars.in, Q_lapply = p_value, influ.info_lapply = influ.info, weights_lapply = weight_df, max_it_lapply = max_it) {
       y <- y_input[[gene_name]]
 
       reg_scmpObj <- sc.two.ways.stepfor(y = y, d = as.data.frame(dis_lapply), alfa = Q_lapply, family = family_lapply, epsilon = epsilon_lapply, useOffset = offsetData_lapply, useWeight = weights_lapply, max_it = max_it_lapply)
@@ -338,25 +338,25 @@ sc.t.fit <- function(scmpObj,
 
   # Create a constructor for the class
   t.fit.object <- new("Estimates",
-    sol = sol,
-    coefficients = coefficients,
-    group.coeffs = group.coeffs,
-    t.score = t.score,
+    significance_matrix = as.matrix(sol),
+    coefficient_matrix = as.matrix(coefficients),
+    path_coefficient_matrix = group.coeffs,
+    t_score_matrix = as.matrix(t.score),
     path = groups.vector,
-    influ.info = influ.info
+    influential = influ.info
   )
 
   # Added Tfit
-  scmpObj@estimate <- t.fit.object
+  scmpObj@Estimate <- t.fit.object
 
   # Update Parameter Slot
-  scmpObj@param@Q <- Q
-  scmpObj@param@logOffset <- logOffset
-  scmpObj@param@max_it <- as.integer(max_it)
-  scmpObj@param@offset <- offset
-  scmpObj@param@epsilon <- epsilon
-  scmpObj@param@step.method <- step.method
-  scmpObj@param@distribution <- family
+  scmpObj@Parameters@p_value <- p_value
+  scmpObj@Parameters@log_offset <- log_offset
+  scmpObj@Parameters@max_it <- as.integer(max_it)
+  scmpObj@Parameters@offset <- offset
+  scmpObj@Parameters@epsilon <- epsilon
+  scmpObj@Parameters@selection_method <- selection_method
+  scmpObj@Parameters@distribution <- family
 
   return(scmpObj)
 }

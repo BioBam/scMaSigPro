@@ -5,31 +5,31 @@
 #' object. It produces tile plot to display the bin sizes across different
 #' binned time intervals and paths.
 #'
-#' @param scmpObj A ScMaSigPro class object with an additional slot '@dense' that
+#' @param scmpObj A ScMaSigPro class object with an additional slot 'Dense' that
 #' contains compression information.
-#' @param path_colname Name of the column in `cell.metadata` storing information
+#' @param path_col Name of the column in `cell.metadata` storing information
 #' for Path.
-#' @param bin_size_colname A title of the barplot
+#' @param bin_size_col A title of the barplot
 #' @param bin_ptime_col description
 #'
 #' @return A tile plot made with `geom_tile()`, visualizing the bin sizes across
 #' different binned time and paths.
 #' @export
 plotBinTile <- function(scmpObj,
-                        path_colname = scmpObj@param@path_colname,
-                        bin_size_colname = scmpObj@param@bin_size_colname,
-                        bin_ptime_col = scmpObj@param@bin_ptime_col) {
+                        path_col = scmpObj@Parameters@path_col,
+                        bin_size_col = scmpObj@Parameters@bin_size_col,
+                        bin_ptime_col = scmpObj@Parameters@bin_ptime_col) {
   # Check Object Validity
   assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'scMaSigPro'."
   )
 
   # Check whether the compression data exist or not
-  compression.info <- as.data.frame(colData(scmpObj@dense))
+  compression.info <- as.data.frame(colData(scmpObj@Dense))
 
   # Check for extended data
   if (nrow(compression.info) < 1) {
-    compression.info <- as.data.frame(colData(scmpObj@sparse))
+    compression.info <- as.data.frame(colData(scmpObj@Sparse))
   }
 
   # Check if values are binned
@@ -38,15 +38,15 @@ plotBinTile <- function(scmpObj,
   )
 
   # get conesa colors
-  conesa_colors <- getConesaColors()[c(TRUE, FALSE)][c(1:length(unique(compression.info[[path_colname]])))]
-  names(conesa_colors) <- unique(unique(compression.info[[path_colname]]))
+  conesa_colors <- getConesaColors()[c(TRUE, FALSE)][c(1:length(unique(compression.info[[path_col]])))]
+  names(conesa_colors) <- unique(unique(compression.info[[path_col]]))
 
   # Create plot data
   plt.data <- data.frame(
     pTime = as.factor(compression.info[[bin_ptime_col]]),
     bin = compression.info[[bin_ptime_col]],
-    path = compression.info[[path_colname]],
-    binSize = compression.info[[bin_size_colname]]
+    path = compression.info[[path_col]],
+    binSize = compression.info[[bin_size_col]]
   )
 
   # Create plot
@@ -54,9 +54,9 @@ plotBinTile <- function(scmpObj,
     geom_tile(aes(fill = .data$binSize)) +
     scale_fill_gradient(low = "#FDA3D1", high = "#FDC659") +
     geom_text(aes(label = sprintf("%d", round(.data$binSize, 1))), vjust = 1) +
-    labs(fill = bin_size_colname) +
+    labs(fill = bin_size_col) +
     xlab(bin_ptime_col) +
-    ylab(path_colname) +
+    ylab(path_col) +
     theme_minimal()
 
   return(tile)

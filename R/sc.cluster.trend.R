@@ -13,8 +13,8 @@
 #' @param verbose description
 #' @param kmeans.iter.max description
 #' @param mclust.k description
-#' @param fill_na_by description
-#' @param fill_dim description
+#' @param fill_na description
+#' @param use_dim description
 #'
 #' @import ggplot2
 #' @importFrom stats complete.cases cutree hclust
@@ -34,16 +34,16 @@ sc.cluster.trend <- function(scmpObj,
                              mclust.k = FALSE,
                              k = 9,
                              verbose = FALSE,
-                             fill_na_by = "zero",
-                             fill_dim = "col") {
+                             fill_na = "zero",
+                             use_dim = "col") {
   # Global vars
   scmp_clusters <- "scmp_clusters"
 
   # Check if the gene set exists
-  assert_that(any(geneSet %in% c(names(scmpObj@sig.genes@sig.genes), "intersect", "union")),
+  assert_that(any(geneSet %in% c(names(scmpObj@Significant@genes), "intersect", "union")),
     msg = paste(
       paste0("'", geneSet, "'"), "does not exist. Please use one of",
-      paste(c(names(scmpObj@sig.genes@sig.genes), "intersect", "union"), collapse = ", ")
+      paste(c(names(scmpObj@Significant@genes), "intersect", "union"), collapse = ", ")
     )
   )
   assert_that(any(cluster_by %in% c("coeff", "counts")),
@@ -52,15 +52,15 @@ sc.cluster.trend <- function(scmpObj,
       paste(c("coeff", "counts"), collapse = ", ")
     )
   )
-  assert_that(any(fill_dim %in% c("row", "col")),
+  assert_that(any(use_dim %in% c("row", "col")),
     msg = paste(
-      paste0("'", fill_dim, "'"), "is not a valid option. Please use one of",
+      paste0("'", use_dim, "'"), "is not a valid option. Please use one of",
       paste(c("row", "col"), collapse = ", ")
     )
   )
-  assert_that(any(fill_na_by %in% c("mean", "median", "zero")),
+  assert_that(any(fill_na %in% c("mean", "median", "zero")),
     msg = paste(
-      paste0("'", fill_na_by, "'"), "is not a valid option. Please use one of",
+      paste0("'", fill_na, "'"), "is not a valid option. Please use one of",
       paste(c("mean", "median", "zero"), collapse = ", ")
     )
   )
@@ -73,11 +73,11 @@ sc.cluster.trend <- function(scmpObj,
 
   # Get gene set vector
   if (geneSet == "intersect") {
-    gene_set_vector <- Reduce(intersect, scmpObj@sig.genes@sig.genes)
+    gene_set_vector <- Reduce(intersect, scmpObj@Significant@genes)
   } else if (geneSet == "union") {
-    gene_set_vector <- Reduce(union, scmpObj@sig.genes@sig.genes)
+    gene_set_vector <- Reduce(union, scmpObj@Significant@genes)
   } else {
-    gene_set_vector <- scmpObj@sig.genes@sig.genes[[geneSet]]
+    gene_set_vector <- scmpObj@Significant@genes[[geneSet]]
   }
 
   # Extract data based on 'cluster_by'
@@ -92,37 +92,37 @@ sc.cluster.trend <- function(scmpObj,
   }
 
   # Check fill by
-  if (fill_dim == "row") {
-    use_dim <- 1
+  if (use_dim == "row") {
+    dim <- 1
   } else if (
-    fill_dim == "col"
+    use_dim == "col"
   ) {
-    use_dim <- 2
+    dim <- 2
   }
 
   # Replace NAs with column means
-  if (fill_na_by == "mean") {
-    cluster_matrix_input <- apply(cluster_matrix_input, use_dim, function(x) {
+  if (fill_na == "mean") {
+    cluster_matrix_input <- apply(cluster_matrix_input, dim, function(x) {
       x[is.na(x)] <- mean(x, na.rm = TRUE)
       return(x)
     })
-  } else if (fill_na_by == "median") {
-    cluster_matrix_input <- apply(cluster_matrix_input, use_dim, function(x) {
+  } else if (fill_na == "median") {
+    cluster_matrix_input <- apply(cluster_matrix_input, dim, function(x) {
       x[is.na(x)] <- median(x, na.rm = TRUE)
       return(x)
     })
-  } else if (fill_na_by == "zero") {
-    cluster_matrix_input <- apply(cluster_matrix_input, use_dim, function(x) {
+  } else if (fill_na == "zero") {
+    cluster_matrix_input <- apply(cluster_matrix_input, dim, function(x) {
       x[is.na(x)] <- 0
       return(x)
     })
   }
 
   # Transpose if neccesary
-  if (fill_dim == "col") {
+  if (use_dim == "col") {
     # Transpose the matrix
     cluster_data <- cluster_matrix_input
-  } else if (fill_dim == "row") {
+  } else if (use_dim == "row") {
     cluster_data <- t(cluster_matrix_input)
   }
 
@@ -159,12 +159,12 @@ sc.cluster.trend <- function(scmpObj,
 
   cluster.vector <- clusters_df[["scmp_clusters"]]
   names(cluster.vector) <- clusters_df[["feature_id"]]
-  scmpObj@sig.genes@feature.clusters <- as.list(cluster.vector)
+  scmpObj@Significant@clusters <- as.list(cluster.vector)
 
   # Update Parameters
-  scmpObj@param@cluster.method <- cluster_method
-  scmpObj@param@cluster.fill.dim <- fill_dim
-  scmpObj@param@cluster.fill.na <- fill_na_by
+  scmpObj@Parameters@cluster_method <- cluster_method
+  scmpObj@Parameters@use_dim <- use_dim
+  scmpObj@Parameters@fill_na <- fill_na
 
   return(scmpObj)
 }

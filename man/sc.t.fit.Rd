@@ -6,27 +6,27 @@
 \usage{
 sc.t.fit(
   scmpObj,
-  step.method = "backward",
-  Q = scmpObj@param@Q,
-  nvar.correction = FALSE,
-  family = scmpObj@param@distribution,
-  epsilon = scmpObj@param@epsilon,
-  offset = scmpObj@param@offset,
+  selection_method = "backward",
+  p_value = scmpObj@Parameters@p_value,
+  nvar_correction = FALSE,
+  family = scmpObj@Parameters@distribution,
+  epsilon = scmpObj@Parameters@epsilon,
+  offset = scmpObj@Parameters@offset,
   verbose = TRUE,
   parallel = FALSE,
-  logOffset = scmpObj@param@logOffset,
-  max_it = scmpObj@param@max_it
+  log_offset = scmpObj@Parameters@log_offset,
+  max_it = scmpObj@Parameters@max_it
 )
 }
 \arguments{
 \item{scmpObj}{Can either be a \code{\link{p.vector}} object or a matrix containing expression scmpObj with the same requirements as for
 the \code{\link{p.vector}} function.}
 
-\item{step.method}{Argument to be passed to the step function. Can be either \code{"backward"}, \code{"forward"}, \code{"two.ways.backward"}, or \code{"two.ways.forward"}.}
+\item{selection_method}{Argument to be passed to the step function. Can be either \code{"backward"}, \code{"forward"}, \code{"two.ways.backward"}, or \code{"two.ways.forward"}.}
 
-\item{Q}{Significance level used for variable selection in the stepwise regression.}
+\item{p_value}{Significance level used for variable selection in the stepwise regression.}
 
-\item{nvar.correction}{Argument for correcting T.fit significance level. See details.}
+\item{nvar_correction}{Argument for correcting T.fit significance level. See details.}
 
 \item{family}{The distribution function to be used in the glm model. It must be the same used in \code{p.vector}.}
 
@@ -38,7 +38,7 @@ the \code{\link{p.vector}} function.}
 
 \item{parallel}{description}
 
-\item{logOffset}{description}
+\item{log_offset}{description}
 
 \item{max_it}{description}
 }
@@ -57,7 +57,7 @@ A list containing the following elements:
 \item{g}{Number of genes taken in the regression fit.}
 \item{dat}{Input analysis scmpObj matrix.}
 \item{dis}{Regression design matrix.}
-\item{step.method}{Imputed step method for stepwise regression.}
+\item{selection_method}{Imputed step method for stepwise regression.}
 \item{alloc}{Matrix of experimental design.}
 \item{influ.info}{scmpObj frame of genes containing influential scmpObj.}
 }
@@ -71,7 +71,7 @@ first selected based on a general model, and then the significant variables for 
 The step regression can be \code{"backward"} or \code{"forward"}, indicating whether the step procedure starts from the
 model with all or none variables. With the \code{"two.ways.backward"} or \code{"two.ways.forward"} options, the variables are both allowed to get in and out.
 At each step, the p-value of each variable is computed, and variables get in/out of the model when this p-value is
-lower or higher than the given threshold \code{Q}. When \code{nvar.correction} is TRUE, the given significance level is corrected by the number of variables in the model.
+lower or higher than the given threshold \code{p_value}. When \code{nvar_correction} is TRUE, the given significance level is corrected by the number of variables in the model.
 }
 \references{
 {Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.

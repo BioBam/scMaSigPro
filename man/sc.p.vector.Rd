@@ -6,26 +6,26 @@
 \usage{
 sc.p.vector(
   scmpObj,
-  Q = 0.05,
-  MT.adjust = "BH",
-  min.na = 6,
+  p_value = 0.05,
+  mt_correction = "BH",
+  min_na = 6,
   family = negative.binomial(theta = 10),
   epsilon = 1e-08,
   verbose = TRUE,
   offset = TRUE,
   parallel = FALSE,
-  logOffset = FALSE,
+  log_offset = FALSE,
   max_it = 100
 )
 }
 \arguments{
 \item{scmpObj}{matrix containing normalized gene expression data. Genes must be in rows and arrays in columns.}
 
-\item{Q}{significance level. Default is 0.05.}
+\item{p_value}{significance level. Default is 0.05.}
 
-\item{MT.adjust}{argument to pass to \code{p.adjust} function indicating the method for multiple testing adjustment of p.value.}
+\item{mt_correction}{argument to pass to \code{p.adjust} function indicating the method for multiple testing adjustment of p.value.}
 
-\item{min.na}{genes with less than this number of true numerical values will be excluded from the analysis.
+\item{min_na}{genes with less than this number of true numerical values will be excluded from the analysis.
 Minimum value to estimate the model is (degree+1) x Groups + 1. Default is 6.}
 
 \item{family}{the distribution function to be used in the glm model.
@@ -40,7 +40,7 @@ If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = 
 
 \item{parallel}{Enable parallel processing}
 
-\item{logOffset}{Take the log of teh offset. Similar to
+\item{log_offset}{Take the log of teh offset. Similar to
 'log(estimateSizeFactorsForMatrix)' from DESeq2.}
 
 \item{max_it}{Integer giving the maximal number of IWLS iterations.}

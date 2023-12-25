@@ -7,7 +7,7 @@
 create_range(
   x,
   bin_size_colname = "scmp_bin_size",
-  bin_colname = "scmp_bin",
+  bin_col = "scmp_bin",
   verbose = TRUE
 )
 }

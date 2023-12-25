@@ -6,19 +6,19 @@
 \usage{
 plotBinTile(
   scmpObj,
-  path_colname = scmpObj@param@path_colname,
-  bin_size_colname = scmpObj@param@bin_size_colname,
-  bin_ptime_col = scmpObj@param@bin_ptime_col
+  path_col = scmpObj@Parameters@path_col,
+  bin_size_col = scmpObj@Parameters@bin_size_col,
+  bin_ptime_col = scmpObj@Parameters@bin_ptime_col
 )
 }
 \arguments{
-\item{scmpObj}{A ScMaSigPro class object with an additional slot '@dense' that
+\item{scmpObj}{A ScMaSigPro class object with an additional slot 'Dense' that
 contains compression information.}
 
-\item{path_colname}{Name of the column in `cell.metadata` storing information
+\item{path_col}{Name of the column in `cell.metadata` storing information
 for Path.}
 
-\item{bin_size_colname}{A title of the barplot}
+\item{bin_size_col}{A title of the barplot}
 
 \item{bin_ptime_col}{description}
 }

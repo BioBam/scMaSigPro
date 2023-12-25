@@ -41,7 +41,7 @@ plotTrendCluster <- function(scmpObj,
   feature_id <- "feature_id"
 
   # Check
-  assert_that(!isEmpty(scmpObj@sig.genes@feature.clusters),
+  assert_that(!isEmpty(scmpObj@Significant@clusters),
     msg = "Please run 'sc.cluster.trend', before plotting cluster trends"
   )
 
@@ -53,10 +53,10 @@ plotTrendCluster <- function(scmpObj,
   )
 
   # Extract Gene_Set
-  gene_set_vector <- names(scmpObj@sig.genes@feature.clusters)
+  gene_set_vector <- names(scmpObj@Significant@clusters)
 
   # Extarct cluster set
-  gene_cluster_vector <- paste("cluster", as.vector(unlist(scmpObj@sig.genes@feature.clusters)),
+  gene_cluster_vector <- paste("cluster", as.vector(unlist(scmpObj@Significant@clusters)),
     sep = "_"
   )
 
@@ -244,15 +244,15 @@ plotTrendCluster <- function(scmpObj,
   # Fix cluster info
   points_combined[["cluster"]] <- paste0(
     paste("Cluster", str_split_i(string = points_combined[["cluster"]], pattern = "_", i = 2), sep = ": "),
-    " (", points_combined[["num"]], "Features)"
+    " (", points_combined[["num"]], " Features)"
   )
   lines_combined[["cluster"]] <- paste0(
     paste("Cluster", str_split_i(string = lines_combined[["cluster"]], pattern = "_", i = 2), sep = ": "),
-    " (", lines_combined[["num"]], "Features)"
+    " (", lines_combined[["num"]], " Features)"
   )
   curves_combined[["cluster"]] <- paste0(
     paste("Cluster", str_split_i(string = curves_combined[["cluster"]], pattern = "_", i = 2), sep = ": "),
-    " (", curves_combined[["num"]], "Features)"
+    " (", curves_combined[["num"]], " Features)"
   )
 
   # Initiate plotting

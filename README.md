@@ -2,7 +2,7 @@
 
 Implementation of MaSigPro for scRNA-Seq Data
 
-[![lint](https://github.com/BioBam/scMaSigPro/actions/workflows/lint.yaml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/lint.yaml)  [![R-CMD-Check](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml)   [![test-coverage](https://github.com/BioBam/scMaSigPro/actions/workflows/test-coverage.yaml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/test-coverage.yaml)   [![render-rmarkdown](https://github.com/BioBam/scMaSigPro/actions/workflows/render-rmarkdown.yaml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/render-rmarkdown.yaml)
+[![lint](https://github.com/BioBam/scMaSigPro/actions/workflows/lint.yaml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/lint.yaml)  [![R-CMD-Check](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml)   [![test-coverage](https://github.com/BioBam/scMaSigPro/actions/workflows/test-coverage.yaml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/test-coverage.yaml)
 
 ---
 
