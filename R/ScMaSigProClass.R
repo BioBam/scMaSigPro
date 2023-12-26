@@ -32,7 +32,8 @@
 #' metadata containing cell level annotations. (Default is "cell_type").
 #' @slot g Update Description..
 #' @slot p_value Significance Level.
-#' @slot min_na Minimum values needed to estimate the model.
+#' @slot min_na Minimum values needed per gene across cells to estimate the
+#' model.
 #' @slot mt_correction A character string specifying the p-value correction
 #' method.
 #' @slot epsilon Model convergence tolerance.
@@ -41,12 +42,13 @@
 #' @slot offset A logical value specifying whether to use offset during fitting.
 #' @slot log_offset A logical value specifying whether to take the logarithm of
 #' the offsets.
-#' @slot max_it Integer. Maximum number of iterations to fit the model.
-#' @slot poly_degree Integer with the polynomial degree to fit the regression. 1
-#' @slot distribution Distribution used
-#' @slot cluster_method Description
-#' @slot use_dim description
-#' @slot fill_na description
+#' @slot max_it Maximum number of iterations to fit the model.
+#' @slot poly_degree Order of the polynomial linear model.
+#' @slot distribution Distribution of the error term.
+#' @slot cluster_method Clustering method used for clustring significant genes.
+#' @slot use_dim Dimension to use for filling the missing values before
+#' clustering.
+#' @slot fill_na Method to fill the missing values.
 #'
 #' @name ParameterConfig
 #' @aliases ParameterConfig-class
@@ -100,14 +102,11 @@ setClass(
       }
     }
 
-    # Check for slot g
     if (!is.integer(object@g)) {
       stop("Slot 'g' must be an integer.")
     }
 
-    # Check for slot Q
     if (!is.numeric(object@p_value)) {
-      stop("Slot 'p_value' must be numeric.")
     }
 
     if (!is.numeric(object@epsilon)) {
