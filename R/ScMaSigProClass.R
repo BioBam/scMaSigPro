@@ -45,7 +45,7 @@
 #' @slot max_it Maximum number of iterations to fit the model.
 #' @slot poly_degree Order of the polynomial linear model.
 #' @slot distribution Distribution of the error term.
-#' @slot cluster_method Clustering method used for clustring significant genes.
+#' @slot cluster_method Clustering method used for clustering significant genes.
 #' @slot use_dim Dimension to use for filling the missing values before
 #' clustering.
 #' @slot fill_na Method to fill the missing values.

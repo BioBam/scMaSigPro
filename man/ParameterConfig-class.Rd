@@ -69,7 +69,7 @@ the offsets.}
 
 \item{\code{distribution}}{Distribution of the error term.}
 
-\item{\code{cluster_method}}{Clustering method used for clustring significant genes.}
+\item{\code{cluster_method}}{Clustering method used for clustering significant genes.}
 
 \item{\code{use_dim}}{Dimension to use for filling the missing values before
 clustering.}

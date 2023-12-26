@@ -45,8 +45,8 @@ factor for this column.
 \author{
 Simon Anders
 Please cite as
-Love, M.I., Huber, W., Anders, S. Moderated estimation of fold change and dispersion for RNA-seq data with
-DESeq2 Genome Biology 15(12):550 (2014)
+Love, M.I., Huber, W., Anders, S. Moderated estimation of fold change and
+dispersion for RNA-seq data with DESeq2 Genome Biology 15(12):550 (2014)
 
 Low-level function to estimate size factors with robust regression.
 }

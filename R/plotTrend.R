@@ -6,7 +6,7 @@
 #' @import ggplot2
 #' @importFrom RColorConesa getConesaColors
 #'
-#' @param scmpObj object of class ScMaSigPro.
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param feature_id Name of the gene to be plotted.
 #' @param xlab X-axis label. (Default is "Pooled Pseudotime")
 #' @param ylab Y-axis label. (Default is "Pseudobulk Expression")
@@ -17,10 +17,9 @@
 #' 'log2', 'log10'. (Default is 'log')
 #' @param pseudoCount Add a pseudo-count before taking the log. (Default is 1)
 #' @param significant Plot gene only if the models are significant based on
-#' \code{\link{scMaSigPro::sc.filter()}}. (Default is TRUE)
-#' @param summary_mode Compress the expression values for per replicate
-#' (if present) per binned pseudotime point. Default is 'median'. Other option
-#' 'mean'
+#' \code{scMaSigPro::sc.filter()}. (Default is TRUE)
+#' @param summary_mode Compress the expression values per replicate (if present)
+#'  per binned pseudotime point. Default is 'median'. Other option 'mean'
 #'
 #' @return ggplot2 plot object.
 #'

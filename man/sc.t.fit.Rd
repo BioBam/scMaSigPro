@@ -2,7 +2,7 @@
 % Please edit documentation in R/sc.t.fit.R
 \name{sc.t.fit}
 \alias{sc.t.fit}
-\title{Makes a stepwise regression fit for time series gene expression experiments}
+\title{Perform stepwise regression fit to select for significant terms.}
 \usage{
 sc.t.fit(
   scmpObj,
@@ -19,70 +19,51 @@ sc.t.fit(
 )
 }
 \arguments{
-\item{scmpObj}{Can either be a \code{\link{p.vector}} object or a matrix containing expression scmpObj with the same requirements as for
-the \code{\link{p.vector}} function.}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{selection_method}{Argument to be passed to the step function. Can be either \code{"backward"}, \code{"forward"}, \code{"two.ways.backward"}, or \code{"two.ways.forward"}.}
+\item{selection_method}{Method for stepwise regression.}
 
-\item{p_value}{Significance level used for variable selection in the stepwise regression.}
+\item{p_value}{Significance level used for variable selection in the stepwise
+regression.}
 
-\item{nvar_correction}{Argument for correcting T.fit significance level. See details.}
+\item{nvar_correction}{Argument for correcting significance level. See details.}
 
-\item{family}{The distribution function to be used in the glm model. It must be the same used in \code{p.vector}.}
+\item{family}{Distribution of the error term.}
 
-\item{epsilon}{Argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.}
+\item{epsilon}{Model convergence tolerance.}
 
-\item{offset}{Whether ro use offset for normalization}
+\item{offset}{A logical value specifying whether to use offset during fitting.}
 
-\item{verbose}{Name of the analyzed item to show on the screen while \code{T.fit} is in process.}
+\item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{parallel}{description}
+\item{parallel}{Use forking process to run parallelly. (Default is FALSE)
+(Currently, Windows is not supported)}
 
-\item{log_offset}{description}
+\item{log_offset}{A logical value specifying whether to take the logarithm of
+the offsets.}
 
-\item{max_it}{description}
+\item{max_it}{Maximum number of iterations to fit the model.}
 }
 \value{
-A list containing the following elements:
-\item{sol}{Matrix for summary results of the stepwise regression. For each selected gene, the following values are given:
-\itemize{
-  \item p-value of the regression ANOVA
-  \item R-squared of the model
-  \item p-value of the regression coefficients of the selected variables
-}}
-\item{coefficients}{Matrix containing regression coefficients for the adjusted models.}
-\item{group.coeffs}{Matrix containing the coefficients of the implicit models of each experimental group.}
-\item{variables}{Variables in the complete regression model.}
-\item{G}{Total number of input genes.}
-\item{g}{Number of genes taken in the regression fit.}
-\item{dat}{Input analysis scmpObj matrix.}
-\item{dis}{Regression design matrix.}
-\item{selection_method}{Imputed step method for stepwise regression.}
-\item{alloc}{Matrix of experimental design.}
-\item{influ.info}{scmpObj frame of genes containing influential scmpObj.}
+An object of class \code{\link{ScMaSigPro}}, with updated `Estimate`
+slot.
 }
 \description{
-\code{s.t.fit} selects the best regression model for each gene using stepwise regression.
-}
-\details{
-In the maSigPro approach, \code{\link{p.vector}} and \code{\link{T.fit}} are subsequent steps, meaning that significant genes are
-first selected based on a general model, and then the significant variables for each gene are found by step-wise regression.
-
-The step regression can be \code{"backward"} or \code{"forward"}, indicating whether the step procedure starts from the
-model with all or none variables. With the \code{"two.ways.backward"} or \code{"two.ways.forward"} options, the variables are both allowed to get in and out.
-At each step, the p-value of each variable is computed, and variables get in/out of the model when this p-value is
-lower or higher than the given threshold \code{p_value}. When \code{nvar_correction} is TRUE, the given significance level is corrected by the number of variables in the model.
+Performs stepwise regression and selects the significant polynomial terms 
+from the full polynomial model. This function is succeeded by 
+\code{scMaSigPro::sc.p.vector()}.
 }
 \references{
 {Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
-maSigPro: a Method to Identify Significant Differential Expression Profiles in Time-Course Microarray Experiments.
-Bioinformatics 22, 1096-1102}
+maSigPro: a Method to Identify Significant Differential Expression Profiles
+in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
 }
 \seealso{
-{\code{\link{p.vector}}, \code{\link{step}}}
+\code{\link{Estimates}} Class.
 }
 \author{
-{Ana Conesa and Maria Jose Nueda, \email{mj.nueda@ua.es}}
+Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and 
+Maria Jose Nueda, \email{mj.nueda@ua.es}
 }
 \keyword{models}
 \keyword{regression}

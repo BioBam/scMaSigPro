@@ -18,7 +18,7 @@ plotTrend(
 )
 }
 \arguments{
-\item{scmpObj}{object of class ScMaSigPro.}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
 \item{feature_id}{Name of the gene to be plotted.}
 
@@ -36,12 +36,11 @@ higher values will result in more linear trends. (Default is 0.01)}
 
 \item{pseudoCount}{Add a pseudo-count before taking the log. (Default is 1)}
 
-\item{significant}{Plot gene only if the models are significant based on 
-\code{\link{scMaSigPro::sc.filter()}}. (Default is TRUE)}
+\item{significant}{Plot gene only if the models are significant based on
+\code{scMaSigPro::sc.filter()}. (Default is TRUE)}
 
-\item{summary_mode}{Compress the expression values for per replicate 
-(if present) per binned pseudotime point. Default is 'median'. Other option
-'mean'}
+\item{summary_mode}{Compress the expression values per replicate (if present)
+per binned pseudotime point. Default is 'median'. Other option 'mean'}
 }
 \value{
 ggplot2 plot object.

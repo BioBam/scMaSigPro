@@ -21,7 +21,7 @@ plotTrendCluster(
 )
 }
 \arguments{
-\item{scmpObj}{object of class ScMaSigPro.}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
 \item{xlab}{X-axis label. (Default is "Pooled Pseudotime")}
 
@@ -29,9 +29,8 @@ plotTrendCluster(
 
 \item{plot}{Whether to plot 'coeff' or 'counts'. (Default is 'counts')}
 
-\item{summary_mode}{Compress the expression values for per replicate 
-(if present) per binned pseudotime point. Default is 'median'. Other option
-'mean'}
+\item{summary_mode}{Compress the expression values per replicate (if present)
+per binned pseudotime point. Default is 'median'. Other option 'mean'}
 
 \item{logs}{Whether to log transform counts. (Default is TRUE)}
 
@@ -41,15 +40,15 @@ plotTrendCluster(
 \item{smoothness}{How smooth the trend should be. Setting to
 higher values will result in more linear trends. (Default is 0.01)}
 
-\item{includeInflu}{Include gene only if it has influential data. 
+\item{includeInflu}{Include gene only if it has influential data.
 (Default is TRUE)}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
 \item{pseudoCount}{Add a pseudo-count before taking the log. (Default is 1)}
 
-\item{significant}{Include gene only if the models are significant based on 
-\code{\link{scMaSigPro::sc.filter()}}. (Default is TRUE)}
+\item{significant}{Include gene only if the models are significant based on
+\code{scMaSigPro::sc.filter()}. (Default is TRUE)}
 
 \item{parallel}{Use forking process to run parallelly. (Default is FALSE)
 (Currently, Windows is not supported)}

@@ -10,7 +10,7 @@
 #' @importFrom stringr str_split_i
 #' @importFrom stats as.dist cor kmeans
 #'
-#' @param scmpObj object of class ScMaSigPro.
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param xlab X-axis label. (Default is "Pooled Pseudotime")
 #' @param ylab Y-axis label. (Default is "Pseudobulk Expression")
 #' @param plot Whether to plot 'coeff' or 'counts'. (Default is 'counts')
@@ -22,13 +22,12 @@
 #' @param includeInflu Include gene only if it has influential data.
 #' (Default is TRUE)
 #' @param significant Include gene only if the models are significant based on
-#' \code{\link{scMaSigPro::sc.filter()}}. (Default is TRUE)
+#' \code{scMaSigPro::sc.filter()}. (Default is TRUE)
 #' @param parallel Use forking process to run parallelly. (Default is FALSE)
 #' (Currently, Windows is not supported)
 #' @param verbose Print detailed output in the console. (Default is TRUE)
-#' @param summary_mode Compress the expression values for per replicate
-#' (if present) per binned pseudotime point. Default is 'median'. Other option
-#' 'mean'
+#' @param summary_mode Compress the expression values per replicate (if present)
+#'  per binned pseudotime point. Default is 'median'. Other option 'mean'
 #' @param pseudoCount Add a pseudo-count before taking the log. (Default is 1)
 #'
 #' @return ggplot2 plot object.

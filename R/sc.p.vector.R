@@ -1,47 +1,47 @@
-#' Make regression fit for Binned Pseudotime. Adaption of maSigPro::p.vector()
+#' @title Perform fitting with full model.
 #'
-#' \code{sc.p.vector} performs a regression fit for each gene taking all variables
-#' present in the model given by a regression matrix #' and returns a list of FDR corrected significant genes.
-#'
-#' @param scmpObj matrix containing normalized gene expression data. Genes must be in rows and arrays in columns.
-#' @param p_value significance level. Default is 0.05.
-#' @param mt_correction argument to pass to \code{p.adjust} function indicating the method for multiple testing adjustment of p.value.
-#' @param min_na genes with less than this number of true numerical values will be excluded from the analysis.
-#'   Minimum value to estimate the model is (degree+1) x Groups + 1. Default is 6.
-#' @param family the distribution function to be used in the glm model.
-#'   It must be specified as a function: \code{gaussian()}, \code{poisson()}, \code{negative.binomial(theta)}...
-#'   If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = TRUE} or \code{gaussian()} when \code{counts = FALSE}.
-#' @param epsilon argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.
-#' @param verbose Name of the analyzed item to show on the screen while \code{T.fit} is in process.
-#' @param offset Whether ro use offset for normalization
-#' @param parallel Enable parallel processing
-#' @param log_offset Take the log of teh offset. Similar to
-#' 'log(estimateSizeFactorsForMatrix)' from DESeq2.
-#' @param max_it Integer giving the maximal number of IWLS iterations.
-#' @details \code{rownames(design)} and \code{colnames(data)} must be identical vectors
-#'   and indicate array naming. \code{rownames(data)} should contain unique gene IDs.
-#'   \code{colnames(design)} are the given names for the variables in the regression model.
-#'
-#' @return ScMaSigPro object
-
-#' @references Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
-#' maSigPro: a Method to Identify Significant Differential Expression Profiles in Time-Course Microarray Experiments.
-#' Bioinformatics 22, 1096-1102
-#'
-#' @author Ana Conesa, Maria Jose Nueda and Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
-#' @seealso \code{\link{T.fit}}, \code{\link{lm}}
-#'
-#' @keywords regression
+#' @description
+#' Performs a regression fit for each gene taking all variables present in the
+#' model.
 #'
 #' @importFrom stats anova dist glm median na.omit p.adjust glm.control
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom parallelly availableCores
 #' @importFrom MASS negative.binomial glm.nb
 #'
-#' @export
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
+#' @param p_value Significance level used for variable selection in the stepwise
+#' regression.
+#' @param mt_correction A character string specifying the p-value correction
+#' method.
+#' @param min_na Minimum values needed per gene across cells to estimate the
+#' model.
+#' @param family  Distribution of the error term.
+#' @param epsilon Model convergence tolerance.
+#' @param offset logical value specifying whether to use offset during fitting.
+#' @param log_offset A logical value specifying whether to take the logarithm of
+#' the offsets.
+#' @param max_it Maximum number of iterations to fit the model.
+#' @param parallel Use forking process to run parallelly. (Default is FALSE)
+#' (Currently, Windows is not supported)
+#' @param verbose Print detailed output in the console. (Default is TRUE)
 #'
-sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH", min_na = 6,
+#' @return An object of class \code{\link{ScMaSigPro}}, with updated `Profile`
+#' slot.
+#'
+#' @seealso \code{\link{VariableProfiles}}
+#'
+#' @references Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
+#' maSigPro: a Method to Identify Significant Differential Expression Profiles
+#' in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}, Ana Conesa and
+#' Maria Jose Nueda, \email{mj.nueda@@ua.es}
+#'
+#' @keywords regression models
+#' @export
+sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
+                        min_na = 6,
                         family = negative.binomial(theta = 10),
                         epsilon = 1e-8,
                         verbose = TRUE,
@@ -66,7 +66,12 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH", min_na = 
 
   # Add check
   # assert_that((dat@Dim[1] > 1), msg = paste(min_na, "for 'min_na' is too high. Try lowering the threshold."))
-  assert_that(min_na <= ncol(dat), msg = paste(min_na, "for 'min_na' is too high. Try lowering the threshold."))
+  assert_that(min_na <= ncol(dat),
+    msg = paste(
+      min_na,
+      "for 'min_na' is too high. Try lowering the threshold."
+    )
+  )
 
   # Removing rows with many missings:
   count.na <- function(x) (length(x) - length(x[is.na(x)]))
@@ -132,7 +137,9 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH", min_na = 
     compressed.data <- as.data.frame(scmpObj@Dense@colData)
 
     # Get bin_name and bin size
-    weight_df <- compressed.data[, c(scmpObj@Parameters@bin_size_colname), drop = TRUE]
+    weight_df <- compressed.data[, c(scmpObj@Parameters@bin_size_colname),
+      drop = TRUE
+    ]
 
     # Set names
     names(weight_df) <- rownames(compressed.data)
@@ -149,7 +156,15 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH", min_na = 
   } else {
     weight_df <- NULL
   }
-  p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat, dis_lapply = dis, family_lapply = family, epsilon_lapply = epsilon, offsetdata_lapply = offsetData, pb_lapply = pb, weights_lapply = weight_df, verbose_lapply = verbose, max_it_lapply = max_it) {
+  p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat,
+                                          dis_lapply = dis,
+                                          family_lapply = family,
+                                          epsilon_lapply = epsilon,
+                                          offsetdata_lapply = offsetData,
+                                          pb_lapply = pb,
+                                          weights_lapply = weight_df,
+                                          verbose_lapply = verbose,
+                                          max_it_lapply = max_it) {
     y <- as.numeric(dat_lapply[i, ])
 
     # Print prog_lapplyress every 100 g_lapplyenes
@@ -197,7 +212,11 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH", min_na = 
   sc.p.vector <- unlist(p.vector.list, recursive = T, use.names = T)
   #----------------------------------------------------------------------
   # Correct p-values using FDR correction and select significant genes
-  p.adjusted <- unlist(p.adjust(sc.p.vector, method = mt_correction, n = length(sc.p.vector)),
+  p.adjusted <- unlist(
+    p.adjust(sc.p.vector,
+      method = mt_correction,
+      n = length(sc.p.vector)
+    ),
     recursive = T, use.names = T
   )
   names(p.adjusted) <- names(sc.p.vector)
