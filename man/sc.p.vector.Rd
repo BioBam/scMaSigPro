@@ -51,7 +51,7 @@ An object of class \code{\link{ScMaSigPro}}, with updated `Profile`
 slot.
 }
 \description{
-Performs a regression fit for each gene taking all variables present in the 
+Performs a regression fit for each gene taking all variables present in the
 model.
 }
 \references{
@@ -63,7 +63,7 @@ in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102
 \code{\link{VariableProfiles}}
 }
 \author{
-Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and 
+Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and
 Maria Jose Nueda, \email{mj.nueda@ua.es}
 }
 \keyword{models}

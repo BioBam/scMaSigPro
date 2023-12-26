@@ -9,7 +9,7 @@
 #' @importFrom stats influence.measures
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param selection_method Method for stepwise regression.
+#' @param selection_method Method for step-wise regression.
 #' @param p_value Significance level used for variable selection in the stepwise
 #' regression.
 #' @param nvar_correction Argument for correcting significance level. See details.

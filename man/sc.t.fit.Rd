@@ -21,7 +21,7 @@ sc.t.fit(
 \arguments{
 \item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{selection_method}{Method for stepwise regression.}
+\item{selection_method}{Method for step-wise regression.}
 
 \item{p_value}{Significance level used for variable selection in the stepwise
 regression.}
@@ -49,8 +49,8 @@ An object of class \code{\link{ScMaSigPro}}, with updated `Estimate`
 slot.
 }
 \description{
-Performs stepwise regression and selects the significant polynomial terms 
-from the full polynomial model. This function is succeeded by 
+Performs stepwise regression and selects the significant polynomial terms
+from the full polynomial model. This function is succeeded by
 \code{scMaSigPro::sc.p.vector()}.
 }
 \references{
@@ -62,7 +62,7 @@ in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
 \code{\link{Estimates}} Class.
 }
 \author{
-Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and 
+Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and
 Maria Jose Nueda, \email{mj.nueda@ua.es}
 }
 \keyword{models}

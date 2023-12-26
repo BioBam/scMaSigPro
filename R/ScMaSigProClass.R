@@ -20,7 +20,7 @@
 #' @slot bin_method A character string representing the algorithm used for
 #' binning.
 #' @slot path_col A character string representing the column name for branching
-#' path assignment in 'Sparse' or 'Dense'data. See `colData` from the
+#' path assignment in 'Sparse' or 'Dense' data. See `colData` from the
 #' \pkg{SingleCellExperiment} package.
 #' @slot bin_col A character string representing the name of the column in which
 #' bin labels are stored.

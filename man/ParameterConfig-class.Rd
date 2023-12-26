@@ -28,7 +28,7 @@ for inferred Pseudotime values in 'Sparse' data. See `colData` from the
 binning.}
 
 \item{\code{path_col}}{A character string representing the column name for branching
-path assignment in 'Sparse' or 'Dense'data. See `colData` from the
+path assignment in 'Sparse' or 'Dense' data. See `colData` from the
 \pkg{SingleCellExperiment} package.}
 
 \item{\code{bin_col}}{A character string representing the name of the column in which

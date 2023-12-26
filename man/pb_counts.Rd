@@ -5,15 +5,15 @@
 \title{Create Pseduo-bulk Counts}
 \usage{
 pb_counts(
-  scmpObject,
-  bin_mem_col = scmpObject@Parameters@bin_mem_col,
-  bin_col = scmpObject@Parameters@bin_col,
+  scmpObj,
+  bin_mem_col = scmpObj@Parameters@bin_mem_col,
+  bin_col = scmpObj@Parameters@bin_col,
   assay_name = "counts",
   cluster_count_by = "sum"
 )
 }
 \arguments{
-\item{scmpObject}{object of Class scMaSigPro. See \code{\link{ScMaSigPro}}
+\item{scmpObj}{object of Class scMaSigPro. See \code{\link{ScMaSigPro}}
 for more details.}
 
 \item{bin_mem_col}{Column name in the Dense metadata storing information
