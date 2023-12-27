@@ -1,4 +1,4 @@
-#' Align pseudotime from two different paths
+#' @title Align Pseudotime from two different paths.
 #'
 #' @description
 #' `align_pseudotime()` is an internal function that aligns the pseudotime from
@@ -11,33 +11,38 @@
 #' @importFrom scales rescale
 #' @importFrom S4Vectors DataFrame
 #'
-#' @param pseudotime_col Chacarcter string with the column name in `cell.metadata` storing
-#' Pseudotime values. It is generated using `colData` from the \pkg{SingleCellExperiment}
-#' package. (Default is "Pseudotime")
-#' @param path_col Chacarcter string with the column name in `cell.metadata` storing information
-#' for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
+#' @param scmpObj description
+#' @param ptime_col A character string representing the column name
+#' for inferred Pseudotime values in 'Sparse' data. See `colData` from the
+#' \pkg{SingleCellExperiment} package. (Default is "Pseudotime")
+#' @param path_col A character string representing the column name for branching
+#' path assignment in 'Sparse' data. See `colData` from the
+#' \pkg{SingleCellExperiment} package.
 #' (Default is `path_prefix`)
-#' @param method Currently only `scales::rescale` is supported. (Default is "rescale")
+#' @param method Method used for re-scaling the longer pseudotime value. Currently
+#' only `scales::rescale` is supported. (Default is "rescale")
 #' @param verbose Print detailed output in the console. (Default is TRUE)
+#'
+#' @return An object of class \code{\link{ScMaSigPro}}, with aligned pseudotime.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #' @keywords internal
-
-align_pseudotime <- function(scmpObj, pseudotime_col, path_col, method = "rescale", verbose = TRUE) {
+align_pseudotime <- function(scmpObj, ptime_col, path_col, method = "rescale",
+                             verbose = TRUE) {
   # Extract Cell metadata
-  cell.metadata <- scmpObj@sparse@colData %>% as.data.frame()
+  cell.metadata <- scmpObj@Sparse@colData %>% as.data.frame()
 
   # Extract Time and Path info with cell
-  cell.metadata.sub <- cell.metadata[, c(pseudotime_col, path_col), drop = FALSE]
+  cell.metadata.sub <- cell.metadata[, c(ptime_col, path_col), drop = FALSE]
   cell.metadata.sub$cell <- rownames(cell.metadata.sub)
 
   # Get paths
   path.vec <- unique(cell.metadata.sub[[path_col]])
 
   # Get paths
-  path1_time <- cell.metadata.sub[cell.metadata.sub[[path_col]] == path.vec[1], pseudotime_col]
+  path1_time <- cell.metadata.sub[cell.metadata.sub[[path_col]] == path.vec[1], ptime_col]
   names(path1_time) <- cell.metadata.sub[cell.metadata.sub[[path_col]] == path.vec[1], "cell"]
-  path2_time <- cell.metadata.sub[cell.metadata.sub[[path_col]] == path.vec[2], pseudotime_col]
+  path2_time <- cell.metadata.sub[cell.metadata.sub[[path_col]] == path.vec[2], ptime_col]
   names(path2_time) <- cell.metadata.sub[cell.metadata.sub[[path_col]] == path.vec[2], "cell"]
 
   # Get list
@@ -48,29 +53,44 @@ align_pseudotime <- function(scmpObj, pseudotime_col, path_col, method = "rescal
 
   if (length(pTimeVectors) == 4) {
     if (verbose) {
-      message(paste(pTimeVectors$long_vec_label, "is greater than", pTimeVectors$short_vec_label))
-      message(paste("Adjusting", pTimeVectors$long_vec_label, "from", paste(pTimeVectors$short_vec_label, collapse = "-")))
+      message(paste(
+        pTimeVectors$long_vec_label, "is greater than",
+        pTimeVectors$short_vec_label
+      ))
+      message(paste(
+        "Adjusting", pTimeVectors$long_vec_label, "from",
+        paste(pTimeVectors$short_vec_label, collapse = "-")
+      ))
     }
 
     # Check for requested method
     if (method == "rescale") {
       # Update
-      pTimeVectors$long_vec <- rescale(pTimeVectors$long_vec, to = c(min(pTimeVectors$short_vec), max(pTimeVectors$short_vec)))
+      pTimeVectors$long_vec <- rescale(pTimeVectors$long_vec,
+        to = c(
+          min(pTimeVectors$short_vec),
+          max(pTimeVectors$short_vec)
+        )
+      )
 
       if (verbose) {
-        message(paste("New range for the pseudotime of", pTimeVectors$long_vec_label, "is now rescaled tp", paste(range(pTimeVectors$short_vec), collapse = "-")))
+        message(paste(
+          "New range for the pseudotime of",
+          pTimeVectors$long_vec_label, "is now rescaled tp",
+          paste(range(pTimeVectors$short_vec), collapse = "-")
+        ))
       }
 
       short_tmp <- data.frame(
         time = pTimeVectors$short_vec,
         cell = names(pTimeVectors$short_vec)
       )
-      colnames(short_tmp) <- c(paste(pseudotime_col, "rescaled", sep = "_"), "cell")
+      colnames(short_tmp) <- c(paste(ptime_col, "rescaled", sep = "_"), "cell")
       long_tmp <- data.frame(
         time = pTimeVectors$long_vec,
         cell = names(pTimeVectors$long_vec)
       )
-      colnames(long_tmp) <- c(paste(pseudotime_col, "rescaled", sep = "_"), "cell")
+      colnames(long_tmp) <- c(paste(ptime_col, "rescaled", sep = "_"), "cell")
       new_time <- rbind(short_tmp, long_tmp)
 
       # Merge
@@ -78,13 +98,17 @@ align_pseudotime <- function(scmpObj, pseudotime_col, path_col, method = "rescal
       rownames(cell.metadata) <- cell.metadata[["cell"]]
 
       # Drop cell
-      cell.metadata <- cell.metadata[, colnames(cell.metadata) != "cell", drop = FALSE]
+      cell.metadata <- cell.metadata[, colnames(cell.metadata) != "cell",
+        drop = FALSE
+      ]
 
       # Add
-      scmpObj@sparse@colData <- DataFrame(cell.metadata)
+      scmpObj@Sparse@colData <- DataFrame(cell.metadata)
 
       # Update Pseudotime
-      scmpObj@param@pseudotime_colname <- paste(pseudotime_col, "rescaled", sep = "_")
+      scmpObj@Parameters@ptime_colname <- paste(ptime_col, "rescaled",
+        sep = "_"
+      )
     } else {
       if (verbose) {
         message("Currently only 'scales::rescale' is supported")

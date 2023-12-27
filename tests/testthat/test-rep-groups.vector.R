@@ -2,7 +2,7 @@ suppressPackageStartupMessages(library(testthat))
 suppressPackageStartupMessages(library(scMaSigPro))
 suppressPackageStartupMessages(library(maSigPro))
 
-test_that("Check-'design$groups.vector' Reproducibility: Match, Dimension, Name and Value", {
+test_that("Check-'design$groups.vector'", {
   # Step-1: Load Data
   data("data.abiotic")
   data("edesign.abiotic")
@@ -17,14 +17,17 @@ test_that("Check-'design$groups.vector' Reproducibility: Match, Dimension, Name 
   })
 
   # Step-2.2: Remove Binary Columns
-  cell_metadata <- cell_metadata[, !(colnames(cell_metadata) %in% c("Control", "Cold", "Heat", "Salt")), drop = FALSE]
+  cell_metadata <- cell_metadata[, !(colnames(cell_metadata) %in%
+    c("Control", "Cold", "Heat", "Salt")),
+  drop = FALSE
+  ]
 
   # Step-3: Create scmp Object
-  test.scmp <- create.scmp(
+  test.scmp <- create_scmp(
     counts = count,
     cell_data = cell_metadata,
-    pseudotime_colname = "Time",
-    path_colname = "Group",
+    ptime_col = "Time",
+    path_col = "Group",
     use_as_bin = T
   )
 
@@ -42,16 +45,16 @@ test_that("Check-'design$groups.vector' Reproducibility: Match, Dimension, Name 
   # Poly-order-2
   expect_identical(
     expected = design_2$groups.vector,
-    object = test.scmp.2@design@groups.vector
+    object = test.scmp.2@Design@groups.vector
   )
   # Poly-order-3
   expect_identical(
     expected = design_3$groups.vector,
-    object = test.scmp.3@design@groups.vector
+    object = test.scmp.3@Design@groups.vector
   )
   # Poly-order-4
   expect_identical(
     expected = design_4$groups.vector,
-    object = test.scmp.4@design@groups.vector
+    object = test.scmp.4@Design@groups.vector
   )
 })

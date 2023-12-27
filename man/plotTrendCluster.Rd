@@ -2,63 +2,63 @@
 % Please edit documentation in R/plotTrendCluster.R
 \name{plotTrendCluster}
 \alias{plotTrendCluster}
-\title{Plot Groups Function}
+\title{Plot multiple trends of the multiple genes.}
 \usage{
 plotTrendCluster(
   scmpObj,
-  geneSet,
   xlab = "Pooled Pseudotime",
   ylab = "Pseudobulk Expression",
-  cluster_by = "coeff",
-  cluster_method = "hclust",
-  logs = TRUE,
+  plot = "counts",
+  summary_mode = "median",
+  logs = FALSE,
   logType = "log",
-  smoothness = 0.01,
-  k = 9,
+  smoothness = 1,
   includeInflu = TRUE,
-  distance = "cor",
-  hclust.agglo_method = "ward.D",
-  result = "plot",
+  verbose = TRUE,
+  pseudoCount = 1,
   significant = FALSE,
   parallel = FALSE
 )
 }
 \arguments{
-\item{scmpObj}{object of class scmpObj}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{geneSet}{description}
+\item{xlab}{X-axis label. (Default is "Pooled Pseudotime")}
 
-\item{xlab}{X-axis label. Default is "Pooled Pseudotime".}
+\item{ylab}{Y-axis label. (Default is "Pseudobulk Expression")}
 
-\item{ylab}{Y-axis label. Default is "Pseudobulk Expression".}
+\item{plot}{Whether to plot 'coeff' or 'counts'. (Default is 'counts')}
 
-\item{cluster_by}{description}
+\item{summary_mode}{Compress the expression values per replicate (if present)
+per binned pseudotime point. Default is 'median'. Other option 'mean'}
 
-\item{cluster_method}{description}
+\item{logs}{Whether to log transform counts. (Default is TRUE)}
 
-\item{logs}{Whether to plot log of counts}
+\item{logType}{How to log transform the values. Available options 'log',
+'log2', 'log10'. (Default is 'log')}
 
-\item{logType}{Log type required}
+\item{smoothness}{How smooth the trend should be. Setting to
+higher values will result in more linear trends. (Default is 0.01)}
 
-\item{smoothness}{description}
+\item{includeInflu}{Include gene only if it has influential data.
+(Default is TRUE)}
 
-\item{k}{description}
+\item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{includeInflu}{description}
+\item{pseudoCount}{Add a pseudo-count before taking the log. (Default is 1)}
 
-\item{distance}{description}
+\item{significant}{Include gene only if the models are significant based on
+\code{scMaSigPro::sc.filter()}. (Default is TRUE)}
 
-\item{hclust.agglo_method}{description}
-
-\item{result}{description}
-
-\item{significant}{description}
-
-\item{parallel}{description}
+\item{parallel}{Use forking process to run parallelly. (Default is FALSE)
+(Currently, Windows is not supported)}
 }
 \value{
-Generates a plot.
+ggplot2 plot object.
 }
 \description{
-This function generates plots based on various parameters.
+Plot trends of multiple genes (clustered) across the binned pseudotime.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

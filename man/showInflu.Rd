@@ -2,21 +2,24 @@
 % Please edit documentation in R/show_functions.R
 \name{showInflu}
 \alias{showInflu}
-\title{Show or Return the matrix of influential genes}
+\title{Return the matrix of genes with influential observation}
 \usage{
 showInflu(scmpObj, view = FALSE, return = TRUE)
 }
 \arguments{
-\item{scmpObj}{an object of class 'scmp'. This object should contain the computed solution.}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{view}{logical, whether to view the solution. If TRUE (default), the solution is displayed.}
+\item{view}{Whether to view the data in the explorer. (Default: FALSE)}
 
-\item{return}{logical, whether to return the solution. If FALSE (default), the solution is not returned.}
+\item{return}{Whether to return the data. (Default: TRUE)}
 }
 \value{
-The computed solution as a data.frame if return is set to TRUE.
-If return is FALSE, the function does not return anything.
+Matrix of genes with influential observation.
 }
 \description{
-This function is used to view or return the solution of the provided scMaSigPro object.
+This function is used to view or return the matrix of genes with influential
+observation from the provided scMaSigPro object.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

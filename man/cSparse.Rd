@@ -2,18 +2,18 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{cSparse}
 \alias{cSparse}
-\title{Get or set the sparse column data of a scmp object}
+\title{Get or set the Sparse column data of a ScMaSigPro object}
 \usage{
 cSparse(object, value = "missing")
 }
 \arguments{
-\item{object}{An object of class `scmp`.}
+\item{object}{An object of class `ScMaSigPro`.}
 
 \item{value}{The new value for the `colData` slot to set. Optional for getting.}
 }
 \value{
-`colData` when getting, modified `scmp` object when setting.
+`colData` when getting, modified `ScMaSigPro` object when setting.
 }
 \description{
-Get or set the sparse column data of a scmp object
+Get or set the Sparse column data of a ScMaSigPro object
 }

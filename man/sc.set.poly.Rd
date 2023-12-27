@@ -2,27 +2,43 @@
 % Please edit documentation in R/sc.set.poly.R
 \name{sc.set.poly}
 \alias{sc.set.poly}
-\title{Create predictors and set polynomial.  Adaption of maSigPro::make.design.matrix()}
+\title{Set up polynomial models and create Predictor Matrix}
 \usage{
 sc.set.poly(
-  scmpObject,
+  scmpObj,
   poly_degree = 2,
-  bin_pseudotime_colname = scmpObject@param@bin_pseudotime_colname,
-  path_colname = scmpObject@param@path_colname
+  bin_ptime_col = scmpObj@Parameters@bin_ptime_col,
+  path_col = scmpObj@Parameters@path_col
 )
 }
 \arguments{
-\item{scmpObject}{A 'scmp' object.}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{poly_degree}{Degree of the design matrix (default: 2).}
+\item{poly_degree}{Degree of the polynomial.}
 
-\item{bin_pseudotime_colname}{Name of the time column.}
+\item{bin_ptime_col}{A character string representing the column name
+for binned Pseudotime values in 'Dense' data.}
 
-\item{path_colname}{Name of the path column.}
+\item{path_col}{A character string representing the column name for branching
+path assignment in 'Sparse' or 'Dense' slot.}
 }
 \value{
-Returns the 'scmpObject' with an updated 'design' slot.
+An object of class \code{\link{ScMaSigPro}}, with updated `Design`
+slot.
 }
 \description{
-Create predictors and set polynomial.  Adaption of maSigPro::make.design.matrix()
+Set up polynomial models and create Predictor Matrix that will contain the
+independent variables. It is a wrapper around `maSigPro::make.design.matrix`.
+}
+\references{
+{Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
+maSigPro: a Method to Identify Significant Differential Expression Profiles
+in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
+}
+\seealso{
+\code{\link{MatrixDesign}} Class.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and
+Maria Jose Nueda, \email{mj.nueda@ua.es}
 }

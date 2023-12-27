@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotIntersect.R
 \name{plotIntersect}
 \alias{plotIntersect}
-\title{Generate UpSet Plot on Intersection of Significant Genes from scmpObject}
+\title{Generate UpSet Plot}
 \usage{
 plotIntersect(
   scmpObj,
@@ -13,23 +13,27 @@ plotIntersect(
 )
 }
 \arguments{
-\item{scmpObj}{An object of class scmp}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{min_intersection_size}{minimal number of observations in an intersection
+\item{min_intersection_size}{Minimal number of observations in an intersection
 for it to be included.}
 
-\item{keep_empty_groups}{whether empty sets should be kept (including sets
+\item{keep_empty_groups}{Whether empty sets should be kept (including sets
 which are only empty after filtering by size)}
 
-\item{width_ratio}{ratio of the overall set size width to intersection matrix
+\item{width_ratio}{Ratio of the overall set size width to intersection matrix
 width.}
 
-\item{show_sets_size}{the overall set sizes plot, e.g. from upset_set_size()
+\item{show_sets_size}{The overall set sizes plot, e.g. from upset_set_size()
 (FALSE to hide)}
 }
 \value{
-An UpSet plot visualizing the intersections of significant genes across pathways.
+ggplot2 plot object.
 }
 \description{
-Generate UpSet Plot on Intersection of Significant Genes from scmpObject
+Generate UpSet Plot on Intersection of Significant Genes from scMaSigPro
+object. It is a wrapper around `ComplexUpset::upset`.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

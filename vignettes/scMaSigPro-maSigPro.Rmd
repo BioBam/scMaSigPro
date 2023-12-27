@@ -55,18 +55,14 @@ application of `maSigPro` to the more complex RNA-Seq data.
 `scMaSigPro` is currently available on GitHub. Follow these steps to install it:
 
 ```{r, "scMaSigPro-install", echo=TRUE, eval=FALSE}
-# Use public PAT
-publicPat <- "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"
-
 # Install devtools if not already installed
 if (!requireNamespace("devtools", quietly = TRUE)) {
   install.packages("devtools")
 }
 
 # Install scMaSigPro
-devtools::install_github("spriyansh/scMaSigPro",
-  ref = "dev",
-  auth_token = publicPat,
+devtools::install_github("BioBam/scMaSigPro",
+  ref = "main",
   build_vignettes = FALSE,
   build_manual = TRUE,
   upgrade = "never",
@@ -155,7 +151,7 @@ print(metadata[c(1:5), ])
 ## Creating objects for `scMaSigPro`
 `scMaSigPro` utilizes S4 classes, and therefore, the initial step involves creating
 an object of the `scMaSigPro` class, also known as scmpObject. To do this, we use
-the `create.scmp()` function. We will use the same object throughout the tutorial
+the `create_scmp()` function. We will use the same object throughout the tutorial
 to show the concept of S4 classes. On the other hand for `maSigPro` we will be making
 different S3 objects as shown in the [`original tutorial.](https://www.bioconductor.org/packages/release/bioc/vignettes/maSigPro/inst/doc/maSigProUsersGuide.pdf) 
 
@@ -164,23 +160,23 @@ directs the data to the dense slot of the scmpObject, allowing us to proceed wit
 the analysis without using `sc.squeeze()`, which is specifically designed for scRNA-Seq
 pseudo-bulking.
 ```{r, "create-scmpObject", echo=TRUE, eval=TRUE}
-scmp.ob <- create.scmp(
+scmp_ob <- create_scmp(
   counts = count,
   cell_data = metadata,
-  pseudotime_colname = "Time",
-  path_colname = "Group",
+  ptime_col = "Time",
+  path_col = "Group",
   use_as_bin = TRUE
 )
 
 # Print Console output
-scmp.ob
+scmp_ob
 ```
 
 In the console output, we can observe that the data has been transferred to the
 dense slot. We can visualize this using `plotBinTile()`.
 
 ```{r, "plot-bin-tile"}
-plotBinTile(scmp.ob)
+plotBinTile(scmp_ob)
 ```
  
 Next, we need to verify if `scMaSigPro` has created the appropriate count matrix.
@@ -188,8 +184,8 @@ For this, we will use `testthat::expect_identical()`. This function highlights a
 mismatches; if everything is identical, it will not throw an error. 
 The `eDense()` function retrieves the dense expression file from the `scMaSigPro` object.
  
-```{r, "eDense(scmp.ob)"}
-expect_identical(eDense(scmp.ob), expected = data.abiotic)
+```{r, "eDense(scmp_ob)"}
+expect_identical(eDense(scmp_ob), expected = data.abiotic)
 ```
 
 No errors were thrown, indicating that our setup is correct and we can proceed
@@ -198,7 +194,7 @@ with the analysis.
 ## Creatin of Regression Matrix 
 The function `maSigPro::make.design.matrix()` is used to create a regression matrix
 for fitting the full regression model. In `scMaSigPro`, this task is accomplished
-using `sc.set.poly()`, where the regression matrix is referred to as "predictor".
+using `sc.set.poly()`, where the regression matrix is referred to as "predictor_matrix".
 We will also verify that `scMaSigPro` has correctly performed binarization, as
 specified in `edesign.abiotic`.
 
@@ -208,13 +204,13 @@ specified in `edesign.abiotic`.
 design <- make.design.matrix(edesign.abiotic, degree = 2)
 
 # Using scMaSigPro
-scmp.ob <- sc.set.poly(scmp.ob, poly_degree = 2)
+scmp_ob <- sc.set.poly(scmp_ob, poly_degree = 2)
 
 # Comparing binarization results
-expect_equal(bAlloc(scmp.ob), expected = edesign.abiotic)
+expect_equal(bAlloc(scmp_ob), expected = edesign.abiotic)
 
 # Comparing regression matrices
-expect_identical(scmp.ob@design@predictor, expected = design$dis)
+expect_identical(scmp_ob@Design@predictor_matrix, expected = design$dis)
 ```
 
 No errors were thrown, so we can proceed with the analysis.
@@ -232,8 +228,8 @@ gc <- capture_output(fit <- p.vector(data.abiotic, design,
 ))
 
 # Using ScMaSigPro
-scmp.ob <- sc.p.vector(scmp.ob,
-  min.na = 20,
+scmp_ob <- sc.p.vector(scmp_ob,
+  min_na = 20,
   verbose = FALSE,
   offset = FALSE,
   max_it = 25,
@@ -248,14 +244,14 @@ results from `sc.p.vector()`:
 ```{r, "testthat pvector"}
 # Compare p-values
 expect_identical(
-  matrix(scmp.ob@profile@p.vector,
-    dimnames = list(names(scmp.ob@profile@p.vector), "p.value")
+  matrix(scmp_ob@Profile@p_values,
+    dimnames = list(names(scmp_ob@Profile@p_values), "p.value")
   ),
   expected = as.matrix(fit$p.vector[, 1, drop = FALSE])
 )
 
 # Compare adjusted p-values
-pad <- scmp.ob@profile@p.adjusted
+pad <- scmp_ob@Profile@adj_p_values
 names(pad) <- NULL
 expect_identical(pad, expected = fit$p.adjusted)
 ```
@@ -268,7 +264,7 @@ terms for each gene, using `T.fit()` and `sc.t.fit()`.
 gc <- capture_output(tstep <- T.fit(fit, step.method = "backward", alfa = 0.05))
 
 # Using scMaSigPro
-scmp.ob <- sc.t.fit(scmp.ob,
+scmp_ob <- sc.t.fit(scmp_ob,
   offset = FALSE,
   verbose = FALSE,
   epsilon = 0.00001,
@@ -280,13 +276,16 @@ We will compare the s3 object `tstep` from `maSigPro::T.fit()` with the results 
 
 ```{r, "comapte sc.t.fit"}
 # Solutions
-expect_identical(showSol(scmp.ob), expected = tstep$sol)
+expect_identical(showSol(scmp_ob), expected = tstep$sol)
 
 # Coefficients
-expect_identical(showCoeff(scmp.ob), expected = tstep$coefficients)
+expect_identical(showCoeff(scmp_ob), expected = tstep$coefficients)
 
 # Group Coefficients
-expect_identical(showGroupCoeff(scmp.ob), expected = tstep$group.coeffs)
+expect_identical(showGroupCoeff(scmp_ob), expected = tstep$group.coeffs)
+
+# tscore
+expect_identical(as.data.frame(showTS(scmp_ob)), expected = tstep$t.score)
 ```
 
 ## R-Square Filter with `maSigPro::get.siggenes()`
@@ -297,30 +296,30 @@ This is achieved using the `get.siggenes()` function in `maSigPro` and `sc.filte
 # maSigPro
 sigs <- get.siggenes(tstep, rsq = 0.6, vars = "groups")
 
-# scMASigPro
-scmp.ob <- sc.filter(scmp.ob, rsq = 0.6, vars = "groups")
+# scMaSigPro
+scmp_ob <- sc.filter(scmp_ob, rsq = 0.6, vars = "groups")
 ```
 
 We'll compare the s3 object (sigs) from `maSigPro::get.siggenes()' with the results from sc.filter()':
 
 ```{r}
 # Compare Cold vs Control
-expect_identical(scmp.ob@sig.genes@sig.genes$ColdvsControl,
+expect_identical(scmp_ob@Significant@genes$ColdvsControl,
   expected = sigs$summary$ColdvsControl
 )
 
 # Compare Heat vs Control
-expect_identical(scmp.ob@sig.genes@sig.genes$HeatvsControl,
+expect_identical(scmp_ob@Significant@genes$HeatvsControl,
   expected = sigs$summary$HeatvsControl[sigs$summary$HeatvsControl != " "]
 )
 
 # Compare Salt vs Control
-expect_identical(scmp.ob@sig.genes@sig.genes$SaltvsControl,
+expect_identical(scmp_ob@Significant@genes$SaltvsControl,
   expected = sigs$summary$SaltvsControl[sigs$summary$SaltvsControl != " "]
 )
 
 # Compare Control
-expect_identical(scmp.ob@sig.genes@sig.genes$Control,
+expect_identical(scmp_ob@Significant@genes$Control,
   expected = sigs$summary$Control[sigs$summary$Control != " "]
 )
 ```
@@ -340,7 +339,7 @@ suma2Venn(sigs$summary[, c(1:4)])
 
 # Upset plot of scMaSigPro
 plotIntersect(
-  scmpObj = scmp.ob,
+  scmpObj = scmp_ob,
   min_intersection_size = 0
 )
 ```
@@ -364,35 +363,38 @@ PlotGroups(STMDE66,
 )
 
 # Plotting the same gene with scMaSigPro
-plotTrend(scmp.ob, "STMDE66",
+plotTrend(scmp_ob, "STMDE66",
   logs = FALSE, pseudoCount = 0,
-  smoothness = 1, significant = FALSE
+  smoothness = 0.01, significant = FALSE,
+  summary_mode = "mean"
 )
 ```
 
-<!-- ### Visualizing Cluster trend with `maSigPro::PlotProfiles()` -->
-<!-- ```{r, "Cluster Plots", fig.width=7} -->
-<!-- # Plot clustered Trend -->
-<!-- gc <- capture_output( -->
-<!--     see.genes(sigs$sig.genes$ColdvsControl, show.fit = T, dis =design$dis, -->
-<!-- cluster.method="hclust" , cluster.data = 1, k = 9) -->
-<!-- ) -->
+### Visualizing Cluster trend with `maSigPro::PlotProfiles()`
+```{r, "Cluster Plots", fig.width=7}
+# Plot clustered Trend
+gc <- capture_output(
+  res <- see.genes(sigs$sig.genes$ColdvsControl,
+    show.fit = TRUE, dis = design$dis,
+    cluster.method = "hclust", cluster.data = 1, k = 9
+  )
+)
 
-<!-- # ScMaSigPro -->
-<!-- plotTrendCluster(scmp.ob, -->
-<!--                  geneSet = "ColdvsControl", -->
-<!--                  logs = F, -->
-<!--                  cluster_by = "counts", -->
-<!--                  k = 9) -->
-<!-- ``` -->
+# Compute Clusters
+scmp_ob <- sc.cluster.trend(scmp_ob,
+  geneSet = "ColdvsControl",
+  cluster_by = "counts"
+)
+```
 
-<!-- ```{r, "Cluster Plots2"} -->
-<!-- plotTrendCluster(scmp.ob, -->
-<!--                  geneSet = "ColdvsControl", -->
-<!--                  logs = F, -->
-<!--                  cluster_by = "counts", -->
-<!--                  k = 9) -->
-<!-- ``` -->
+### Plot cluster Trends 
+```{r, "Plot Clustered Trends", fig.width=8, fig.height=8}
+plotTrendCluster(
+  scmpObj = scmp_ob,
+  plot = "coeff",
+  verbose = FALSE
+)
+```
 
 ---
 

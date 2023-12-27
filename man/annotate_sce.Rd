@@ -7,12 +7,12 @@ information.}
 \usage{
 annotate_sce(
   sce,
-  pseudotime_colname = "Pseudotime",
+  ptime_col = "Pseudotime",
   path_prefix = "Path",
   root_label = "root",
-  path_colname = path_prefix,
-  existing_pseudotime_colname = NULL,
-  existing_path_colname = NULL,
+  path_col = path_prefix,
+  exist_ptime_col = NULL,
+  exist_path_col = NULL,
   labels_exist = FALSE,
   verbose = TRUE
 )
@@ -20,42 +20,37 @@ annotate_sce(
 \arguments{
 \item{sce}{A `SingleCellExperiment` object to be annotated.}
 
-\item{pseudotime_colname}{Column name in `cell.metadata`  storing
-information for Pseudotime. It is generated using `colData` from the
-\pkg{SingleCellExperiment} package. (Default is "Pseudotime").}
+\item{ptime_col}{A character string representing the column name
+for inferred Pseudotime values. (Default is "Pseudotime")}
 
 \item{path_prefix}{Prefix used to annotate the paths. (Default is "Path").}
 
 \item{root_label}{Label used to annotate root cells. (Default is "root").}
 
-\item{path_colname}{Column name in `cell.metadata` storing information
-for Path. It is generated using `colData` from the \pkg{SingleCellExperiment}
-package. (Default is `path_prefix`).}
+\item{path_col}{A character string representing the column name for branching
+path assignment. (Default is `path_prefix`)}
 
-\item{existing_pseudotime_colname}{The name of an existing pseudotime column
+\item{exist_ptime_col}{The name of an existing pseudotime column
 to be replaced (if not NULL).}
 
-\item{existing_path_colname}{The name of an existing path column to be replaced
+\item{exist_path_col}{The name of an existing path column to be replaced
 (if not NULL).}
 
 \item{labels_exist}{Logical indicating whether if the existing column names
-should be overwritten (Default is TRUE).}
+should be overwritten. (Default is TRUE)}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }
 \value{
-A SingleCellExperiment object with updated cell metadata.
+A \code{\link{SingleCellExperiment}} object with updated cell metadata.
 }
 \description{
 `annotate_sce()` annotates a `SingleCellExperiment` class object with pseudotime
 and path information in its `cell.metadata` generated using `colData` from the
 \pkg{SingleCellExperiment} package.
 }
-\details{
-Additional Details
-}
 \seealso{
-SingleCellExperiment class object, `colData` from the \pkg{SingleCellExperiment} package.
+\pkg{SingleCellExperiment} package.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

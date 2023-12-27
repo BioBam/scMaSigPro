@@ -2,28 +2,35 @@
 % Please edit documentation in R/align_pseudotime.R
 \name{align_pseudotime}
 \alias{align_pseudotime}
-\title{Align pseudotime from two different paths}
+\title{Align Pseudotime from two different paths.}
 \usage{
 align_pseudotime(
   scmpObj,
-  pseudotime_col,
+  ptime_col,
   path_col,
   method = "rescale",
   verbose = TRUE
 )
 }
 \arguments{
-\item{pseudotime_col}{Chacarcter string with the column name in `cell.metadata` storing
-Pseudotime values. It is generated using `colData` from the \pkg{SingleCellExperiment}
-package. (Default is "Pseudotime")}
+\item{scmpObj}{description}
 
-\item{path_col}{Chacarcter string with the column name in `cell.metadata` storing information
-for Path. It is generated using `colData` from the \pkg{SingleCellExperiment} package.
+\item{ptime_col}{A character string representing the column name
+for inferred Pseudotime values in 'Sparse' data. See `colData` from the
+\pkg{SingleCellExperiment} package. (Default is "Pseudotime")}
+
+\item{path_col}{A character string representing the column name for branching
+path assignment in 'Sparse' data. See `colData` from the
+\pkg{SingleCellExperiment} package.
 (Default is `path_prefix`)}
 
-\item{method}{Currently only `scales::rescale` is supported. (Default is "rescale")}
+\item{method}{Method used for re-scaling the longer pseudotime value. Currently
+only `scales::rescale` is supported. (Default is "rescale")}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
+}
+\value{
+An object of class \code{\link{ScMaSigPro}}, with aligned pseudotime.
 }
 \description{
 `align_pseudotime()` is an internal function that aligns the pseudotime from

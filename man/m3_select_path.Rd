@@ -5,10 +5,10 @@
 \title{Select branching paths from a 'Cell Dataset' object from Monocle3}
 \usage{
 m3_select_path(
-  cdsObj,
-  redDim = "umap",
-  annotation_col = "cell_type",
-  pseudotime_col = "Pseudotime",
+  cds,
+  latent_space = "umap",
+  anno_col = "cell_type",
+  ptime_col = "Pseudotime",
   path_col = "Path",
   use_shiny = TRUE,
   plot_purity = FALSE,
@@ -17,34 +17,39 @@ m3_select_path(
 )
 }
 \arguments{
-\item{cdsObj}{An cdsObject from Monocle3.}
+\item{cds}{An object from Monocle3.}
 
-\item{redDim}{Dimension to use for the plot. (Default is "umap")}
+\item{latent_space}{Latent dimension to use for the plotting.
+(Default is "umap")}
 
-\item{annotation_col}{Name of the column in `cell.metadata` storing
-annotations. (Default is "cell_type")}
+\item{anno_col}{A character string representing the column name for cell level
+metadata containing cell level annotations. (Default is "cell_type").}
 
-\item{pseudotime_col}{The name used for the Pesudotime column in the scmpObject.
-(Default is "Pseudotime")}
+\item{ptime_col}{A character string representing the column name
+for inferred Pseudotime values. (Default is "Pseudotime")}
 
-\item{path_col}{The name used for the branching path column in the  scmpObject.
-(Default is "Path")}
+\item{path_col}{A character string representing the column name for branching
+path assignment. (Default is `path_prefix`)}
 
 \item{use_shiny}{Enable the selection for shiny-selection wizard.
 (Default is TRUE)}
 
 \item{plot_purity}{Plot a bar plot, showing the the principal points against
-the of `annotation_col`. This will show the count of annotations for each of
+the of `anno_col`. This will show the count of annotations for each of
 the principal points. (Default is TRUE)}
 
-\item{m3_pp}{A list containing the character vectors for principal points ("Y_")
-to be used for the branch selection.}
+\item{m3_pp}{A list containing the character vectors for principal
+points ("Y_") to be used for the branch selection. See examples.}
 }
 \value{
-A `scmp` object, subsetted based on the specified paths.
+An object of class \code{\link{ScMaSigPro}},
+subsetted based on the specified paths.
 }
 \description{
 `m3_select_path()` helps select branching paths from a from a 'Cell Dataset'
 object from Monocle3 TI Analysis. This function also has an in-built shiny app
 thats enabled interactive selection.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

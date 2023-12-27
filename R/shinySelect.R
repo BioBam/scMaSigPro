@@ -15,11 +15,11 @@
 #' @keywords internal
 #'
 
-shiny_select <- function(trajectory_data,
-                         annotation_data,
-                         label_coords,
-                         pseudotime_colname,
-                         inputType = "Monocle3") {
+shinySelect <- function(trajectory_data,
+                        annotation_data,
+                        label_coords,
+                        ptime_col,
+                        inputType = "Monocle3") {
   # Set viridis
   viridis_colors <- rev(c("#f0f921", "#f89540", "#cc4778", "#7e03a8", "#0d0887"))
   cell_colors <- c(
@@ -135,7 +135,7 @@ shiny_select <- function(trajectory_data,
         }
 
         if (input$trPlotCellColor == "pTime") {
-          colName <- pseudotime_colname
+          colName <- ptime_col
           legendTitle <- "Inferred Pseudotime"
           annotation_data[[colName]] <- round(annotation_data[[colName]], 3)
         } else if (input$trPlotCellColor == "anno") {
@@ -145,7 +145,7 @@ shiny_select <- function(trajectory_data,
 
         # Check for infinite pseudotime
         helptext <- ""
-        if (any(is.infinite(annotation_data[[pseudotime_colname]]))) {
+        if (any(is.infinite(annotation_data[[ptime_col]]))) {
           helptext <- "Inf Pseudotime detected (Grey)"
           showNotification("This dataset contains 'Inf' pseudotime. Cells are coloured in Grey", duration = 10, type = "warning")
         }
@@ -338,7 +338,7 @@ shiny_select <- function(trajectory_data,
         }
 
         if (input$trPlotCellColor == "pTime") {
-          colName <- pseudotime_colname
+          colName <- ptime_col
         } else if (input$trPlotCellColor == "anno") {
           colName <- "anno"
         }

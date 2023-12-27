@@ -95,9 +95,9 @@ convert_to_path <- function(vec, path_prefix, root_label) {
 #'
 #' @keywords internal
 create_range <- function(x, bin_size_colname = "scmp_bin_size",
-                         bin_colname = "scmp_bin", verbose = TRUE) {
+                         bin_col = "scmp_bin", verbose = TRUE) {
   # Convert the factor column "bin" to character
-  y <- as.character(x[[bin_colname]])
+  y <- as.character(x[[bin_col]])
 
   # Remove square and round brackets from the character string
   y <- y %>% str_remove_all(pattern = "\\[|\\]|\\(|\\)")
@@ -333,7 +333,7 @@ extract_interval <- function(time.vector, nBins = 1, bin, bin.size, lbound, ubou
       apply(
         new_range_current, 1, create_range,
         bin_size_colname = bin.size,
-        bin_colname = bin,
+        bin_col = bin,
         verbose = FALSE
       )
     ))
@@ -474,11 +474,11 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
 #' cell counts. It does this by either taking the mean or sum of counts across
 #' cells in each bin, depending on the specified method.
 #'
-#' @param scmpObject object of Class scMaSigPro. See \code{\link{scmp}}
+#' @param scmpObj object of Class scMaSigPro. See \code{\link{ScMaSigPro}}
 #' for more details.
-#' @param bin_members_colname Column name in the dense metadata storing information
+#' @param bin_mem_col Column name in the Dense metadata storing information
 #' about the members of the bins. (Default is 'scmp_bin_members').
-#' @param bin_colname  Column name in the dense metadata storing information
+#' @param bin_col  Column name in the Dense metadata storing information
 #' about the bin labels. (Default is 'scmp_bin').
 #' @param cluster_count_by A character string specifying the method to use to
 #' aggregate counts within each cluster. Available options are 'mean' or 'sum'.
@@ -502,39 +502,39 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
 #'
 #' @keywords internal
 
-pb_counts <- function(scmpObject,
-                      bin_members_colname = scmpObject@param@bin_members_colname,
-                      bin_colname = scmpObject@param@bin_colname,
+pb_counts <- function(scmpObj,
+                      bin_mem_col = scmpObj@Parameters@bin_mem_col,
+                      bin_col = scmpObj@Parameters@bin_col,
                       assay_name = "counts",
                       cluster_count_by = "sum") {
   # Check Object Validity
-  assert_that(is(scmpObject, "scmp"),
+  assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'scMaSigPro'."
   )
 
   # Count slot
   assert_that(
     all(
-      assay_name %in% names(scmpObject@sparse@assays@data@listData)
+      assay_name %in% names(scmpObj@Sparse@assays@data@listData)
     ),
-    msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObject.")
+    msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObj.")
   )
 
   # Get assay
-  counts <- scmpObject@sparse@assays@data@listData[[assay_name]]
+  counts <- scmpObj@Sparse@assays@data@listData[[assay_name]]
 
   # Get Pseudobulk Profile
-  pseudo_bulk_profile <- as.data.frame(colData(scmpObject@dense))
+  pseudo_bulk_profile <- as.data.frame(colData(scmpObj@Dense))
 
-  assert_that(bin_members_colname %in% colnames(pseudo_bulk_profile),
-    msg = paste0("'", bin_members_colname, "' does not exist in level.meta.data")
+  assert_that(bin_mem_col %in% colnames(pseudo_bulk_profile),
+    msg = paste0("'", bin_mem_col, "' does not exist in level.meta.data")
   )
-  assert_that(bin_colname %in% colnames(pseudo_bulk_profile),
-    msg = paste0("'", bin_colname, "' does not exist in level.meta.data")
+  assert_that(bin_col %in% colnames(pseudo_bulk_profile),
+    msg = paste0("'", bin_col, "' does not exist in level.meta.data")
   )
 
   # Get the meta-information for pseudobulking
-  meta.info <- pseudo_bulk_profile[, c(bin_members_colname, bin_colname)]
+  meta.info <- pseudo_bulk_profile[, c(bin_mem_col, bin_col)]
 
   # Run mclapply
   pb.counts <- lapply(1:nrow(meta.info), function(i) {
@@ -564,11 +564,11 @@ pb_counts <- function(scmpObject,
   # Convert the list output of mclapply to a matrix and set the row names
   pb.counts <- do.call(cbind, pb.counts)
   rownames(pb.counts) <- rownames(counts)
-  colnames(pb.counts) <- meta.info[[bin_colname]]
+  colnames(pb.counts) <- meta.info[[bin_col]]
 
   # Return the counts
-  scmpObject@dense@assays@data@listData$bulk.counts <- as(pb.counts, "dgCMatrix")
+  scmpObj@Dense@assays@data@listData$bulk.counts <- as(pb.counts, "dgCMatrix")
 
   # return
-  return(scmpObject)
+  return(scmpObj)
 }
