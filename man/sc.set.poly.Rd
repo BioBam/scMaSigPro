@@ -27,7 +27,7 @@ An object of class \code{\link{ScMaSigPro}}, with updated `Design`
 slot.
 }
 \description{
-Set up polynomial models and create Predictor Matrix that will contain the 
+Set up polynomial models and create Predictor Matrix that will contain the
 independent variables. It is a wrapper around `maSigPro::make.design.matrix`.
 }
 \references{

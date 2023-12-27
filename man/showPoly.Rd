@@ -2,16 +2,19 @@
 % Please edit documentation in R/show_functions.R
 \name{showPoly}
 \alias{showPoly}
-\title{Show the terms of the polynomial term}
+\title{Print the full model formula.}
 \usage{
 showPoly(scmpObj)
 }
 \arguments{
-\item{scmpObj}{an object of class 'ScMaSigPro'. This object should contain the computed solution.}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 }
 \value{
-Return the terms of the polynomial model.
+Character string of the formula for the full model.
 }
 \description{
-This function is used to view or return the solution of the provided scMaSigPro object.
+Print the full model formula in console as a string.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

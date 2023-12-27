@@ -11,6 +11,7 @@
 #' @importFrom scales rescale
 #' @importFrom S4Vectors DataFrame
 #'
+#' @param scmpObj description
 #' @param ptime_col A character string representing the column name
 #' for inferred Pseudotime values in 'Sparse' data. See `colData` from the
 #' \pkg{SingleCellExperiment} package. (Default is "Pseudotime")

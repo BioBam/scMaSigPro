@@ -13,18 +13,20 @@
 # 10. showGroupCoeff():
 
 ###############################################################################
-
-#' Show or Return the Coefficent matrix
+#' @title Show or Return the Coefficent matrix
 #'
-#' This function is used to view or return the coeffients of the provided scMaSigPro object.
+#' @description
+#' This function is used to view or return the coefficents from the provided
+#' scMaSigPro object.
 #'
-#' @param scmpObj an object of class 'ScMaSigPro'. This object should contain the computed solution.
-#' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
-#' @param includeInflu description
-#' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
+#' @param view Whether to view the data in the explorer. (Default: FALSE)
+#' @param includeInflu Whether to include genes with inluential observations.
+#' @param return Whether to return the data. (Default: TRUE)
 #'
-#' @return The computed solution as a data.frame if return is set to TRUE.
-#' If return is FALSE, the function does not return anything.
+#' @return The computed Coefficent matrix as a dataframe.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
 showCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
@@ -58,17 +60,19 @@ showCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE)
 }
 
 ###############################################################################
-
-#' Show or Return the matrix of influential genes
+#' @title Return the matrix of genes with influential observation
 #'
-#' This function is used to view or return the solution of the provided scMaSigPro object.
+#' @description
+#' This function is used to view or return the matrix of genes with influential
+#' observation from the provided scMaSigPro object.
 #'
-#' @param scmpObj an object of class 'ScMaSigPro'. This object should contain the computed solution.
-#' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
-#' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
+#' @param view Whether to view the data in the explorer. (Default: FALSE)
+#' @param return Whether to return the data. (Default: TRUE)
 #'
-#' @return The computed solution as a data.frame if return is set to TRUE.
-#' If return is FALSE, the function does not return anything.
+#' @return Matrix of genes with influential observation.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
 showInflu <- function(scmpObj, view = FALSE, return = TRUE) {
@@ -97,18 +101,20 @@ showInflu <- function(scmpObj, view = FALSE, return = TRUE) {
 }
 
 ###############################################################################
-
-#' Show or Return the t scores
+#' @title Show or Return the t-score matrix
 #'
-#' This function is used to view or return the solution of the provided scMaSigPro object.
+#' @description
+#' This function is used to view or return the t-scores from the provided
+#' scMaSigPro object.
 #'
-#' @param scmpObj an object of class 'ScMaSigPro'. This object should contain the computed solution.
-#' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
-#' @param includeInflu logical, whether to add gene with influential data in the solution.
-#' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
+#' @param view Whether to view the data in the explorer. (Default: FALSE)
+#' @param includeInflu Whether to include genes with inluential observations.
+#' @param return Whether to return the data. (Default: TRUE)
 #'
-#' @return The computed solution as a data.frame if return is set to TRUE.
-#' If return is FALSE, the function does not return anything.
+#' @return The computed t-score matrix as a dataframe.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
 showTS <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
@@ -142,18 +148,20 @@ showTS <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
 }
 
 ###############################################################################
-
-#' Show or Return the Solution
+#' @title Show or Return the P-values after model fitting.
 #'
-#' This function is used to view or return the solution of the provided scMaSigPro object.
+#' @description
+#' This function is used to view or return the matrix of p-values for each term
+#' and the full model from the provided scMaSigPro object.
 #'
-#' @param scmpObj an object of class 'ScMaSigPro'. This object should contain the computed solution.
-#' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
-#' @param includeInflu logical, whether to add gene with influential data in the solution.
-#' @param return logical, whether to return the solution. If TRUE (default), returned.
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
+#' @param view Whether to view the data in the explorer. (Default: FALSE)
+#' @param includeInflu Whether to include genes with inluential observations.
+#' @param return Whether to return the data. (Default: TRUE)
 #'
-#' @return The computed solution as a data.frame if return is set to TRUE.
-#' If return is FALSE, the function does not return anything.
+#' @return The computed p-values for each term and full model as a dataframe.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
 showSol <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
@@ -187,18 +195,23 @@ showSol <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
 }
 
 ###############################################################################
-#' Show or Return the Solution
+#' @title Show or Return the counts for non-flat profile.
 #'
-#' This function is used to view or return the solution of the provided scMaSigPro object.
+#' @description
+#' This function is used to view or return the pseudo-bulk counts of the genes
+#' with non-flat profiles. from the provided scMaSigPro object.
 #'
-#' @param scmpObj an object of class 'ScMaSigPro'. This object should contain the computed solution.
-#' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
-#' @param includeInflu logical, whether to add gene with influential data in the solution.
-#' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
-#'
-#' @return The computed solution as a data.frame if return is set to TRUE.
-#' If return is FALSE, the function does not return anything.
 #' @importFrom utils View
+#'
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
+#' @param view Whether to view the data in the explorer. (Default: FALSE)
+#' @param includeInflu Whether to include genes with inluential observations.
+#' @param return Whether to return the data. (Default: TRUE)
+#'
+#' @return Pseudo-bulk counts as matrix for genes with non-flat profiles.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 showSigProf <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE) {
   # Check Object Validity
@@ -234,13 +247,16 @@ showSigProf <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FAL
 }
 
 ###############################################################################
-#' Show the terms of the polynomial term
+#' @title Print the full model formula.
 #'
-#' This function is used to view or return the solution of the provided scMaSigPro object.
+#' @description
+#' Print the full model formula in console as a string.
 #'
-#' @param scmpObj an object of class 'ScMaSigPro'. This object should contain the computed solution.
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #'
-#' @return Return the terms of the polynomial model.
+#' @return Character string of the formula for the full model.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
 showPoly <- function(scmpObj) {
@@ -273,17 +289,23 @@ showPoly <- function(scmpObj) {
 }
 
 ###############################################################################
-#' Show or Return the parameters used during the analysis
+#' @title Show the parameters used during the workflow.
 #'
-#' This function is used to view or return the solution of the provided scMaSigPro object.
+#' @description
+#' Get or View all the parameters used during the workflow.
 #'
-#' @param scmpObj an object of class 'ScMaSigPro'. This object should contain the computed solution.
-#' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
-#' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
+#' @importFrom methods slot slotNames
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
+#' @param view Whether to view the data in the explorer. (Default: FALSE)
+#' @param return Whether to return the data. (Default: TRUE)
 #'
 #' @return The computed solution as a data.frame if return is set to TRUE.
 #' If return is FALSE, the function does not return anything.
-#' @importFrom methods slot slotNames
+#'
+#' @return Dataframe of the parameters used in the analysis.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 showParams <- function(scmpObj, view = FALSE, return = TRUE) {
   # Check Object Validity
@@ -336,17 +358,18 @@ showParams <- function(scmpObj, view = FALSE, return = TRUE) {
 }
 
 ###############################################################################
-#' Show or Return the Group wise coefficents
+#' @title Show or Return the Branching Path Coefficent matrix
 #'
-#' This function is used to view or return the group of the provided scMaSigPro object.
+#' @description
+#' This function is used to view or return the branching paths coefficents from
+#' the provided scMaSigPro object.
 #'
-#' @param scmpObj an object of class 'ScMaSigPro'. This object should contain the computed solution.
-#' @param view logical, whether to view the solution. If TRUE (default), the solution is displayed.
-#' @param return logical, whether to return the solution. If FALSE (default), the solution is not returned.
-#' @param includeInflu description
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
+#' @param view Whether to view the data in the explorer. (Default: FALSE)
+#' @param return Whether to return the data. (Default: TRUE)
+#' @param includeInflu Whether to include genes with inluential observations.
 #'
-#' @return The computed solution as a data.frame if return is set to TRUE.
-#' If return is FALSE, the function does not return anything.
+#' @return The computed branching path coefficent matrix as a dataframe.
 #'
 #' @export
 showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
@@ -380,11 +403,12 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
 }
 
 ###############################################################################
-#' Show ScMaSigPro Object Information
+#' @title Show ScMaSigPro Object Information
 #'
-#' This method displays basic information about the ScMaSigPro object when the object
-#' is printed in the console. The method is automatically called when the user writes
-#' the name of the object in the console.
+#' @description
+#' This method displays basic information about the ScMaSigPro object when the
+#' object is printed in the console. The method is automatically called when the
+#' user writes the name of the object in the console.
 #'
 #' @param object An object of class \code{ScMaSigPro}.
 #'
@@ -452,5 +476,3 @@ extract_info <- function(data, return_type = "avg_bin_size", bin_size_col, path_
     stop("Invalid return_type. Choose between 'avg_bin_size' and 'num_bins'.")
   }
 }
-
-#-X-#

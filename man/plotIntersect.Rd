@@ -31,7 +31,7 @@ width.}
 ggplot2 plot object.
 }
 \description{
-Generate UpSet Plot on Intersection of Significant Genes from scMaSigPro 
+Generate UpSet Plot on Intersection of Significant Genes from scMaSigPro
 object. It is a wrapper around `ComplexUpset::upset`.
 }
 \author{

@@ -59,7 +59,7 @@ for binned Pseudotime values in 'Dense' data.
 \item{split_bins}{If bin sizes are greater than mean + sd, split the bin into
 smaller bins by re-running the sc.squeeze() function. (Default = FALSE).}
 
-\item{prune_bins}{If bin sizes are smaller than mean - sd, remove the bin. 
+\item{prune_bins}{If bin sizes are smaller than mean - sd, remove the bin.
 (Default = FALSE).}
 
 \item{assay_name}{Name of the Assay in sparse data from which the counts are
@@ -71,10 +71,10 @@ drop the bins from the path with more bins. (Default = FALSE).}
 \item{aggregate}{A character string specifying the method to aggregate counts
 within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").}
 
-\item{fill_gaps}{If corresponding bin is missing for a time-point, pull the 
+\item{fill_gaps}{If corresponding bin is missing for a time-point, pull the
 successive bins and fill the gaps.}
 
-\item{additional_params}{Pass additional parameters as a named list. 
+\item{additional_params}{Pass additional parameters as a named list.
 See examples}
 }
 \value{
@@ -87,7 +87,7 @@ of equal size using entropy-based binning method. It automatically calculates
 the optimal number of bins using one of the supported methods.
 }
 \seealso{
-\code{\link{estBinSize}}, \code{\link{discretize}}, 
+\code{\link{estBinSize}}, \code{\link{discretize}},
 \code{\link{create_range}}
 }
 \author{
