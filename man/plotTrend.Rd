@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotTrend.R
 \name{plotTrend}
 \alias{plotTrend}
-\title{Plot Groups Function}
+\title{Plot trend of the single gene.}
 \usage{
 plotTrend(
   scmpObj,
@@ -18,32 +18,36 @@ plotTrend(
 )
 }
 \arguments{
-\item{scmpObj}{object of class scmpObj}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{feature_id}{Name of the gene to be plotted. Should correspond to one of
-the feature in the count table.}
+\item{feature_id}{Name of the gene to be plotted.}
 
-\item{xlab}{X-axis label. Default is "Pooled Pseudotime".}
+\item{xlab}{X-axis label. (Default is "Pooled Pseudotime")}
 
-\item{ylab}{Y-axis label. Default is "Pseudobulk Expression".}
+\item{ylab}{Y-axis label. (Default is "Pseudobulk Expression")}
 
-\item{smoothness}{How smooth the trend should be. Default is 0.01, setting to
-higher values will result in more linear trends.}
+\item{smoothness}{How smooth the trend should be. Setting to
+higher values will result in more linear trends. (Default is 0.01)}
 
-\item{logs}{Whether to plot log of counts.}
+\item{logs}{Whether to log transform counts. (Default is TRUE)}
 
-\item{logType}{Log Available options 'log', 'log2', 'log10'}
+\item{logType}{How to log transform the values. Available options 'log',
+'log2', 'log10'. (Default is 'log')}
 
-\item{pseudoCount}{Add a pseudo-count before taking the log.}
+\item{pseudoCount}{Add a pseudo-count before taking the log. (Default is 1)}
 
-\item{significant}{Default is FALSE. Set to TRUE to plot genes, that don't pass
-R-Square threshold from 'sc.filter()'.}
+\item{significant}{Plot gene only if the models are significant based on
+\code{scMaSigPro::sc.filter()}. (Default is TRUE)}
 
-\item{summary_mode}{description}
+\item{summary_mode}{Compress the expression values per replicate (if present)
+per binned pseudotime point. Default is 'median'. Other option 'mean'}
 }
 \value{
-Generates a plot.
+ggplot2 plot object.
 }
 \description{
-This function generates plots based on various parameters. It calculates the summary mode, colors, and other visual attributes to create a plot.
+Plot trend of the single gene across the binned pseudotime.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

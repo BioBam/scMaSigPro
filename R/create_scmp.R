@@ -41,7 +41,7 @@ create_scmp <- function(counts,
     msg = paste("Rownames of raw-counts and cell-level-metadata are different.")
   )
 
-  if (!is.null(bin_counts) | !is.null(bin_cell_data)) {
+  if (!is.null(bin_counts) || !is.null(bin_cell_data)) {
     assert_that(nrow(bin_counts) == nrow(bin_cell_data),
       msg = paste("Number of cells in bin_counts and bin_cell_data are different.")
     )

@@ -1,22 +1,28 @@
-#' @title Generate UpSet Plot on Intersection of Significant Genes from scmpObject
+#' @title Generate UpSet Plot
 #'
-#' @param scmpObj An object of class ScMaSigPro
-#' @param min_intersection_size minimal number of observations in an intersection
-#' for it to be included.
-#' @param width_ratio ratio of the overall set size width to intersection matrix
-#' width.
-#' @param keep_empty_groups whether empty sets should be kept (including sets
-#' which are only empty after filtering by size)
-#' @param show_sets_size the overall set sizes plot, e.g. from upset_set_size()
-#' (FALSE to hide)
+#' @description
+#' Generate UpSet Plot on Intersection of Significant Genes from scMaSigPro
+#' object. It is a wrapper around `ComplexUpset::upset`.
 #'
-#' @return An UpSet plot visualizing the intersections of significant genes across pathways.
 #' @importFrom S4Vectors isEmpty
 #' @importFrom ComplexUpset upset intersection_matrix intersection_size upset_set_size
 #' @importFrom RColorConesa colorConesa
 #'
-#' @export
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
+#' @param min_intersection_size Minimal number of observations in an intersection
+#' for it to be included.
+#' @param width_ratio Ratio of the overall set size width to intersection matrix
+#' width.
+#' @param keep_empty_groups Whether empty sets should be kept (including sets
+#' which are only empty after filtering by size)
+#' @param show_sets_size The overall set sizes plot, e.g. from upset_set_size()
+#' (FALSE to hide)
 #'
+#' @return ggplot2 plot object.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
+#' @export
 plotIntersect <- function(scmpObj, min_intersection_size = 2,
                           keep_empty_groups = TRUE,
                           width_ratio = 0.1, show_sets_size = FALSE) {

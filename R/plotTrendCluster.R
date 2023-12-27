@@ -1,20 +1,7 @@
-#' Plot Groups Function
+#' @title Plot multiple trends of the multiple genes.
 #'
-#' This function generates plots based on various parameters.
-#'
-#' @param scmpObj object of class scmpObj
-#' @param xlab X-axis label. Default is "Pooled Pseudotime".
-#' @param ylab Y-axis label. Default is "Pseudobulk Expression".
-#' @param plot description
-#' @param smoothness description
-#' @param logs Whether to plot log of counts
-#' @param logType Log type required
-#' @param includeInflu description
-#' @param significant description
-#' @param parallel description
-#' @param verbose description
-#' @param summary_mode description
-#' @param pseudoCount description
+#' @description
+#' Plot trends of multiple genes (clustered) across the binned pseudotime.
 #'
 #' @import ggplot2
 #' @importFrom stats complete.cases cutree hclust
@@ -22,7 +9,29 @@
 #' @importFrom mclust Mclust
 #' @importFrom stringr str_split_i
 #' @importFrom stats as.dist cor kmeans
-#' @return Generates a plot.
+#'
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
+#' @param xlab X-axis label. (Default is "Pooled Pseudotime")
+#' @param ylab Y-axis label. (Default is "Pseudobulk Expression")
+#' @param plot Whether to plot 'coeff' or 'counts'. (Default is 'counts')
+#' @param smoothness How smooth the trend should be. Setting to
+#' higher values will result in more linear trends. (Default is 0.01)
+#' @param logs Whether to log transform counts. (Default is TRUE)
+#' @param logType How to log transform the values. Available options 'log',
+#' 'log2', 'log10'. (Default is 'log')
+#' @param includeInflu Include gene only if it has influential data.
+#' (Default is TRUE)
+#' @param significant Include gene only if the models are significant based on
+#' \code{scMaSigPro::sc.filter()}. (Default is TRUE)
+#' @param parallel Use forking process to run parallelly. (Default is FALSE)
+#' (Currently, Windows is not supported)
+#' @param verbose Print detailed output in the console. (Default is TRUE)
+#' @param summary_mode Compress the expression values per replicate (if present)
+#'  per binned pseudotime point. Default is 'median'. Other option 'mean'
+#' @param pseudoCount Add a pseudo-count before taking the log. (Default is 1)
+#'
+#' @return ggplot2 plot object.
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #' @export
 plotTrendCluster <- function(scmpObj,
                              xlab = "Pooled Pseudotime",

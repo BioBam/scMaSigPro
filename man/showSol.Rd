@@ -2,23 +2,26 @@
 % Please edit documentation in R/show_functions.R
 \name{showSol}
 \alias{showSol}
-\title{Show or Return the Solution}
+\title{Show or Return the P-values after model fitting.}
 \usage{
 showSol(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE)
 }
 \arguments{
-\item{scmpObj}{an object of class 'ScMaSigPro'. This object should contain the computed solution.}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{view}{logical, whether to view the solution. If TRUE (default), the solution is displayed.}
+\item{view}{Whether to view the data in the explorer. (Default: FALSE)}
 
-\item{return}{logical, whether to return the solution. If TRUE (default), returned.}
+\item{return}{Whether to return the data. (Default: TRUE)}
 
-\item{includeInflu}{logical, whether to add gene with influential data in the solution.}
+\item{includeInflu}{Whether to include genes with inluential observations.}
 }
 \value{
-The computed solution as a data.frame if return is set to TRUE.
-If return is FALSE, the function does not return anything.
+The computed p-values for each term and full model as a dataframe.
 }
 \description{
-This function is used to view or return the solution of the provided scMaSigPro object.
+This function is used to view or return the matrix of p-values for each term
+and the full model from the provided scMaSigPro object.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

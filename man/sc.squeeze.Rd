@@ -2,12 +2,12 @@
 % Please edit documentation in R/sc.squeeze.R
 \name{sc.squeeze}
 \alias{sc.squeeze}
-\title{Pseudo-bulking with optimal number of pseudotime based bins}
+\title{Pseudo-bulking with optimal number of Pseudotime based bins}
 \usage{
 sc.squeeze(
-  scmpObject,
-  ptime_col = scmpObject@Parameters@ptime_col,
-  path_col = scmpObject@Parameters@path_col,
+  scmpObj,
+  ptime_col = scmpObj@Parameters@ptime_col,
+  path_col = scmpObj@Parameters@path_col,
   bin_method = "Sturges",
   drop_fac = 1,
   verbose = FALSE,
@@ -19,86 +19,76 @@ sc.squeeze(
   prune_bins = FALSE,
   assay_name = "counts",
   drop_trails = FALSE,
-  cluster_count_by = "sum",
+  aggregate = "sum",
   fill_gaps = FALSE,
   additional_params = list(use_unique_time_points = FALSE)
 )
 }
 \arguments{
-\item{scmpObject}{object of Class scMaSigPro. See \code{\link{ScMaSigPro}}
-for more details.}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{ptime_col}{Name of the column in `cell.metadata` storing
-Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment}
-package. (Default is "Pseudotime").}
+\item{ptime_col}{A character string representing the column name
+for inferred Pseudotime values in 'Sparse' data. (Default is "Pseudotime").}
 
-\item{path_col}{Name of the column in `cell.metadata` storing information
-for Path. Generated using `colData` from the \pkg{SingleCellExperiment}
-package. (Default is `path_prefix`).}
+\item{path_col}{A character string representing the column name for branching
+path assignment in 'Sparse' or 'Dense' data. (Default is `path_prefix`).}
 
-\item{bin_method}{A character string specifying the method to use in order to
-estimate the optimal number of bins. Available options: "Freedman.Diaconis",
-"Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal". See \code{\link{estBinSize}}
-for more details. (Default = "Sturges").}
+\item{bin_method}{A character string representing the algorithm used for
+binning. Available options: "Freedman.Diaconis",
+"Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal". (Default = "Sturges")}
 
-\item{drop_fac}{A numeric value specifying the factor by which to decrease the
-number of bins if the initial binning results in too many bins. (Default = 1).}
+\item{drop_fac}{A numeric value specifying the factor by which to adjust the
+number of bins if the initial binning results in too many/few bins.
+(Default = 1).}
 
-\item{verbose}{Print detailed output in the console. (Default is TRUE)
-per path iteratively. Options: "universal", "individual. (Default = "universal").}
+\item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{bin_mem_col}{Name of the column in the 'annotated_cell_metadata'}
+\item{bin_mem_col}{A character string representing the name of the column in
+which cells per bin are stored. (Default is "scmp_bin_members").}
 
-\item{bin_col}{Name of the bin column name}
+\item{bin_col}{A character string representing the name of the column in which
+bin labels are stored. (Default is "scmp_bin").}
 
-\item{bin_size_col}{Setting the name of the bin size column.}
+\item{bin_size_col}{A character string representing the name of the column in
+which bin sizes per bin are stored. (Default is "scmp_bin_size").}
 
-\item{bin_ptime_col}{Name of the column to store the computed Pseudotime
-bins.}
+\item{bin_ptime_col}{A character string representing the column name
+for binned Pseudotime values in 'Dense' data.
+(Default is "scmp_binned_pseudotime").}
 
-\item{split_bins}{If bin sizes are greater than}
+\item{split_bins}{If bin sizes are greater than mean + sd, split the bin into
+smaller bins by re-running the sc.squeeze() function. (Default = FALSE).}
 
-\item{prune_bins}{description}
+\item{prune_bins}{If bin sizes are smaller than mean - sd, remove the bin.
+(Default = FALSE).}
 
-\item{assay_name}{Name of the Assay in the assay_name object from which retrieve the counts.
-(Default = "counts").}
+\item{assay_name}{Name of the Assay in sparse data from which the counts are
+used. (Default = "counts").}
 
-\item{drop_trails}{description}
+\item{drop_trails}{If the paths have different lengths of the binned pseudotime,
+drop the bins from the path with more bins. (Default = FALSE).}
 
-\item{cluster_count_by}{A character string specifying the method to use to
-aggregate counts within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").}
+\item{aggregate}{A character string specifying the method to aggregate counts
+within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").}
 
-\item{fill_gaps}{description}
+\item{fill_gaps}{If corresponding bin is missing for a time-point, pull the
+successive bins and fill the gaps.}
 
-\item{additional_params}{Pass additional parameters as a named list. See Details.}
+\item{additional_params}{Pass additional parameters as a named list.
+See examples}
 }
 \value{
-A data.frame that contains the original data plus additional columns:
-- 'bin' : Name of the bin
-- 'bin_size' : Size of the bin
-- 'binned_time' : Interval range of each bin
-This function returns the merged data.frame with new discretized
-ptime_col, preserving the original rownames.
+An object of class \code{\link{ScMaSigPro}}, with updated `Dense`
+slot.
 }
 \description{
-`squeeze()` discretizes a continuous time series column into bins
+`sc.squeeze()` discretizes a continuous time series column into bins
 of equal size using entropy-based binning method. It automatically calculates
-the optimal number of bins using one of the supported methods. The bin sizes
-are also calculated and merged with the input cell_metadata.
-}
-\details{
-This function performs the following steps:
-- Adds a new column 'cell' to the input data.frame which copies the row names.
-- Extracts the time series data from the specified column of the input data.frame.
-- Calculates the optimal number of bins using the specified method.
-- Prints the estimated number of bins if verbose is set to TRUE.
-- Discretizes the time series data into bins using the entropy-based binning method.
-- Merges the original data.frame with the new binned time series data.
-- Removes the 'cell' column and sets the row names back to the original row names of the input data.frame.
-- Returns the merged data.frame.
+the optimal number of bins using one of the supported methods.
 }
 \seealso{
-\code{\link{estBinSize}}, \code{\link{discretize}}, \code{\link{create_range}}
+\code{\link{estBinSize}}, \code{\link{discretize}},
+\code{\link{create_range}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

@@ -28,7 +28,7 @@ for inferred Pseudotime values in 'Sparse' data. See `colData` from the
 binning.}
 
 \item{\code{path_col}}{A character string representing the column name for branching
-path assignment in 'Sparse' or 'Dense'data. See `colData` from the
+path assignment in 'Sparse' or 'Dense' data. See `colData` from the
 \pkg{SingleCellExperiment} package.}
 
 \item{\code{bin_col}}{A character string representing the name of the column in which
@@ -47,7 +47,8 @@ metadata containing cell level annotations. (Default is "cell_type").}
 
 \item{\code{p_value}}{Significance Level.}
 
-\item{\code{min_na}}{Minimum values needed to estimate the model.}
+\item{\code{min_na}}{Minimum values needed per gene across cells to estimate the
+model.}
 
 \item{\code{mt_correction}}{A character string specifying the p-value correction
 method.}
@@ -62,17 +63,18 @@ regression.}
 \item{\code{log_offset}}{A logical value specifying whether to take the logarithm of
 the offsets.}
 
-\item{\code{max_it}}{Integer. Maximum number of iterations to fit the model.}
+\item{\code{max_it}}{Maximum number of iterations to fit the model.}
 
-\item{\code{poly_degree}}{Integer with the polynomial degree to fit the regression. 1}
+\item{\code{poly_degree}}{Order of the polynomial linear model.}
 
-\item{\code{distribution}}{Distribution used}
+\item{\code{distribution}}{Distribution of the error term.}
 
-\item{\code{cluster_method}}{Description}
+\item{\code{cluster_method}}{Clustering method used for clustering significant genes.}
 
-\item{\code{use_dim}}{description}
+\item{\code{use_dim}}{Dimension to use for filling the missing values before
+clustering.}
 
-\item{\code{fill_na}}{description}
+\item{\code{fill_na}}{Method to fill the missing values.}
 }}
 
 \keyword{classes}

@@ -1,26 +1,42 @@
-#' @title Create predictors and set polynomial.  Adaption of maSigPro::make.design.matrix()
+#' @title Set up polynomial models and create Predictor Matrix
 #'
-#' @param scmpObject A 'ScMaSigPro' object.
-#' @param poly_degree Degree of the design matrix (default: 2).
-#' @param bin_ptime_col Name of the time column.
-#' @param path_col Name of the path column.
-#'
-#' @return Returns the 'scmpObject' with an updated 'design' slot.
+#' @description
+#' Set up polynomial models and create Predictor Matrix that will contain the
+#' independent variables. It is a wrapper around `maSigPro::make.design.matrix`.
 #'
 #' @importFrom maSigPro make.design.matrix
+#'
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
+#' @param poly_degree Degree of the polynomial.
+#' @param bin_ptime_col A character string representing the column name
+#' for binned Pseudotime values in 'Dense' data.
+#' @param path_col A character string representing the column name for branching
+#' path assignment in 'Sparse' or 'Dense' slot.
+#'
+#' @return An object of class \code{\link{ScMaSigPro}}, with updated `Design`
+#' slot.
+#'
+#' @seealso \code{\link{MatrixDesign}} Class.
+#'
+#' @references{Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
+#' maSigPro: a Method to Identify Significant Differential Expression Profiles
+#' in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}, Ana Conesa and
+#' Maria Jose Nueda, \email{mj.nueda@@ua.es}
 #' @export
 #'
-sc.set.poly <- function(scmpObject,
+sc.set.poly <- function(scmpObj,
                         poly_degree = 2,
-                        bin_ptime_col = scmpObject@Parameters@bin_ptime_col,
-                        path_col = scmpObject@Parameters@path_col) {
+                        bin_ptime_col = scmpObj@Parameters@bin_ptime_col,
+                        path_col = scmpObj@Parameters@path_col) {
   # Check Object Validity
-  assert_that(is(scmpObject, "ScMaSigPro"),
+  assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'scMaSigPro'"
   )
 
   # Extract cell metadata
-  comp.cell.metadata <- as.data.frame(scmpObject@Dense@colData)
+  comp.cell.metadata <- as.data.frame(scmpObj@Dense@colData)
 
   # pseudotime_colname
   assert_that((bin_ptime_col %in% colnames(comp.cell.metadata)),
@@ -82,10 +98,10 @@ sc.set.poly <- function(scmpObject,
   )
 
   # Update Slot
-  scmpObject@Design <- designObj
+  scmpObj@Design <- designObj
 
   # Update poly degree
-  scmpObject@Parameters@poly_degree <- as.integer(poly_degree)
+  scmpObj@Parameters@poly_degree <- as.integer(poly_degree)
 
-  return(scmpObject)
+  return(scmpObj)
 }

@@ -2,7 +2,7 @@
 
 Implementation of MaSigPro for scRNA-Seq Data
 
-[![lint](https://github.com/BioBam/scMaSigPro/actions/workflows/lint.yaml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/lint.yaml)  [![R-CMD-Check](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml)   [![test-coverage](https://github.com/BioBam/scMaSigPro/actions/workflows/test-coverage.yaml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/test-coverage.yaml)
+ [![R-CMD-Check](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml)   [![test-coverage](https://github.com/BioBam/scMaSigPro/actions/workflows/test-coverage.yaml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/test-coverage.yaml)
 
 ---
 
@@ -45,14 +45,14 @@ data("splat.sim", package = "scMaSigPro")
 
 ```
 # Helper Function to convert annotated SCE object to scmpObject
-scmp.ob <- as.scmp(
+scmp.ob <- as_scmp(
   object = splat.sim, from = "sce",
   align_pseudotime = FALSE,
   verbose = TRUE,
   additional_params = list(
     labels_exist = TRUE,
-    existing_pseudotime_colname = "Step",
-    existing_path_colname = "Group"
+    exist_ptime_col = "Step",
+    exist_path_col = "Group"
   )
 )
 ```

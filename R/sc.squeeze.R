@@ -1,77 +1,67 @@
-#' @title Pseudo-bulking with optimal number of pseudotime based bins
+#' @title Pseudo-bulking with optimal number of Pseudotime based bins
 #'
 #' @description
-#' `squeeze()` discretizes a continuous time series column into bins
+#' `sc.squeeze()` discretizes a continuous time series column into bins
 #' of equal size using entropy-based binning method. It automatically calculates
-#' the optimal number of bins using one of the supported methods. The bin sizes
-#' are also calculated and merged with the input cell_metadata.
+#' the optimal number of bins using one of the supported methods.
 #'
-#' @param scmpObject object of Class scMaSigPro. See \code{\link{ScMaSigPro}}
-#' for more details.
-#' @param ptime_col Name of the column in `cell.metadata` storing
-#' Pseudotime values. Generated using `colData` from the \pkg{SingleCellExperiment}
-#' package. (Default is "Pseudotime").
-#' @param path_col Name of the column in `cell.metadata` storing information
-#' for Path. Generated using `colData` from the \pkg{SingleCellExperiment}
-#' package. (Default is `path_prefix`).
-#' @param bin_ptime_col Name of the column to store the computed Pseudotime
-#' bins.
-#' @param bin_mem_col Name of the column in the 'annotated_cell_metadata'
-#' @param bin_col Name of the bin column name
-#' @param bin_size_col Setting the name of the bin size column.
-#' @param bin_method A character string specifying the method to use in order to
-#' estimate the optimal number of bins. Available options: "Freedman.Diaconis",
-#' "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal". See \code{\link{estBinSize}}
-#' for more details. (Default = "Sturges").
-#' @param drop_fac A numeric value specifying the factor by which to decrease the
-#' number of bins if the initial binning results in too many bins. (Default = 1).
-#' @param verbose Print detailed output in the console. (Default is TRUE)
-#' per path iteratively. Options: "universal", "individual. (Default = "universal").
-#' @param additional_params Pass additional parameters as a named list. See Details.
-#' @param assay_name Name of the Assay in the assay_name object from which retrieve the counts.
-#' (Default = "counts").
-#' @param split_bins If bin sizes are greater than
-#' @param prune_bins description
-#' @param drop_trails description
-#' @param fill_gaps description
-#' @param cluster_count_by A character string specifying the method to use to
-#' aggregate counts within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").
-#'
-#' @return
-#' A data.frame that contains the original data plus additional columns:
-#' - 'bin' : Name of the bin
-#' - 'bin_size' : Size of the bin
-#' - 'binned_time' : Interval range of each bin
-#' This function returns the merged data.frame with new discretized
-#' ptime_col, preserving the original rownames.
-#'
-#' @details
-#' This function performs the following steps:
-#' - Adds a new column 'cell' to the input data.frame which copies the row names.
-#' - Extracts the time series data from the specified column of the input data.frame.
-#' - Calculates the optimal number of bins using the specified method.
-#' - Prints the estimated number of bins if verbose is set to TRUE.
-#' - Discretizes the time series data into bins using the entropy-based binning method.
-#' - Merges the original data.frame with the new binned time series data.
-#' - Removes the 'cell' column and sets the row names back to the original row names of the input data.frame.
-#' - Returns the merged data.frame.
 #' @importFrom assertthat assert_that
 #' @importFrom parallel mclapply detectCores
 #' @importFrom entropy discretize
-#' @importFrom dplyr left_join join_by mutate select bind_rows group_by_at summarise rename_with
+#' @importFrom dplyr left_join join_by mutate select bind_rows group_by_at
+#' @importFrom dplyr summarise rename_with
 #' @importFrom magrittr %>%
 #' @importFrom rlang :=
 #' @importFrom dplyr group_by filter row_number ungroup summarise summarize
 #'
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
+#' @param ptime_col A character string representing the column name
+#' for inferred Pseudotime values in 'Sparse' data. (Default is "Pseudotime").
+#' @param path_col A character string representing the column name for branching
+#' path assignment in 'Sparse' or 'Dense' data. (Default is `path_prefix`).
+#' @param bin_ptime_col A character string representing the column name
+#' for binned Pseudotime values in 'Dense' data.
+#' (Default is "scmp_binned_pseudotime").
+#' @param bin_mem_col A character string representing the name of the column in
+#' which cells per bin are stored. (Default is "scmp_bin_members").
+#' @param bin_col A character string representing the name of the column in which
+#' bin labels are stored. (Default is "scmp_bin").
+#' @param bin_size_col A character string representing the name of the column in
+#' which bin sizes per bin are stored. (Default is "scmp_bin_size").
+#' @param bin_method  A character string representing the algorithm used for
+#' binning. Available options: "Freedman.Diaconis",
+#' "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal". (Default = "Sturges")
+#' @param drop_fac A numeric value specifying the factor by which to adjust the
+#' number of bins if the initial binning results in too many/few bins.
+#' (Default = 1).
+#' @param assay_name Name of the Assay in sparse data from which the counts are
+#' used. (Default = "counts").
+#' @param split_bins If bin sizes are greater than mean + sd, split the bin into
+#' smaller bins by re-running the sc.squeeze() function. (Default = FALSE).
+#' @param prune_bins If bin sizes are smaller than mean - sd, remove the bin.
+#' (Default = FALSE).
+#' @param drop_trails If the paths have different lengths of the binned pseudotime,
+#' drop the bins from the path with more bins. (Default = FALSE).
+#' @param fill_gaps If corresponding bin is missing for a time-point, pull the
+#' successive bins and fill the gaps.
+#' @param aggregate A character string specifying the method to aggregate counts
+#' within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").
+#' @param verbose  Print detailed output in the console. (Default is TRUE)
+#' @param additional_params Pass additional parameters as a named list.
+#' See examples
+#'
+#' @return An object of class \code{\link{ScMaSigPro}}, with updated `Dense`
+#' slot.
+#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @seealso \code{\link{estBinSize}}, \code{\link{discretize}}, \code{\link{create_range}}
+#' @seealso \code{\link{estBinSize}}, \code{\link{discretize}},
+#' \code{\link{create_range}}
 #'
 #' @export
-
-sc.squeeze <- function(scmpObject,
-                       ptime_col = scmpObject@Parameters@ptime_col,
-                       path_col = scmpObject@Parameters@path_col,
+sc.squeeze <- function(scmpObj,
+                       ptime_col = scmpObj@Parameters@ptime_col,
+                       path_col = scmpObj@Parameters@path_col,
                        bin_method = "Sturges",
                        drop_fac = 1,
                        verbose = FALSE,
@@ -83,7 +73,7 @@ sc.squeeze <- function(scmpObject,
                        prune_bins = FALSE,
                        assay_name = "counts",
                        drop_trails = FALSE,
-                       cluster_count_by = "sum",
+                       aggregate = "sum",
                        fill_gaps = FALSE,
                        additional_params = list(use_unique_time_points = FALSE)) {
   # Initiate Variable
@@ -92,42 +82,52 @@ sc.squeeze <- function(scmpObject,
   cell <- "cell"
 
   # Check Object Validity
-  assert_that(is(scmpObject, "ScMaSigPro"),
+  assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'scMaSigPro'."
   )
 
   # Extract cell metadata
-  raw_cell_metadata <- as.data.frame(colData(scmpObject@Sparse))
+  raw_cell_metadata <- as.data.frame(colData(scmpObj@Sparse))
 
   # Drop Columns if exist
   cols_to_drop <- c(
-    scmpObject@Parameters@bin_size_col,
-    scmpObject@Parameters@bin_ptime_col,
+    scmpObj@Parameters@bin_size_col,
+    scmpObj@Parameters@bin_ptime_col,
     "scmp_u_bound", "scmp_l_bound"
   )
-  raw_cell_metadata <- raw_cell_metadata[, !colnames(raw_cell_metadata) %in% cols_to_drop, drop = FALSE]
+  raw_cell_metadata <- raw_cell_metadata[, !colnames(
+    raw_cell_metadata
+  ) %in% cols_to_drop, drop = FALSE]
 
   # Count slot
   assert_that(
     all(
-      assay_name %in% names(scmpObject@Sparse@assays@data@listData)
+      assay_name %in% names(scmpObj@Sparse@assays@data@listData)
     ),
-    msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObject.")
+    msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObj.")
   )
 
   # Checks
   assert_that(ptime_col %in% colnames(raw_cell_metadata),
-    msg = paste0("'", ptime_col, "' does not exist in cell.level.metadata Please review the 'ptime_col' parameter.")
+    msg = paste0(
+      "'", ptime_col,
+      "' does not exist in cell.level.metadata Please review the 'ptime_col' parameter."
+    )
   )
   assert_that(path_col %in% colnames(raw_cell_metadata),
-    msg = paste0("'", path_col, "' does not exist in cell.level.metadata. Please review the 'path_col' parameter.")
+    msg = paste0(
+      "'", path_col,
+      "' does not exist in cell.level.metadata. Please review the 'path_col' parameter."
+    )
   )
   assert_that(drop_fac >= 0.3,
     msg = "Invalid value for 'drop_fac'. It should be between 0.3 and 1."
   )
   assert_that(
     all(
-      bin_method %in% c("Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", "Scott.Normal")
+      bin_method %in% c(
+        "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", "Scott.Normal"
+      )
     ),
     msg = "Available binning methods are 'Freedman.Diaconis', 'Sqrt', 'Sturges', 'Rice', 'Doane', and 'Scott.Normal'"
   )
@@ -167,14 +167,21 @@ sc.squeeze <- function(scmpObject,
   }
 
   # Apply transformations on data
-  discrete.list <- lapply(avail.paths, function(path, design.frame = raw_cell_metadata,
-                                                drop_factor = drop_fac, path.col = path_col,
-                                                bin.size = bin_size_col, bin = bin_col,
-                                                time.col = ptime_col, method.bin = bin_method,
+  discrete.list <- lapply(avail.paths, function(path,
+                                                design.frame = raw_cell_metadata,
+                                                drop_factor = drop_fac,
+                                                path.col = path_col,
+                                                bin.size = bin_size_col,
+                                                bin = bin_col,
+                                                time.col = ptime_col,
+                                                method.bin = bin_method,
                                                 bin.time.col = bin_ptime_col,
-                                                split = split_bins, bin.members.colname = bin_mem_col,
-                                                v = verbose, use.unique.time.points = additional_params$use_unique_time_points,
-                                                lbound = scmp_bin_lower_bound, ubound = scmp_bin_upper_bound) {
+                                                split = split_bins,
+                                                bin.members.colname = bin_mem_col,
+                                                v = verbose,
+                                                use.unique.time.points = additional_params$use_unique_time_points,
+                                                lbound = scmp_bin_lower_bound,
+                                                ubound = scmp_bin_upper_bound) {
     # Get the cells belonging to path
     path.frame <- design.frame[design.frame[[path.col]] == path, , drop = FALSE]
 
@@ -228,7 +235,8 @@ sc.squeeze <- function(scmpObject,
     # Client-Verbose
     if (verbose) {
       message(paste(
-        "For", path, ",", length_n, "time points has been compressed to", nrow(bin_table), "bins"
+        "For", path, ",", length_n, "time points has been compressed to",
+        nrow(bin_table), "bins"
       ))
     }
 
@@ -246,7 +254,10 @@ sc.squeeze <- function(scmpObject,
     # Split bins
     if (split) {
       if (verbose) {
-        message(paste("Optimizing bin sizes, with maximum allowed bin size as", max.allowed))
+        message(paste(
+          "Optimizing bin sizes, with maximum allowed bin size as",
+          max.allowed
+        ))
       }
 
       # Adjust maximum Size
@@ -278,12 +289,16 @@ sc.squeeze <- function(scmpObject,
     }
 
     if (verbose) {
-      message(paste("Optimizing bin sizes, with maximum allowed bin size as", max.allowed))
+      message(paste(
+        "Optimizing bin sizes, with maximum allowed bin size as",
+        max.allowed
+      ))
     }
 
     if (verbose) {
       message(paste(
-        "Finally, for", path, ",", length_n, "time points has been compressed to", nrow(bin_table), "bins and the sum is ", sum(bin_table[[bin.size]])
+        "Finally, for", path, ",", length_n, "time points has been compressed to",
+        nrow(bin_table), "bins and the sum is ", sum(bin_table[[bin.size]])
       ))
     }
 
@@ -358,7 +373,9 @@ sc.squeeze <- function(scmpObject,
     binned.path.frame[[path.col]] <- path
 
 
-    tmp.bin.size <- apply(binned.path.frame, 1, calc_bin_size, clus_mem_col = bin.members.colname)
+    tmp.bin.size <- apply(binned.path.frame, 1, calc_bin_size,
+      clus_mem_col = bin.members.colname
+    )
     binned.path.frame[[bin.size]] <- tmp.bin.size
 
     # Subset the bin tables
@@ -388,7 +405,7 @@ sc.squeeze <- function(scmpObject,
     as.data.frame()
 
   ## Add Processed Cell Matadata back with slot update
-  scmpObject@Sparse@colData <- DataFrame(processed_cell_metadata)
+  scmpObj@Sparse@colData <- DataFrame(processed_cell_metadata)
 
   # Set the 'cell' column as rownames
   rownames(processed_cell_metadata) <- processed_cell_metadata$cell
@@ -461,26 +478,31 @@ sc.squeeze <- function(scmpObject,
     processed_binned_cell_metadata <- pB.frame
   }
 
-  compressed.sparse <- SingleCellExperiment(assays = list(bulk.counts = as(matrix(NA, nrow = 0, ncol = nrow(processed_binned_cell_metadata)), "dgCMatrix")))
+  compressed.sparse <- SingleCellExperiment(assays = list(
+    bulk.counts = as(
+      matrix(NA, nrow = 0, ncol = nrow(processed_binned_cell_metadata)),
+      "dgCMatrix"
+    )
+  ))
   compressed.sparse@colData <- DataFrame(processed_binned_cell_metadata)
-  scmpObject@Dense <- compressed.sparse
+  scmpObj@Dense <- compressed.sparse
 
   # Get Counts
-  scmpObject <- pb_counts(
-    scmpObject = scmpObject,
+  scmpObj <- pb_counts(
+    scmpObj = scmpObj,
     bin_mem_col = bin_mem_col,
     bin_col = bin_col,
     assay_name = assay_name,
-    cluster_count_by = cluster_count_by
+    cluster_count_by = aggregate
   )
 
   # Update Slots
-  scmpObject@Parameters@ptime_col <- ptime_col
-  scmpObject@Parameters@path_col <- path_col
-  scmpObject@Parameters@bin_method <- bin_method
-  scmpObject@Parameters@bin_ptime_col <- bin_ptime_col
-  scmpObject@Parameters@bin_col <- bin_col
-  scmpObject@Parameters@bin_mem_col <- bin_mem_col
-  scmpObject@Parameters@bin_size_col <- bin_size_col
-  return(scmpObject)
+  scmpObj@Parameters@ptime_col <- ptime_col
+  scmpObj@Parameters@path_col <- path_col
+  scmpObj@Parameters@bin_method <- bin_method
+  scmpObj@Parameters@bin_ptime_col <- bin_ptime_col
+  scmpObj@Parameters@bin_col <- bin_col
+  scmpObj@Parameters@bin_mem_col <- bin_mem_col
+  scmpObj@Parameters@bin_size_col <- bin_size_col
+  return(scmpObj)
 }

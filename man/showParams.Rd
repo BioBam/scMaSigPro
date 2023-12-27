@@ -2,21 +2,26 @@
 % Please edit documentation in R/show_functions.R
 \name{showParams}
 \alias{showParams}
-\title{Show or Return the parameters used during the analysis}
+\title{Show the parameters used during the workflow.}
 \usage{
 showParams(scmpObj, view = FALSE, return = TRUE)
 }
 \arguments{
-\item{scmpObj}{an object of class 'ScMaSigPro'. This object should contain the computed solution.}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{view}{logical, whether to view the solution. If TRUE (default), the solution is displayed.}
+\item{view}{Whether to view the data in the explorer. (Default: FALSE)}
 
-\item{return}{logical, whether to return the solution. If FALSE (default), the solution is not returned.}
+\item{return}{Whether to return the data. (Default: TRUE)}
 }
 \value{
 The computed solution as a data.frame if return is set to TRUE.
 If return is FALSE, the function does not return anything.
+
+Dataframe of the parameters used in the analysis.
 }
 \description{
-This function is used to view or return the solution of the provided scMaSigPro object.
+Get or View all the parameters used during the workflow.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

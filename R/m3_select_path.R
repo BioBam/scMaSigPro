@@ -194,7 +194,7 @@ m3_select_path <- function(cds,
       inputType = "Monocle3",
       ptime_col = ptime_col
     )
-  } else if (plot_purity & !all(supplied_nodes %in% anno.df[["node"]])) {
+  } else if (plot_purity && !all(supplied_nodes %in% anno.df[["node"]])) {
     # Tranfer data
     data <- anno.df
 
@@ -213,7 +213,7 @@ m3_select_path <- function(cds,
       group_by(!!sym(node), !!sym(anno)) %>%
       summarise(count = n(), .groups = "drop")
 
-    data_summary <- data_summary[data_summary$count >= (mean(data_summary$count) + sd(data_summary$count)), ]
+    data_summary <- data_summary[data_summary[[count]] >= (mean(data_summary$count) + sd(data_summary[[count]])), ]
 
     # Plotting the data
     fraction_bar <- ggplot(data_summary, aes(x = .data$node, y = .data$count, fill = .data$anno)) +

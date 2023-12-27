@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotTrendCluster.R
 \name{plotTrendCluster}
 \alias{plotTrendCluster}
-\title{Plot Groups Function}
+\title{Plot multiple trends of the multiple genes.}
 \usage{
 plotTrendCluster(
   scmpObj,
@@ -21,35 +21,44 @@ plotTrendCluster(
 )
 }
 \arguments{
-\item{scmpObj}{object of class scmpObj}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{xlab}{X-axis label. Default is "Pooled Pseudotime".}
+\item{xlab}{X-axis label. (Default is "Pooled Pseudotime")}
 
-\item{ylab}{Y-axis label. Default is "Pseudobulk Expression".}
+\item{ylab}{Y-axis label. (Default is "Pseudobulk Expression")}
 
-\item{plot}{description}
+\item{plot}{Whether to plot 'coeff' or 'counts'. (Default is 'counts')}
 
-\item{summary_mode}{description}
+\item{summary_mode}{Compress the expression values per replicate (if present)
+per binned pseudotime point. Default is 'median'. Other option 'mean'}
 
-\item{logs}{Whether to plot log of counts}
+\item{logs}{Whether to log transform counts. (Default is TRUE)}
 
-\item{logType}{Log type required}
+\item{logType}{How to log transform the values. Available options 'log',
+'log2', 'log10'. (Default is 'log')}
 
-\item{smoothness}{description}
+\item{smoothness}{How smooth the trend should be. Setting to
+higher values will result in more linear trends. (Default is 0.01)}
 
-\item{includeInflu}{description}
+\item{includeInflu}{Include gene only if it has influential data.
+(Default is TRUE)}
 
-\item{verbose}{description}
+\item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{pseudoCount}{description}
+\item{pseudoCount}{Add a pseudo-count before taking the log. (Default is 1)}
 
-\item{significant}{description}
+\item{significant}{Include gene only if the models are significant based on
+\code{scMaSigPro::sc.filter()}. (Default is TRUE)}
 
-\item{parallel}{description}
+\item{parallel}{Use forking process to run parallelly. (Default is FALSE)
+(Currently, Windows is not supported)}
 }
 \value{
-Generates a plot.
+ggplot2 plot object.
 }
 \description{
-This function generates plots based on various parameters.
+Plot trends of multiple genes (clustered) across the binned pseudotime.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

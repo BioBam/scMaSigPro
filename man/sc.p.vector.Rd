@@ -2,7 +2,7 @@
 % Please edit documentation in R/sc.p.vector.R
 \name{sc.p.vector}
 \alias{sc.p.vector}
-\title{Make regression fit for Binned Pseudotime. Adaption of maSigPro::p.vector()}
+\title{Perform fitting with full model.}
 \usage{
 sc.p.vector(
   scmpObj,
@@ -19,53 +19,52 @@ sc.p.vector(
 )
 }
 \arguments{
-\item{scmpObj}{matrix containing normalized gene expression data. Genes must be in rows and arrays in columns.}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{p_value}{significance level. Default is 0.05.}
+\item{p_value}{Significance level used for variable selection in the stepwise
+regression.}
 
-\item{mt_correction}{argument to pass to \code{p.adjust} function indicating the method for multiple testing adjustment of p.value.}
+\item{mt_correction}{A character string specifying the p-value correction
+method.}
 
-\item{min_na}{genes with less than this number of true numerical values will be excluded from the analysis.
-Minimum value to estimate the model is (degree+1) x Groups + 1. Default is 6.}
+\item{min_na}{Minimum values needed per gene across cells to estimate the
+model.}
 
-\item{family}{the distribution function to be used in the glm model.
-It must be specified as a function: \code{gaussian()}, \code{poisson()}, \code{negative.binomial(theta)}...
-If NULL, the family will be \code{negative.binomial(theta)} when \code{counts = TRUE} or \code{gaussian()} when \code{counts = FALSE}.}
+\item{family}{Distribution of the error term.}
 
-\item{epsilon}{argument to pass to \code{glm.control}, convergence tolerance in the iterative process to estimate the glm model.}
+\item{epsilon}{Model convergence tolerance.}
 
-\item{verbose}{Name of the analyzed item to show on the screen while \code{T.fit} is in process.}
+\item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{offset}{Whether ro use offset for normalization}
+\item{offset}{logical value specifying whether to use offset during fitting.}
 
-\item{parallel}{Enable parallel processing}
+\item{parallel}{Use forking process to run parallelly. (Default is FALSE)
+(Currently, Windows is not supported)}
 
-\item{log_offset}{Take the log of teh offset. Similar to
-'log(estimateSizeFactorsForMatrix)' from DESeq2.}
+\item{log_offset}{A logical value specifying whether to take the logarithm of
+the offsets.}
 
-\item{max_it}{Integer giving the maximal number of IWLS iterations.}
+\item{max_it}{Maximum number of iterations to fit the model.}
 }
 \value{
-ScMaSigPro object
+An object of class \code{\link{ScMaSigPro}}, with updated `Profile`
+slot.
 }
 \description{
-\code{sc.p.vector} performs a regression fit for each gene taking all variables
-present in the model given by a regression matrix #' and returns a list of FDR corrected significant genes.
-}
-\details{
-\code{rownames(design)} and \code{colnames(data)} must be identical vectors
-  and indicate array naming. \code{rownames(data)} should contain unique gene IDs.
-  \code{colnames(design)} are the given names for the variables in the regression model.
+Performs a regression fit for each gene taking all variables present in the
+model.
 }
 \references{
 Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
-maSigPro: a Method to Identify Significant Differential Expression Profiles in Time-Course Microarray Experiments.
-Bioinformatics 22, 1096-1102
+maSigPro: a Method to Identify Significant Differential Expression Profiles
+in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102
 }
 \seealso{
-\code{\link{T.fit}}, \code{\link{lm}}
+\code{\link{VariableProfiles}}
 }
 \author{
-Ana Conesa, Maria Jose Nueda and Priyansh Srivastava \email{spriyansh29@gmail.com}
+Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and
+Maria Jose Nueda, \email{mj.nueda@ua.es}
 }
+\keyword{models}
 \keyword{regression}

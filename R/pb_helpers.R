@@ -474,7 +474,7 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
 #' cell counts. It does this by either taking the mean or sum of counts across
 #' cells in each bin, depending on the specified method.
 #'
-#' @param scmpObject object of Class scMaSigPro. See \code{\link{ScMaSigPro}}
+#' @param scmpObj object of Class scMaSigPro. See \code{\link{ScMaSigPro}}
 #' for more details.
 #' @param bin_mem_col Column name in the Dense metadata storing information
 #' about the members of the bins. (Default is 'scmp_bin_members').
@@ -502,29 +502,29 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
 #'
 #' @keywords internal
 
-pb_counts <- function(scmpObject,
-                      bin_mem_col = scmpObject@Parameters@bin_mem_col,
-                      bin_col = scmpObject@Parameters@bin_col,
+pb_counts <- function(scmpObj,
+                      bin_mem_col = scmpObj@Parameters@bin_mem_col,
+                      bin_col = scmpObj@Parameters@bin_col,
                       assay_name = "counts",
                       cluster_count_by = "sum") {
   # Check Object Validity
-  assert_that(is(scmpObject, "ScMaSigPro"),
+  assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'scMaSigPro'."
   )
 
   # Count slot
   assert_that(
     all(
-      assay_name %in% names(scmpObject@Sparse@assays@data@listData)
+      assay_name %in% names(scmpObj@Sparse@assays@data@listData)
     ),
-    msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObject.")
+    msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObj.")
   )
 
   # Get assay
-  counts <- scmpObject@Sparse@assays@data@listData[[assay_name]]
+  counts <- scmpObj@Sparse@assays@data@listData[[assay_name]]
 
   # Get Pseudobulk Profile
-  pseudo_bulk_profile <- as.data.frame(colData(scmpObject@Dense))
+  pseudo_bulk_profile <- as.data.frame(colData(scmpObj@Dense))
 
   assert_that(bin_mem_col %in% colnames(pseudo_bulk_profile),
     msg = paste0("'", bin_mem_col, "' does not exist in level.meta.data")
@@ -567,8 +567,8 @@ pb_counts <- function(scmpObject,
   colnames(pb.counts) <- meta.info[[bin_col]]
 
   # Return the counts
-  scmpObject@Dense@assays@data@listData$bulk.counts <- as(pb.counts, "dgCMatrix")
+  scmpObj@Dense@assays@data@listData$bulk.counts <- as(pb.counts, "dgCMatrix")
 
   # return
-  return(scmpObject)
+  return(scmpObj)
 }

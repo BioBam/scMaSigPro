@@ -10,8 +10,8 @@
 \item{object}{An object of class \code{ScMaSigPro}.}
 }
 \description{
-This method displays basic information about the ScMaSigPro object when the object
-is printed in the console. The method is automatically called when the user writes
-the name of the object in the console.
+This method displays basic information about the ScMaSigPro object when the
+object is printed in the console. The method is automatically called when the
+user writes the name of the object in the console.
 }
 \keyword{internal}
