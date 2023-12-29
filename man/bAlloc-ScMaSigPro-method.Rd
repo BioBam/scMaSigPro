@@ -2,18 +2,21 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{bAlloc,ScMaSigPro-method}
 \alias{bAlloc,ScMaSigPro-method}
-\title{Set or get the Sparse Column Data of an ScMaSigPro Object}
+\title{Set or get the Assignment Matrix.}
 \usage{
 \S4method{bAlloc}{ScMaSigPro}(object, value = "missing")
 }
 \arguments{
-\item{object}{An object of class `ScMaSigPro`.}
+\item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The new value for the `colData` slot. Optional for getting.}
+\item{value}{The value of the branch Assignment Matrix.}
 }
 \value{
-`colData` when getting, modified `ScMaSigPro` object when setting.
+Modified `ScMaSigPro` object with new Assignment Matrix.
 }
 \description{
-Set or get the Sparse Column Data of an ScMaSigPro Object
+Set or get the Assignment Matrix.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

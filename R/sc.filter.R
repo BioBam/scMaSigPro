@@ -1,61 +1,58 @@
-#' @title Extract significant genes for sets of variables in time series gene expression experiments
+#' @title Extract significant genes based on R-Square and P-values
 #'
 #' @description
-#' `sc.filter()` creates lists of significant genes for a set of variables
-#' whose significance value has been computed with the \code{sc.t.fit} function.
+#' `sc.filter()` creates lists of significant genes based on user-specified
+#' constraints.
 #'
-#' @param scmpObj Object of Class \code{\link{ScMaSigPro}} in which the
-#' \code{sc.t.fit} has been run.
-#' @param rsq Cut-off level at the R-squared value for the stepwise regression fit.
-#' @param includeInflu description
-#' @param p_value overall model significance
-#' @param term_p_value Term wise significance
-#' Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).
-#' @param vars Variables for which to extract significant genes. There are 3 possible values:
-#' \itemize{
-#'   \item \code{"all"}: generates one single matrix or gene list with all significant genes.
-#'   \item \code{"each"}: generates as many significant genes extractions as variables in the general regression model.
-#'   \item \code{"groups"}: generates a significant genes extraction for each experimental group.
-#' }
-#' @param significant.intercept Experimental groups for which significant intercept coefficients are considered.
+#' @importFrom maSigPro get.siggenes
+#'
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
+#' @param rsq Coefficient of determination or R-squared value threshold.
+#' @param includeInflu Whether to include genes with influential observations.
+#' @param p_value Overall model significance.
+#' @param term_p_value Term wise significance.
+#' @param vars Variables for which to extract significant genes. See details.
+#' @param intercept Specify the branching path treated as reference. See details.
+#' (When `vars` equals "groups").
 #'
 #' @details
-#' Refer to the function description for details on the arguments and their usage.
-#'
-#' @return A list with two elements:
+#' `vars` Parameter can take one of the following values:
 #' \itemize{
-#'   \item \code{summary}: A vector or matrix listing significant genes for the variables given by the function parameters.
-#'   \item \code{sig.genes}: A list with detailed information on the significant genes found for the variables given by the function parameters.
-#'   Each element of the list is also a list containing:
-#'     \describe{
-#'       \item{\code{sig.profiles}:}{Expression values of significant genes.}
-#'       \item{\code{coefficients}:}{Regression coefficients of the adjusted models.}
-#'       \item{\code{group.coeffs}:}{Regression coefficients of the implicit models of each experimental group.}
-#'       \item{\code{sig.pvalues}:}{P-values of the regression coefficients for significant genes.}
-#'       \item{\code{g}:}{Number of genes.}
-#'       \item{\code{...}:}{Arguments passed by previous functions.}
-#'     }
-#'   }
+#'   \item \code{"all"}: Generates one gene list with all significant genes.
+#'   \item \code{"each"}: Generates gene list for each term in the polynomial GLM.
+#'   \item \code{"groups"}: Generates gene list for each branching path.
+#' }
 #'
-#' @references
-#' Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. (2006).
-#' maSigPro: a Method to Identify Significant Differential Expression Profiles in Time-Course Microarray Experiments.
-#' Bioinformatics, 22(9), 1096-1102. \url{https://doi.org/10.1093/bioinformatics/btl056}
+#' `intercept` Parameter modulates the treatment for intercept coefficients to
+#' apply for selecting significant genes when `vars` equals "groups". There are
+#' three possible values:
+#'  \itemize{
+#'   \item \code{"none"}: No significant intercept (differences) are considered.
+#'   \item \code{"dummy"}: Includes genes with significant intercept differences
+#'   between branching paths.
+#'   \item \code{"all"}: When both significant intercept coefficient for the
+#'   reference path and significant intercept differences are considered for
+#'    selecting significant genes.
+#' }
 #'
-#' @author Ana Conesa and Maria Jose Nueda (mj.nueda@@ua.es)
+#' @return An object of class \code{\link{ScMaSigPro}}, with updated `Significant`
+#' slot.
 #'
-#' @examples
-#' # Example usage of the function can be placed here.
+#' @seealso `maSigPro::get.siggenes()`
 #'
-#' @keywords manip
-#' @importFrom maSigPro get.siggenes
+#' @references{Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
+#' maSigPro: a Method to Identify Significant Differential Expression Profiles
+#' in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}, Ana Conesa and
+#' Maria Jose Nueda, \email{mj.nueda@@ua.es}
 #'
 #' @export
 sc.filter <- function(scmpObj,
                       rsq = 0.7,
                       p_value = scmpObj@Parameters@p_value,
                       vars = c("all", "each", "groups"),
-                      significant.intercept = "dummy",
+                      intercept = "dummy",
                       term_p_value = 0.05,
                       includeInflu = TRUE) {
   # Check Validity of the object
@@ -104,11 +101,11 @@ sc.filter <- function(scmpObj,
     group_vector <- scmpObj@Estimate@path
 
     # Based on the dummy, none and all
-    if (significant.intercept == "all") {
+    if (intercept == "all") {
       select_cols <- seq(from = 1, to = ncol(sol.sub))
-    } else if (significant.intercept == "dummy") {
+    } else if (intercept == "dummy") {
       select_cols <- seq(from = 2, to = ncol(sol.sub))
-    } else if (significant.intercept == "none") {
+    } else if (intercept == "none") {
       select_cols <- seq(from = 3, to = ncol(sol.sub))
     }
 
@@ -157,7 +154,7 @@ sc.filter <- function(scmpObj,
   # sig.genes.s3 <- get.siggenes(tstep,
   #   rsq = rsq, add.IDs = FALSE, IDs = NULL, matchID.col = 1,
   #   only.names = FALSE, vars = vars,
-  #   significant.intercept = significant.intercept,
+  #   intercept = intercept,
   #   groups.vector = NULL, trat.repl.spots = "none",
   #   r = 0.7
   # )

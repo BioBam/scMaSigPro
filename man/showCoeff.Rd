@@ -2,7 +2,7 @@
 % Please edit documentation in R/show_functions.R
 \name{showCoeff}
 \alias{showCoeff}
-\title{Show or Return the Coefficent matrix}
+\title{Show or Return the Coefficient matrix}
 \usage{
 showCoeff(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE)
 }
@@ -13,13 +13,13 @@ showCoeff(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE)
 
 \item{return}{Whether to return the data. (Default: TRUE)}
 
-\item{includeInflu}{Whether to include genes with inluential observations.}
+\item{includeInflu}{Whether to include genes with influential observations.}
 }
 \value{
-The computed Coefficent matrix as a dataframe.
+The computed Coefficient matrix as a dataframe.
 }
 \description{
-This function is used to view or return the coefficents from the provided
+This function is used to view or return the Coefficients from the provided
 scMaSigPro object.
 }
 \author{

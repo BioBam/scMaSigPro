@@ -2,11 +2,11 @@
 % Please edit documentation in R/sc.cluster.trend.R
 \name{sc.cluster.trend}
 \alias{sc.cluster.trend}
-\title{Cluster the counts or coefficients}
+\title{Cluster the counts or coefficients.}
 \usage{
 sc.cluster.trend(
   scmpObj,
-  geneSet,
+  geneSet = "intersect",
   cluster_by = "coeff",
   cluster_method = "hclust",
   hclust.agglo.method = "ward.D",
@@ -21,35 +21,54 @@ sc.cluster.trend(
 )
 }
 \arguments{
-\item{scmpObj}{object of class scmpObj}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{geneSet}{description}
+\item{geneSet}{Specify the gene set to be used for clustering.
+(Default is "intersect")}
 
-\item{cluster_by}{description}
+\item{cluster_by}{Whether to use counts or coefficients for clustering.}
 
-\item{cluster_method}{description}
+\item{cluster_method}{Clustering method for data partioning. Currently "hclust",
+"kmeans" and "Mclust" are supported.}
 
-\item{hclust.agglo.method}{description}
+\item{hclust.agglo.method}{Aggregation Method. (Default is "ward.D")}
 
-\item{kmeans.iter.max}{description}
+\item{kmeans.iter.max}{Maximum number of iterations when cluster.method is
+kmeans}
 
-\item{hclust.distance}{description}
+\item{hclust.distance}{Distance measurement.(Default is "cor")}
 
-\item{includeInflu}{description}
+\item{includeInflu}{Whether to include genes with influential observations.}
 
-\item{mclust.k}{description}
+\item{mclust.k}{TRUE for computing the optimal number of clusters with
+Mclust algorithm. (Default is FALSE)}
 
-\item{k}{description}
+\item{k}{Number of clusters for data partioning.}
 
-\item{verbose}{description}
+\item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{fill_na}{description}
+\item{fill_na}{Fill the NAs (if Present), by zero, mean or median.}
 
-\item{use_dim}{description}
+\item{use_dim}{Whether to use rows or columns for taking mean or median while
+filling the NAs with `fill_na`.}
 }
 \value{
-Generates a plot.
+An object of class \code{\link{ScMaSigPro}}, with updated
+`Significant` slot with clusters.
 }
 \description{
-This function clusters the counts or coefficients
+This function clusters the counts or coefficients to visualize the collective
+trends later.
+}
+\references{
+{Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
+maSigPro: a Method to Identify Significant Differential Expression Profiles
+in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
+}
+\seealso{
+`maSigPro::see.genes()`
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and
+Maria Jose Nueda, \email{mj.nueda@ua.es}
 }

@@ -309,7 +309,7 @@ scmp_ob <- sc.filter(
   scmpObj = scmp_ob,
   rsq = 0.7,
   vars = "groups",
-  significant.intercept = "dummy",
+  intercept = "dummy",
   includeInflu = TRUE
 )
 ```

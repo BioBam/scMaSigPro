@@ -2,18 +2,22 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{cDense<-}
 \alias{cDense<-}
-\title{Replacement method for cSparse}
+\title{Set the data for Dense Slot}
 \usage{
 cDense(object) <- value
 }
 \arguments{
-\item{object}{An object of class `ScMaSigPro`.}
+\item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The new value for the `colData` slot.}
+\item{value}{The new value for the `colData` slot. (When Setting)}
 }
 \value{
-Modified `ScMaSigPro` object.
+Modified `ScMaSigPro` object when setting.
 }
 \description{
-Replacement method for cSparse
+Set cell level metadata for the Dense slot of an
+\code{\link{ScMaSigPro}} object.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

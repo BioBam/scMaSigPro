@@ -2,7 +2,7 @@
 % Please edit documentation in R/show_functions.R
 \name{showGroupCoeff}
 \alias{showGroupCoeff}
-\title{Show or Return the Branching Path Coefficent matrix}
+\title{Show or Return the Branching Path Coefficient matrix}
 \usage{
 showGroupCoeff(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE)
 }
@@ -13,12 +13,12 @@ showGroupCoeff(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE)
 
 \item{return}{Whether to return the data. (Default: TRUE)}
 
-\item{includeInflu}{Whether to include genes with inluential observations.}
+\item{includeInflu}{Whether to include genes with influential observations.}
 }
 \value{
-The computed branching path coefficent matrix as a dataframe.
+The computed branching path Coefficient matrix as a dataframe.
 }
 \description{
-This function is used to view or return the branching paths coefficents from
+This function is used to view or return the branching paths Coefficients from
 the provided scMaSigPro object.
 }

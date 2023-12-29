@@ -2,18 +2,21 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{bAlloc<-}
 \alias{bAlloc<-}
-\title{Replacement method for bAlloc}
+\title{Replacement method for bAlloc.}
 \usage{
 bAlloc(object) <- value
 }
 \arguments{
-\item{object}{An object of class `ScMaSigPro`.}
+\item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The new value for the `colData` slot.}
+\item{value}{The value of the branch Assignment Matrix.}
 }
 \value{
-Modified `ScMaSigPro` object.
+Modified `ScMaSigPro` object with new Assignment Matrix.
 }
 \description{
-Replacement method for bAlloc
+Replacement method for bAlloc.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

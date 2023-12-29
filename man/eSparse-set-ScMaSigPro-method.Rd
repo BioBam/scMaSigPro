@@ -2,21 +2,24 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{eSparse<-,ScMaSigPro-method}
 \alias{eSparse<-,ScMaSigPro-method}
-\title{Set eSparse value for ScMaSigPro objects (Not Implemented)}
+\title{Get Value for expression counts.}
 \usage{
 \S4method{eSparse}{ScMaSigPro}(object, i) <- value
 }
 \arguments{
-\item{object}{The ScMaSigPro object.}
+\item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{i}{object name}
+\item{i}{Name of the Assay.}
 
-\item{value}{The value to set.}
+\item{value}{The value to be set. (If Setting)}
 }
 \value{
-None
+Modified `ScMaSigPro` object.
 }
 \description{
-Method to set the eSparse value for ScMaSigPro class objects.
-This method is currently not implemented.
+`eSparse<-` is a generic function for setting expression counts for
+Sparse in an \code{\link{ScMaSigPro}}.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

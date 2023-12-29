@@ -2,18 +2,21 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{cDense<-,ScMaSigPro-method}
 \alias{cDense<-,ScMaSigPro-method}
-\title{Replacement method for cSparse}
+\title{Replacement method for cDense}
 \usage{
 \S4method{cDense}{ScMaSigPro}(object) <- value
 }
 \arguments{
-\item{object}{An object of class `ScMaSigPro`.}
+\item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The new value for the `colData` slot.}
+\item{value}{The new value for the `colData` slot. (When Setting)}
 }
 \value{
 Modified `ScMaSigPro` object.
 }
 \description{
-Replacement method for cSparse
+Replacement method for cDense
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

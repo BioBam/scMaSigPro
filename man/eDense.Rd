@@ -2,19 +2,22 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{eDense}
 \alias{eDense}
-\title{eDense value of an object}
+\title{Get Value for expression counts.}
 \usage{
 eDense(object, value = "missing")
 }
 \arguments{
-\item{object}{The object to be accessed or modified.}
+\item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The value to be set for eSparse, if it's a setter.}
+\item{value}{The value to be set. (If Setting)}
 }
 \value{
-The eSparse value of the object if it's a getter.
+The expression matrix for Dense slot.
 }
 \description{
-`eDense` is a generic function that can act as both a getter and a setter for the eSparse value of an object.
-The setter functionality is not implemented for all object types.
+`eDense<-` is a generic function for getting expression counts for Dense
+in an \code{\link{ScMaSigPro}}.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

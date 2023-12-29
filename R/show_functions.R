@@ -13,18 +13,18 @@
 # 10. showGroupCoeff():
 
 ###############################################################################
-#' @title Show or Return the Coefficent matrix
+#' @title Show or Return the Coefficient matrix
 #'
 #' @description
-#' This function is used to view or return the coefficents from the provided
+#' This function is used to view or return the Coefficients from the provided
 #' scMaSigPro object.
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param view Whether to view the data in the explorer. (Default: FALSE)
-#' @param includeInflu Whether to include genes with inluential observations.
+#' @param includeInflu Whether to include genes with influential observations.
 #' @param return Whether to return the data. (Default: TRUE)
 #'
-#' @return The computed Coefficent matrix as a dataframe.
+#' @return The computed Coefficient matrix as a dataframe.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
@@ -109,7 +109,7 @@ showInflu <- function(scmpObj, view = FALSE, return = TRUE) {
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param view Whether to view the data in the explorer. (Default: FALSE)
-#' @param includeInflu Whether to include genes with inluential observations.
+#' @param includeInflu Whether to include genes with influential observations.
 #' @param return Whether to return the data. (Default: TRUE)
 #'
 #' @return The computed t-score matrix as a dataframe.
@@ -156,7 +156,7 @@ showTS <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param view Whether to view the data in the explorer. (Default: FALSE)
-#' @param includeInflu Whether to include genes with inluential observations.
+#' @param includeInflu Whether to include genes with influential observations.
 #' @param return Whether to return the data. (Default: TRUE)
 #'
 #' @return The computed p-values for each term and full model as a dataframe.
@@ -205,7 +205,7 @@ showSol <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param view Whether to view the data in the explorer. (Default: FALSE)
-#' @param includeInflu Whether to include genes with inluential observations.
+#' @param includeInflu Whether to include genes with influential observations.
 #' @param return Whether to return the data. (Default: TRUE)
 #'
 #' @return Pseudo-bulk counts as matrix for genes with non-flat profiles.
@@ -213,7 +213,8 @@ showSol <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-showSigProf <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE) {
+showSigProf <- function(scmpObj, view = FALSE, return = TRUE,
+                        includeInflu = FALSE) {
   # Check Object Validity
   assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'scMaSigPro'"
@@ -225,7 +226,10 @@ showSigProf <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = FAL
   )
 
   # Extract
-  sol <- showSol(scmpObj, view = FALSE, return = TRUE, includeInflu = includeInflu) %>% as.data.frame()
+  sol <- showSol(scmpObj,
+    view = FALSE, return = TRUE,
+    includeInflu = includeInflu
+  ) %>% as.data.frame()
   # Extract rownames
   bulk.counts <- scmpObj@Dense@assays@data@listData$bulk.counts
   bulk.counts <- bulk.counts[rownames(bulk.counts) %in% rownames(sol), , drop = FALSE]
@@ -266,7 +270,10 @@ showPoly <- function(scmpObj) {
   )
 
   # Check if the sol exist
-  assert_that(all(!is.na(colnames(scmpObj@Design@predictor_matrix)) | length(colnames(scmpObj@Design@predictor_matrix) > 1)),
+  assert_that(
+    all(!is.na(colnames(scmpObj@Design@predictor_matrix)) | length(
+      colnames(scmpObj@Design@predictor_matrix) > 1
+    )),
     msg = "Please setup the model first, using 'sc.make.design.matrix()'"
   )
 
@@ -283,7 +290,9 @@ showPoly <- function(scmpObj) {
   )
 
   # Make formula
-  formula_string <- paste("beta0", paste(formula_parts, collapse = " + "), sep = " + ")
+  formula_string <- paste("beta0", paste(formula_parts, collapse = " + "),
+    sep = " + "
+  )
 
   return(formula_string)
 }
@@ -358,18 +367,18 @@ showParams <- function(scmpObj, view = FALSE, return = TRUE) {
 }
 
 ###############################################################################
-#' @title Show or Return the Branching Path Coefficent matrix
+#' @title Show or Return the Branching Path Coefficient matrix
 #'
 #' @description
-#' This function is used to view or return the branching paths coefficents from
+#' This function is used to view or return the branching paths Coefficients from
 #' the provided scMaSigPro object.
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param view Whether to view the data in the explorer. (Default: FALSE)
 #' @param return Whether to return the data. (Default: TRUE)
-#' @param includeInflu Whether to include genes with inluential observations.
+#' @param includeInflu Whether to include genes with influential observations.
 #'
-#' @return The computed branching path coefficent matrix as a dataframe.
+#' @return The computed branching path Coefficient matrix as a dataframe.
 #'
 #' @export
 showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
@@ -421,24 +430,54 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
   cat("Class: ScMaSigProClass\n")
   cat(paste0("nCells: ", ncol(object@Sparse), "\n"))
   cat(paste0("nFeatures: ", nrow(object@Sparse), "\n"))
-  cat("Pseudotime Range:", paste(round(range(colData(object@Sparse)[[object@Parameters@ptime_col]]), 3)))
-  cat(paste("\nBranching Paths:", paste(unique(colData(object@Sparse)[[object@Parameters@path_col]]), collapse = ", ")))
+  cat("Pseudotime Range:", paste(round(
+    range(colData(object@Sparse)[[object@Parameters@ptime_col]]), 3
+  )))
+  cat(paste("\nBranching Paths:", paste(
+    unique(colData(object@Sparse)[[object@Parameters@path_col]]),
+    collapse = ", "
+  )))
 
   # Calculate the Compression
   compressed.cell.metadata <- cDense(object)
   if (length(compressed.cell.metadata) > 0) {
     cat(paste0(
-      "\nBinned Pseudotime: ", paste(range(compressed.cell.metadata[[object@Parameters@bin_ptime_col]]), collapse = "-"), "(Range), ",
-      round(mean(compressed.cell.metadata[[object@Parameters@bin_ptime_col]]), 2), "(Mean), "
+      "\nBinned Pseudotime: ", paste(
+        range(
+          compressed.cell.metadata[[object@Parameters@bin_ptime_col]]
+        ),
+        collapse = "-"
+      ), "(Range), ",
+      round(
+        mean(
+          compressed.cell.metadata[[object@Parameters@bin_ptime_col]]
+        ),
+        2
+      ), "(Mean), "
     ))
 
     # Extract info
-    per_path_num_bin <- extract_info(compressed.cell.metadata, return_type = "num_bins", bin_size_col = object@Parameters@bin_size_col, object@Parameters@path_col)
-    per_path_bin_size <- round(extract_info(compressed.cell.metadata, return_type = "avg_bin_size", bin_size_col = object@Parameters@bin_size_col, object@Parameters@path_col))
+    per_path_num_bin <- extract_info(compressed.cell.metadata,
+      return_type = "num_bins",
+      bin_size_col = object@Parameters@bin_size_col,
+      object@Parameters@path_col
+    )
+    per_path_bin_size <- round(extract_info(
+      compressed.cell.metadata,
+      return_type = "avg_bin_size",
+      bin_size_col = object@Parameters@bin_size_col,
+      object@Parameters@path_col
+    ))
 
     # Paste
-    cat("\nNumber of bins->", paste(names(per_path_num_bin), per_path_num_bin, sep = ": "))
-    cat("\nAverage bin Size->", paste(names(per_path_bin_size), per_path_bin_size, sep = ": "))
+    cat("\nNumber of bins->", paste(names(per_path_num_bin),
+      per_path_num_bin,
+      sep = ": "
+    ))
+    cat("\nAverage bin Size->", paste(names(per_path_bin_size),
+      per_path_bin_size,
+      sep = ": "
+    ))
   }
 
   # Influential Genes if any
@@ -463,8 +502,20 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
   }
 }
 
-# helper to extract the lineage info
-extract_info <- function(data, return_type = "avg_bin_size", bin_size_col, path_col) {
+###############################################################################
+#' @title Extract Information `.ScMaSigPro_show`
+#'
+#' @description
+#' Extract details for the console cat of `.ScMaSigPro_show`.
+#'
+#' @param data A dataframe.
+#' @param return_type Average Bin Size or Number of Bins.
+#' @param bin_size_col Column name with the bins.
+#' @param path_col Column name with the path information.
+#'
+#' @keywords internal
+extract_info <- function(data, return_type = "avg_bin_size",
+                         bin_size_col, path_col) {
   if (return_type == "avg_bin_size") {
     avg_sizes <- tapply(data[[bin_size_col]], data[[path_col]], mean)
     return(avg_sizes)
