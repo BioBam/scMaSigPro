@@ -1,5 +1,3 @@
-# See https://github.com/r-lib/actions/tree/master/examples#readme for
-
 name: R-CMD-Check
 
 on:
@@ -29,6 +27,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: Install qpdf (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install qpdf
 
       - uses: r-lib/actions/setup-pandoc@v2
 
