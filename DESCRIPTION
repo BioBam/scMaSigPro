@@ -3,8 +3,8 @@ Type: Package
 Title: Application of MaSigPro Bioconductor Package for scRNA Trajectory data
 Version: 0.0.1
 Authors@R: c(
-    person("Ana", "Conesa", role = c("aut"), email = "ana@example.com"),
-    person("Maria Jose", "Nueda", role = c("aut"), email = "mjnueda@example.com"),
+    person("Ana", "Conesa", role = c("aut"), email = "ana.conesa@csic.es"),
+    person("Maria Jose", "Nueda", role = c("aut"), email = "mj.nueda@ua.es"),
     person("Priyansh", "Srivastava", role = c("aut", "cre", "ctb"), email = "spriyansh29@gmail.com",
     comment=c(OCRID="0000-0003-2618-5296")),
     person("Marta", "Benegas", role = c("aut"), email = "martabc22@gmail.com")
@@ -14,7 +14,7 @@ Description: scMaSigPro is a polynomial regression-based approach inspired by
     individual cells along pseudotime while preserving the order of cells.
     Subsequently, it applies the maSigPro model to identify genes exhibiting
     significant expression profile differences among branching paths.
-License: MIT + file LICENSE
+License: GPL (>= 2)
 Imports:
     assertthat, e1071, dplyr, entropy, ggplot2, igraph, magrittr, maSigPro,
     MASS, MatrixGenerics, methods, parallel, parallelly, plotly, RColorConesa,
@@ -31,9 +31,9 @@ Suggests:
     rmarkdown,
     BiocStyle
 Config/testthat/edition: 3
-URL: https://github.com/spriyansh/scMaSigPro
+URL: https://github.com/BioBam/scMaSigPro/
 biocViews: Clustering, Regression, TimeCourse, DifferentialExpression,
     GeneExpression, RNASeq, Sequencing, Software, SingleCell, Transcriptomics,
     MultipleComparison, Visualization
-BugReports: https://github.com/spriyansh/scMaSigPro/issues
+BugReports: https://github.com/BioBam/scMaSigPro/issues
 VignetteBuilder: knitr
