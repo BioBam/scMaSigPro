@@ -16,7 +16,7 @@
 #' @param rsq A numeric value specifying the R-squared threshold.
 #' @param p_value A numeric value, derived from the scmpObj object, for analysis.
 #' @param vars A string specifying the variables to be used.
-#' @param significant.intercept A string indicating the treatment of intercepts in the analysis.
+#' @param intercept A string indicating the treatment of intercepts in the analysis.
 #' @param term_p_value A numeric value specifying the threshold for term significance.
 #' @param includeInflu A boolean indicating whether to include influencers in the analysis.
 #' @param unique.trend A string specifying the trend type for 'unique' query.
@@ -39,7 +39,7 @@ sc.get.features <- function(scmpObj,
                             rsq = 0.7,
                             p_value = scmpObj@Parameters@p_value,
                             vars = "groups",
-                            significant.intercept = "dummy",
+                            intercept = "dummy",
                             term_p_value = 0.05,
                             includeInflu = TRUE,
                             unique.trend = "any",
@@ -73,7 +73,7 @@ sc.get.features <- function(scmpObj,
   scmpObj <- sc.filter(scmpObj,
     rsq = rsq,
     vars = vars,
-    significant.intercept = significant.intercept,
+    intercept = intercept,
     p_value = p_value,
     term_p_value = term_p_value,
     includeInflu = includeInflu

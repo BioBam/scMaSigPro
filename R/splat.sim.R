@@ -1,5 +1,6 @@
-#' Simulated SingleCellExperiment Object
+#' @title Simulated SingleCellExperiment Object
 #'
+#' @description
 #' A small simulated SingleCellExperiment Object created using Splatter.
 #' This dataset contains 200 cells and 100 genes and is simulated to have
 #' a bifurcating topology of the trajectory, useful for testing and development

@@ -2,19 +2,21 @@
 % Please edit documentation in R/utils.R
 \name{get_os}
 \alias{get_os}
-\title{Get Operating System Name}
+\title{Get Identifying the OS from R.}
 \usage{
 get_os()
 }
 \value{
-A string indicating the operating system: either 'osx', 'linux', or a lower-case version of `Sys.info()['sysname']` if the system is neither OS X nor Linux.
+A string indicating the operating system: either 'osx', 'linux', or a
+lower-case version of `Sys.info()['sysname']` if the system is neither OS X
+nor Linux.
 }
 \description{
-This function returns the name of the operating system the R session is running on. It differentiates between 'osx', 'linux', and other systems.
+This function returns the name of the operating system the R session is
+running on. It differentiates between 'osx', 'linux', and other systems.
+Visit https://www.r-bloggers.com/
 }
-\details{
-Adapted from: https://www.r-bloggers.com/2015/06/identifying-the-os-from-r/
-Written by: Will on www.r-bloggers.com
-Title: Identifying the OS from R
+\author{
+Will
 }
 \keyword{internal}

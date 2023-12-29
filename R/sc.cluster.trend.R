@@ -1,30 +1,49 @@
-#' Cluster the counts or coefficients
+#' @title Cluster the counts or coefficients.
 #'
-#' This function clusters the counts or coefficients
-#'
-#' @param scmpObj object of class scmpObj
-#' @param cluster_by description
-#' @param geneSet description
-#' @param cluster_method description
-#' @param hclust.agglo.method description
-#' @param hclust.distance description
-#' @param includeInflu description
-#' @param k description
-#' @param verbose description
-#' @param kmeans.iter.max description
-#' @param mclust.k description
-#' @param fill_na description
-#' @param use_dim description
+#' @description
+#' This function clusters the counts or coefficients to visualize the collective
+#' trends later.
 #'
 #' @import ggplot2
 #' @importFrom stats complete.cases cutree hclust
 #' @importFrom RColorConesa getConesaColors
 #' @importFrom mclust Mclust
 #' @importFrom stats as.dist cor kmeans
-#' @return Generates a plot.
+#'
+#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
+#' @param cluster_by Whether to use counts or coefficients for clustering.
+#' @param geneSet Specify the gene set to be used for clustering.
+#' (Default is "intersect")
+#' @param cluster_method Clustering method for data partioning. Currently "hclust",
+#' "kmeans" and "Mclust" are supported.
+#' @param hclust.agglo.method Aggregation Method. (Default is "ward.D")
+#' @param hclust.distance Distance measurement.(Default is "cor")
+#' @param k Number of clusters for data partioning.
+#' @param kmeans.iter.max Maximum number of iterations when cluster.method is
+#' kmeans
+#' @param mclust.k TRUE for computing the optimal number of clusters with
+#' Mclust algorithm. (Default is FALSE)
+#' @param fill_na Fill the NAs (if Present), by zero, mean or median.
+#' @param use_dim Whether to use rows or columns for taking mean or median while
+#' filling the NAs with `fill_na`.
+#' @param includeInflu Whether to include genes with influential observations.
+#' @param verbose Print detailed output in the console. (Default is TRUE)
+#'
+#' @return An object of class \code{\link{ScMaSigPro}}, with updated
+#' `Significant` slot with clusters.
+#'
+#' @seealso `maSigPro::see.genes()`
+#'
+#' @references{Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
+#' maSigPro: a Method to Identify Significant Differential Expression Profiles
+#' in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}, Ana Conesa and
+#' Maria Jose Nueda, \email{mj.nueda@@ua.es}
+#'
 #' @export
 sc.cluster.trend <- function(scmpObj,
-                             geneSet,
+                             geneSet = "intersect",
                              cluster_by = "coeff",
                              cluster_method = "hclust",
                              hclust.agglo.method = "ward.D",

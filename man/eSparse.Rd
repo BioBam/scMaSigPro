@@ -2,19 +2,22 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{eSparse}
 \alias{eSparse}
-\title{eSparse value of an object}
+\title{Get Value for expression counts.}
 \usage{
 eSparse(object, value = "missing")
 }
 \arguments{
-\item{object}{The object to be accessed or modified.}
+\item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The value to be set for eSparse, if it's a setter.}
+\item{value}{The value to be set. (If Setting)}
 }
 \value{
-The eSparse value of the object if it's a getter.
+The expression matrix for Sparse slot.
 }
 \description{
-`eSparse` is a generic function that can act as both a getter and a setter for the eSparse value of an object.
-The setter functionality is not implemented for all object types.
+`eSparse<-` is a generic function for getting expression counts for Sparse
+in an \code{\link{ScMaSigPro}}.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

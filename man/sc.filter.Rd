@@ -2,73 +2,71 @@
 % Please edit documentation in R/sc.filter.R
 \name{sc.filter}
 \alias{sc.filter}
-\title{Extract significant genes for sets of variables in time series gene expression experiments}
+\title{Extract significant genes based on R-Square and P-values}
 \usage{
 sc.filter(
   scmpObj,
   rsq = 0.7,
   p_value = scmpObj@Parameters@p_value,
   vars = c("all", "each", "groups"),
-  significant.intercept = "dummy",
+  intercept = "dummy",
   term_p_value = 0.05,
   includeInflu = TRUE
 )
 }
 \arguments{
-\item{scmpObj}{Object of Class \code{\link{ScMaSigPro}} in which the
-\code{sc.t.fit} has been run.}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{rsq}{Cut-off level at the R-squared value for the stepwise regression fit.}
+\item{rsq}{Coefficient of determination or R-squared value threshold.}
 
-\item{p_value}{overall model significance}
+\item{p_value}{Overall model significance.}
 
-\item{vars}{Variables for which to extract significant genes. There are 3 possible values:
-\itemize{
-  \item \code{"all"}: generates one single matrix or gene list with all significant genes.
-  \item \code{"each"}: generates as many significant genes extractions as variables in the general regression model.
-  \item \code{"groups"}: generates a significant genes extraction for each experimental group.
-}}
+\item{vars}{Variables for which to extract significant genes. See details.}
 
-\item{significant.intercept}{Experimental groups for which significant intercept coefficients are considered.}
+\item{intercept}{Specify the branching path treated as reference. See details.
+(When `vars` equals "groups").}
 
-\item{term_p_value}{Term wise significance
-Only genes with R-squared more than 'rsq' are selected. (Default = 0.7).}
+\item{term_p_value}{Term wise significance.}
 
-\item{includeInflu}{description}
+\item{includeInflu}{Whether to include genes with influential observations.}
 }
 \value{
-A list with two elements:
-\itemize{
-  \item \code{summary}: A vector or matrix listing significant genes for the variables given by the function parameters.
-  \item \code{sig.genes}: A list with detailed information on the significant genes found for the variables given by the function parameters.
-  Each element of the list is also a list containing:
-    \describe{
-      \item{\code{sig.profiles}:}{Expression values of significant genes.}
-      \item{\code{coefficients}:}{Regression coefficients of the adjusted models.}
-      \item{\code{group.coeffs}:}{Regression coefficients of the implicit models of each experimental group.}
-      \item{\code{sig.pvalues}:}{P-values of the regression coefficients for significant genes.}
-      \item{\code{g}:}{Number of genes.}
-      \item{\code{...}:}{Arguments passed by previous functions.}
-    }
-  }
+An object of class \code{\link{ScMaSigPro}}, with updated `Significant`
+slot.
 }
 \description{
-`sc.filter()` creates lists of significant genes for a set of variables
-whose significance value has been computed with the \code{sc.t.fit} function.
+`sc.filter()` creates lists of significant genes based on user-specified
+constraints.
 }
 \details{
-Refer to the function description for details on the arguments and their usage.
+`vars` Parameter can take one of the following values:
+\itemize{
+  \item \code{"all"}: Generates one gene list with all significant genes.
+  \item \code{"each"}: Generates gene list for each term in the polynomial GLM.
+  \item \code{"groups"}: Generates gene list for each branching path.
 }
-\examples{
-# Example usage of the function can be placed here.
 
+`intercept` Parameter modulates the treatment for intercept coefficients to
+apply for selecting significant genes when `vars` equals "groups". There are
+three possible values:
+ \itemize{
+  \item \code{"none"}: No significant intercept (differences) are considered.
+  \item \code{"dummy"}: Includes genes with significant intercept differences
+  between branching paths.
+  \item \code{"all"}: When both significant intercept coefficient for the
+  reference path and significant intercept differences are considered for
+   selecting significant genes.
+}
 }
 \references{
-Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. (2006).
-maSigPro: a Method to Identify Significant Differential Expression Profiles in Time-Course Microarray Experiments.
-Bioinformatics, 22(9), 1096-1102. \url{https://doi.org/10.1093/bioinformatics/btl056}
+{Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
+maSigPro: a Method to Identify Significant Differential Expression Profiles
+in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
+}
+\seealso{
+`maSigPro::get.siggenes()`
 }
 \author{
-Ana Conesa and Maria Jose Nueda (mj.nueda@ua.es)
+Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and
+Maria Jose Nueda, \email{mj.nueda@ua.es}
 }
-\keyword{manip}

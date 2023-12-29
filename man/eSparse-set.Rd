@@ -2,21 +2,24 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{eSparse<-}
 \alias{eSparse<-}
-\title{Set eSparse value for an object}
+\title{Set value for expression counts.}
 \usage{
 eSparse(object, i) <- value
 }
 \arguments{
-\item{object}{The object to be modified.}
+\item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{i}{object name}
+\item{i}{Name of the assay.}
 
-\item{value}{The value to be set for eSparse.}
+\item{value}{The value to be set.}
 }
 \value{
-None
+Modified `ScMaSigPro` object.
 }
 \description{
-`eSparse<-` is a generic function for setting eSparse value in an object.
-Currently, this functionality is not implemented for all object types.
+`eSparse<-` is a generic function for setting expression counts for Sparse
+in an \code{\link{ScMaSigPro}}.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
