@@ -2,18 +2,21 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{cDense,ScMaSigPro-method}
 \alias{cDense,ScMaSigPro-method}
-\title{Set or get the Sparse Column Data of an ScMaSigPro Object}
+\title{Set or get the Dense Column Data of an ScMaSigPro Object}
 \usage{
 \S4method{cDense}{ScMaSigPro}(object, value = "missing")
 }
 \arguments{
-\item{object}{An object of class `ScMaSigPro`.}
+\item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The new value for the `colData` slot. Optional for getting.}
+\item{value}{The new value for the `colData` slot. (When Setting)}
 }
 \value{
 `colData` when getting, modified `ScMaSigPro` object when setting.
 }
 \description{
-Set or get the Sparse Column Data of an ScMaSigPro Object
+Set or get the Dense Column Data of an ScMaSigPro Object
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

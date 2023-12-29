@@ -7,13 +7,16 @@
 \S4method{bAlloc}{ScMaSigPro}(object) <- value
 }
 \arguments{
-\item{object}{An object of class `ScMaSigPro`.}
+\item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The new value for the `colData` slot.}
+\item{value}{The value of the branch Assignment Matrix.}
 }
 \value{
 Modified `ScMaSigPro` object.
 }
 \description{
 Replacement method for bAlloc
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

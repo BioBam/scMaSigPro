@@ -1,9 +1,9 @@
 #' Function to interactively select nodes from shiny
 #'
-#' @param trajectory_data Dataframe for trajectory
-#' @param annotation_data Dataframe for cell UMAP
-#' @param label_coords Datatframe for labels
-#' @param inputType Input type
+#' @param trajectory_data Dataframe with trajectory data.
+#' @param annotation_data Dataframe for with annotation data.
+#' @param label_coords How to label corrdinates.
+#' @param inputType Name of the method.
 #'
 #' @importFrom shiny observeEvent renderUI renderText h3 h4 h5 showModal fluidPage
 #' @importFrom shiny reactiveVal titlePanel sidebarPanel HTML actionButton mainPanel
@@ -14,7 +14,6 @@
 #'
 #' @keywords internal
 #'
-
 shinySelect <- function(trajectory_data,
                         annotation_data,
                         label_coords,

@@ -13,7 +13,7 @@ sc.get.features(
   rsq = 0.7,
   p_value = scmpObj@Parameters@p_value,
   vars = "groups",
-  significant.intercept = "dummy",
+  intercept = "dummy",
   term_p_value = 0.05,
   includeInflu = TRUE,
   unique.trend = "any",
@@ -41,7 +41,7 @@ Default is 'Path1'.}
 
 \item{vars}{A string specifying the variables to be used.}
 
-\item{significant.intercept}{A string indicating the treatment of intercepts in the analysis.}
+\item{intercept}{A string indicating the treatment of intercepts in the analysis.}
 
 \item{term_p_value}{A numeric value specifying the threshold for term significance.}
 

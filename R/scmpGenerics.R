@@ -1,21 +1,44 @@
-#' Get or set the Sparse column data of a ScMaSigPro object
-#' @param object An object of class `ScMaSigPro`.
-#' @param value The new value for the `colData` slot to set. Optional for getting.
-#' @return `colData` when getting, modified `ScMaSigPro` object when setting.
+#' @title Get the data for Sparse Slot.
+#'
+#' @description
+#' Get or set cell level metadata for the Sparse slot of an
+#' \code{\link{ScMaSigPro}} object.
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The new value for the `colData` slot of Sparse. (When Setting)
+#'
+#' @return `colData` for the `Sparse` Slot.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setGeneric("cSparse", function(object, value = "missing") standardGeneric("cSparse"))
 
-#' Replacement method for cSparse
-#' @param object An object of class `ScMaSigPro`.
-#' @param value The new value for the `colData` slot.
-#' @return Modified `ScMaSigPro` object.
+#' @title Set the data for Sparse Slot
+#'
+#' @description
+#' Set cell level metadata for the Sparse slot of an
+#' \code{\link{ScMaSigPro}} object.
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The new value for the `colData` slot. (When Setting)
+#'
+#' @return  Modified `ScMaSigPro` object when setting.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setGeneric("cSparse<-", function(object, value) standardGeneric("cSparse<-"))
 
-#' Set or get the Sparse Column Data of an ScMaSigPro Object
-#' @param object An object of class `ScMaSigPro`.
-#' @param value The new value for the `colData` slot. Optional for getting.
+#' @title Set or get the Sparse Column Data of an ScMaSigPro Object
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The new value for the `colData` slot. (When Setting)
+#'
 #' @return `colData` when getting, modified `ScMaSigPro` object when setting.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setMethod("cSparse", "ScMaSigPro", function(object, value) {
   if (identical(value, "missing")) {
@@ -26,192 +49,274 @@ setMethod("cSparse", "ScMaSigPro", function(object, value) {
   }
 })
 
-#' Replacement method for cSparse
-#' @param object An object of class `ScMaSigPro`.
-#' @param value The new value for the `colData` slot.
+#' @title Replacement method for cSparse
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The new value for the `colData` slot. (When Setting)
+#'
 #' @return Modified `ScMaSigPro` object.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setReplaceMethod("cSparse", "ScMaSigPro", function(object, value) {
   object@Sparse@colData <- DataFrame(value)
   return(object)
 })
 ###############################################################################
-#' Get or set the Sparse column data of a ScMaSigPro object
-#' @param object An object of class `ScMaSigPro`.
-#' @param value The new value for the `colData` slot to set. Optional for getting.
-#' @return `colData` when getting, modified `ScMaSigPro` object when setting.
+
+#' @title Get the data for Dense Slot.
+#'
+#' @description
+#' Get or set cell level metadata for the Dense slot of an
+#' \code{\link{ScMaSigPro}} object.
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The new value for the `colData` slot of Dense. (When Setting)
+#'
+#' @return `colData` for the `Dense` Slot.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setGeneric("cDense", function(object, value = "missing") standardGeneric("cDense"))
 
-#' Replacement method for cSparse
-#' @param object An object of class `ScMaSigPro`.
-#' @param value The new value for the `colData` slot.
-#' @return Modified `ScMaSigPro` object.
+#' @title Set the data for Dense Slot
+#'
+#' @description
+#' Set cell level metadata for the Dense slot of an
+#' \code{\link{ScMaSigPro}} object.
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The new value for the `colData` slot. (When Setting)
+#'
+#' @return  Modified `ScMaSigPro` object when setting.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setGeneric("cDense<-", function(object, value) standardGeneric("cDense<-"))
 
-#' Set or get the Sparse Column Data of an ScMaSigPro Object
-#' @param object An object of class `ScMaSigPro`.
-#' @param value The new value for the `colData` slot. Optional for getting.
+#' @title Set or get the Dense Column Data of an ScMaSigPro Object
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The new value for the `colData` slot. (When Setting)
+#'
 #' @return `colData` when getting, modified `ScMaSigPro` object when setting.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setMethod("cDense", "ScMaSigPro", function(object, value) {
   if (identical(value, "missing")) {
-    return(as.data.frame(object@Dense@colData)) # Getter
+    return(as.data.frame(object@Dense@colData))
   } else {
-    object@Dense@colData <- DataFrame(value) # Setter
+    object@Dense@colData <- DataFrame(value)
     return(invisible(object))
   }
 })
 
-#' Replacement method for cSparse
-#' @param object An object of class `ScMaSigPro`.
-#' @param value The new value for the `colData` slot.
+#' @title Replacement method for cDense
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The new value for the `colData` slot. (When Setting)
+#'
 #' @return Modified `ScMaSigPro` object.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setReplaceMethod("cDense", "ScMaSigPro", function(object, value) {
   object@Dense@colData <- DataFrame(value)
   return(object)
 })
 ###############################################################################
-#' Set eSparse value for an object
+#' @title Set value for expression counts.
 #'
 #' @description
-#' `eSparse<-` is a generic function for setting eSparse value in an object.
-#' Currently, this functionality is not implemented for all object types.
+#' `eSparse<-` is a generic function for setting expression counts for Sparse
+#' in an \code{\link{ScMaSigPro}}.
 #'
-#' @param object The object to be modified.
-#' @param value The value to be set for eSparse.
-#' @param i object name
-#' @return None
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value to be set.
+#' @param i Name of the assay.
+#'
+#' @return Modified `ScMaSigPro` object.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setGeneric("eSparse<-", function(object, i, value) standardGeneric("eSparse<-"))
 
-#' eSparse value of an object
+#' @title Get Value for expression counts.
 #'
 #' @description
-#' `eSparse` is a generic function that can act as both a getter and a setter for the eSparse value of an object.
-#' The setter functionality is not implemented for all object types.
+#' `eSparse<-` is a generic function for getting expression counts for Sparse
+#' in an \code{\link{ScMaSigPro}}.
 #'
-#' @param object The object to be accessed or modified.
-#' @param value The value to be set for eSparse, if it's a setter.
-#' @return The eSparse value of the object if it's a getter.
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value to be set. (If Setting)
+#'
+#' @return The expression matrix for Sparse slot.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setGeneric("eSparse", function(object, value = "missing") standardGeneric("eSparse"))
 
-#' Get eSparse value for ScMaSigPro objects
+#' @title Get Value for expression counts.
+#'
+#' @importFrom SummarizedExperiment assay assay<-
 #'
 #' @description
-#' Method to get the eSparse value from ScMaSigPro class objects.
+#' `eSparse` is a generic function for setting/getting expression counts for
+#' Sparse in an \code{\link{ScMaSigPro}}.
 #'
-#' @param object The ScMaSigPro object.
-#' @param value Dummy parameter, not used.
-#' @return The eSparse value from the ScMaSigPro object.
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value to be set. (If Setting)
 #'
-#' @importFrom SummarizedExperiment assay
+#' @return The expression matrix for Sparse slot.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setMethod("eSparse", "ScMaSigPro", function(object, value = "missing") {
   if (identical(value, "missing")) {
-    return(assay(object@Sparse)) # Getter: Replace 'assay' with the appropriate getter function for your object
+    return(assay(object@Sparse))
   } else {
-    return(assay(object@Sparse, value)) # Assuming you don't want a setter for this method
+    return(assay(object@Sparse, value))
   }
 })
 
-#' Set eSparse value for ScMaSigPro objects (Not Implemented)
+#' @title Get Value for expression counts.
 #'
 #' @description
-#' Method to set the eSparse value for ScMaSigPro class objects.
-#' This method is currently not implemented.
+#' `eSparse<-` is a generic function for setting expression counts for
+#' Sparse in an \code{\link{ScMaSigPro}}.
 #'
-#' @param object The ScMaSigPro object.
-#' @param value The value to set.
-#' @param i object name
-#' @return None
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value to be set. (If Setting)
+#' @param i Name of the Assay.
+#'
+#' @return Modified `ScMaSigPro` object.
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setMethod("eSparse<-", "ScMaSigPro", function(object, i, value) {
   assay(object@Sparse, i) <- value
   return(invisible(object))
 })
 ##############################################################################
-#' Set eDense value for an object
+#' @title Set value for expression counts.
 #'
 #' @description
-#' `eDense<-` is a generic function for setting eDense value in an object.
-#' Currently, this functionality is not implemented for all object types.
+#' `eDense<-` is a generic function for setting expression counts for Dense
+#' in an \code{\link{ScMaSigPro}}.
 #'
-#' @param object The object to be modified.
-#' @param value The value to be set for eSparse.
-#' @param i object name
-#' @return None
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value to be set.
+#' @param i Name of the assay.
+#'
+#' @return Modified `ScMaSigPro` object.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setGeneric("eDense<-", function(object, i, value) standardGeneric("eDense<-"))
 
-#' eDense value of an object
+#' @title Get Value for expression counts.
 #'
 #' @description
-#' `eDense` is a generic function that can act as both a getter and a setter for the eSparse value of an object.
-#' The setter functionality is not implemented for all object types.
+#' `eDense<-` is a generic function for getting expression counts for Dense
+#' in an \code{\link{ScMaSigPro}}.
 #'
-#' @param object The object to be accessed or modified.
-#' @param value The value to be set for eSparse, if it's a setter.
-#' @return The eSparse value of the object if it's a getter.
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value to be set. (If Setting)
+#'
+#' @return The expression matrix for Dense slot.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setGeneric("eDense", function(object, value = "missing") standardGeneric("eDense"))
 
-#' Get eDense value for ScMaSigPro objects
+#' @title Get Value for expression counts.
+#'
+#' @importFrom SummarizedExperiment assay
 #'
 #' @description
-#' Method to get the eDense value from ScMaSigPro class objects.
+#' `eDense` is a generic function for setting/getting expression counts for
+#' Dense in an \code{\link{ScMaSigPro}}.
 #'
-#' @param object The ScMaSigPro object.
-#' @param value Dummy parameter, not used.
-#' @return The eDense value from the ScMaSigPro object.
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value to be set. (If Setting)
 #'
-#' @importFrom SummarizedExperiment assay `assay<-`
+#' @return The expression matrix for Dense slot.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setMethod("eDense", "ScMaSigPro", function(object, value = "missing") {
   if (identical(value, "missing")) {
-    return(assay(object@Dense)) # Getter: Replace 'assay' with the appropriate getter function for your object
+    return(assay(object@Dense))
   } else {
-    return(assay(object@Dense, value)) # Assuming you don't want a setter for this method
+    return(assay(object@Dense, value))
   }
 })
 
-#' Set eDense value for ScMaSigPro objects (Not Implemented)
+#' @title Get Value for expression counts.
 #'
 #' @description
-#' Method to set the eDense value for ScMaSigPro class objects.
-#' This method is currently not implemented.
+#' `eDense<-` is a generic function for setting expression counts for
+#' Sparse in an \code{\link{ScMaSigPro}}.
 #'
-#' @param object The ScMaSigPro object.
-#' @param value The value to set.
-#' @param i object name
-#' @return None
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value to be set. (If Setting)
+#' @param i Name of the Assay.
+#'
+#' @return Modified `ScMaSigPro` object.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setMethod("eDense<-", "ScMaSigPro", function(object, i, value) {
   assay(object@Dense, i) <- value
   return(invisible(object))
 })
 ##############################################################################
-#' Get or set the branch allocation matrix
-#' @param object An object of class `ScMaSigPro`.
-#' @param value The new value for the `colData` slot to set. Optional for getting.
-#' @return `colData` when getting, modified `ScMaSigPro` object when setting.
+#' @title Get or set the Branch Assignment Matrix
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value of the branch Assignment Matrix.
+#'
+#' @return Get the Assignment Matrix.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setGeneric("bAlloc", function(object, value = "missing") standardGeneric("bAlloc"))
 
-#' Replacement method for bAlloc
-#' @param object An object of class `ScMaSigPro`.
-#' @param value The new value for the `colData` slot.
-#' @return Modified `ScMaSigPro` object.
+#' @title Replacement method for bAlloc.
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value of the branch Assignment Matrix.
+#'
+#' @return Modified `ScMaSigPro` object with new Assignment Matrix.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setGeneric("bAlloc<-", function(object, value) standardGeneric("bAlloc<-"))
 
-#' Set or get the Sparse Column Data of an ScMaSigPro Object
-#' @param object An object of class `ScMaSigPro`.
-#' @param value The new value for the `colData` slot. Optional for getting.
-#' @return `colData` when getting, modified `ScMaSigPro` object when setting.
+#' @title Set or get the Assignment Matrix.
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value of the branch Assignment Matrix.
+#'
+#' @return Modified `ScMaSigPro` object with new Assignment Matrix.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setMethod("bAlloc", "ScMaSigPro", function(object, value) {
   if (identical(value, "missing")) {
@@ -222,10 +327,15 @@ setMethod("bAlloc", "ScMaSigPro", function(object, value) {
   }
 })
 
-#' Replacement method for bAlloc
-#' @param object An object of class `ScMaSigPro`.
-#' @param value The new value for the `colData` slot.
+#' @title Replacement method for bAlloc
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value of the branch Assignment Matrix.
+#'
 #' @return Modified `ScMaSigPro` object.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
 #' @export
 setReplaceMethod("bAlloc", "ScMaSigPro", function(object, value) {
   object@Design@assignment_matrix <- as.matrix(value)

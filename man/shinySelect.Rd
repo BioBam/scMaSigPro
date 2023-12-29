@@ -13,13 +13,13 @@ shinySelect(
 )
 }
 \arguments{
-\item{trajectory_data}{Dataframe for trajectory}
+\item{trajectory_data}{Dataframe with trajectory data.}
 
-\item{annotation_data}{Dataframe for cell UMAP}
+\item{annotation_data}{Dataframe for with annotation data.}
 
-\item{label_coords}{Datatframe for labels}
+\item{label_coords}{How to label corrdinates.}
 
-\item{inputType}{Input type}
+\item{inputType}{Name of the method.}
 }
 \description{
 Function to interactively select nodes from shiny

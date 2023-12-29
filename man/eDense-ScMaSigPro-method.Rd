@@ -2,18 +2,22 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{eDense,ScMaSigPro-method}
 \alias{eDense,ScMaSigPro-method}
-\title{Get eDense value for ScMaSigPro objects}
+\title{Get Value for expression counts.}
 \usage{
 \S4method{eDense}{ScMaSigPro}(object, value = "missing")
 }
 \arguments{
-\item{object}{The ScMaSigPro object.}
+\item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{Dummy parameter, not used.}
+\item{value}{The value to be set. (If Setting)}
 }
 \value{
-The eDense value from the ScMaSigPro object.
+The expression matrix for Dense slot.
 }
 \description{
-Method to get the eDense value from ScMaSigPro class objects.
+`eDense` is a generic function for setting/getting expression counts for
+Dense in an \code{\link{ScMaSigPro}}.
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

@@ -2,18 +2,21 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{bAlloc}
 \alias{bAlloc}
-\title{Get or set the branch allocation matrix}
+\title{Get or set the Branch Assignment Matrix}
 \usage{
 bAlloc(object, value = "missing")
 }
 \arguments{
-\item{object}{An object of class `ScMaSigPro`.}
+\item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The new value for the `colData` slot to set. Optional for getting.}
+\item{value}{The value of the branch Assignment Matrix.}
 }
 \value{
-`colData` when getting, modified `ScMaSigPro` object when setting.
+Get the Assignment Matrix.
 }
 \description{
-Get or set the branch allocation matrix
+Get or set the Branch Assignment Matrix
+}
+\author{
+Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

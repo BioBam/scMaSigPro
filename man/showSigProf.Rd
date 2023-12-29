@@ -13,7 +13,7 @@ showSigProf(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE)
 
 \item{return}{Whether to return the data. (Default: TRUE)}
 
-\item{includeInflu}{Whether to include genes with inluential observations.}
+\item{includeInflu}{Whether to include genes with influential observations.}
 }
 \value{
 Pseudo-bulk counts as matrix for genes with non-flat profiles.
