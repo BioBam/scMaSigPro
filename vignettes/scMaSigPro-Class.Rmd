@@ -50,7 +50,7 @@ devtools::install_github("BioBam/scMaSigPro",
 ```
 
 ## Dataset
-Here, we will use `scmp_ob` that already has all the data inside it. The `scmp_ob`
+Here, we will use `scmp.ob` that already has all the data inside it. The `scmp.ob`
 is included in the package and is simulated via [splatter](https://bioconductor.org/packages/release/bioc/html/splatter.html).
 If you are interested in learning how this data is processed, please see the 
 vignette `Basic-Workflow`.
@@ -64,26 +64,26 @@ set.seed(123)
 library(scMaSigPro)
 
 # Load example data
-data("scmp_ob_complete", package = "scMaSigPro")
+data("scmp.ob", package = "scMaSigPro")
 ```
 
-As the object `scmp_ob` is already processed, we can type the name of the object
+As the object `scmp.ob` is already processed, we can type the name of the object
 in the R console to view various attributes, such as the dimensions, number of 
 non-flat profiles etc.
 
 ```{r, "Console Echo-1", eval=TRUE, echo = FALSE}
-scmp_ob
+scmp.ob
 ```
 
 ## `Sparse` \& `Dense` Slots
 
-The `scmp_ob` object has two slots, `Sparse` and `Dense` both which are of 
+The `scmp.ob` object has two slots, `Sparse` and `Dense` both which are of 
 [`SingleCellExperiment Class`](https://bioconductor.org/packages/devel/bioc/vignettes/SingleCellExperiment/inst/doc/intro.html).
 The `Sparse` slot contains the raw count  data (i.e. non-pseudo-bulked) and the
 `Dense` slot contains the counts that are pseudo-bulked. 
 
 To access the counts we can simply use the `eDense()` and `eSparse()` methods. These
-two are generic methods and have similary functionality to the `assays()` from the 
+two are generic methods and have simillary functionality to the `assays()` from the 
 [`SummarizedExperiment Class`](https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html).
 These methods can be used to get or set the expression counts in the scMaSigPro
 object. We will only show first 3 rows and columns of the `Sparse` and `Dense`
@@ -91,10 +91,10 @@ slot.
 
 ```{r, "eDense and eSparse", eval=TRUE, echo = TRUE}
 # Get the Dense counts
-eDense(scmp_ob)[c(1:3), c(1:3)]
+eDense(scmp.ob)[c(1:3), c(1:3)]
 
 # Get the Sparse counts
-eSparse(scmp_ob)[c(1:3), c(1:3)]
+eSparse(scmp.ob)[c(1:3), c(1:3)]
 ```
 
 Just like the `colData()` method, the `scMaSigPro` object also has `cDense()` and
@@ -104,11 +104,22 @@ bin level information is accessed.
 
 ```{r, "cDense and cSparse", eval=TRUE, echo = TRUE}
 # Get bin level metadata
-cDense(scmp_ob)[c(1:3), ]
+cDense(scmp.ob)[c(1:3), ]
 
 # Get cell level metadata
-cSparse(scmp_ob)[c(1:3), c(1:3)]
+cSparse(scmp.ob)[c(1:3), c(1:3)]
 ```
+
+## `Design` Slot
+The two most important slots of `Design` are,
+
+1. _predictor_matrix_: A matrix of predictors for the polynomial regression model.
+It can be accessed with generic method `predictors()`.
+
+2. _assignment_matrix_: A matrix containing the hard-assignment of each bin to 
+binned-Pseudotime. It can be accessed with generic method `pathAssign()`. 
+
+
 
 This concludes the vignette of `scMaSigPro-Class`. Please refer 
 to other vignettes for more in-depth analysis.

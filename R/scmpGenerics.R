@@ -182,9 +182,9 @@ setGeneric("eSparse", function(object, value = "missing") standardGeneric("eSpar
 #' @export
 setMethod("eSparse", "ScMaSigPro", function(object, value = "missing") {
   if (identical(value, "missing")) {
-    return(assay(object@Sparse))
+    return(as.matrix(assay(object@Sparse)))
   } else {
-    return(assay(object@Sparse, value))
+    return(as.matrix(assay(object@Sparse, value)))
   }
 })
 
@@ -294,9 +294,9 @@ setMethod("eDense<-", "ScMaSigPro", function(object, i, value) {
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-setGeneric("bAlloc", function(object, value = "missing") standardGeneric("bAlloc"))
+setGeneric("pathAssign", function(object, value = "missing") standardGeneric("pathAssign"))
 
-#' @title Replacement method for bAlloc.
+#' @title Replacement method for pathAssign.
 #'
 #' @param object An object of class \code{\link{ScMaSigPro}}.
 #' @param value The value of the branch Assignment Matrix.
@@ -306,7 +306,7 @@ setGeneric("bAlloc", function(object, value = "missing") standardGeneric("bAlloc
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-setGeneric("bAlloc<-", function(object, value) standardGeneric("bAlloc<-"))
+setGeneric("pathAssign<-", function(object, value) standardGeneric("pathAssign<-"))
 
 #' @title Set or get the Assignment Matrix.
 #'
@@ -318,7 +318,7 @@ setGeneric("bAlloc<-", function(object, value) standardGeneric("bAlloc<-"))
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-setMethod("bAlloc", "ScMaSigPro", function(object, value) {
+setMethod("pathAssign", "ScMaSigPro", function(object, value) {
   if (identical(value, "missing")) {
     return(object@Design@assignment_matrix) # Getter
   } else {
@@ -327,7 +327,7 @@ setMethod("bAlloc", "ScMaSigPro", function(object, value) {
   }
 })
 
-#' @title Replacement method for bAlloc
+#' @title Replacement method for pathAssign
 #'
 #' @param object An object of class \code{\link{ScMaSigPro}}.
 #' @param value The value of the branch Assignment Matrix.
@@ -337,9 +337,67 @@ setMethod("bAlloc", "ScMaSigPro", function(object, value) {
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-setReplaceMethod("bAlloc", "ScMaSigPro", function(object, value) {
+setReplaceMethod("pathAssign", "ScMaSigPro", function(object, value) {
   object@Design@assignment_matrix <- as.matrix(value)
   return(object)
+})
+##############################################################################
+#' @title Get or set the Predictor Matrix
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value of the Predictor Matrix.
+#'
+#' @return Get the Predictor Matrix.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
+#' @export
+setGeneric("predictors", function(object, value = "missing") standardGeneric("predictors"))
+
+#' @title Replacement method for predictors.
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value of the Predictors Matrix.
+#'
+#' @return Modified `ScMaSigPro` object with new Predictor Matrix.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
+#' @export
+setGeneric("predictors<-", function(object, value) standardGeneric("predictors<-"))
+
+#' @title Set or get the Predictor Matrix.
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value of the Predictors Matrix.
+#'
+#' @return Modified `ScMaSigPro` object with new Predictor Matrix.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
+#' @export
+setMethod("predictors", "ScMaSigPro", function(object, value) {
+    if (identical(value, "missing")) {
+        return(object@Design@predictor_matrix) # Getter
+    } else {
+        object@Design@predictor_matrix <- as.matrix(value) # Setter
+        return(invisible(object))
+    }
+})
+
+#' @title Replacement method for predictors
+#'
+#' @param object An object of class \code{\link{ScMaSigPro}}.
+#' @param value The value of the Predictors Matrix.
+#'
+#' @return Modified `ScMaSigPro` object.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
+#' @export
+setReplaceMethod("predictors", "ScMaSigPro", function(object, value) {
+    object@Design@predictor_matrix <- as.matrix(value)
+    return(object)
 })
 ##############################################################################
 setMethod(
