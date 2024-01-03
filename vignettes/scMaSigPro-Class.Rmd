@@ -1,0 +1,121 @@
+---
+title: "scMaSigPro: scMaSigPro Class"
+subtitle: "S4 Object and Generics"
+author: "Priyansh Srivastava"
+package: "scMaSigPro"
+abstract: |
+  `scMaSigPro` is an R package designed for the serial analysis of single-cell 
+  RNA-seq (scRNA-Seq) data along inferred pseudotime. It builds upon the [`maSigPro`](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html)
+  Bioconductor package to identify genes with significant expression changes across different 
+  branching paths in a pseudotime-ordered scRNA-Seq dataset. This vignette illustrates
+  the S4 Object of the `scMaSigPro-Class` and generic methods.
+output: BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{scMaSigPro Class}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, "setup", include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(scMaSigPro)
+```
+
+## Introduction
+`scMaSigPro` is a polynomial regression-based approach inspired by the [maSigPro](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html)
+Bioconductor package tailored for scRNA-Seq data. It first discretizes single cell
+expression along inferred pseudotime while preserving order. Afterwards it applies
+the [maSigPro model](https://academic.oup.com/bioinformatics/article/22/9/1096/200371)
+to pinpoint genes exhibiting significant expression profile differences among
+branching paths and pseudotime.
+
+## Installation
+Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
+
+```{r, echo=TRUE, eval=FALSE}
+# Install devtools if not already installed
+if (!requireNamespace("devtools", quietly = TRUE)) {
+  install.packages("devtools")
+}
+
+# Install scMaSigPro
+devtools::install_github("BioBam/scMaSigPro",
+  ref = "main",
+  build_vignettes = FALSE,
+  build_manual = TRUE,
+  upgrade = "never",
+  force = TRUE,
+  quiet = TRUE,
+)
+```
+
+## Dataset
+Here, we will use `scmp_ob` that already has all the data inside it. The `scmp_ob`
+is included in the package and is simulated via [splatter](https://bioconductor.org/packages/release/bioc/html/splatter.html).
+If you are interested in learning how this data is processed, please see the 
+vignette `Basic-Workflow`.
+
+### Load the `scMaSigPro` package and the dataset
+```{r, "Step 1: Load the `scMaSigPro` package and the dataset", eval=TRUE, echo=TRUE}
+# Set Seed for Reproducibility
+set.seed(123)
+
+# Load Package
+library(scMaSigPro)
+
+# Load example data
+data("scmp_ob_complete", package = "scMaSigPro")
+```
+
+As the object `scmp_ob` is already processed, we can type the name of the object
+in the R console to view various attributes, such as the dimensions, number of 
+non-flat profiles etc.
+
+```{r, "Console Echo-1", eval=TRUE, echo = FALSE}
+scmp_ob
+```
+
+## `Sparse` \& `Dense` Slots
+
+The `scmp_ob` object has two slots, `Sparse` and `Dense` both which are of 
+[`SingleCellExperiment Class`](https://bioconductor.org/packages/devel/bioc/vignettes/SingleCellExperiment/inst/doc/intro.html).
+The `Sparse` slot contains the raw count  data (i.e. non-pseudo-bulked) and the
+`Dense` slot contains the counts that are pseudo-bulked. 
+
+To access the counts we can simply use the `eDense()` and `eSparse()` methods. These
+two are generic methods and have similary functionality to the `assays()` from the 
+[`SummarizedExperiment Class`](https://bioconductor.org/packages/release/bioc/html/SummarizedExperiment.html).
+These methods can be used to get or set the expression counts in the scMaSigPro
+object. We will only show first 3 rows and columns of the `Sparse` and `Dense`
+slot.
+
+```{r, "eDense and eSparse", eval=TRUE, echo = TRUE}
+# Get the Dense counts
+eDense(scmp_ob)[c(1:3), c(1:3)]
+
+# Get the Sparse counts
+eSparse(scmp_ob)[c(1:3), c(1:3)]
+```
+
+Just like the `colData()` method, the `scMaSigPro` object also has `cDense()` and
+`cSparse()` methods. These are also generics and can get the cell level information
+from the `Sparse` and `Dense` slots. Specifically in the case of `cDense()`, the
+bin level information is accessed. 
+
+```{r, "cDense and cSparse", eval=TRUE, echo = TRUE}
+# Get bin level metadata
+cDense(scmp_ob)[c(1:3), ]
+
+# Get cell level metadata
+cSparse(scmp_ob)[c(1:3), c(1:3)]
+```
+
+This concludes the vignette of `scMaSigPro-Class`. Please refer 
+to other vignettes for more in-depth analysis.
+
+---
+
+## Session Info
+```{r, "Session Info"}
+sessionInfo(package = "scMaSigPro")
+```
