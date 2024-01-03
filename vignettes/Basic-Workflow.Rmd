@@ -293,9 +293,9 @@ scmp_ob
 
 With our refined models in hand, we now focus on identifying genes showing 
 significant differences with pseudotime, among paths, or both. For this purpose,
-we use the `sc.get.siggenes()` function. Our aim is to select models with a 
+we use the `sc.filter()` function. Our aim is to select models with a 
 relatively high $R^2$, indicating simple linear relationships. The `vars` 
-parameter in `sc.get.siggenes()` allows us to extract different sets of 
+parameter in `sc.filter()` allows us to extract different sets of 
 significant genes. Setting `vars = 'all'` retrieves all non-flat profiles 
 identified in `sc.p.vector()` with $R^2>=$ the specified threshold. The option
 `vars = 'groups` fetches genes per path, resulting in two gene lists that 
@@ -303,7 +303,7 @@ demonstrate associative significance among paths, helping us identify genes
 associated with one path or the other along the pseudotime continuum. The 
 `vars = 'each'` option finds significance for each term in the polynomial. 
 In our case, we are interested in genes differentially expressed between paths
-and over pseudotime continum, so we will choose `vars = 'groups`.
+and over pseudotime continuum, so we will choose `vars = 'groups`.
 ```{r, "vars = groups",eval=TRUE, echo=TRUE}
 scmp_ob <- sc.filter(
   scmpObj = scmp_ob,

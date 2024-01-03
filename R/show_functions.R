@@ -521,7 +521,6 @@ extract_info <- function(data, return_type = "avg_bin_size",
     return(avg_sizes)
   } else if (return_type == "num_bins") {
     bin_counts <- table(data[[path_col]])
-    print("num_bins works")
     return(bin_counts)
   } else {
     stop("Invalid return_type. Choose between 'avg_bin_size' and 'num_bins'.")
