@@ -377,12 +377,12 @@ setGeneric("predictors<-", function(object, value) standardGeneric("predictors<-
 #'
 #' @export
 setMethod("predictors", "ScMaSigPro", function(object, value) {
-    if (identical(value, "missing")) {
-        return(object@Design@predictor_matrix) # Getter
-    } else {
-        object@Design@predictor_matrix <- as.matrix(value) # Setter
-        return(invisible(object))
-    }
+  if (identical(value, "missing")) {
+    return(object@Design@predictor_matrix) # Getter
+  } else {
+    object@Design@predictor_matrix <- as.matrix(value) # Setter
+    return(invisible(object))
+  }
 })
 
 #' @title Replacement method for predictors
@@ -396,8 +396,8 @@ setMethod("predictors", "ScMaSigPro", function(object, value) {
 #'
 #' @export
 setReplaceMethod("predictors", "ScMaSigPro", function(object, value) {
-    object@Design@predictor_matrix <- as.matrix(value)
-    return(object)
+  object@Design@predictor_matrix <- as.matrix(value)
+  return(object)
 })
 ##############################################################################
 setMethod(

@@ -119,7 +119,15 @@ It can be accessed with generic method `predictors()`.
 2. _assignment_matrix_: A matrix containing the hard-assignment of each bin to 
 binned-Pseudotime. It can be accessed with generic method `pathAssign()`. 
 
-
+```{r}
+# library(scMaSigPro)
+# library(assertthat)
+# data("scmp.ob", package = "scMaSigPro")
+# scmp.ob.more <- readRDS("../../masigpro.rds")
+# scmp.ob.empty <- readRDS("../../empty.rds")
+#
+# get_features(scmpObj = scmp.ob.more, query = "pseudotime_path")
+```
 
 This concludes the vignette of `scMaSigPro-Class`. Please refer 
 to other vignettes for more in-depth analysis.
