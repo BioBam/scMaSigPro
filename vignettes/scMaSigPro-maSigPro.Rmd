@@ -207,7 +207,7 @@ design <- make.design.matrix(edesign.abiotic, degree = 2)
 scmp_ob <- sc.set.poly(scmp_ob, poly_degree = 2)
 
 # Comparing binarization results
-expect_equal(bAlloc(scmp_ob), expected = edesign.abiotic)
+expect_equal(pathAssign(scmp_ob), expected = edesign.abiotic)
 
 # Comparing regression matrices
 expect_identical(scmp_ob@Design@predictor_matrix, expected = design$dis)
