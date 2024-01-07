@@ -1,6 +1,6 @@
 ---
 title: "scMaSigPro: scMaSigPro Class"
-subtitle: "S4 Object and Generics"
+subtitle: "S4 Object, Generics and Queries"
 author: "Priyansh Srivastava"
 package: "scMaSigPro"
 abstract: |
@@ -75,7 +75,13 @@ non-flat profiles etc.
 scmp.ob
 ```
 
-## `Sparse` \& `Dense` Slots
+## Slots of the scMaSigPro object
+
+```{r, echo=FALSE}
+knitr::include_graphics("S4_Class_object.png")
+```
+
+### `Sparse` \& `Dense` Slots
 
 The `scmp.ob` object has two slots, `Sparse` and `Dense` both which are of 
 [`SingleCellExperiment Class`](https://bioconductor.org/packages/devel/bioc/vignettes/SingleCellExperiment/inst/doc/intro.html).
@@ -110,7 +116,7 @@ cDense(scmp.ob)[c(1:3), ]
 cSparse(scmp.ob)[c(1:3), c(1:3)]
 ```
 
-## `Design` Slot
+### `Design` Slot
 The two most important slots of `Design` are,
 
 1. _predictor_matrix_: A matrix of predictors for the polynomial regression model.

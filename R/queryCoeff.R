@@ -18,7 +18,7 @@
 #'
 #' @return A subset of matrix of coefficients.
 #'
-#' @seealso `maSigPro::sc.filter()`
+#' @seealso `scMaSigPro::sc.filter()`
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}.
 #'

@@ -43,7 +43,7 @@ This function extracts features from an object of class `scMaSigPro`
 based on a specified query. The function query the coefficients matrix.
 }
 \seealso{
-`maSigPro::sc.filter()`
+`scMaSigPro::sc.filter()`
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}.
