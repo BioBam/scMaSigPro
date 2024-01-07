@@ -326,7 +326,7 @@ showParams <- function(scmpObj, view = FALSE, return = TRUE) {
   all_slots <- slotNames(scmpObj)
 
   # Get 'param' slot data using the correct S4 accessor method
-  paramData <- slot(scmpObj, "param")
+  paramData <- slot(scmpObj, "Parameters")
 
   # Get all slots of 'param', assuming 'param' itself is an S4 object with slots
   params.frame.list <- lapply(slotNames(paramData), function(parameter) {

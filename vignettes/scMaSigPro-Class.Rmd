@@ -123,9 +123,157 @@ The two most important slots of `Design` are,
 It can be accessed with generic method `predictors()`.
 
 2. _assignment_matrix_: A matrix containing the hard-assignment of each bin to 
-binned-Pseudotime. It can be accessed with generic method `pathAssign()`. 
+binned-Pseudotime. It can be accessed with generic method `pathAssign()`.
 
-```{r}
+### `Profile` Slot
+The `Profile` slot stores the results from the `sc.p.vector()`, which performs the
+global fitting of the polynomial-GLM and test the significance against the intercept
+only model. Below is the brief description of the data stored in `Profile` slot.
+
+1. _non_flat_: A list of genes with non-flat profiles in pseudotime.
+
+2. _pvalue_ and _adj_p_values_: Significance levels.
+
+3. _fdr_: False Discovery Rate.
+
+### `Estimate` Slot
+The `Estimate` slot stores the results from the `sc.t.fit()`, which performs the
+optimization of the polynomial-GLM and selects most significant terms.
+Below is the brief description of the data stored in `Estimate` slot.
+
+1. _significance_matrix_: This matrix stores the `p-values` for the optimized
+model, terms of the model and the coefficient of determination i.e. $R^2$ for 
+each of the genes.
+
+2. _coefficient_matrix_: This matrix stores the $\beta$ estimates for all the
+genes in the `significance_matrix`. The coefficient reflect changes associated
+with each of the terms in optimized polynomial-GLM.
+
+3. _path_coefficient_matrix_: This matrix stores the $\beta$ estimates for all the
+genes in the `significance_matrix`. The coefficient reflect changes associated
+with each of the branching paths.
+
+4. _influential_: Stores information of the genes which have influential
+observations as per cook's distance.
+
+### `Significant` Slot
+`Significant` slot stores the final results of the workflow. Once specified
+significant genes are selected based on the `sc.filter()` and `sc.cluster.trend`.
+The `Significant` stores the gene and the cluster information.
+
+### `Parameters` Slot
+The last slot is the `Parameters`. It stores all the parameters used during the
+analysis. The `showParams()` returns all the parameters in a dataframe.
+```{r, "showParam"}
+showParams(scmp.ob)[c(10:15), ] # only 5
+```
+
+---
+
+## Querying Trends with `queryCoeff()`
+In contrast to the `sc.filter()` function, which identifies significant genes
+based on $R^2$ values and p-values for each group or polynomial term, the 
+`queryCoeff()` function enables the extraction of genes based on their estimated
+coefficients ($\beta$) in a poly-GLM. 
+
+A positive value of $\beta$ that there is a positive association between the 
+independent variable and the response variable, meaning as the independent 
+variable increases, the response variable tends to increase. Conversely, a 
+negative $\beta$ value indicates a negative association, implying that an
+increase in the independent variable is associated with a decrease in the
+response variable.
+
+In the `scMaSigPro` framework, each gene deemed significant is evaluated for its
+association with the response variable. When a model includes multiple explanatory
+terms, such as $Pseudotime$ (linear) and $Pseudotime^2$ (quadratic) components, the 
+overall effect is assessed by considering the combined influence of these 
+coefficients. This approach allows for a nuanced understanding of how each term
+contributes to the response. Additionally, users can specify an interest in 
+identifying relationships where all significant terms contribute in the same 
+direction, i.e., either all increasing or all decreasing the response. 
+This means that for a gene to be classified under this category, each term (like
+$Pseudotime$ and $Pseudotime^2$ must exhibit a consistent effect, either both 
+positively or both negatively influencing the gene expression.
+
+### Setting `query` parameter
+
+The `queryCoeff()` function's `query` parameter can be set to one of three 
+values: 'path', 'pseudotime', or 'path_pseudotime', each specifying a different
+subset of terms in the poly-GLM for evaluation.
+
+1. 'query' = `path`: This setting focuses on evaluating the coefficients of 
+terms that describe the influence of each branching path in the model. It aims
+to quantify how different paths within the model contribute to the response 
+variable, independently of other factors.
+
+2. 'query' = `pseudotime`: When set to 'pseudotime', the function assesses the 
+coefficients of terms that capture the effect of pseudotime on the response 
+variable. This approach is centered on understanding how changes over pseudotime
+affect the response.
+
+3. 'query' = `path_pseudotime`: This option is for evaluating the coefficients 
+of terms that represent the interaction effects between pseudotime and branching
+paths. It examines how the combined influence of both pseudotime and branching
+paths impacts the response variable, focusing on the synergistic or interaction
+effects rather than their independent contributions.
+
+Now we will make use of the `path_pseudotime` and `pseudotime` and plot
+top-4 genes for this tutorial.
+
+
+```{r, "Pseudotime"}
+# Increasing effect along Pseudotime
+pTime_up <- queryCoeff(scmp.ob,
+  query = "pseudotime",
+  change = "increasing",
+  verbose = FALSE
+)
+
+# Order
+pTime_up <- pTime_up[order(pTime_up$betascmp_binned_pseudotime,
+  decreasing = TRUE
+), , drop = FALSE]
+
+# View
+head(pTime_up, 4)
+
+# Plot
+pTime_up.plots <- list()
+for (i in rownames(head(pTime_up, 4))) {
+  pTime_up.plots[[i]] <- plotTrend(scmp.ob, i)
+}
+
+# Plot combined
+(pTime_up.plots[[1]] + pTime_up.plots[[2]]) / (pTime_up.plots[[3]] + pTime_up.plots[[4]])
+```
+
+```{r, "Pseudotime_path"}
+# Increasing effect along Pseudotime * Path
+pTime_path_up <- queryCoeff(scmp.ob,
+  query = "pseudotime_path",
+  change = "increasing",
+  verbose = FALSE
+)
+
+# Order
+pTime_path_up <- pTime_path_up[order(pTime_path_up$betascmp_binned_pseudotimexPath2,
+  decreasing = TRUE
+), , drop = FALSE]
+
+# View
+head(pTime_path_up, 4)
+
+# Plot
+pTime_path_up.plots <- list()
+for (i in rownames(head(pTime_path_up, 4))) {
+  pTime_path_up.plots[[i]] <- plotTrend(scmp.ob, i)
+}
+
+# Plot combined
+(pTime_path_up.plots[[1]] + pTime_path_up.plots[[2]]) / (pTime_path_up.plots[[3]] + pTime_path_up.plots[[4]])
+```
+
+```{r, echo=FALSE}
 # library(scMaSigPro)
 # library(assertthat)
 # data("scmp.ob", package = "scMaSigPro")

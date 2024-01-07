@@ -24,8 +24,7 @@ queryCoeff(
 
 \item{includeInflu}{Whether to include genes with influential observations.}
 
-\item{query}{A string specifying the type of query. Valid options are 'unique' or 'union'.
-Default is 'unique'.}
+\item{query}{A string specifying the type of query.}
 
 \item{change}{The effective change at the end of the pseudotime.
 (Default is NULL)}

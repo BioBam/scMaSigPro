@@ -8,8 +8,7 @@
 #' @param rsq Coefficient of determination or R-squared value threshold.
 #' @param includeInflu Whether to include genes with influential observations.
 #' @param p_value Overall model significance.
-#' @param query A string specifying the type of query. Valid options are 'unique' or 'union'.
-#' Default is 'unique'.
+#' @param query A string specifying the type of query.
 #' @param change The effective change at the end of the pseudotime.
 #' (Default is NULL)
 #' @param strictly If `change != NULL`, selects features if all coefficients
