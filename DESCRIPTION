@@ -5,10 +5,8 @@ Version: 0.0.1
 Authors@R: c(
     person("Ana", "Conesa", role = c("aut"), email = "ana.conesa@csic.es"),
     person("Maria Jose", "Nueda", role = c("aut"), email = "mj.nueda@ua.es"),
-    person("Priyansh", "Srivastava", role = c("aut", "cre", "ctb"), email = "spriyansh29@gmail.com",
-    comment=c(OCRID="0000-0003-2618-5296")),
-    person("Marta", "Benegas", role = c("aut"), email = "martabc22@gmail.com")
-    )
+    person("Priyansh", "Srivastava", role = c("aut", "cre", "ctb"), email = "spriyansh29@gmail.com", comment=c(OCRID="0000-0003-2618-5296")),
+    person("Marta", "Benegas", role = c("aut"), email = "martabc22@gmail.com", comment=c(OCRID="0009-0004-9886-2828")))
 Description: scMaSigPro is a polynomial regression-based approach inspired by
     the MaSigPro Bioconductor package. It discretizes the expression of
     individual cells along pseudotime while preserving the order of cells.
