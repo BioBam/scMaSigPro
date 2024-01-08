@@ -95,13 +95,17 @@ scmp.ob <- sc.filter(scmp.ob, vars = "all")
 plotTrend(scmp.ob, "Gene10")
 ```
 
-For detailed instructions and additional steps, please refer to the quick start vignette included in the package, which contains comprehensive guidance and explanations for each step in the analysis process.
+For detailed instructions and additional steps, please refer to the following vignettes.
+
+- [Basic Workflow](https://www.metapriyansh.com/scMaSigPro/package_vignette/Basic-Workflow.html)
+- [maSigPro Analysis](https://www.metapriyansh.com/scMaSigPro/package_vignette/scMaSigPro-maSigPro.html) 
+- [scMaSigPro Class](https://www.metapriyansh.com/scMaSigPro/package_vignette/scMaSigPro-Class.html) 
 
 ## Contributing
 Contributions, including bug reports, suggestions, and pull requests, are welcome.
 
 ## License
-This project is licensed under the MIT - see the LICENSE.md file for details.
+This project is licensed under GPL>=2 - see the LICENSE.md file for details.
 
 ## Funding Information 
 This project has received funding from the European Union’s Framework Programme for Research and Innovation Horizon 2020 (2014-2020) under the Marie Skłodowska-Curie Grant Agreement No 953407.
