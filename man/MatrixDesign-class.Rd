@@ -20,6 +20,8 @@ term of the polynomial GLM.}
 \item{\code{assignment_matrix}}{A matrix containing binary assignment to branching paths
 Additionally has two columns for assignment of binned Pseudotime and
 replicate.}
+
+\item{\code{offset}}{A numeric vector containing the offset values.}
 }}
 
 \keyword{classes}

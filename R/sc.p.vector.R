@@ -109,8 +109,9 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     if (log_offset) {
       offsetData <- log(offsetData)
     }
+    scmpObj@Design@offset <- offsetData
   } else {
-    offsetData <- NULL
+    offsetData <- NULL # scmpObj@Design@offset
   }
 
   if (parallel) {

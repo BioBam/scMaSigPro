@@ -172,6 +172,7 @@ setClass(
 #' @slot assignment_matrix A matrix containing binary assignment to branching paths
 #' Additionally has two columns for assignment of binned Pseudotime and
 #' replicate.
+#' @slot offset A numeric vector containing the offset values.
 #'
 #' @name MatrixDesign
 #' @aliases MatrixDesign-class
@@ -183,12 +184,14 @@ setClass(
   representation(
     predictor_matrix = "matrix",
     groups.vector = "character",
-    assignment_matrix = "matrix"
+    assignment_matrix = "matrix",
+    offset = "numeric"
   ),
   prototype = list(
     predictor_matrix = matrix(NA, nrow = 0, ncol = 0),
     groups.vector = character(),
-    assignment_matrix = matrix(NA, nrow = 0, ncol = 0)
+    assignment_matrix = matrix(NA, nrow = 0, ncol = 0),
+    offset = numeric()
   ),
   validity = function(object) {
     if (!validObject(object@predictor_matrix)) {
@@ -199,6 +202,9 @@ setClass(
     }
     if (!validObject(object@assignment_matrix)) {
       stop("assignment_matrix slot is not a valid matrix.")
+    }
+    if (!validObject(object@offset)) {
+      stop("offset slot is not a valid vector.")
     }
     TRUE
   }

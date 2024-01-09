@@ -292,3 +292,4 @@ to other vignettes for more in-depth analysis.
 ```{r, "Session Info"}
 sessionInfo(package = "scMaSigPro")
 ```
+

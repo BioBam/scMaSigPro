@@ -116,8 +116,9 @@ sc.t.fit <- function(scmpObj,
     if (log_offset) {
       offsetData <- log(offsetData)
     }
+    scmpObj@Design@offset <- offsetData
   } else {
-    offsetData <- NULL
+    offsetData <- NULL # scmpObj@Design@offset
   }
 
   if (parallel) {
