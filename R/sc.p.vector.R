@@ -17,11 +17,13 @@
 #' @param min_na Minimum values needed per gene across cells to estimate the
 #' model.
 #' @param family  Distribution of the error term.
+#' @param link Type of link function to use in the model. Default is "log".
 #' @param epsilon Model convergence tolerance.
 #' @param offset logical value specifying whether to use offset during fitting.
 #' @param log_offset A logical value specifying whether to take the logarithm of
 #' the offsets.
 #' @param max_it Maximum number of iterations to fit the model.
+#' @param Type of link function to use in the model. Default is "log".
 #' @param parallel Use forking process to run parallelly. (Default is FALSE)
 #' (Currently, Windows is not supported)
 #' @param verbose Print detailed output in the console. (Default is TRUE)
@@ -48,7 +50,8 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
                         offset = TRUE,
                         parallel = FALSE,
                         log_offset = FALSE,
-                        max_it = 100) {
+                        max_it = 100,
+                        link = "log") {
   # Check the type of the 'design' parameter and set the corresponding variables
   assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'ScMaSigPro'"
@@ -63,6 +66,14 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
   dat <- as.matrix(scmpObj@Dense@assays@data@listData$bulk.counts)
   dat <- dat[, as.character(rownames(dis))]
   G <- nrow(dat)
+
+  # Check for the log function
+  assert_that(link %in% c("log", "identity"),
+    msg = "link function should be either 'log' or 'identity'"
+  )
+
+  # Update the family
+  family[["link"]] <- link
 
   # Add check
   # assert_that((dat@Dim[1] > 1), msg = paste(min_na, "for 'min_na' is too high. Try lowering the threshold."))
@@ -258,6 +269,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     scmpObj@Parameters@mt_correction <- mt_correction
     scmpObj@Parameters@epsilon <- epsilon
     scmpObj@Parameters@distribution <- family
+    scmpObj@Parameters@link <- link
 
     return(scmpObj)
   }

@@ -53,6 +53,8 @@ model.}
 \item{\code{mt_correction}}{A character string specifying the p-value correction
 method.}
 
+\item{\code{link}}{Type of link function to use in the model. Default is "log".}
+
 \item{\code{epsilon}}{Model convergence tolerance.}
 
 \item{\code{selection_method}}{A character string specifying the method for stepwise

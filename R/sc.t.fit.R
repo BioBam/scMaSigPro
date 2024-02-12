@@ -14,6 +14,7 @@
 #' regression.
 #' @param nvar_correction Argument for correcting significance level. See details.
 #' @param family Distribution of the error term.
+#' @param link Type of link function to use in the model. Default is "log".
 #' @param epsilon Model convergence tolerance.
 #' @param offset A logical value specifying whether to use offset during fitting.
 #' @param log_offset A logical value specifying whether to take the logarithm of
@@ -47,10 +48,19 @@ sc.t.fit <- function(scmpObj,
                      verbose = TRUE,
                      parallel = FALSE,
                      log_offset = scmpObj@Parameters@log_offset,
-                     max_it = scmpObj@Parameters@max_it) {
+                     max_it = scmpObj@Parameters@max_it,
+                     link = scmpObj@Parameters@link) {
   assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'ScMaSigPro'"
   )
+
+  # Check for the log function
+  assert_that(link %in% c("log", "identity"),
+    msg = "link function should be either 'log' or 'identity'"
+  )
+
+  # Update the family
+  family[["link"]] <- link
 
   # Transfer Data
   dis <- scmpObj@Design@predictor_matrix
@@ -510,6 +520,7 @@ sc.t.fit <- function(scmpObj,
   scmpObj@Parameters@epsilon <- epsilon
   scmpObj@Parameters@selection_method <- selection_method
   scmpObj@Parameters@distribution <- family
+  scmpObj@Parameters@link <- link
 
   return(scmpObj)
 }

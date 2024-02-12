@@ -185,8 +185,10 @@ plotDiagnostics <- function(scmpObj,
   sqrt_abs_std_residuals <- sqrt(abs(standardized_residuals))
 
   # Create a dataframe for plotting
-  scale_loc_df <- data.frame(Fitted = fitted_values, 
-                             SqrtAbsStdResiduals = sqrt_abs_std_residuals)
+  scale_loc_df <- data.frame(
+    Fitted = fitted_values,
+    SqrtAbsStdResiduals = sqrt_abs_std_residuals
+  )
 
   # Create the Scale-Location plot
   scale_loc_plot <- ggplot(scale_loc_df, aes(x = .data$Fitted, y = .data$SqrtAbsStdResiduals)) +

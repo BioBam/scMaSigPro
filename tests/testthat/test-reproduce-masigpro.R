@@ -85,12 +85,12 @@ test_that("Reproduce Results of MaSigPro", {
 
   # Step-7: Run sc.p.vector
   test.scmp.1 <- sc.p.vector(test.scmp.1,
-    min_na = 20, verbose = FALSE,
+    min_na = 20, verbose = FALSE, link = "identity",
     offset = FALSE, parallel = FALSE, max_it = 25,
     epsilon = 0.00001, family = gaussian()
   )
   test.scmp.3 <- sc.p.vector(test.scmp.3,
-    min_na = 20, verbose = FALSE,
+    min_na = 20, verbose = FALSE, link = "identity",
     offset = FALSE, parallel = FALSE, max_it = 25,
     epsilon = 0.00001, family = gaussian()
   )
