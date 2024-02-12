@@ -23,7 +23,6 @@
 #' @param log_offset A logical value specifying whether to take the logarithm of
 #' the offsets.
 #' @param max_it Maximum number of iterations to fit the model.
-#' @param Type of link function to use in the model. Default is "log".
 #' @param parallel Use forking process to run parallelly. (Default is FALSE)
 #' (Currently, Windows is not supported)
 #' @param verbose Print detailed output in the console. (Default is TRUE)

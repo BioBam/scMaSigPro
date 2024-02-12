@@ -48,8 +48,6 @@ the offsets.}
 \item{max_it}{Maximum number of iterations to fit the model.}
 
 \item{link}{Type of link function to use in the model. Default is "log".}
-
-\item{Type}{of link function to use in the model. Default is "log".}
 }
 \value{
 An object of class \code{\link{ScMaSigPro}}, with updated `Profile`

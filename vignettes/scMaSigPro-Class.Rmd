@@ -78,7 +78,7 @@ scmp.ob
 ## Slots of the scMaSigPro object
 
 ```{r, echo=FALSE}
-knitr::include_graphics("S4_Class_object.png")
+knitr::include_graphics("https://www.metapriyansh.com/scMaSigPro/imgs/S4_Class_object.png")
 ```
 
 ### `Sparse` \& `Dense` Slots
