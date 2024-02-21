@@ -90,11 +90,16 @@ sc.set.poly <- function(scmpObj,
     group.cols = c(3:ncol(com.cell.meta))
   )
 
+  # Create offset
+  offset_vector <- numeric(rep(nrow(designList$edesign)))
+  names(offset_vector) <- rownames(designList$edesign)
+
   # Create Object
   designObj <- new("MatrixDesign",
     predictor_matrix = as.matrix(designList$dis),
     groups.vector = designList$groups.vector,
-    assignment_matrix = as.matrix(designList$edesign)
+    assignment_matrix = as.matrix(designList$edesign),
+    offset = offset_vector
   )
 
   # Update Slot

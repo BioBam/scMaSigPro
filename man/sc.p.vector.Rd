@@ -15,7 +15,8 @@ sc.p.vector(
   offset = TRUE,
   parallel = FALSE,
   log_offset = FALSE,
-  max_it = 100
+  max_it = 100,
+  link = "log"
 )
 }
 \arguments{
@@ -45,6 +46,8 @@ model.}
 the offsets.}
 
 \item{max_it}{Maximum number of iterations to fit the model.}
+
+\item{link}{Type of link function to use in the model. Default is "log".}
 }
 \value{
 An object of class \code{\link{ScMaSigPro}}, with updated `Profile`

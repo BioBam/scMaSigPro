@@ -36,6 +36,7 @@
 #' model.
 #' @slot mt_correction A character string specifying the p-value correction
 #' method.
+#' @slot link Type of link function to use in the model. Default is "log".
 #' @slot epsilon Model convergence tolerance.
 #' @slot selection_method A character string specifying the method for stepwise
 #' regression.
@@ -73,6 +74,7 @@ setClass(
     p_value = "numeric",
     min_na = "numeric",
     mt_correction = "character",
+    link = "character",
     epsilon = "numeric",
     offset = "logical",
     log_offset = "logical",
@@ -91,7 +93,7 @@ setClass(
       "bin_ptime_col", "path_prefix", "root_label", "ptime_col", "bin_method",
       "path_col", "bin_col", "bin_size_col", "bin_mem_col",
       "mt_correction", "selection_method", "anno_col", "cluster_method",
-      "use_dim", "fill_na"
+      "use_dim", "fill_na", "link"
     )
 
     for (slot_name in char_slots) {
@@ -146,6 +148,7 @@ setClass(
     bin_mem_col = "scmp_bin_members",
     mt_correction = "BH",
     selection_method = "backward",
+    link = "log",
     epsilon = 1e-8,
     offset = TRUE,
     log_offset = FALSE,
@@ -172,6 +175,7 @@ setClass(
 #' @slot assignment_matrix A matrix containing binary assignment to branching paths
 #' Additionally has two columns for assignment of binned Pseudotime and
 #' replicate.
+#' @slot offset A numeric vector containing the offset values.
 #'
 #' @name MatrixDesign
 #' @aliases MatrixDesign-class
@@ -183,12 +187,14 @@ setClass(
   representation(
     predictor_matrix = "matrix",
     groups.vector = "character",
-    assignment_matrix = "matrix"
+    assignment_matrix = "matrix",
+    offset = "numeric"
   ),
   prototype = list(
     predictor_matrix = matrix(NA, nrow = 0, ncol = 0),
     groups.vector = character(),
-    assignment_matrix = matrix(NA, nrow = 0, ncol = 0)
+    assignment_matrix = matrix(NA, nrow = 0, ncol = 0),
+    offset = numeric()
   ),
   validity = function(object) {
     if (!validObject(object@predictor_matrix)) {
@@ -199,6 +205,9 @@ setClass(
     }
     if (!validObject(object@assignment_matrix)) {
       stop("assignment_matrix slot is not a valid matrix.")
+    }
+    if (!validObject(object@offset)) {
+      stop("offset slot is not a valid vector.")
     }
     TRUE
   }

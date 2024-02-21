@@ -15,7 +15,8 @@ sc.t.fit(
   verbose = TRUE,
   parallel = FALSE,
   log_offset = scmpObj@Parameters@log_offset,
-  max_it = scmpObj@Parameters@max_it
+  max_it = scmpObj@Parameters@max_it,
+  link = scmpObj@Parameters@link
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ regression.}
 the offsets.}
 
 \item{max_it}{Maximum number of iterations to fit the model.}
+
+\item{link}{Type of link function to use in the model. Default is "log".}
 }
 \value{
 An object of class \code{\link{ScMaSigPro}}, with updated `Estimate`
