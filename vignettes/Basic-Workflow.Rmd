@@ -327,7 +327,7 @@ different expression between the two paths. Additionally, there are 10 genes
 uniquely associated with Path2vsPath1. This implies that Path2 has 10 genes that
 are significantly differentially expressed over time, using Path1 genes as a
 reference. Let's explore a few of these genes:
-```{r, "trend",eval=TRUE, echo=TRUE}
+```{r, "trend",eval=TRUE, echo=TRUE, fig.width=7, fig.height=7}
 FigureA <- plotTrend(scmp_ob, "Gene9", logs = TRUE, logType = "log")
 FigureB <- plotTrend(scmp_ob, "Gene95", logs = TRUE, logType = "log")
 FigureC <- plotTrend(scmp_ob, "Gene10", logs = TRUE, logType = "log")
@@ -339,7 +339,7 @@ These plots illustrate the gene expression trends for selected genes, providing
 insights into their behavior in different paths. Fortunately, since we are using
 simulated data, we can validate these trends by extracting gene-level metadata
 from our simulated object:
-```{r, "ground truth",eval=TRUE, echo=TRUE}
+```{r, "ground truth",eval=TRUE, echo=TRUE, fig.width=7, fig.height=7}
 groundTruth <- as.data.frame(splat.sim@rowRanges@elementMetadata)
 print(groundTruth[groundTruth$Gene %in% c("Gene9", "Gene95", "Gene10", "Gene92"), c(1, 2, 6, 8)])
 ```
@@ -381,6 +381,18 @@ further biological interpretation.
 
 This concludes the basic usage quick start guide of `scMaSigPro`. Please refer 
 to other vignettes for more in-depth analysis.
+
+```{r, "Save and Reload", eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+# Save the object
+ save(splat.sim, file = "../data/splat.sim.RData")
+
+# Save processed data for next tutorial
+scmp.ob <- scmp_ob
+save(scmp.ob, file = "../data/scmp.ob.RData")
+
+# Compress
+tools::resaveRdaFiles(paths = "../data/")
+```
 
 ---
 

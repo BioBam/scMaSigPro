@@ -76,9 +76,9 @@ sc.squeeze <- function(scmpObj,
                        aggregate = "sum",
                        fill_gaps = FALSE,
                        additional_params = list(use_unique_time_points = FALSE)) {
-  suppressPackageStartupMessages(library(entropy))
-  suppressPackageStartupMessages(library(assertthat))
-  suppressPackageStartupMessages(library(SingleCellExperiment))
+  # suppressPackageStartupMessages(library(entropy))
+  # suppressPackageStartupMessages(library(assertthat))
+  # suppressPackageStartupMessages(library(SingleCellExperiment))
   # Initiate Variable
   scmp_bin_lower_bound <- "scmp_l_bound"
   scmp_bin_upper_bound <- "scmp_u_bound"

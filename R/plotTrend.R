@@ -15,7 +15,6 @@
 #' @param logs Whether to log transform counts. (Default is TRUE)
 #' @param logType How to log transform the values. Available options 'log',
 #' 'log2', 'log10'. (Default is 'log')
-#' @param scale Whether to scale the expression values. (Default is TRUE)
 #' @param pseudoCount Add a pseudo-count before taking the log. (Default is 1)
 #' @param significant Plot gene only if the models are significant based on
 #' \code{scMaSigPro::sc.filter()}. (Default is TRUE)
@@ -32,7 +31,6 @@ plotTrend <- function(scmpObj,
                       xlab = "Pooled Pseudotime",
                       ylab = "Pseudobulk Expression",
                       smoothness = 0.01,
-                      scale = TRUE,
                       logs = TRUE,
                       logType = "log",
                       pseudoCount = 1,
@@ -42,6 +40,9 @@ plotTrend <- function(scmpObj,
   pb.counts <- "pb.counts"
   pooled.time <- "pooled.time"
   path <- "path"
+
+  # Offset
+  offset_vector <- scmpObj@Design@offset
 
   # Check summary_mode
   assert_that(any(summary_mode %in% c("median", "mean")),
@@ -146,6 +147,11 @@ plotTrend <- function(scmpObj,
   data.sol <- showSol(scmpObj, view = FALSE, return = TRUE)
   data.sol <- data.sol[feature_id, , drop = FALSE]
 
+  # Correct by offset
+  if (sum(offset_vector) != 0) {
+    points.df["pb.counts"] <- points.df["pb.counts"] / exp(offset_vector)
+  }
+
   # if log is requestion
   if (logs) {
     if (logType == "log2") {
@@ -176,13 +182,14 @@ plotTrend <- function(scmpObj,
       summarize(pb.counts = median(pb.counts), .groups = "drop")
   }
 
-  # Correct with offset
-  points.df["pb.counts"] <- log(points.df["pb.counts"] / exp(scmp.ob@Design@offset))
+  if (sum(offset_vector) != 0) {
+    line.df <- points.df
+  }
 
   # Plot
   p <- ggplot() +
     geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.5, size = 2, stroke = 1, shape = 21) +
-    geom_line(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), linetype = "solid", linewidth = 1, alpha = 0.7) +
+    geom_line(data = line.df, aes(x = pooled.time, y = pb.counts, color = path), linetype = "solid", linewidth = 1, alpha = 0.7) +
     geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "dashed", linewidth = 1, alpha = 0.7) +
     ggtitle(
       paste("Feature Id:", feature_id),
