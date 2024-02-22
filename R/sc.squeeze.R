@@ -76,6 +76,9 @@ sc.squeeze <- function(scmpObj,
                        aggregate = "sum",
                        fill_gaps = FALSE,
                        additional_params = list(use_unique_time_points = FALSE)) {
+  suppressPackageStartupMessages(library(entropy))
+  suppressPackageStartupMessages(library(assertthat))
+  suppressPackageStartupMessages(library(SingleCellExperiment))
   # Initiate Variable
   scmp_bin_lower_bound <- "scmp_l_bound"
   scmp_bin_upper_bound <- "scmp_u_bound"
@@ -286,20 +289,12 @@ sc.squeeze <- function(scmpObj,
         # Increment the iteration counter
         it <- it + 1
       }
-    }
-
-    if (verbose) {
-      message(paste(
-        "Optimizing bin sizes, with maximum allowed bin size as",
-        max.allowed
-      ))
-    }
-
-    if (verbose) {
-      message(paste(
-        "Finally, for", path, ",", length_n, "time points has been compressed to",
-        nrow(bin_table), "bins and the sum is ", sum(bin_table[[bin.size]])
-      ))
+      if (verbose) {
+        message(paste(
+          "Finally, for", path, ",", length_n, "time points has been compressed to",
+          nrow(bin_table), "bins and the sum is ", sum(bin_table[[bin.size]])
+        ))
+      }
     }
 
     rownames(bin_table) <- NULL
