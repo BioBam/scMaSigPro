@@ -48,6 +48,8 @@ plotTrendCluster <- function(scmpObj,
   # Global vars
   scmp_clusters <- "scmp_clusters"
   feature_id <- "feature_id"
+  # Offset
+  offset_vector <- scmpObj@Design@offset
 
   # Check
   assert_that(!isEmpty(scmpObj@Significant@clusters),
@@ -103,7 +105,7 @@ plotTrendCluster <- function(scmpObj,
           logs = log, logType = log_type,
           pseudoCount = pCount,
           significant = sig,
-          summary_mode = summary
+          summary_mode = summary,
         )
         return(plt)
       },
@@ -263,6 +265,15 @@ plotTrendCluster <- function(scmpObj,
     paste("Cluster", str_split_i(string = curves_combined[["cluster"]], pattern = "_", i = 2), sep = ": "),
     " (", curves_combined[["num"]], " Features)"
   )
+
+  if (sum(offset_vector) != 0) {
+    lines_combined <- points_combined
+  }
+
+
+  # View(points_combined)
+  # View(curves_combined)
+  # View(lines_combined)
 
   # Initiate plotting
   p <- ggplot() +

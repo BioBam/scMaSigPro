@@ -394,7 +394,7 @@ plotTrendCluster(
   scmpObj = scmp_ob,
   plot = "coeff",
   verbose = FALSE
-)
+  )
 ```
 
 ---
