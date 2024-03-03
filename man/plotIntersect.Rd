@@ -6,14 +6,19 @@
 \usage{
 plotIntersect(
   scmpObj,
+  package = "UpSetR",
   min_intersection_size = 2,
   keep_empty_groups = TRUE,
   width_ratio = 0.1,
-  show_sets_size = FALSE
+  show_sets_size = FALSE,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
+
+\item{package}{Which package to use for the UpsetPlot. Options are 'ComplexUpset'
+or 'UpSetR' (Default).}
 
 \item{min_intersection_size}{Minimal number of observations in an intersection
 for it to be included.}
@@ -24,15 +29,16 @@ which are only empty after filtering by size)}
 \item{width_ratio}{Ratio of the overall set size width to intersection matrix
 width.}
 
-\item{show_sets_size}{The overall set sizes plot, e.g. from upset_set_size()
-(FALSE to hide)}
+\item{show_sets_size}{The overall set sizes plot, e.g. from upset_set_size()}
+
+\item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }
 \value{
-ggplot2 plot object.
+ggplot2 plot object for 'ComplexUpset' or upset object for 'UpSetR'.
 }
 \description{
 Generate UpSet Plot on Intersection of Significant Genes from scMaSigPro
-object. It is a wrapper around `ComplexUpset::upset`.
+object. It is a wrapper around `ComplexUpset::upset` and `UpSetR::upset`.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
