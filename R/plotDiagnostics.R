@@ -53,7 +53,7 @@ plotDiagnostics <- function(scmpObj,
       legend.position = "bottom",
       panel.grid.major = element_line(
         color = "grey90", linewidth = 0.3, linetype = "dashed"
-      ),legend.title.align = 0.5,
+      ),legend.title = element_text(hjust = 0.5),
       panel.grid.minor = element_blank()
     )
 

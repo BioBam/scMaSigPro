@@ -96,7 +96,7 @@ plotIntersect <- function(scmpObj, min_intersection_size = 2,
       + scale_fill_manual(values = c("bars_color" = col_pal[2]), guide = "none")
     )
   ) + ggtitle("Intersection of features among paths") +
-    theme(legend.position = "none",  legend.title.align = 0.5)
+    theme(legend.position = "none",  legend.title = element_text(hjust = 0.5))
 
   # return plot
   return(p)
