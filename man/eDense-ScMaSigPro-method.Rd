@@ -2,21 +2,27 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{eDense,ScMaSigPro-method}
 \alias{eDense,ScMaSigPro-method}
-\title{Get Value for expression counts.}
+\title{Retrieve Expression Data from Dense Slot}
 \usage{
-\S4method{eDense}{ScMaSigPro}(object, value = "missing")
+\S4method{eDense}{ScMaSigPro}(object, i = "bulk.counts", ...)
 }
 \arguments{
-\item{object}{An object of class \code{\link{ScMaSigPro}}.}
+\item{object}{An \code{\link{ScMaSigPro}} object from which to retrieve
+the expression data.}
 
-\item{value}{The value to be set. (If Setting)}
+\item{i}{The name of the dataset to retrieve. The default value is "bulk.counts".}
+
+\item{...}{Additional arguments (not used currently).}
 }
 \value{
-The expression matrix for Dense slot.
+Returns an expression matrix for the specified dataset from the Dense slot.
 }
 \description{
-`eDense` is a generic function for setting/getting expression counts for
-Dense in an \code{\link{ScMaSigPro}}.
+Retrieves expression data stored in the Dense slot of an 
+\code{\link{ScMaSigPro}} object.
+}
+\seealso{
+\code{\link{eDense<-}} for setting expression data in the Dense slot.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

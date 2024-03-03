@@ -2,22 +2,27 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{eSparse,ScMaSigPro-method}
 \alias{eSparse,ScMaSigPro-method}
-\title{Get Value for expression counts.}
+\title{Retrieve Expression Counts from Sparse Slot}
 \usage{
-\S4method{eSparse}{ScMaSigPro}(object, value = "missing")
+\S4method{eSparse}{ScMaSigPro}(object, i = "counts", ...)
 }
 \arguments{
-\item{object}{An object of class \code{\link{ScMaSigPro}}.}
+\item{object}{An \code{\link{ScMaSigPro}} object from which to retrieve expression data.}
 
-\item{value}{The value to be set. (If Setting)}
+\item{i}{The name of the assay to retrieve expression counts for.
+The default value "counts" is a placeholder that results in the method returning
+the first assay's data found in the Sparse slot.}
+
+\item{...}{Additional arguments (not used currently).}
 }
 \value{
-The expression matrix for Sparse slot.
+An expression matrix for the specified (or first, by default) assay 
+from the Sparse slot.
 }
 \description{
-`eSparse` is a generic function for setting/getting expression counts for
-Sparse in an \code{\link{ScMaSigPro}}.
+Retrieves expression counts from the Sparse slot of an 
+\code{\link{ScMaSigPro}} object.
 }
-\author{
-Priyansh Srivastava \email{spriyansh29@gmail.com}
+\seealso{
+\code{\link{eSparse<-}} for setting expression counts in the Sparse slot.
 }

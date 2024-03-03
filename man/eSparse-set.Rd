@@ -2,23 +2,25 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{eSparse<-}
 \alias{eSparse<-}
-\title{Set value for expression counts.}
+\title{Set Expression Counts in Sparse Slot}
 \usage{
-eSparse(object, i) <- value
+eSparse(object, i = "counts") <- value
 }
 \arguments{
 \item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{i}{Name of the assay.}
+\item{i}{The name of the assay for which to set expression counts. 
+Default is "counts", which targets the default expression counts slot.}
 
-\item{value}{The value to be set.}
+\item{value}{The new expression matrix to be set for the specified assay.}
 }
 \value{
-Modified `ScMaSigPro` object.
+The modified \code{\link{ScMaSigPro}} object with the updated 
+expression data in the Sparse slot.
 }
 \description{
-`eSparse<-` is a generic function for setting expression counts for Sparse
-in an \code{\link{ScMaSigPro}}.
+`eSparse<-` is a generic function for setting expression counts in the Sparse slot
+of an \code{\link{ScMaSigPro}} object.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

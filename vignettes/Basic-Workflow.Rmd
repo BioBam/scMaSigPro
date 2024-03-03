@@ -384,7 +384,7 @@ to other vignettes for more in-depth analysis.
 
 ```{r, "Save and Reload", eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 # Save the object
- save(splat.sim, file = "../data/splat.sim.RData")
+save(splat.sim, file = "../data/splat.sim.RData")
 
 # Save processed data for next tutorial
 scmp.ob <- scmp_ob
