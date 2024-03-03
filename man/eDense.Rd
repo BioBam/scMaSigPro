@@ -9,7 +9,7 @@ eDense(object, i = "bulk.counts", ...)
 \arguments{
 \item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{i}{The name of the dataset to retrieve expression counts for. 
+\item{i}{The name of the dataset to retrieve expression counts for.
 Default is "bulk.counts", which will return the default expression matrix.}
 
 \item{...}{Additional arguments (not used currently).}

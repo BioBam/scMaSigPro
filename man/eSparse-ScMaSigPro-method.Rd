@@ -16,11 +16,11 @@ the first assay's data found in the Sparse slot.}
 \item{...}{Additional arguments (not used currently).}
 }
 \value{
-An expression matrix for the specified (or first, by default) assay 
+An expression matrix for the specified (or first, by default) assay
 from the Sparse slot.
 }
 \description{
-Retrieves expression counts from the Sparse slot of an 
+Retrieves expression counts from the Sparse slot of an
 \code{\link{ScMaSigPro}} object.
 }
 \seealso{

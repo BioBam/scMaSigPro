@@ -201,7 +201,7 @@ plotTrend <- function(scmpObj,
     theme(
       legend.position = "bottom",
       panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
-      panel.grid.minor = element_blank()
+      panel.grid.minor = element_blank(), legend.title.align = 0.5 
     ) +
     scale_x_continuous(breaks = seq(min(xlim), max(xlim), by = round(log10(length(points.df[[pooled.time]]))))) +
     labs(color = "Paths") +

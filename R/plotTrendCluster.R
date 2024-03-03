@@ -302,7 +302,7 @@ plotTrendCluster <- function(scmpObj,
     theme(
       strip.background = element_blank(),
       strip.text.x = element_text(size = 10, angle = 0),
-      legend.position = "bottom",
+      legend.position = "bottom", legend.title.align = 0.5,
       panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
       panel.grid.minor = element_blank(),
       axis.text.x = element_text(angle = 45, hjust = 1) # Rotate x-axis text if necessary

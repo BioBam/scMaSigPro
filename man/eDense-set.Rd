@@ -15,7 +15,7 @@ Default is "bulk.counts".}
 \item{value}{The new expression matrix to be set for the specified dataset.}
 }
 \value{
-The modified \code{\link{ScMaSigPro}} object with updated expression 
+The modified \code{\link{ScMaSigPro}} object with updated expression
 data in the Dense slot.
 }
 \description{

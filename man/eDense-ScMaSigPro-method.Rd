@@ -18,7 +18,7 @@ the expression data.}
 Returns an expression matrix for the specified dataset from the Dense slot.
 }
 \description{
-Retrieves expression data stored in the Dense slot of an 
+Retrieves expression data stored in the Dense slot of an
 \code{\link{ScMaSigPro}} object.
 }
 \seealso{

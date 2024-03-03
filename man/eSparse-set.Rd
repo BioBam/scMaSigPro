@@ -9,13 +9,13 @@ eSparse(object, i = "counts") <- value
 \arguments{
 \item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{i}{The name of the assay for which to set expression counts. 
+\item{i}{The name of the assay for which to set expression counts.
 Default is "counts", which targets the default expression counts slot.}
 
 \item{value}{The new expression matrix to be set for the specified assay.}
 }
 \value{
-The modified \code{\link{ScMaSigPro}} object with the updated 
+The modified \code{\link{ScMaSigPro}} object with the updated
 expression data in the Sparse slot.
 }
 \description{

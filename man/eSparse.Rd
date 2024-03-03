@@ -9,7 +9,7 @@ eSparse(object, i = "counts", ...)
 \arguments{
 \item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{i}{The name of the assay to retrieve expression counts for. 
+\item{i}{The name of the assay to retrieve expression counts for.
 Default is "counts", which will return the default expression matrix.}
 
 \item{...}{Additional arguments (not used currently).}

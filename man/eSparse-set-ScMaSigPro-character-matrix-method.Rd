@@ -19,7 +19,7 @@ The modified \code{\link{ScMaSigPro}} object with the updated or new expression 
 in the Sparse slot.
 }
 \description{
-Sets or updates expression counts in the Sparse slot of an 
+Sets or updates expression counts in the Sparse slot of an
 \code{\link{ScMaSigPro}} object.
 }
 \seealso{
