@@ -18,6 +18,7 @@ vignette: >
 
 ```{r, "setup", include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(crop = NULL)
 library(scMaSigPro)
 ```
 
@@ -185,7 +186,10 @@ mismatches; if everything is identical, it will not throw an error.
 The `eDense()` function retrieves the dense expression file from the `scMaSigPro` object.
  
 ```{r, "eDense(scmp_ob)"}
-expect_identical(eDense(scmp_ob), expected = data.abiotic)
+expect_identical(
+  object = as.data.frame(eDense(scmp_ob)),
+  expected = data.abiotic
+)
 ```
 
 No errors were thrown, indicating that our setup is correct and we can proceed
@@ -394,7 +398,7 @@ plotTrendCluster(
   scmpObj = scmp_ob,
   plot = "coeff",
   verbose = FALSE
-  )
+)
 ```
 
 ---

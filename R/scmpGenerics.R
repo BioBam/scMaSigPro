@@ -64,7 +64,6 @@ setReplaceMethod("cSparse", "ScMaSigPro", function(object, value) {
   return(object)
 })
 ###############################################################################
-
 #' @title Get the data for Dense Slot.
 #'
 #' @description
@@ -131,158 +130,226 @@ setReplaceMethod("cDense", "ScMaSigPro", function(object, value) {
   return(object)
 })
 ###############################################################################
-#' @title Set value for expression counts.
+#' @title Get Expression Counts from Sparse Slot
 #'
 #' @description
-#' `eSparse<-` is a generic function for setting expression counts for Sparse
-#' in an \code{\link{ScMaSigPro}}.
+#' `eSparse` is a generic function for retrieving expression counts stored in the
+#' Sparse slot of an \code{\link{ScMaSigPro}} object.
 #'
 #' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value to be set.
-#' @param i Name of the assay.
+#' @param i The name of the assay to retrieve expression counts for.
+#' Default is "counts", which will return the default expression matrix.
+#' @param ... Additional arguments (not used currently).
 #'
-#' @return Modified `ScMaSigPro` object.
+#' @return An expression matrix for the specified assay from the Sparse slot.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-setGeneric("eSparse<-", function(object, i, value) standardGeneric("eSparse<-"))
+setGeneric("eSparse", function(object, i = "counts", ...) standardGeneric("eSparse"))
 
-#' @title Get Value for expression counts.
+#' @title Set Expression Counts in Sparse Slot
 #'
 #' @description
-#' `eSparse<-` is a generic function for getting expression counts for Sparse
-#' in an \code{\link{ScMaSigPro}}.
+#' `eSparse<-` is a generic function for setting expression counts in the Sparse slot
+#' of an \code{\link{ScMaSigPro}} object.
 #'
 #' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value to be set. (If Setting)
+#' @param i The name of the assay for which to set expression counts.
+#' Default is "counts", which targets the default expression counts slot.
+#' @param value The new expression matrix to be set for the specified assay.
 #'
-#' @return The expression matrix for Sparse slot.
+#' @return The modified \code{\link{ScMaSigPro}} object with the updated
+#' expression data in the Sparse slot.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-setGeneric("eSparse", function(object, value = "missing") standardGeneric("eSparse"))
+setGeneric("eSparse<-", function(object, i = "counts", value) standardGeneric("eSparse<-"))
 
-#' @title Get Value for expression counts.
-#'
-#' @importFrom SummarizedExperiment assay assay<-
+#' @title Retrieve Expression Counts from Sparse Slot
 #'
 #' @description
-#' `eSparse` is a generic function for setting/getting expression counts for
-#' Sparse in an \code{\link{ScMaSigPro}}.
+#' Retrieves expression counts from the Sparse slot of an
+#' \code{\link{ScMaSigPro}} object.
 #'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value to be set. (If Setting)
+#' @param object An \code{\link{ScMaSigPro}} object from which to retrieve expression data.
+#' @param i The name of the assay to retrieve expression counts for.
+#' The default value "counts" is a placeholder that results in the method returning
+#' the first assay's data found in the Sparse slot.
+#' @param ... Additional arguments (not used currently).
 #'
-#' @return The expression matrix for Sparse slot.
+#' @return An expression matrix for the specified (or first, by default) assay
+#' from the Sparse slot.
 #'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#' @seealso \code{\link{eSparse<-}} for setting expression counts in the Sparse slot.
 #'
 #' @export
-setMethod("eSparse", "ScMaSigPro", function(object, value = "missing") {
-  if (identical(value, "missing")) {
-    return(as.matrix(assay(object@Sparse)))
+setMethod("eSparse", signature(object = "ScMaSigPro"), function(object, i = "counts", ...) {
+  if (i == "counts") {
+    assayNames <- names(object@Sparse@assays@data@listData)
+    if (length(assayNames) > 0) {
+      return(as.matrix(object@Sparse@assays@data@listData[[assayNames[1]]]))
+    } else {
+      stop("No assays found in the object.")
+    }
   } else {
-    return(as.matrix(assay(object@Sparse, value)))
+    # Return the specific assay's data matrix
+    if (!i %in% names(object@Sparse@assays@data@listData)) {
+      stop(paste0("Assay '", i, "' not found in the object."))
+    }
+    return(as.matrix(object@Sparse@assays@data@listData[[i]]))
   }
 })
 
-#' @title Get Value for expression counts.
+#' @title Set Expression Counts in Sparse Slot
 #'
 #' @description
-#' `eSparse<-` is a generic function for setting expression counts for
-#' Sparse in an \code{\link{ScMaSigPro}}.
+#' Sets or updates expression counts in the Sparse slot of an
+#' \code{\link{ScMaSigPro}} object.
 #'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value to be set. (If Setting)
-#' @param i Name of the Assay.
+#' @param object An \code{\link{ScMaSigPro}} object to be modified.
+#' @param i The name of the assay for which to set or update expression counts.
+#' Must be provided as a character string.
+#' @param value The new expression data to set for the specified assay.
 #'
-#' @return Modified `ScMaSigPro` object.
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#' @return The modified \code{\link{ScMaSigPro}} object with the updated or new expression data
+#' in the Sparse slot.
+#'
+#' @seealso \code{\link{eSparse}} for retrieving expression counts from the Sparse slot.
 #'
 #' @export
-setMethod("eSparse<-", "ScMaSigPro", function(object, i, value) {
-  assay(object@Sparse, i) <- value
-  return(invisible(object))
+setMethod("eSparse<-", signature(object = "ScMaSigPro", i = "character", value = "matrix"), function(object, i, value) {
+  if (!inherits(value, "dgCMatrix")) {
+    value <- as(value, "dgCMatrix")
+  }
+
+  # Check if the specified assay exists; if not, create a new entry
+  if (!i %in% names(object@Sparse@assays@data@listData)) {
+    message(paste0("Creating a new assay as '", i, "'."))
+    # Update the assay data
+    object@Sparse@assays@data@listData[[i]] <- value
+  } else if (i %in% names(object@Sparse@assays@data@listData)) {
+    warning(paste0("Overwritting assay '", i, "'."))
+    # Update the assay data
+    object@Sparse@assays@data@listData[[i]] <- value
+  }
+
+  # Return the modified object
+  return(object)
 })
+
 ##############################################################################
-#' @title Set value for expression counts.
+#' @title Retrieve Expression Counts from Dense Slot
 #'
 #' @description
-#' `eDense<-` is a generic function for setting expression counts for Dense
-#' in an \code{\link{ScMaSigPro}}.
+#' `eDense` is a generic function for retrieving expression counts stored in the Dense slot
+#' of an \code{\link{ScMaSigPro}} object.
 #'
 #' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value to be set.
-#' @param i Name of the assay.
+#' @param i The name of the dataset to retrieve expression counts for.
+#' Default is "bulk.counts", which will return the default expression matrix.
+#' @param ... Additional arguments (not used currently).
 #'
-#' @return Modified `ScMaSigPro` object.
+#' @return An expression matrix for the specified dataset from the Dense slot.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-setGeneric("eDense<-", function(object, i, value) standardGeneric("eDense<-"))
+setGeneric("eDense", function(object, i = "bulk.counts", ...) standardGeneric("eDense"))
 
-#' @title Get Value for expression counts.
+#' @title Set Expression Counts in Dense Slot
 #'
 #' @description
-#' `eDense<-` is a generic function for getting expression counts for Dense
-#' in an \code{\link{ScMaSigPro}}.
+#' `eDense<-` is a generic function for updating or setting expression counts in the Dense slot
+#' of an \code{\link{ScMaSigPro}} object.
 #'
 #' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value to be set. (If Setting)
+#' @param i The name of the dataset for which to set expression counts.
+#' Default is "bulk.counts".
+#' @param value The new expression matrix to be set for the specified dataset.
 #'
-#' @return The expression matrix for Dense slot.
+#' @return The modified \code{\link{ScMaSigPro}} object with updated expression
+#' data in the Dense slot.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-setGeneric("eDense", function(object, value = "missing") standardGeneric("eDense"))
+setGeneric("eDense<-", function(object, i = "bulk.counts", value) standardGeneric("eDense<-"))
 
-#' @title Get Value for expression counts.
-#'
-#' @importFrom SummarizedExperiment assay
+#' @title Retrieve Expression Data from Dense Slot
 #'
 #' @description
-#' `eDense` is a generic function for setting/getting expression counts for
-#' Dense in an \code{\link{ScMaSigPro}}.
+#' Retrieves expression data stored in the Dense slot of an
+#' \code{\link{ScMaSigPro}} object.
 #'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value to be set. (If Setting)
+#' @param object An \code{\link{ScMaSigPro}} object from which to retrieve
+#' the expression data.
+#' @param i The name of the dataset to retrieve. The default value is "bulk.counts".
+#' @param ... Additional arguments (not used currently).
 #'
-#' @return The expression matrix for Dense slot.
+#' @return Returns an expression matrix for the specified dataset from the Dense slot.
+#'
+#' @seealso \code{\link{eDense<-}} for setting expression data in the Dense slot.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-setMethod("eDense", "ScMaSigPro", function(object, value = "missing") {
-  if (identical(value, "missing")) {
-    return(assay(object@Dense))
+setMethod("eDense", signature(object = "ScMaSigPro"), function(object, i = "bulk.counts", ...) {
+  if (i == "bulk.counts") {
+    assayNames <- names(object@Dense@assays@data@listData)
+    if (length(assayNames) > 0) {
+      return(as.matrix(object@Dense@assays@data@listData[[assayNames[1]]]))
+    } else {
+      stop("No assays found in the object.")
+    }
   } else {
-    return(assay(object@Dense, value))
+    # Return the specific assay's data matrix
+    if (!i %in% names(object@Dense@assays@data@listData)) {
+      stop(paste0("Assay '", i, "' not found in the object."))
+    }
+    return(as.matrix(object@Dense@assays@data@listData[[i]]))
   }
 })
 
-#' @title Get Value for expression counts.
+#' @title Set or Update Expression Data in Dense Slot
 #'
 #' @description
-#' `eDense<-` is a generic function for setting expression counts for
-#' Sparse in an \code{\link{ScMaSigPro}}.
+#' `eDense<-` updates or sets new expression data within the Dense slot of an
+#' \code{\link{ScMaSigPro}} object.
 #'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value to be set. (If Setting)
-#' @param i Name of the Assay.
+#' @param object An \code{\link{ScMaSigPro}} object to be modified.
+#' @param i The name of the dataset within the Dense slot to set or update.
+#' @param value The expression data to set for the specified dataset.
 #'
-#' @return Modified `ScMaSigPro` object.
+#' @return The modified \code{\link{ScMaSigPro}} object with the updated or new expression data
+#' in the Dense slot.
+#'
+#' @seealso \code{\link{eDense}} for retrieving expression data from the Dense slot.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-setMethod("eDense<-", "ScMaSigPro", function(object, i, value) {
-  assay(object@Dense, i) <- value
-  return(invisible(object))
+setMethod("eDense<-", signature(object = "ScMaSigPro", i = "character", value = "matrix"), function(object, i, value) {
+  if (!inherits(value, "dgCMatrix")) {
+    value <- as(value, "dgCMatrix")
+  }
+
+  # Check if the specified assay exists; if not, create a new entry
+  if (!i %in% names(object@Dense@assays@data@listData)) {
+    message(paste0("Creating a new assay as '", i, "'."))
+    # Update the assay data
+    object@Dense@assays@data@listData[[i]] <- value
+  } else if (i %in% names(object@Dense@assays@data@listData)) {
+    warning(paste0("Overwritting assay '", i, "'."))
+    # Update the assay data
+    object@Dense@assays@data@listData[[i]] <- value
+  }
+
+  # Return the modified object
+  return(object)
 })
+
 ##############################################################################
 #' @title Get or set the Branch Assignment Matrix
 #'

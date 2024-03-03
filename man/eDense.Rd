@@ -2,21 +2,24 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{eDense}
 \alias{eDense}
-\title{Get Value for expression counts.}
+\title{Retrieve Expression Counts from Dense Slot}
 \usage{
-eDense(object, value = "missing")
+eDense(object, i = "bulk.counts", ...)
 }
 \arguments{
 \item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The value to be set. (If Setting)}
+\item{i}{The name of the dataset to retrieve expression counts for.
+Default is "bulk.counts", which will return the default expression matrix.}
+
+\item{...}{Additional arguments (not used currently).}
 }
 \value{
-The expression matrix for Dense slot.
+An expression matrix for the specified dataset from the Dense slot.
 }
 \description{
-`eDense<-` is a generic function for getting expression counts for Dense
-in an \code{\link{ScMaSigPro}}.
+`eDense` is a generic function for retrieving expression counts stored in the Dense slot
+of an \code{\link{ScMaSigPro}} object.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

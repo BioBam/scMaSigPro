@@ -19,6 +19,7 @@ vignette: >
 
 ```{r, "setup", include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(crop = NULL)
 library(scMaSigPro)
 ```
 
@@ -67,10 +68,10 @@ data("splat.sim", package = "scMaSigPro")
 ```
 
 ####  Plot the data (Optional)
-```{r, "Plot the data (Optional)", eval=TRUE, echo=TRUE}
+```{r, "Plot the data (Optional)", eval=TRUE, echo=TRUE, fig.width=8, fig.height=6}
 # Load
-suppressPackageStartupMessages(library(ggplot2))
-suppressPackageStartupMessages(library(SingleCellExperiment))
+suppressPackageStartupMessages(require(ggplot2))
+suppressPackageStartupMessages(require(SingleCellExperiment))
 
 # Extract PCA
 df <- as.data.frame(reducedDim(splat.sim)[, c(1:2)])
@@ -174,7 +175,7 @@ bin for each path.
 
 We can also visually inspect the binning process using a tile plot:
 
-```{r, "Visualize bins",eval=TRUE, echo=TRUE}
+```{r, "Visualize bins",eval=TRUE, echo=TRUE, fig.width=5, fig.height=3}
 plotBinTile(scmp_ob)
 ```
 
@@ -188,7 +189,7 @@ pseudotime scale, modeled with a quadratic polynomial. The model can be represen
 as follows:
 
 ```{r, "formula", echo=FALSE}
-library(knitr)
+require(knitr)
 knitr::asis_output("
 \\begin{align*}
 Y_{i} &\\sim \\text{NegativeBinomial}(\\mu_{i}, \\theta = 10) \\\\
@@ -317,8 +318,8 @@ scmp_ob <- sc.filter(
 By setting the vars parameter to "groups", the function will add genes with
 $R^2$ >= 0.7 to the object. To explore the number of genes per group, we will 
 make an upset plot:
-```{r, "uspet",eval=TRUE, echo=TRUE}
-plotIntersect(scmp_ob)
+```{r, "uspet",eval=TRUE, echo=TRUE, fig.width=8, fig.height=6}
+plotIntersect(scmp_ob, package = "ComplexUpset")
 ```
 
 Here, we observe that 23 genes belong to both Path2vsPath1 and Path1, indicating
@@ -365,7 +366,7 @@ scmp_ob <- sc.cluster.trend(
 )
 ```
 
-```{r, "plot"}
+```{r, "plot", fig.width=8, fig.height=6}
 # Plot
 plotTrendCluster(
   scmpObj = scmp_ob,
@@ -384,7 +385,7 @@ to other vignettes for more in-depth analysis.
 
 ```{r, "Save and Reload", eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 # Save the object
- save(splat.sim, file = "../data/splat.sim.RData")
+save(splat.sim, file = "../data/splat.sim.RData")
 
 # Save processed data for next tutorial
 scmp.ob <- scmp_ob

@@ -1,7 +1,7 @@
 Package: scMaSigPro
 Type: Package
 Title: Application of MaSigPro Bioconductor Package for scRNA Trajectory data
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: c(
     person("Ana", "Conesa", role = c("aut"), email = "ana.conesa@csic.es"),
     person("Maria Jose", "Nueda", role = c("aut"), email = "mj.nueda@ua.es"),
@@ -17,7 +17,7 @@ Imports:
     assertthat, e1071, dplyr, entropy, ggplot2, igraph, magrittr, maSigPro,
     MASS, MatrixGenerics, methods, parallel, parallelly, plotly, RColorConesa,
     rlang, S4Vectors, scales, shiny, SingleCellExperiment, stats, stringr,
-    utils, ComplexUpset, mclust, SummarizedExperiment
+    utils, mclust
 Depends: R (>= 4.0)
 Encoding: UTF-8
 LazyData: true
@@ -27,7 +27,10 @@ Suggests:
     roxygen2,
     knitr,
     rmarkdown,
-    BiocStyle
+    BiocStyle,
+    ComplexUpset,
+    UpSetR,
+    patchwork
 Config/testthat/edition: 3
 URL: https://github.com/BioBam/scMaSigPro/
 biocViews: Clustering, Regression, TimeCourse, DifferentialExpression,
