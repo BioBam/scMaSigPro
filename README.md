@@ -1,4 +1,4 @@
-# ScMaSigPro &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="man/figures/logo.png" alt="scMaSigPro Logo" width="12%"/>
+# ScMaSigPro &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="man/figures/logo.png" alt="scMaSigPro Logo" width="7%"/>
 
 ### Implementation of MaSigPro for scRNA-Seq Data.
 
