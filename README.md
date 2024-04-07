@@ -1,4 +1,5 @@
 <img src="man/figures/logo.png" alt="scMaSigPro Logo" width="17%"/>
+
 ### Implementation of MaSigPro for scRNA-Seq Data.
 
 [![R-CMD-Check](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml)
