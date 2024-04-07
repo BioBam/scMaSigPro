@@ -1,6 +1,6 @@
-# ScMaSigPro &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <img src="man/figures/logo.png" alt="scMaSigPro Logo" width="7%"/>
+<img src="man/figures/logo.png" alt="scMaSigPro Logo" width="15%"/>
 
-### Implementation of MaSigPro for scRNA-Seq Data.
+### ScMaSigPro: Implementation of MaSigPro for scRNA-Seq Data.
 
 [![R-CMD-Check](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml)
 [![test-coverage](https://github.com/BioBam/scMaSigPro/actions/workflows/test-coverage.yaml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/test-coverage.yaml)
