@@ -1,0 +1,5 @@
+url: https://github.com/BioBam/scMaSigPro
+logo: man/figures/logo.png
+template:
+  bootstrap: 5
+

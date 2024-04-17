@@ -14,6 +14,7 @@ sc.p.vector(
   verbose = TRUE,
   offset = TRUE,
   parallel = FALSE,
+  n_cores = availableCores() - 2,
   log_offset = FALSE,
   max_it = 100,
   link = "log"
@@ -41,6 +42,9 @@ model.}
 
 \item{parallel}{Use forking process to run parallelly. (Default is FALSE)
 (Currently, Windows is not supported)}
+
+\item{n_cores}{Explicitly specify the number of cores to use for parallel model
+fitting. (Default is inferred from the system using availableCores()-2)}
 
 \item{log_offset}{A logical value specifying whether to take the logarithm of
 the offsets.}

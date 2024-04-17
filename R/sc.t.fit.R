@@ -22,6 +22,8 @@
 #' @param max_it Maximum number of iterations to fit the model.
 #' @param parallel Use forking process to run parallelly. (Default is FALSE)
 #' (Currently, Windows is not supported)
+#' @param n_cores Explicitly specify the number of cores to use for parallel model
+#' fitting. (Default is inferred from the system using availableCores()-2)
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #'
 #' @return An object of class \code{\link{ScMaSigPro}}, with updated `Estimate`
@@ -47,6 +49,7 @@ sc.t.fit <- function(scmpObj,
                      offset = scmpObj@Parameters@offset,
                      verbose = TRUE,
                      parallel = FALSE,
+                     n_cores = availableCores() - 2,
                      log_offset = scmpObj@Parameters@log_offset,
                      max_it = scmpObj@Parameters@max_it,
                      link = scmpObj@Parameters@link) {
@@ -137,7 +140,12 @@ sc.t.fit <- function(scmpObj,
       numCores <- 1
       warning("Currently, we only support sequential processing on windows based systems...")
     } else {
-      numCores <- availableCores() - 1
+      n_cores <- as.integer(n_cores)
+      # Check Required Cores
+      assert_that(n_cores <= availableCores(),
+        msg = paste("Number of cores requested is invalid. This session has access to", as.integer(availableCores()), "cores only.")
+      )
+      numCores <- n_cores
     }
     if (verbose) {
       message(paste("Running with", numCores, "cores..."))

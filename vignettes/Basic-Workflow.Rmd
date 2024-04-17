@@ -319,7 +319,7 @@ By setting the vars parameter to "groups", the function will add genes with
 $R^2$ >= 0.7 to the object. To explore the number of genes per group, we will 
 make an upset plot:
 ```{r, "uspet",eval=TRUE, echo=TRUE, fig.width=8, fig.height=6}
-plotIntersect(scmp_ob, package = "ComplexUpset")
+plotIntersect(scmp_ob, package = "UpSetR")
 ```
 
 Here, we observe that 23 genes belong to both Path2vsPath1 and Path1, indicating
@@ -333,7 +333,10 @@ FigureA <- plotTrend(scmp_ob, "Gene9", logs = TRUE, logType = "log")
 FigureB <- plotTrend(scmp_ob, "Gene95", logs = TRUE, logType = "log")
 FigureC <- plotTrend(scmp_ob, "Gene10", logs = TRUE, logType = "log")
 FigureD <- plotTrend(scmp_ob, "Gene92", logs = TRUE, logType = "log")
-(FigureA + FigureB) / (FigureC + FigureD)
+ggpubr::ggarrange(FigureA, FigureB, FigureC, FigureD,
+  ncol = 2, nrow = 2,
+  labels = c("A", "B", "C", "D")
+)
 ```
 
 These plots illustrate the gene expression trends for selected genes, providing
