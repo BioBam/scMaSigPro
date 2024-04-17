@@ -246,7 +246,9 @@ for (i in rownames(head(pTime_up, 4))) {
 }
 
 # Plot combined
-(pTime_up.plots[[1]] + pTime_up.plots[[2]]) / (pTime_up.plots[[3]] + pTime_up.plots[[4]])
+ggpubr::ggarrange(pTime_up.plots[[1]], pTime_up.plots[[2]], pTime_up.plots[[3]], pTime_up.plots[[4]],
+  ncol = 2, nrow = 2, labels = c("A", "B", "C", "D")
+)
 ```
 
 ```{r, "Pseudotime_path"}
@@ -272,7 +274,7 @@ for (i in rownames(head(pTime_path_up, 4))) {
 }
 
 # Plot combined
-(pTime_path_up.plots[[1]] + pTime_path_up.plots[[2]]) / (pTime_path_up.plots[[3]] + pTime_path_up.plots[[4]])
+ggpubr::ggarrange(pTime_path_up.plots[[1]], pTime_path_up.plots[[2]], pTime_path_up.plots[[3]], pTime_path_up.plots[[4]], ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"))
 ```
 
 ```{r, echo=FALSE}

@@ -7,7 +7,7 @@
 #' @importFrom S4Vectors isEmpty
 #' @importFrom RColorConesa colorConesa
 #' @importFrom utils packageVersion
-#' 
+#'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param min_intersection_size Minimal number of observations in an intersection
 #' for it to be included.

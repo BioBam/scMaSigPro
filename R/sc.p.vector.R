@@ -25,6 +25,8 @@
 #' @param max_it Maximum number of iterations to fit the model.
 #' @param parallel Use forking process to run parallelly. (Default is FALSE)
 #' (Currently, Windows is not supported)
+#' @param n_cores Explicitly specify the number of cores to use for parallel model
+#' fitting. (Default is inferred from the system using availableCores()-2)
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #'
 #' @return An object of class \code{\link{ScMaSigPro}}, with updated `Profile`
@@ -48,6 +50,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
                         verbose = TRUE,
                         offset = TRUE,
                         parallel = FALSE,
+                        n_cores = availableCores() - 2,
                         log_offset = FALSE,
                         max_it = 100,
                         link = "log") {
@@ -106,12 +109,6 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
   p <- dim(dis)[2]
   sc.p.vector <- vector(mode = "numeric", length = g)
 
-  if (parallel == FALSE) {
-    if (verbose) {
-      pb <- txtProgressBar(min = 0, max = g, style = 3)
-    }
-  }
-
   # Calculate  offset
   if (offset) {
     dat <- dat + 1
@@ -130,13 +127,21 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
       numCores <- 1
       warning("Currently, we only support sequential processing on windows based systems...")
     } else {
-      numCores <- availableCores() - 1
+      n_cores <- as.integer(n_cores)
+      # Check Required Cores
+      assert_that(n_cores <= availableCores(),
+        msg = paste("Number of cores requested is invalid. This session has access to", as.integer(availableCores()), "cores only.")
+      )
+      numCores <- n_cores
     }
     if (verbose) {
       message(paste("Running with", numCores, "cores..."))
     }
   } else {
     numCores <- 1
+    if (verbose) {
+      pb <- txtProgressBar(min = 0, max = g, style = 3)
+    }
   }
 
   # Check for weight usage
