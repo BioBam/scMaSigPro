@@ -65,13 +65,13 @@ as_scmp <- function(object, from = "cds",
                       labels_exist = FALSE
                     )) {
   # Check Conversion Type
-  assert_that(from %in% c("cds", "sce"),
+  assertthat::assert_that(from %in% c("cds", "sce"),
     msg = ("Currently, accepted options in the 'from' parameter are 'cds'
     ('cds/CellDataSet' object) and 'sce' ('SingleCellExperiment').")
   )
 
   # Validate S4
-  assert_that(
+  assertthat::assert_that(
     all(isS4(object) & all(is(object, "cell_data_set") | is(object, "SingleCellExperiment"))),
     msg = "Please provide object from one of the class 'cds/CellDataSet',
     or 'SingleCellExperiment/sce'."
@@ -79,18 +79,18 @@ as_scmp <- function(object, from = "cds",
 
   # Check and validate additional parameters
   if (!is.null(additional_params)) {
-    assert_that(is.list(additional_params),
+    assertthat::assert_that(is.list(additional_params),
       msg = "Please provide 'additional_params' as a named list.
       See details for more information"
     )
     # Check additional parameters
     if (from == "cds") {
-      assert_that(names(additional_params) %in% c("reduction_method", "labels_exist", "align_pseudotime_method"),
+      assertthat::assert_that(names(additional_params) %in% c("reduction_method", "labels_exist", "align_pseudotime_method"),
         msg = "Allowed additional parameters for 'cds' (cds/CellDataSet) are
         'reduction_method', and 'labels_exist','align_pseudotime_method'."
       )
     } else if (from == "sce") {
-      assert_that(all(names(additional_params) %in% c("exist_ptime_col", "exist_path_col", "labels_exist")),
+      assertthat::assert_that(all(names(additional_params) %in% c("exist_ptime_col", "exist_path_col", "labels_exist")),
         msg = "Allowed additional parameters for sce are 'exist_ptime_col',
                   'exist_path_col', and 'labels_exist'."
       )

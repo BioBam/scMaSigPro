@@ -56,11 +56,11 @@ sc.filter <- function(scmpObj,
                       term_p_value = 0.05,
                       includeInflu = TRUE) {
   # Check Validity of the object
-  assert_that(is(scmpObj, "ScMaSigPro"),
+  assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'ScMaSigPro'"
   )
 
-  assert_that(
+  assertthat::assert_that(
     all(
       vars %in% c("all", "each", "groups")
     ),

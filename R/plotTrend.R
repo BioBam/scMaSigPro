@@ -45,7 +45,7 @@ plotTrend <- function(scmpObj,
   offset_vector <- scmpObj@Design@offset
 
   # Check summary_mode
-  assert_that(any(summary_mode %in% c("median", "mean")),
+  assertthat::assert_that(any(summary_mode %in% c("median", "mean")),
     msg = paste(
       paste0("'", summary_mode, "'"), "is not a valid option. Please use one of",
       paste(c("median", "mean"), collapse = ", ")
@@ -59,12 +59,12 @@ plotTrend <- function(scmpObj,
   bulk.counts <- scmpObj@Dense@assays@data@listData$bulk.counts
 
   # Check
-  assert_that(all(feature_id %in% rownames(bulk.counts)),
+  assertthat::assert_that(all(feature_id %in% rownames(bulk.counts)),
     msg = "Feature Id doesn't exist please select another one"
   )
 
   if (significant) {
-    assert_that(any(feature_id %in% unique(unlist(scmpObj@Significant@genes))),
+    assertthat::assert_that(any(feature_id %in% unique(unlist(scmpObj@Significant@genes))),
       msg = "Feature Id didn't pass the R2 threshold, please re-run sc.filter, with lower a value or set 'significant' to 'FALSE'"
     )
   }

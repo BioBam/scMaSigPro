@@ -22,12 +22,12 @@ plotDiagnostics <- function(scmpObj,
                             feature_id,
                             model = "optimized") {
   # Check if the results exist
-  assert_that(!isEmpty(scmpObj@Significant@genes),
+  assertthat::assert_that(!isEmpty(scmpObj@Significant@genes),
     msg = paste("No Significant genes found, please run the workflow first")
   )
 
   # Check model type
-  assert_that(all(model %in% c("optimized", "full", "intercept")),
+  assertthat::assert_that(all(model %in% c("optimized", "full", "intercept")),
     msg = paste("The requested gene is not available in the significant genes list")
   )
 
@@ -35,7 +35,7 @@ plotDiagnostics <- function(scmpObj,
   avail_genes <- unique(unlist(scmpObj@Significant@genes))
 
   # Check if the requested gene is availble as singificant gene
-  assert_that(all(feature_id %in% avail_genes),
+  assertthat::assert_that(all(feature_id %in% avail_genes),
     msg = paste("The requested gene is not available in the significant genes list")
   )
 

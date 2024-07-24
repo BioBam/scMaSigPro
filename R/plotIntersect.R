@@ -33,18 +33,18 @@ plotIntersect <- function(scmpObj,
                           show_sets_size = FALSE,
                           verbose = TRUE) {
   # Check the data
-  assert_that(
+  assertthat::assert_that(
     is(scmpObj, "ScMaSigPro"),
     msg = "Please supply an object of the class 'ScMaSigPro'"
   )
 
   # Check if siggenes results exist for groups
-  assert_that(!isEmpty(scmpObj@Significant@genes),
+  assertthat::assert_that(!isEmpty(scmpObj@Significant@genes),
     msg = "'sig.genes@Summary' slot is empty, please run 'sc.get.siggenes'"
   )
 
   # Check for possible options
-  assert_that(package %in% c("ComplexUpset", "UpSetR"),
+  assertthat::assert_that(package %in% c("ComplexUpset", "UpSetR"),
     msg = "Please provide a valid package name for UpSet plot. Options are 'ComplexUpset' or 'UpSetR'"
   )
 

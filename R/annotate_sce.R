@@ -41,7 +41,7 @@ annotate_sce <- function(sce,
                          verbose = TRUE) {
   # Overwite the columns
   if (labels_exist) {
-    assert_that(
+    assertthat::assert_that(
       all(!is.null(exist_ptime_col) & !is.null(exist_path_col)),
       msg = paste(
         "Requested to set 'path_col' as", path_col,
@@ -62,12 +62,12 @@ annotate_sce <- function(sce,
     cell.meta <- as.data.frame(colData(sce))
 
     # Check columns
-    assert_that(
+    assertthat::assert_that(
       all(exist_ptime_col %in% colnames(cell.meta)),
       msg = paste("'", exist_ptime_col, "', doesn't exist in colData.")
     )
     # Check columns
-    assert_that(
+    assertthat::assert_that(
       all(exist_path_col %in% colnames(cell.meta)),
       msg = paste("'", exist_path_col, "', doesn't exist in colData")
     )

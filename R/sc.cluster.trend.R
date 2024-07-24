@@ -59,31 +59,31 @@ sc.cluster.trend <- function(scmpObj,
   scmp_clusters <- "scmp_clusters"
 
   # Check if the gene set exists
-  assert_that(any(geneSet %in% c(names(scmpObj@Significant@genes), "intersect", "union")),
+  assertthat::assert_that(any(geneSet %in% c(names(scmpObj@Significant@genes), "intersect", "union")),
     msg = paste(
       paste0("'", geneSet, "'"), "does not exist. Please use one of",
       paste(c(names(scmpObj@Significant@genes), "intersect", "union"), collapse = ", ")
     )
   )
-  assert_that(any(cluster_by %in% c("coeff", "counts")),
+  assertthat::assert_that(any(cluster_by %in% c("coeff", "counts")),
     msg = paste(
       paste0("'", cluster_by, "'"), "is not a valid option. Please use one of",
       paste(c("coeff", "counts"), collapse = ", ")
     )
   )
-  assert_that(any(use_dim %in% c("row", "col")),
+  assertthat::assert_that(any(use_dim %in% c("row", "col")),
     msg = paste(
       paste0("'", use_dim, "'"), "is not a valid option. Please use one of",
       paste(c("row", "col"), collapse = ", ")
     )
   )
-  assert_that(any(fill_na %in% c("mean", "median", "zero")),
+  assertthat::assert_that(any(fill_na %in% c("mean", "median", "zero")),
     msg = paste(
       paste0("'", fill_na, "'"), "is not a valid option. Please use one of",
       paste(c("mean", "median", "zero"), collapse = ", ")
     )
   )
-  assert_that(any(cluster_method %in% c("hclust", "kmeans", "Mclust")),
+  assertthat::assert_that(any(cluster_method %in% c("hclust", "kmeans", "Mclust")),
     msg = paste(
       paste0("'", cluster_method, "'"), "is not a valid method. Please use one of",
       paste(c("hclust", "kmeans", "Mclust"), collapse = ", ")
