@@ -33,19 +33,19 @@ create_scmp <- function(counts,
                         path_col,
                         use_as_bin = FALSE) {
   # Validation Checks
-  assert_that(ncol(counts) == nrow(cell_data),
+  assertthat::assert_that(ncol(counts) == nrow(cell_data),
     msg = paste("Number of cells in raw-counts and cell-level-metadata are different.")
   )
 
-  assert_that(all(colnames(counts) == rownames(cell_data)),
+  assertthat::assert_that(all(colnames(counts) == rownames(cell_data)),
     msg = paste("Rownames of raw-counts and cell-level-metadata are different.")
   )
 
   if (!is.null(bin_counts) || !is.null(bin_cell_data)) {
-    assert_that(nrow(bin_counts) == nrow(bin_cell_data),
+    assertthat::assert_that(nrow(bin_counts) == nrow(bin_cell_data),
       msg = paste("Number of cells in bin_counts and bin_cell_data are different.")
     )
-    assert_that(all(rownames(bin_counts) == rownames(bin_cell_data)),
+    assertthat::assert_that(all(rownames(bin_counts) == rownames(bin_cell_data)),
       msg = paste("Rownames of bin_counts and bin_cell_data are different.")
     )
   }
