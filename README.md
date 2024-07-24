@@ -114,4 +114,6 @@ This project has received funding from the European Union’s Framework Programm
 ## Citation
 If you use `scMaSigPro` in your research, please cite:
 
+Priyansh Srivastava, Marta Benegas Coll, Stefan Götz, María José Nueda, Ana Conesa, scMaSigPro: Differential Expression Analysis along Single-Cell Trajectories, Bioinformatics, 2024;, btae443, [https://doi.org/10.1093/bioinformatics/btae443](https://doi.org/10.1093/bioinformatics/btae443)
+
 ---

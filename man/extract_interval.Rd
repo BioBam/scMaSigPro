@@ -15,9 +15,9 @@ extract_interval(time.vector, nBins = 1, bin, bin.size, lbound, ubound)
 
 \item{bin.size}{Column name for the bin size column.}
 
-\item{lbond}{Column name for the lower bound column.}
+\item{lbound}{Column name for the lower bound column.}
 
-\item{ubond}{Column name for the upper bound column.}
+\item{ubound}{Column name for the upper bound column.}
 }
 \description{
 Extract Intervals

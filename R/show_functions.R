@@ -431,10 +431,10 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
   cat(paste0("nCells: ", ncol(object@Sparse), "\n"))
   cat(paste0("nFeatures: ", nrow(object@Sparse), "\n"))
   cat("Pseudotime Range:", paste(round(
-    range(colData(object@Sparse)[[object@Parameters@ptime_col]]), 3
+    range(SingleCellExperiment::colData(object@Sparse)[[object@Parameters@ptime_col]]), 3
   )))
   cat(paste("\nBranching Paths:", paste(
-    unique(colData(object@Sparse)[[object@Parameters@path_col]]),
+    unique(SingleCellExperiment::colData(object@Sparse)[[object@Parameters@path_col]]),
     collapse = ", "
   )))
 

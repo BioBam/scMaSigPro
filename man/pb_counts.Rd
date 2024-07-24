@@ -49,4 +49,3 @@ each row is a gene and each column is a bin.
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
-\keyword{internal}

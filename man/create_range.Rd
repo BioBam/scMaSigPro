@@ -18,6 +18,12 @@ create_range(
   \item{bin_size}{A numeric column representing the bin size.}
   \item{binned_time}{A numeric column representing the binned time.}
 }}
+
+\item{bin_size_colname}{The name of the column containing the bin size.}
+
+\item{bin_col}{The name of the column containing the bin intervals.}
+
+\item{verbose}{Logical; if TRUE, prints detailed output.}
 }
 \value{
 A numeric vector containing four elements:

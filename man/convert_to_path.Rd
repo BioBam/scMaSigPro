@@ -11,6 +11,8 @@ convert_to_path(vec, path_prefix, root_label)
 might contain the value "root".}
 
 \item{path_prefix}{Prefix used to annoate the paths, default is "Path".}
+
+\item{root_label}{The label for the root element, default is "root".}
 }
 \value{
 A character vector with the same length as the input where

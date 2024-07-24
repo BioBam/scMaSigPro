@@ -31,14 +31,9 @@ plotBinTile <- function(scmpObj,
   # Check whether the compression data exist or not
   compression.info <- as.data.frame(colData(scmpObj@Dense))
 
-  # Check for extended data
-  if (nrow(compression.info) < 1) {
-    compression.info <- as.data.frame(colData(scmpObj@Sparse))
-  }
-
   # Check if values are binned
-  assert_that(nrow(compression.info) >= 1,
-    msg = "Please run 'sc.squeeze()' first."
+  assert_that(nrow(as.data.frame(colData(scmpObj@Dense))) >= 1,
+    msg = "No binning information found. Please run 'sc.squeeze()', first."
   )
 
   # get conesa colors
