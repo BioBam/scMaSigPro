@@ -7,7 +7,6 @@
 #' \pkg{SingleCellExperiment} package.
 #'
 #' @importFrom SingleCellExperiment colData
-#' @importFrom assertthat assert_that
 #'
 #' @param sce A `SingleCellExperiment` object to be annotated.
 #' @param ptime_col A character string representing the column name

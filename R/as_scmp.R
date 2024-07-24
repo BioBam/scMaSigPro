@@ -6,7 +6,6 @@
 #' SingleCellExperiment #' object to an instance of the scmpClass object.
 #'
 #' @importFrom SingleCellExperiment SingleCellExperiment
-#' @importFrom assertthat assert_that
 #'
 #' @param object An S4 object of class `cds/CellDataSet` or `SingleCellExperiment`.
 #' @param from Character string specifying the class of 'object'. Use "cds" for

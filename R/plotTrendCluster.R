@@ -52,11 +52,11 @@ plotTrendCluster <- function(scmpObj,
   offset_vector <- scmpObj@Design@offset
 
   # Check
-  assert_that(!isEmpty(scmpObj@Significant@clusters),
+  assertthat::assert_that(!isEmpty(scmpObj@Significant@clusters),
     msg = "Please run 'sc.cluster.trend', before plotting cluster trends"
   )
 
-  assert_that(any(plot %in% c("coeff", "counts")),
+  assertthat::assert_that(any(plot %in% c("coeff", "counts")),
     msg = paste(
       paste0("'", plot, "'"), "is not a valid option. Please use one of",
       paste(c("coeff", "counts"), collapse = ", ")

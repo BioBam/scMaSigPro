@@ -511,12 +511,12 @@ pb_counts <- function(scmpObj,
                       assay_name = "counts",
                       cluster_count_by = "sum") {
   # Check Object Validity
-  assert_that(is(scmpObj, "ScMaSigPro"),
+  assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'scMaSigPro'."
   )
 
   # Count slot
-  assert_that(
+  assertthat::assert_that(
     all(
       assay_name %in% names(scmpObj@Sparse@assays@data@listData)
     ),
@@ -529,10 +529,10 @@ pb_counts <- function(scmpObj,
   # Get Pseudobulk Profile
   pseudo_bulk_profile <- as.data.frame(colData(scmpObj@Dense))
 
-  assert_that(bin_mem_col %in% colnames(pseudo_bulk_profile),
+  assertthat::assert_that(bin_mem_col %in% colnames(pseudo_bulk_profile),
     msg = paste0("'", bin_mem_col, "' does not exist in level.meta.data")
   )
-  assert_that(bin_col %in% colnames(pseudo_bulk_profile),
+  assertthat::assert_that(bin_col %in% colnames(pseudo_bulk_profile),
     msg = paste0("'", bin_col, "' does not exist in level.meta.data")
   )
 
