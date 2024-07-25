@@ -28,7 +28,6 @@ Suggests:
     knitr,
     rmarkdown,
     BiocStyle,
-    ComplexUpset,
     UpSetR,
     ggpubr
 Config/testthat/edition: 3
