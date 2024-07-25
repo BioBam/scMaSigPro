@@ -16,7 +16,8 @@
 #' @param keep_empty_groups Whether empty sets should be kept (including sets
 #' which are only empty after filtering by size)
 #' @param show_sets_size The overall set sizes plot, e.g. from upset_set_size()
-#' @param verbose Print detailed output in the console. (Default is TRUE)
+#' @param return If set to true, it will return dataframe from the UpSetR::fromList().
+#' (Default is TRUE)
 #'
 #' @return upset object for 'UpSetR'.
 #'
@@ -28,7 +29,7 @@ plotIntersect <- function(scmpObj,
                           keep_empty_groups = FALSE,
                           width_ratio = 0.1,
                           show_sets_size = FALSE,
-                          verbose = TRUE) {
+                          return = FALSE) {
   # Debug
   # scmpObj <- multi_scmp_ob
   # min_intersection_size <- 2
@@ -55,23 +56,27 @@ plotIntersect <- function(scmpObj,
   gene_list <- scmpObj@Significant@genes
 
   # Create list object
-  upset_r_gene_list <- UpSetR::fromList(gene_list)
+  upset_r_gene_list <- fromListWithNames(gene_list)
 
-  # Create Plot
-  p <- UpSetR::upset(
-    upset_r_gene_list,
-    main.bar.color = "#F58A53",
-    matrix.color = "#15918A",
-    line.size = 1.5,
-    cutoff = min_intersection_size,
-    empty.intersections = keep_empty_groups,
-    point.size = 3,
-    shade.color = "purple",
-    text.scale = 1.5,
-    sets.x.label = "Number of Features",
-    sets.bar.color = "#EE446F",
-    keep.order = TRUE,
-    order.by = "freq"
-  )
-  return(p)
+  if (return) {
+    return(as.data.frame(upset_r_gene_list))
+  } else {
+    # Create Plot
+    p <- UpSetR::upset(
+      upset_r_gene_list,
+      main.bar.color = "#F58A53",
+      matrix.color = "#15918A",
+      line.size = 1.5,
+      cutoff = min_intersection_size,
+      empty.intersections = keep_empty_groups,
+      point.size = 3,
+      shade.color = "purple",
+      text.scale = 1.5,
+      sets.x.label = "Number of Features",
+      sets.bar.color = "#EE446F",
+      keep.order = TRUE,
+      order.by = "freq"
+    )
+    return(p)
+  }
 }

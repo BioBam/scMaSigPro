@@ -20,6 +20,9 @@
 #' \code{scMaSigPro::sc.filter()}. (Default is TRUE)
 #' @param summary_mode Compress the expression values per replicate (if present)
 #'  per binned pseudotime point. Default is 'median'. Other option 'mean'
+#' @param curves Whether to plot the fitted curves. (Default is TRUE)
+#' @param lines Whether to plot the lines. (Default is FALSE)
+#' @param points Whether to plot the points. (Default is TRUE)
 #'
 #' @return ggplot2 plot object.
 #'
@@ -35,7 +38,10 @@ plotTrend <- function(scmpObj,
                       logType = "log",
                       pseudoCount = 1,
                       significant = TRUE,
-                      summary_mode = "median") {
+                      summary_mode = "median",
+                      curves = TRUE,
+                      lines = FALSE,
+                      points = TRUE) {
   # Invoke Variables
   pb.counts <- "pb.counts"
   pooled.time <- "pooled.time"
@@ -51,6 +57,9 @@ plotTrend <- function(scmpObj,
       paste(c("median", "mean"), collapse = ", ")
     )
   )
+
+  # Check Assertion
+  assertthat::assert_that(curves || lines || points, msg = "At least one of 'curves', 'lines', or 'points' must be TRUE.")
 
   # Extract edisgn
   alloc.frame <- scmpObj@Design@assignment_matrix %>% as.data.frame()
@@ -188,16 +197,25 @@ plotTrend <- function(scmpObj,
 
   # Plot
   p <- ggplot() +
-    geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.5, size = 2, stroke = 1, shape = 21) +
-    geom_line(data = line.df, aes(x = pooled.time, y = pb.counts, color = path), linetype = "solid", linewidth = 1, alpha = 0.7) +
-    geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "dashed", linewidth = 1, alpha = 0.7) +
     ggtitle(
       paste("Feature Id:", feature_id),
       subtitle = paste("R2:", round(data.sol[, 2], 3), "| p-Value:", round(data.sol[, 1], 3))
     ) +
     xlab(xlab) +
-    ylab(ylab) +
-    theme_classic(base_size = 12) +
+    ylab(ylab)
+
+  if (points) {
+    p <- p + geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.2, size = 1.5, stroke = 1, shape = 21)
+  }
+  if (lines) {
+    p <- p + geom_line(data = line.df, aes(x = pooled.time, y = pb.counts, color = path), linetype = "dashed", linewidth = 0.5, alpha = 0.7)
+  }
+  if (curves) {
+    p <- p + geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "solid", linewidth = 0.7, alpha = 0.7)
+  }
+
+
+  p <- p + theme_classic(base_size = 12) +
     theme(
       legend.position = "bottom",
       panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
@@ -207,6 +225,5 @@ plotTrend <- function(scmpObj,
     labs(color = "Paths") +
     # coord_cartesian(xlim = xlim, ylim = ylim) +
     scale_color_manual(values = conesa_colors)
-  #
   return(p)
 }

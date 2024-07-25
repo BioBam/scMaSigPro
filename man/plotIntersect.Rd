@@ -6,11 +6,11 @@
 \usage{
 plotIntersect(
   scmpObj,
-  min_intersection_size = 2,
-  keep_empty_groups = TRUE,
+  min_intersection_size = 1,
+  keep_empty_groups = FALSE,
   width_ratio = 0.1,
   show_sets_size = FALSE,
-  verbose = TRUE
+  return = FALSE
 )
 }
 \arguments{
@@ -27,7 +27,8 @@ width.}
 
 \item{show_sets_size}{The overall set sizes plot, e.g. from upset_set_size()}
 
-\item{verbose}{Print detailed output in the console. (Default is TRUE)}
+\item{return}{If set to true, it will return dataframe from the UpSetR::fromList().
+(Default is TRUE)}
 }
 \value{
 upset object for 'UpSetR'.

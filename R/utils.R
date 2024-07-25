@@ -52,3 +52,39 @@ clean_string <- function(input_string, action = c("check", "remove")) {
     return(processed_string)
   }
 }
+
+
+#' Convert List of Named Vectors to Data Frame with Row Names for UpSetR
+#'
+#' This function converts a list of named vectors to a data frame compatible with UpSetR,
+#' retaining the row names corresponding to the unique elements (genes) present in the input list.
+#'
+#' @param input A list of named vectors to be converted to a data frame compatible with UpSetR.
+#'
+#' @return A data frame with binary values indicating the presence (1) or absence (0) of each element
+#' in the sets, and row names corresponding to the unique elements.
+#'
+#' @keywords internal
+fromListWithNames <- function(input) {
+  # Get unique elements (genes)
+  elements <- unique(unlist(input))
+
+  # Create binary matrix
+  data <- unlist(lapply(input, function(x) {
+    x <- as.vector(match(elements, x))
+  }))
+  data[is.na(data)] <- as.integer(0)
+  data[data != 0] <- as.integer(1)
+  data <- data.frame(matrix(data, ncol = length(input), byrow = FALSE))
+
+  # Filter out rows with no data
+  data <- data[which(rowSums(data) != 0), ]
+
+  # Set column names
+  names(data) <- names(input)
+
+  # Set row names
+  rownames(data) <- elements[which(rowSums(data) != 0)]
+
+  return(data)
+}
