@@ -5,7 +5,7 @@
 #' from the full polynomial model. This function is succeeded by
 #' \code{scMaSigPro::sc.p.vector()}.
 #'
-#' @importFrom maSigPro position reg.coeffs
+#' @importFrom maSigPro reg.coeffs
 #' @importFrom stats influence.measures
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
@@ -53,6 +53,21 @@ sc.t.fit <- function(scmpObj,
                      log_offset = scmpObj@Parameters@log_offset,
                      max_it = scmpObj@Parameters@max_it,
                      link = scmpObj@Parameters@link) {
+  # Debugging
+  # scmpObj <- multi_scmp_ob
+  # selection_method <- "backward"
+  # p_value <- scmpObj@Parameters@p_value
+  # nvar_correction <- FALSE
+  # family <- scmpObj@Parameters@distribution
+  # epsilon <- scmpObj@Parameters@epsilon
+  # offset <- scmpObj@Parameters@offset
+  # verbose <- TRUE
+  # parallel <- FALSE
+  # n_cores <- availableCores() - 2
+  # log_offset <- scmpObj@Parameters@log_offset
+  # max_it <- scmpObj@Parameters@max_it
+  # link <- scmpObj@Parameters@link
+
   assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'ScMaSigPro'"
   )
@@ -204,6 +219,7 @@ sc.t.fit <- function(scmpObj,
           weights = weights_lapply,
           maxit = max_it_lapply
         )
+
         if (parallel == FALSE) {
           if (verbose_lapply) {
             if (verbose_lapply) {
@@ -227,6 +243,7 @@ sc.t.fit <- function(scmpObj,
       },
       mc.cores = numCores, mc.set.seed = 2023
     )
+
     # })
   } else if (selection_method == "forward") {
     result_list <- parallel::mclapply(names(y_input),

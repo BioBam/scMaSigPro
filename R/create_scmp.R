@@ -50,6 +50,16 @@ create_scmp <- function(counts,
     )
   }
 
+  # Validate if path_col is present in cell_data
+  assertthat::assert_that(path_col %in% colnames(cell_data),
+    msg = paste("Column name '", path_col, "' not found in cell_data.")
+  )
+
+  # Validate if ptime_col is present in cell_data
+  assertthat::assert_that(ptime_col %in% colnames(cell_data),
+    msg = paste("Column name '", ptime_col, "' not found in cell_data.")
+  )
+
   # Create Single-Cell Experiment Object
   sparse_tmp <- SingleCellExperiment(
     list(counts = counts),
@@ -61,7 +71,7 @@ create_scmp <- function(counts,
     Sparse = sparse_tmp,
     Dense = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
   )
-  sparse_tmp <- NULL
+  rm(sparse_tmp)
 
   # Use as bin
   if (use_as_bin) {
@@ -76,7 +86,7 @@ create_scmp <- function(counts,
 
     # Transfer Data
     scmpObj@Dense <- sparse_tmp
-    sparse_tmp <- NULL
+    rm(sparse_tmp)
 
     # Update the slots
     scmpObj@Parameters@bin_ptime_col <- ptime_col
