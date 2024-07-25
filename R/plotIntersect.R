@@ -24,11 +24,19 @@
 #'
 #' @export
 plotIntersect <- function(scmpObj,
-                          min_intersection_size = 2,
-                          keep_empty_groups = TRUE,
+                          min_intersection_size = 1,
+                          keep_empty_groups = FALSE,
                           width_ratio = 0.1,
                           show_sets_size = FALSE,
                           verbose = TRUE) {
+  # Debug
+  # scmpObj <- multi_scmp_ob
+  # min_intersection_size <- 2
+  # keep_empty_groups <- FALSE
+  # width_ratio <- 0.1
+  # show_sets_size <- FALSE
+  # verbose <- TRUE
+
   # Check the data
   assertthat::assert_that(
     is(scmpObj, "ScMaSigPro"),
@@ -40,13 +48,8 @@ plotIntersect <- function(scmpObj,
     msg = "'sig.genes@Summary' slot is empty, please run 'sc.get.siggenes'"
   )
 
-  # Check if package is installed
-  if (!requireNamespace(package, quietly = TRUE)) {
-    stop(paste0("Package '", package, "' is not installed. Please install it first."))
-  } else {
-    if (verbose) {
-      message(paste0("Using '", package, "' for UpSet plot."))
-    }
+  if (!keep_empty_groups) {
+    keep_empty_groups <- NULL
   }
 
   gene_list <- scmpObj@Significant@genes
@@ -66,7 +69,9 @@ plotIntersect <- function(scmpObj,
     shade.color = "purple",
     text.scale = 1.5,
     sets.x.label = "Number of Features",
-    sets.bar.color = "#EE446F"
+    sets.bar.color = "#EE446F",
+    keep.order = TRUE,
+    order.by = "freq"
   )
   return(p)
 }
