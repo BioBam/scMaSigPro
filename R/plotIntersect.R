@@ -5,7 +5,6 @@
 #' object. It is a wrapper `UpSetR::upset`.
 #'
 #' @importFrom S4Vectors isEmpty
-#' @importFrom RColorConesa colorConesa
 #' @importFrom utils packageVersion
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.

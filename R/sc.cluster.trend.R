@@ -6,7 +6,6 @@
 #'
 #' @import ggplot2
 #' @importFrom stats complete.cases cutree hclust
-#' @importFrom RColorConesa getConesaColors
 #' @importFrom mclust Mclust
 #' @importFrom stats as.dist cor kmeans
 #'

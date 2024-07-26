@@ -4,7 +4,6 @@
 #' Plot trend of the single gene across the binned pseudotime.
 #'
 #' @import ggplot2
-#' @importFrom RColorConesa getConesaColors
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param feature_id Name of the gene to be plotted.
@@ -168,8 +167,8 @@ plotTrend <- function(scmpObj,
 
   xlim[2] <- max(points.df[[pooled.time]])
 
-  conesa_colors <- RColorConesa::getConesaColors()[c(TRUE, FALSE)][c(1:length(unique(points.df[[path]])))]
-  names(conesa_colors) <- unique(points.df[[path]])
+  scmp_pal <- scmp_colors(n = length(path.names))
+  names(scmp_pal) <- unique(points.df[[path]])
 
   # Extract sol
   data.sol <- showSol(scmpObj, view = FALSE, return = TRUE)
@@ -226,17 +225,17 @@ plotTrend <- function(scmpObj,
   names(p$layers) <- layer_names
 
   if (points) {
-    p <- p + geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.2, size = 1.5, stroke = 1, shape = 21)
+    p <- p + geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.4, size = 1.5, stroke = 1, shape = 21)
     layer_names <- c(layer_names, "points")
     names(p$layers) <- layer_names
   }
   if (lines) {
-    p <- p + geom_line(data = line.df, aes(x = pooled.time, y = pb.counts, color = path), linetype = "dashed", linewidth = 0.5, alpha = 0.7)
+    p <- p + geom_line(data = line.df, aes(x = pooled.time, y = pb.counts, color = path), linetype = "dashed", linewidth = 0.6, alpha = 0.7)
     layer_names <- c(layer_names, "lines")
     names(p$layers) <- layer_names
   }
   if (curves) {
-    p <- p + geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "solid", linewidth = 0.7, alpha = 0.7)
+    p <- p + geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "solid", linewidth = 0.7, alpha = 0.8)
     layer_names <- c(layer_names, "curves")
     names(p$layers) <- layer_names
   }
@@ -251,6 +250,6 @@ plotTrend <- function(scmpObj,
     scale_x_continuous(breaks = seq(min(xlim), max(xlim), by = round(log10(length(points.df[[pooled.time]]))))) +
     labs(color = "Paths") +
     # coord_cartesian(xlim = xlim, ylim = ylim) +
-    scale_color_manual(values = conesa_colors)
+    scale_color_manual(values = scmp_pal)
   return(p)
 }

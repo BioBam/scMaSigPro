@@ -36,10 +36,6 @@ plotBinTile <- function(scmpObj,
     msg = "No binning information found. Please run 'sc.squeeze()', first."
   )
 
-  # get conesa colors
-  conesa_colors <- getConesaColors()[c(TRUE, FALSE)][c(1:length(unique(compression.info[[path_col]])))]
-  names(conesa_colors) <- unique(unique(compression.info[[path_col]]))
-
   # Create plot data
   plt.data <- data.frame(
     pTime = as.factor(compression.info[[bin_ptime_col]]),

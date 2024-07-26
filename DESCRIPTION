@@ -15,9 +15,8 @@ Description: scMaSigPro is a polynomial regression-based approach inspired by
 License: GPL (>= 2)
 Imports:
     assertthat, e1071, dplyr, entropy, ggplot2, igraph, magrittr, maSigPro,
-    MASS, MatrixGenerics, methods, parallel, parallelly, plotly, RColorConesa,
-    rlang, S4Vectors, scales, shiny, SingleCellExperiment, stats, stringr,
-    utils, mclust
+    MASS, MatrixGenerics, methods, parallel, parallelly, plotly, rlang, 
+    S4Vectors, scales, shiny, SingleCellExperiment, stats, stringr, utils, mclust
 Depends: R (>= 4.0)
 Encoding: UTF-8
 LazyData: true

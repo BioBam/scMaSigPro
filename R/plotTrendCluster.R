@@ -5,7 +5,6 @@
 #'
 #' @import ggplot2
 #' @importFrom stats complete.cases cutree hclust
-#' @importFrom RColorConesa getConesaColors
 #' @importFrom mclust Mclust
 #' @importFrom stats as.dist cor kmeans
 #'
@@ -388,7 +387,7 @@ plotTrendCluster <- function(scmpObj,
   }
 
   p <- p + facet_wrap(~ .data$cluster, scales = "free_y") + # Create a panel for each cluster_id
-    scale_color_manual(values = RColorConesa::colorConesa(length(unique(cDense(scmpObj)[[scmpObj@Parameters@path_col]])))) + # Custom colors for paths
+    scale_color_manual(values = scmp_colors(length(unique(cDense(scmpObj)[[scmpObj@Parameters@path_col]])))) + # Custom colors for paths
     theme_classic(base_size = 10) +
     theme(
       strip.background = element_blank(),

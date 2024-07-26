@@ -88,3 +88,29 @@ fromListWithNames <- function(input) {
 
   return(data)
 }
+
+#' Get Color Palette
+#'
+#' This function returns a specified number of contrasting colors from a predefined palette.
+#' If the requested number of colors exceeds the length of the predefined palette,
+#' additional unique colors from the default R color set are included.
+#'
+#' @param n An integer specifying the number of colors to return.
+#'
+#' @return A character vector of hex color codes.
+#'
+#' @keywords internal
+scmp_colors <- function(n) {
+  # Define Palette
+  ten_pal <- c("#d95f02", "#4daf4a", "#377eb8", "#E69F00", "#f781bf", "#56B4E9", "#a65628", "#009E73", "#7570b3")
+  extra_pal <- unique(grDevices::colors(distinct = TRUE))
+  extra_pal <- extra_pal[grep("^[a-zA-Z]+$", extra_pal)]
+  extra_pal <- extra_pal[c(2:length(extra_pal))]
+  extra_pal <- extra_pal[!extra_pal %in% ten_pal]
+
+  if (n <= 9) {
+    return(ten_pal[1:n])
+  } else {
+    return(c(ten_pal, extra_pal[1:(n - 9)]))
+  }
+}
