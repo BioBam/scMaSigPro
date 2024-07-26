@@ -42,6 +42,25 @@ plotTrend <- function(scmpObj,
                       curves = TRUE,
                       lines = FALSE,
                       points = TRUE) {
+  # Debugg
+  # scmpObj  <- multi_scmp_ob_A
+  # feature_id <- gene_br_Y_18[1]
+  # xlab  <-  "Pooled Pseudotime"
+  # ylab  <-  "Pseudobulk Expression"
+  # plot  <-  "counts"
+  # summary_mode  <-  "median"
+  # logs  <-  FALSE
+  # logType  <-  "log"
+  # smoothness  <-  1
+  # includeInflu <- TRUE
+  # verbose  <-  TRUE
+  # pseudoCount  <-  1
+  # significant  <-  FALSE
+  # curves  <-  TRUE
+  # lines  <-  FALSE
+  # points  <-  TRUE
+  # parallel  <-  FALSE
+
   # Invoke Variables
   pb.counts <- "pb.counts"
   pooled.time <- "pooled.time"
@@ -115,7 +134,7 @@ plotTrend <- function(scmpObj,
   # stop()
   for (i in path.names) {
     # Extract Coeff
-    a <- reg.coeffs(
+    a <- maSigPro::reg.coeffs(
       coefficients = betas,
       groups.vector = groups.vector,
       group = i
@@ -149,7 +168,7 @@ plotTrend <- function(scmpObj,
 
   xlim[2] <- max(points.df[[pooled.time]])
 
-  conesa_colors <- getConesaColors()[c(TRUE, FALSE)][c(1:length(unique(points.df[[path]])))]
+  conesa_colors <- RColorConesa::getConesaColors()[c(TRUE, FALSE)][c(1:length(unique(points.df[[path]])))]
   names(conesa_colors) <- unique(points.df[[path]])
 
   # Extract sol
@@ -183,12 +202,12 @@ plotTrend <- function(scmpObj,
   # Apply Summary Operation
   if (summary_mode == "mean") {
     line.df <- line.df %>%
-      group_by(pooled.time, path) %>%
-      summarize(pb.counts = mean(pb.counts), .groups = "drop")
+      dplyr::group_by(pooled.time, path) %>%
+      dplyr::summarize(pb.counts = mean(pb.counts), .groups = "drop")
   } else if (summary_mode == "median") {
     line.df <- line.df %>%
-      group_by(pooled.time, path) %>%
-      summarize(pb.counts = median(pb.counts), .groups = "drop")
+      dplyr::group_by(pooled.time, path) %>%
+      dplyr::summarize(pb.counts = median(pb.counts), .groups = "drop")
   }
 
   if (sum(offset_vector) != 0) {
@@ -196,6 +215,7 @@ plotTrend <- function(scmpObj,
   }
 
   # Plot
+  layer_names <- c(NULL)
   p <- ggplot() +
     ggtitle(
       paste("Feature Id:", feature_id),
@@ -203,15 +223,22 @@ plotTrend <- function(scmpObj,
     ) +
     xlab(xlab) +
     ylab(ylab)
+  names(p$layers) <- layer_names
 
   if (points) {
     p <- p + geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.2, size = 1.5, stroke = 1, shape = 21)
+    layer_names <- c(layer_names, "points")
+    names(p$layers) <- layer_names
   }
   if (lines) {
     p <- p + geom_line(data = line.df, aes(x = pooled.time, y = pb.counts, color = path), linetype = "dashed", linewidth = 0.5, alpha = 0.7)
+    layer_names <- c(layer_names, "lines")
+    names(p$layers) <- layer_names
   }
   if (curves) {
     p <- p + geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "solid", linewidth = 0.7, alpha = 0.7)
+    layer_names <- c(layer_names, "curves")
+    names(p$layers) <- layer_names
   }
 
 

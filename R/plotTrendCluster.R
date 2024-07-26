@@ -29,6 +29,9 @@
 #' @param summary_mode Compress the expression values per replicate (if present)
 #'  per binned pseudotime point. Default is 'median'. Other option 'mean'
 #' @param pseudoCount Add a pseudo-count before taking the log. (Default is 1)
+#' @param curves Whether to plot the fitted curves. (Default is TRUE)
+#' @param lines Whether to plot the lines. (Default is FALSE)
+#' @param points Whether to plot the points. (Default is TRUE)
 #'
 #' @return ggplot2 plot object.
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
@@ -44,7 +47,29 @@ plotTrendCluster <- function(scmpObj,
                              verbose = TRUE,
                              pseudoCount = 1,
                              significant = FALSE,
+                             curves = TRUE,
+                             lines = FALSE,
+                             points = TRUE,
                              parallel = FALSE) {
+  # Debugg
+  scmpObj <- multi_scmp_ob_A
+  xlab <- "Pooled Pseudotime"
+  ylab <- "Pseudobulk Expression"
+  plot <- "counts"
+  summary_mode <- "median"
+  logs <- FALSE
+  logType <- "log"
+  smoothness <- 1
+  includeInflu <- TRUE
+  verbose <- TRUE
+  pseudoCount <- 1
+  significant <- FALSE
+  curves <- TRUE
+  lines <- FALSE
+  points <- TRUE
+  parallel <- FALSE
+
+
   # Global vars
   scmp_clusters <- "scmp_clusters"
   feature_id <- "feature_id"
@@ -55,6 +80,9 @@ plotTrendCluster <- function(scmpObj,
   assertthat::assert_that(!isEmpty(scmpObj@Significant@clusters),
     msg = "Please run 'sc.cluster.trend', before plotting cluster trends"
   )
+
+  # Check Assertion
+  assertthat::assert_that(curves || lines || points, msg = "At least one of 'curves', 'lines', or 'points' must be TRUE.")
 
   assertthat::assert_that(any(plot %in% c("coeff", "counts")),
     msg = paste(
@@ -93,7 +121,10 @@ plotTrendCluster <- function(scmpObj,
                                                                              log = logs, log_type = logType,
                                                                              pCount = pseudoCount,
                                                                              sig = significant,
-                                                                             summary = summary_mode) {
+                                                                             summary = summary_mode,
+                                                                             c = curves,
+                                                                             l = lines,
+                                                                             p = points) {
     # Run per genes
     plt <- tryCatch(
       {
@@ -106,6 +137,9 @@ plotTrendCluster <- function(scmpObj,
           pseudoCount = pCount,
           significant = sig,
           summary_mode = summary,
+          curves = c,
+          lines = l,
+          points = p
         )
         return(plt)
       },
@@ -130,16 +164,27 @@ plotTrendCluster <- function(scmpObj,
   plt.list <- Filter(Negate(is.null), all.plt.list)
 
   # Start Traversing
-  data.list <- lapply(plt.list, function(gene_i.plot) {
-    # Extract layers
-    point.data <- gene_i.plot$layers[[1]][["data"]]
-    line.data <- gene_i.plot$layers[[2]][["data"]]
-    curve.data <- gene_i.plot$layers[[3]][["data"]]
+  data.list <- lapply(plt.list, function(gene_i.plot,
+                                         c = curves,
+                                         l = lines,
+                                         p = points) {
+    point.data <- NULL
+    line.data <- NULL
+    curve.data <- NULL
 
-    # Set columns
-    colnames(point.data) <- c("x_axis", "y_axis", "group")
-    colnames(line.data) <- c("x_axis", "group", "y_axis")
-    colnames(curve.data) <- c("x_axis", "y_axis", "group")
+    # Extract layers
+    if (c) {
+      curve.data <- gene_i.plot$layers[[3]][["data"]]
+      colnames(curve.data) <- c("x_axis", "y_axis", "group")
+    }
+    if (l) {
+      line.data <- gene_i.plot$layers[[2]][["data"]]
+      colnames(line.data) <- c("x_axis", "group", "y_axis")
+    }
+    if (p) {
+      point.data <- gene_i.plot$layers[[1]][["data"]]
+      colnames(point.data) <- c("x_axis", "y_axis", "group")
+    }
 
     return(list(
       points = point.data,
@@ -153,7 +198,10 @@ plotTrendCluster <- function(scmpObj,
                                                                                  gene_cluster_df = gene.cluster.df,
                                                                                  cluster = scmp_clusters,
                                                                                  feature = feature_id,
-                                                                                 data_list = data.list) {
+                                                                                 data_list = data.list,
+                                                                                 c = curves,
+                                                                                 l = lines,
+                                                                                 p = points) {
     # Get gene names with same cluster
     gene_set <- gene_cluster_df[gene_cluster_df[[cluster]] == clus, , drop = FALSE][[feature]]
 
@@ -169,44 +217,66 @@ plotTrendCluster <- function(scmpObj,
   # Df list
   collapsed.df <- lapply(cluster.data.list, function(clus_i.list,
                                                      summary = summary_mode) {
-    # Extract Sub.list
-    line.list <- lapply(clus_i.list, function(line) {
-      return(line[["line"]])
-    })
-    point.list <- lapply(clus_i.list, function(line) {
-      return(line[["points"]])
-    })
-    curve.list <- lapply(clus_i.list, function(line) {
-      return(line[["curve"]])
-    })
+    point.df <- NULL
+    line.df <- NULL
+    curve.df <- NULL
+    # Define a summarization function
+    summarize_data <- function(data, summary) {
+      summarization_func <- ifelse(summary == "mean", mean, median)
 
-    # Collapse to Dataframe
-    line.df <- do.call("rbind", line.list)
-    point.df <- do.call("rbind", point.list)
-    curve.df <- do.call("rbind", curve.list)
-
-    # Grouping and summarizing with .data pronoun
-    if (summary == "mean") {
-      line.df <- line.df %>%
+      data %>%
         group_by(.data$x_axis, .data$group) %>%
-        summarize(y_axis = mean(.data$y_axis, na.rm = TRUE), .groups = "drop")
-      point.df <- point.df %>%
-        group_by(.data$x_axis, .data$group) %>%
-        summarize(y_axis = mean(.data$y_axis, na.rm = TRUE), .groups = "drop")
-      curve.df <- curve.df %>%
-        group_by(.data$x_axis, .data$group) %>%
-        summarize(y_axis = mean(.data$y_axis, na.rm = TRUE), .groups = "drop")
-    } else if (summary == "median") {
-      line.df <- line.df %>%
-        group_by(.data$x_axis, .data$group) %>%
-        summarize(y_axis = median(.data$y_axis, na.rm = TRUE), .groups = "drop")
-      point.df <- point.df %>%
-        group_by(.data$x_axis, .data$group) %>%
-        summarize(y_axis = median(.data$y_axis, na.rm = TRUE), .groups = "drop")
-      curve.df <- curve.df %>%
-        group_by(.data$x_axis, .data$group) %>%
-        summarize(y_axis = median(.data$y_axis, na.rm = TRUE), .groups = "drop")
+        summarize(y_axis = summarization_func(.data$y_axis, na.rm = TRUE), .groups = "drop")
     }
+
+    if (l) {
+      # Extract Sub.list
+      line.list <- lapply(clus_i.list, function(line) {
+        return(line[["line"]])
+      })
+      line.df <- do.call("rbind", line.list)
+      line.df <- summarize_data(line.df, summary)
+    }
+
+    if (p) {
+      point.list <- lapply(clus_i.list, function(line) {
+        return(line[["points"]])
+      })
+      point.df <- do.call("rbind", point.list)
+      point.df <- summarize_data(point.df, summary)
+    }
+    if (c) {
+      curve.list <- lapply(clus_i.list, function(line) {
+        return(line[["curve"]])
+      })
+      curve.df <- do.call("rbind", curve.list)
+      curve.df <- summarize_data(curve.df, summary)
+    }
+
+
+
+    # # Grouping and summarizing with .data pronoun
+    # if (summary == "mean") {
+    #   line.df <- line.df %>%
+    #     group_by(.data$x_axis, .data$group) %>%
+    #     summarize(y_axis = mean(.data$y_axis, na.rm = TRUE), .groups = "drop")
+    #   point.df <- point.df %>%
+    #     group_by(.data$x_axis, .data$group) %>%
+    #     summarize(y_axis = mean(.data$y_axis, na.rm = TRUE), .groups = "drop")
+    #   curve.df <- curve.df %>%
+    #     group_by(.data$x_axis, .data$group) %>%
+    #     summarize(y_axis = mean(.data$y_axis, na.rm = TRUE), .groups = "drop")
+    # } else if (summary == "median") {
+    #   line.df <- line.df %>%
+    #     group_by(.data$x_axis, .data$group) %>%
+    #     summarize(y_axis = median(.data$y_axis, na.rm = TRUE), .groups = "drop")
+    #   point.df <- point.df %>%
+    #     group_by(.data$x_axis, .data$group) %>%
+    #     summarize(y_axis = median(.data$y_axis, na.rm = TRUE), .groups = "drop")
+    #   curve.df <- curve.df %>%
+    #     group_by(.data$x_axis, .data$group) %>%
+    #     summarize(y_axis = median(.data$y_axis, na.rm = TRUE), .groups = "drop")
+    # }
 
     return(list(
       points = point.df,

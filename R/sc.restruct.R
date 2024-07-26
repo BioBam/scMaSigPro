@@ -10,6 +10,7 @@
 #' @param link_node_list A list of links between two nodes.
 #' @param assay_name Name of the Assay in sparse data from which the counts are
 #' used. (Default = "counts").
+#' @param link_sep A character string to separate the link nodes. (Default = "_links_")
 #' @param aggregate A character string specifying the method to aggregate counts
 #' within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").
 #' @param verbose  Print detailed output in the console. (Default is TRUE)
@@ -29,6 +30,7 @@ sc.restruct <- function(scmpObj,
                         link_node_list,
                         assay_name = "counts",
                         aggregate = "sum",
+                        link_sep = "_links_",
                         verbose = TRUE) {
   # scmpObj <- multi_scmp_ob
   # root_node <- "root"
@@ -77,7 +79,7 @@ sc.restruct <- function(scmpObj,
     names(link_value) <- link_value
 
     # Split
-    link_vec <- unlist(stringr::str_split(link_value, "\\|"))
+    link_vec <- unlist(stringr::str_split(link_value, link_sep))
 
     # Traverse for each of the link
     for (j in link_vec) {

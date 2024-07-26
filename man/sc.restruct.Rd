@@ -11,6 +11,7 @@ sc.restruct(
   link_node_list,
   assay_name = "counts",
   aggregate = "sum",
+  link_sep = "_links_",
   verbose = TRUE
 )
 }
@@ -29,6 +30,8 @@ used. (Default = "counts").}
 
 \item{aggregate}{A character string specifying the method to aggregate counts
 within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").}
+
+\item{link_sep}{A character string to separate the link nodes. (Default = "_links_")}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }
