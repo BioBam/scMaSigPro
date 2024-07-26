@@ -329,10 +329,10 @@ uniquely associated with Path2vsPath1. This implies that Path2 has 10 genes that
 are significantly differentially expressed over time, using Path1 genes as a
 reference. Let's explore a few of these genes:
 ```{r, "trend",eval=TRUE, echo=TRUE, fig.width=7, fig.height=7}
-FigureA <- plotTrend(scmp_ob, "Gene9", logs = TRUE, logType = "log")
-FigureB <- plotTrend(scmp_ob, "Gene95", logs = TRUE, logType = "log")
-FigureC <- plotTrend(scmp_ob, "Gene10", logs = TRUE, logType = "log")
-FigureD <- plotTrend(scmp_ob, "Gene92", logs = TRUE, logType = "log")
+FigureA <- plotTrend(scmp_ob, "Gene9", logs = TRUE, logType = "log", lines = TRUE)
+FigureB <- plotTrend(scmp_ob, "Gene95", logs = TRUE, logType = "log", lines = TRUE)
+FigureC <- plotTrend(scmp_ob, "Gene10", logs = TRUE, logType = "log", lines = TRUE)
+FigureD <- plotTrend(scmp_ob, "Gene92", logs = TRUE, logType = "log", lines = TRUE)
 ggpubr::ggarrange(FigureA, FigureB, FigureC, FigureD,
   ncol = 2, nrow = 2,
   labels = c("A", "B", "C", "D")
@@ -375,7 +375,8 @@ plotTrendCluster(
   scmpObj = scmp_ob,
   plot = "coeff",
   logs = TRUE,
-  verbose = FALSE
+  verbose = FALSE,
+  lines = TRUE
 )
 ```
 

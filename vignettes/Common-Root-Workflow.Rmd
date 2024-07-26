@@ -1,0 +1,17 @@
+---
+title: "Common Root Workflow"
+subtitle: "Analyzing dataset with common root cells"
+author: "Priyansh Srivastava"
+package: "scMaSigPro"
+output: BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{Common-Root-Workflow}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, "setup", include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(crop = NULL)
+library(scMaSigPro)
+```
