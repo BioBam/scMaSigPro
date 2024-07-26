@@ -7,7 +7,6 @@
 #' @importFrom stats complete.cases cutree hclust
 #' @importFrom RColorConesa getConesaColors
 #' @importFrom mclust Mclust
-#' @importFrom stringr str_split_i
 #' @importFrom stats as.dist cor kmeans
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.

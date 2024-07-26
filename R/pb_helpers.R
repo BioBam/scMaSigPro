@@ -20,7 +20,6 @@
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @importFrom stringr str_split
 #'
 #' @keywords internal
 calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
@@ -30,7 +29,7 @@ calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
   # 'c()' is used to concatenate these vectors into a single vector.
   # Finally, 'length' is used to get the length of this vector (i.e., the number of split strings),
   # which is stored in the 'size' variable.
-  size <- length(c(str_split(x[[clus_mem_col]], "\\|"))[[1]])
+  size <- length(c(stringr::str_split(x[[clus_mem_col]], "\\|"))[[1]])
 
   # Convert the 'size' variable to a numeric value and return it as the result of the function
   return(as.numeric(size))
@@ -94,7 +93,6 @@ convert_to_path <- function(vec, path_prefix, root_label) {
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @importFrom stringr str_remove_all
 #'
 #' @keywords internal
 create_range <- function(x, bin_size_colname = "scmp_bin_size",
@@ -103,7 +101,7 @@ create_range <- function(x, bin_size_colname = "scmp_bin_size",
   y <- as.character(x[[bin_col]])
 
   # Remove square and round brackets from the character string
-  y <- y %>% str_remove_all(pattern = "\\[|\\]|\\(|\\)")
+  y <- y %>% stringr::str_remove_all(pattern = "\\[|\\]|\\(|\\)")
 
   # Split the character string by comma and extract the first element (lower bound of the range)
   y1 <- as.numeric(sapply(strsplit(y, ","), "[", 1))
@@ -545,7 +543,7 @@ pb_counts <- function(scmpObj,
     bin <- meta.info[i, , drop = FALSE]
 
     # Split the row
-    cell.vector <- c(str_split(bin[1], "\\|"))[[1]]
+    cell.vector <- c(stringr::str_split(bin[1], "\\|"))[[1]]
 
     # Get col cells
     col_indices <- which(colnames(counts) %in% cell.vector)

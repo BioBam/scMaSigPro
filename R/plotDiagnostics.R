@@ -5,7 +5,6 @@
 #' diagnostics of optimized model or full model.
 #'
 #' @importFrom stats residuals fitted rstandard predict
-#' @importFrom stringr str_remove
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param feature_id Name of the gene to be plotted.
@@ -71,7 +70,7 @@ plotDiagnostics <- function(scmpObj,
     all_terms <- colnames(coeff_matrix_sub)[-1]
 
     # Remove any occurance of beta
-    all_terms <- str_remove(string = all_terms, pattern = "beta")
+    all_terms <- stringr::str_remove(string = all_terms, pattern = "beta")
 
     # Remove intercept
     all_terms <- all_terms[-1]
