@@ -1,5 +1,5 @@
 ---
-title: "scMaSigPro: Bridging maSigPro Analysis"
+title: "Bridging maSigPro Analysis"
 subtitle: "Guide to applying maSigPro workflow with scMaSigPro"
 author: "Priyansh Srivastava"
 package: "scMaSigPro"
@@ -11,7 +11,7 @@ abstract: |
   the workflow of the original [`maSigPro`](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html) Bioconductor package of using `scMaSigPro`. 
 output: BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{MaSigPro workflow}
+  %\VignetteIndexEntry{Bridging maSigPro Analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -338,7 +338,7 @@ Having confirmed that the numerical values are identical for both methods,
 our next step is to assess whether the actual trends are also consistent.
 
 ### Visualizing Intersection `maSigPro::suma2Venn()`
-```{r, "upset and venn"}
+```{r, "upset and venn", warning=FALSE}
 # Venn Diagram of maSigPro
 suma2Venn(sigs$summary[, c(1:4)])
 
@@ -357,7 +357,7 @@ expression from the same experimental group is represented in the same color, an
 lines are drawn to join the averages of each time-group to visualize the trend of
 each group over time. For `scMaSigPro`, this functionality is achieved using 
 `plotTrend()`.
-```{r, "STMDE66"}
+```{r, "STMDE66",warning=FALSE}
 # Extracting gene "STMDE66" from data
 STMDE66 <- data.abiotic[rownames(data.abiotic) == "STMDE66", ]
 
@@ -371,12 +371,13 @@ PlotGroups(STMDE66,
 plotTrend(scmp_ob, "STMDE66",
   logs = FALSE, pseudoCount = 0,
   smoothness = 0.01, significant = FALSE,
-  summary_mode = "mean"
+  summary_mode = "mean",
+  curves = TRUE, lines = TRUE, points = TRUE
 )
 ```
 
 ### Visualizing Cluster trend with `maSigPro::PlotProfiles()`
-```{r, "Cluster Plots", fig.width=7}
+```{r, "Cluster Plots", fig.width=7, warning=FALSE}
 # Plot clustered Trend
 gc <- capture_output(
   res <- see.genes(sigs$sig.genes$ColdvsControl,

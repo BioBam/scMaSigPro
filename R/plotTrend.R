@@ -180,6 +180,8 @@ plotTrend <- function(scmpObj,
   }
 
   # if log is requestion
+  suppressWarnings(
+      expr = {
   if (logs) {
     if (logType == "log2") {
       points.df$pb.counts <- log2(points.df$pb.counts + pseudoCount)
@@ -193,7 +195,8 @@ plotTrend <- function(scmpObj,
     } else {
       stop("'logType' should be one of 'log2', 'log10', 'log'")
     }
-  }
+  }}
+  )
 
   # Generate line.df
   line.df <- points.df

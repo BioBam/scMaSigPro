@@ -1,5 +1,5 @@
 ---
-title: "scMaSigPro: scMaSigPro Class"
+title: "scMaSigProClass"
 subtitle: "S4 Object, Generics and Queries"
 author: "Priyansh Srivastava"
 package: "scMaSigPro"
@@ -11,7 +11,7 @@ abstract: |
   the S4 Object of the `scMaSigPro-Class` and generic methods.
 output: BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{scMaSigPro Class}
+  %\VignetteIndexEntry{scMaSigProClass}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
