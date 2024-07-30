@@ -110,7 +110,7 @@ cellAssignments_list <- lapply(endpoints, function(endpoint) {
   path <- as.character(path)
   # We find the cells that map along that path
   df <- y_to_cells[y_to_cells$Y %in% path, ]
-  df <- data.frame(weights = as.numeric(colnames(cds) %in% df$cells))
+  df <- data.frame(weights = as.numeric(colnames(cds@assays@data@listData$counts) %in% df$cells))
   colnames(df) <- endpoint
   return(df)
 })
