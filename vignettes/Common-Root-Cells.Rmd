@@ -120,7 +120,7 @@ cellAssignments <- do.call(what = "cbind", cellAssignments_list)
 cellAssignments <- as.matrix(cellAssignments)
 
 # Update columns
-rownames(cellAssignments) <- colnames(cds)
+rownames(cellAssignments) <- colnames(cds@assays@data@listData$counts)
 head(cellAssignments[c(20:30), ])
 ```
 
