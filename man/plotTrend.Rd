@@ -14,7 +14,10 @@ plotTrend(
   logType = "log",
   pseudoCount = 1,
   significant = TRUE,
-  summary_mode = "median"
+  summary_mode = "median",
+  curves = TRUE,
+  lines = FALSE,
+  points = TRUE
 )
 }
 \arguments{
@@ -41,6 +44,12 @@ higher values will result in more linear trends. (Default is 0.01)}
 
 \item{summary_mode}{Compress the expression values per replicate (if present)
 per binned pseudotime point. Default is 'median'. Other option 'mean'}
+
+\item{curves}{Whether to plot the fitted curves. (Default is TRUE)}
+
+\item{lines}{Whether to plot the lines. (Default is FALSE)}
+
+\item{points}{Whether to plot the points. (Default is TRUE)}
 }
 \value{
 ggplot2 plot object.

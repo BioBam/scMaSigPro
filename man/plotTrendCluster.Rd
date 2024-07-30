@@ -7,17 +7,21 @@
 plotTrendCluster(
   scmpObj,
   xlab = "Pooled Pseudotime",
-  ylab = "Pseudobulk Expression",
+  ylab = "log(Pseudobulk Expression)",
   plot = "counts",
   summary_mode = "median",
-  logs = FALSE,
+  logs = TRUE,
   logType = "log",
   smoothness = 1,
   includeInflu = TRUE,
   verbose = TRUE,
   pseudoCount = 1,
   significant = FALSE,
-  parallel = FALSE
+  curves = TRUE,
+  lines = FALSE,
+  points = TRUE,
+  parallel = FALSE,
+  loess_span = 0.8
 )
 }
 \arguments{
@@ -50,8 +54,17 @@ higher values will result in more linear trends. (Default is 0.01)}
 \item{significant}{Include gene only if the models are significant based on
 \code{scMaSigPro::sc.filter()}. (Default is TRUE)}
 
+\item{curves}{Whether to plot the fitted curves. (Default is TRUE)}
+
+\item{lines}{Whether to plot the lines. (Default is FALSE)}
+
+\item{points}{Whether to plot the points. (Default is TRUE)}
+
 \item{parallel}{Use forking process to run parallelly. (Default is FALSE)
 (Currently, Windows is not supported)}
+
+\item{loess_span}{The fraction of the data used when estimating each y-value,
+when plotting curves. (Default is 0.75)}
 }
 \value{
 ggplot2 plot object.

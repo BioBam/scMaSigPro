@@ -1,5 +1,5 @@
 ---
-title: "scMaSigPro: Bridging maSigPro Analysis"
+title: "Bridging maSigPro Analysis"
 subtitle: "Guide to applying maSigPro workflow with scMaSigPro"
 author: "Priyansh Srivastava"
 package: "scMaSigPro"
@@ -11,7 +11,7 @@ abstract: |
   the workflow of the original [`maSigPro`](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html) Bioconductor package of using `scMaSigPro`. 
 output: BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{MaSigPro workflow}
+  %\VignetteIndexEntry{Bridging maSigPro Analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -51,11 +51,24 @@ in modeling gene expression variability, a key factor in identifying significant
 changes in gene expression, thereby marking a significant step forward in the
 application of `maSigPro` to the more complex RNA-Seq data.
 
-## Setup and Installation
-### Installing `scMaSigPro`
-`scMaSigPro` is currently available on GitHub. Follow these steps to install it:
+## Installation
 
-```{r, "scMaSigPro-install", echo=TRUE, eval=FALSE}
+Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
+
+### Bioconductor and Dependencies
+```{r, eval=FALSE, echo=TRUE}
+# Install Dependencies
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+BiocManager::install(version = "3.14")
+
+BiocManager::install(c("SingleCellExperiment", "maSigPro", "MatrixGenerics", "S4Vectors"))
+```
+
+### scMaSigPro latest version
+To install `scMaSigPro` from GitHub, use the following R code:
+```{r, eval=FALSE, echo=TRUE}
 # Install devtools if not already installed
 if (!requireNamespace("devtools", quietly = TRUE)) {
   install.packages("devtools")
@@ -68,7 +81,7 @@ devtools::install_github("BioBam/scMaSigPro",
   build_manual = TRUE,
   upgrade = "never",
   force = TRUE,
-  quiet = TRUE,
+  quiet = TRUE
 )
 ```
 
@@ -338,7 +351,7 @@ Having confirmed that the numerical values are identical for both methods,
 our next step is to assess whether the actual trends are also consistent.
 
 ### Visualizing Intersection `maSigPro::suma2Venn()`
-```{r, "upset and venn"}
+```{r, "upset and venn", warning=FALSE}
 # Venn Diagram of maSigPro
 suma2Venn(sigs$summary[, c(1:4)])
 
@@ -357,7 +370,7 @@ expression from the same experimental group is represented in the same color, an
 lines are drawn to join the averages of each time-group to visualize the trend of
 each group over time. For `scMaSigPro`, this functionality is achieved using 
 `plotTrend()`.
-```{r, "STMDE66"}
+```{r, "STMDE66",warning=FALSE}
 # Extracting gene "STMDE66" from data
 STMDE66 <- data.abiotic[rownames(data.abiotic) == "STMDE66", ]
 
@@ -371,12 +384,13 @@ PlotGroups(STMDE66,
 plotTrend(scmp_ob, "STMDE66",
   logs = FALSE, pseudoCount = 0,
   smoothness = 0.01, significant = FALSE,
-  summary_mode = "mean"
+  summary_mode = "mean",
+  curves = TRUE, lines = TRUE, points = TRUE
 )
 ```
 
 ### Visualizing Cluster trend with `maSigPro::PlotProfiles()`
-```{r, "Cluster Plots", fig.width=7}
+```{r, "Cluster Plots", fig.width=7, warning=FALSE}
 # Plot clustered Trend
 gc <- capture_output(
   res <- see.genes(sigs$sig.genes$ColdvsControl,

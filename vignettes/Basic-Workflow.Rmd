@@ -1,5 +1,5 @@
 ---
-title: "scMaSigPro: Quick Start Guide"
+title: "Quick Start Guide"
 subtitle: "Basic Steps"
 author: "Priyansh Srivastava"
 package: "scMaSigPro"
@@ -12,7 +12,7 @@ abstract: |
   small simulated dataset.
 output: BiocStyle::html_document
 vignette: >
-  %\VignetteIndexEntry{scMaSigPro Basic Workflow}
+  %\VignetteIndexEntry{Quick Start Guide}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -32,9 +32,23 @@ to pinpoint genes exhibiting significant expression profile differences among
 branching paths and pseudotime.
 
 ## Installation
+
 Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
 
-```{r, echo=TRUE, eval=FALSE}
+### Bioconductor and Dependencies
+```{r, eval=FALSE, echo=TRUE}
+# Install Dependencies
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+BiocManager::install(version = "3.14")
+
+BiocManager::install(c("SingleCellExperiment", "maSigPro", "MatrixGenerics", "S4Vectors"))
+```
+
+### scMaSigPro latest version
+To install `scMaSigPro` from GitHub, use the following R code:
+```{r, eval=FALSE, echo=TRUE}
 # Install devtools if not already installed
 if (!requireNamespace("devtools", quietly = TRUE)) {
   install.packages("devtools")
@@ -47,7 +61,7 @@ devtools::install_github("BioBam/scMaSigPro",
   build_manual = TRUE,
   upgrade = "never",
   force = TRUE,
-  quiet = TRUE,
+  quiet = TRUE
 )
 ```
 
@@ -319,7 +333,7 @@ By setting the vars parameter to "groups", the function will add genes with
 $R^2$ >= 0.7 to the object. To explore the number of genes per group, we will 
 make an upset plot:
 ```{r, "uspet",eval=TRUE, echo=TRUE, fig.width=8, fig.height=6}
-plotIntersect(scmp_ob, package = "UpSetR")
+plotIntersect(scmp_ob)
 ```
 
 Here, we observe that 23 genes belong to both Path2vsPath1 and Path1, indicating
@@ -329,10 +343,10 @@ uniquely associated with Path2vsPath1. This implies that Path2 has 10 genes that
 are significantly differentially expressed over time, using Path1 genes as a
 reference. Let's explore a few of these genes:
 ```{r, "trend",eval=TRUE, echo=TRUE, fig.width=7, fig.height=7}
-FigureA <- plotTrend(scmp_ob, "Gene9", logs = TRUE, logType = "log")
-FigureB <- plotTrend(scmp_ob, "Gene95", logs = TRUE, logType = "log")
-FigureC <- plotTrend(scmp_ob, "Gene10", logs = TRUE, logType = "log")
-FigureD <- plotTrend(scmp_ob, "Gene92", logs = TRUE, logType = "log")
+FigureA <- plotTrend(scmp_ob, "Gene9", logs = TRUE, logType = "log", lines = TRUE)
+FigureB <- plotTrend(scmp_ob, "Gene95", logs = TRUE, logType = "log", lines = TRUE)
+FigureC <- plotTrend(scmp_ob, "Gene10", logs = TRUE, logType = "log", lines = TRUE)
+FigureD <- plotTrend(scmp_ob, "Gene92", logs = TRUE, logType = "log", lines = TRUE)
 ggpubr::ggarrange(FigureA, FigureB, FigureC, FigureD,
   ncol = 2, nrow = 2,
   labels = c("A", "B", "C", "D")
@@ -375,7 +389,8 @@ plotTrendCluster(
   scmpObj = scmp_ob,
   plot = "coeff",
   logs = TRUE,
-  verbose = FALSE
+  verbose = FALSE,
+  lines = TRUE
 )
 ```
 
