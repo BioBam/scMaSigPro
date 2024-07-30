@@ -12,6 +12,18 @@
 `scMaSigPro` is an R package designed for analyzing single-cell RNA-seq data over pseudotime. Building on the [maSigPro](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html) package, it identifies genes with significant expression changes across branching paths in a pseudotime-ordered dataset. This guide provides a step-by-step workflow for ScMaSigPro, making it accessible for users.
 
 ## Installation
+
+### Bioconductor and Dependencies
+```
+# Install Dependencies
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+BiocManager::install(version = "3.14")
+
+BiocManager::install(c('SingleCellExperiment', 'maSigPro', 'MatrixGenerics', 'S4Vectors'))
+```
+
+### scMaSigPro latest version
 To install `scMaSigPro` from GitHub, use the following R code:
 
 ```

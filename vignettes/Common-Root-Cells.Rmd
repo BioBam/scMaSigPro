@@ -23,6 +23,38 @@ approach. We will utilize an object from Monocle3's
 [`newCellDataSet`](https://rdrr.io/bioc/monocle/man/newCellDataSet.html) class 
 in this analysis.
 
+## Installation
+
+Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
+
+### Bioconductor and Dependencies
+```{r, eval=FALSE, echo=TRUE}
+# Install Dependencies
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+BiocManager::install(version = "3.14")
+
+BiocManager::install(c('SingleCellExperiment', 'maSigPro', 'MatrixGenerics', 'S4Vectors'))
+```
+
+### scMaSigPro latest version
+To install `scMaSigPro` from GitHub, use the following R code:
+```{r, eval=FALSE, echo=TRUE}
+# Install devtools if not already installed
+if (!requireNamespace("devtools", quietly = TRUE)) {
+    install.packages("devtools")
+}
+
+# Install scMaSigPro
+devtools::install_github("BioBam/scMaSigPro",
+                         ref = "main",
+                         build_vignettes = FALSE,
+                         build_manual = TRUE,
+                         upgrade = "never",
+                         force = TRUE,
+                         quiet = TRUE)
+```
+
 ## Setup
 We will start by loading the necessary libraries.
 ```{r, echo=TRUE, eval=FALSE, "libs-show"}
@@ -261,13 +293,13 @@ head(shared_genes)
 ```
 
 ```{r,"Sample Gene",fig.align='center', fig.width=8, fig.height=5, fig.alt='G42'}
-## Similar expression in root, "Y_18_links_Y_15vsroot" and "Y_18"
+## Similar expression in root, "Y_18_links_Y_15vsroot" and "Y_15"
 gene_br_Y_15 <- rownames(shared_genes[shared_genes$Y_52vsroot == 1 &
   shared_genes$Y_18vsroot == 1 &
   shared_genes$Y_15vsroot == 0 &
   shared_genes$root == 1 &
   shared_genes$Y_18_links_Y_15vsroot == 0, ])
-plotTrend(multi_scmp_ob_A, gene_br_Y_15[1], points = F, lines = T)
+# plotTrend(multi_scmp_ob_A, gene_br_Y_15[1], points = F, lines = T)
 ```
 
 In the above plot, we can see that the gene G42 has a similar expression in the 

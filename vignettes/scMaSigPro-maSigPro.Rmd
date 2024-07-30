@@ -51,25 +51,36 @@ in modeling gene expression variability, a key factor in identifying significant
 changes in gene expression, thereby marking a significant step forward in the
 application of `maSigPro` to the more complex RNA-Seq data.
 
-## Setup and Installation
-### Installing `scMaSigPro`
-`scMaSigPro` is currently available on GitHub. Follow these steps to install it:
+## Installation
 
-```{r, "scMaSigPro-install", echo=TRUE, eval=FALSE}
+Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
+
+### Bioconductor and Dependencies
+```{r, eval=FALSE, echo=TRUE}
+# Install Dependencies
+if (!requireNamespace("BiocManager", quietly = TRUE))
+install.packages("BiocManager")
+BiocManager::install(version = "3.14")
+
+BiocManager::install(c('SingleCellExperiment', 'maSigPro', 'MatrixGenerics', 'S4Vectors'))
+```
+
+### scMaSigPro latest version
+To install `scMaSigPro` from GitHub, use the following R code:
+```{r, eval=FALSE, echo=TRUE}
 # Install devtools if not already installed
 if (!requireNamespace("devtools", quietly = TRUE)) {
-  install.packages("devtools")
+    install.packages("devtools")
 }
 
 # Install scMaSigPro
 devtools::install_github("BioBam/scMaSigPro",
-  ref = "main",
-  build_vignettes = FALSE,
-  build_manual = TRUE,
-  upgrade = "never",
-  force = TRUE,
-  quiet = TRUE,
-)
+                         ref = "main",
+                         build_vignettes = FALSE,
+                         build_manual = TRUE,
+                         upgrade = "never",
+                         force = TRUE,
+                         quiet = TRUE)
 ```
 
 ### Installing `maSigPro`
