@@ -87,7 +87,7 @@ plotTrend <- function(scmpObj,
 
   # Check
   assertthat::assert_that(all(feature_id %in% rownames(bulk.counts)),
-    msg = "Feature Id doesn't exist please select another one"
+    msg = paste0("'", feature_id, "' doesn't exist please select another one.")
   )
 
   if (significant) {
@@ -181,21 +181,22 @@ plotTrend <- function(scmpObj,
 
   # if log is requestion
   suppressWarnings(
-      expr = {
-  if (logs) {
-    if (logType == "log2") {
-      points.df$pb.counts <- log2(points.df$pb.counts + pseudoCount)
-      ylab <- paste0("log2(", ylab, ")")
-    } else if (logType == "log") {
-      points.df$pb.counts <- log(points.df$pb.counts + pseudoCount)
-      ylab <- paste0("log(", ylab, ")")
-    } else if (logType == "log10") {
-      points.df$pb.counts <- log10(points.df$pb.counts + pseudoCount)
-      ylab <- paste0("log10(", ylab, ")")
-    } else {
-      stop("'logType' should be one of 'log2', 'log10', 'log'")
+    expr = {
+      if (logs) {
+        if (logType == "log2") {
+          points.df$pb.counts <- log2(points.df$pb.counts + pseudoCount)
+          ylab <- paste0("log2(", ylab, ")")
+        } else if (logType == "log") {
+          points.df$pb.counts <- log(points.df$pb.counts + pseudoCount)
+          ylab <- paste0("log(", ylab, ")")
+        } else if (logType == "log10") {
+          points.df$pb.counts <- log10(points.df$pb.counts + pseudoCount)
+          ylab <- paste0("log10(", ylab, ")")
+        } else {
+          stop("'logType' should be one of 'log2', 'log10', 'log'")
+        }
+      }
     }
-  }}
   )
 
   # Generate line.df

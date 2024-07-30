@@ -20,7 +20,8 @@ plotTrendCluster(
   curves = TRUE,
   lines = FALSE,
   points = TRUE,
-  parallel = FALSE
+  parallel = FALSE,
+  loess_span = 0.8
 )
 }
 \arguments{
@@ -61,6 +62,9 @@ higher values will result in more linear trends. (Default is 0.01)}
 
 \item{parallel}{Use forking process to run parallelly. (Default is FALSE)
 (Currently, Windows is not supported)}
+
+\item{loess_span}{The fraction of the data used when estimating each y-value,
+when plotting curves. (Default is 0.75)}
 }
 \value{
 ggplot2 plot object.

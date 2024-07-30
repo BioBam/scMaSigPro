@@ -30,6 +30,8 @@
 #' @param curves Whether to plot the fitted curves. (Default is TRUE)
 #' @param lines Whether to plot the lines. (Default is FALSE)
 #' @param points Whether to plot the points. (Default is TRUE)
+#' @param loess_span The fraction of the data used when estimating each y-value,
+#' when plotting curves. (Default is 0.75)
 #'
 #' @return ggplot2 plot object.
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
@@ -48,7 +50,8 @@ plotTrendCluster <- function(scmpObj,
                              curves = TRUE,
                              lines = FALSE,
                              points = TRUE,
-                             parallel = FALSE) {
+                             parallel = FALSE,
+                             loess_span = 0.8) {
   # # # Debugg
   # scmpObj <- multi_scmp_ob_A
   # xlab <- "Pooled Pseudotime"
@@ -359,48 +362,48 @@ plotTrendCluster <- function(scmpObj,
   # Initiate plotting
   p <- ggplot()
 
-  suppressWarnings(expr = {
-    if (points) {
-      p <- p + geom_point(
-        data = points_combined, aes(x = .data$x_axis, y = .data$y_axis, color = .data$group),
-        fill = "#102C57", alpha = 0.5, size = 0.5, stroke = 0.5, shape = 21
-      )
-    }
-    if (lines) {
-      p <- p + geom_path(
-        data = lines_combined,
-        aes(
-          x = .data$x_axis, y = .data$y_axis, color = .data$group, group = .data$group,
-        ), linetype = "dashed", linewidth = 0.5
-      )
-    }
+  if (points) {
+    p <- p + geom_point(
+      data = points_combined, aes(x = .data$x_axis, y = .data$y_axis, color = .data$group),
+      fill = "#102C57", alpha = 0.5, size = 0.5, stroke = 0.5, shape = 21
+    )
+  }
+  if (lines) {
+    p <- p + geom_path(
+      data = lines_combined,
+      aes(
+        x = .data$x_axis, y = .data$y_axis, color = .data$group, group = .data$group,
+      ), linetype = "dashed", linewidth = 0.5
+    )
+  }
 
-    if (curves) {
-      p <- p + geom_smooth(
-        data = curves_combined,
-        se = FALSE,
-        formula = y ~ x, span = 0.7,
-        method = "loess",
-        aes(
-          x = .data$x_axis, y = .data$y_axis, color = .data$group, group = .data$group,
-        ), linetype = "solid", linewidth = 0.5
-      )
-    }
+  if (curves) {
+    p <- p + geom_smooth(
+      data = curves_combined,
+      se = FALSE,
+      # formula =  y ~ s(x , k = scmpObj@Parameters@poly_degree,  bs = "cs"),
+      # method = "gam",
+      formula = y ~ x,
+      method = "loess", span = loess_span,
+      aes(
+        x = .data$x_axis, y = .data$y_axis, color = .data$group, group = .data$group,
+      ), linetype = "solid", linewidth = 0.5
+    )
+  }
 
-    p <- p + facet_wrap(~ .data$cluster, scales = "free_y") + # Create a panel for each cluster_id
-      scale_color_manual(values = scmp_colors(length(unique(cDense(scmpObj)[[scmpObj@Parameters@path_col]])))) + # Custom colors for paths
-      theme_classic(base_size = 10) +
-      theme(
-        strip.background = element_blank(),
-        strip.text.x = element_text(size = 10, angle = 0),
-        legend.position = "bottom", legend.title = element_text(hjust = 0.5),
-        panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
-        panel.grid.minor = element_blank(),
-        axis.text.x = element_text(angle = 45, hjust = 1) # Rotate x-axis text if necessary
-      ) +
-      labs(title = "Gene Expression over Pseudotime", color = "Branching Path") +
-      xlab(xlab) +
-      ylab(ylab)
-  })
+  p <- p + facet_wrap(~ .data$cluster, scales = "free_y") + # Create a panel for each cluster_id
+    scale_color_manual(values = scmp_colors(length(unique(cDense(scmpObj)[[scmpObj@Parameters@path_col]])))) + # Custom colors for paths
+    theme_classic(base_size = 10) +
+    theme(
+      strip.background = element_blank(),
+      strip.text.x = element_text(size = 10, angle = 0),
+      legend.position = "bottom", legend.title = element_text(hjust = 0.5),
+      panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
+      panel.grid.minor = element_blank(),
+      axis.text.x = element_text(angle = 45, hjust = 1) # Rotate x-axis text if necessary
+    ) +
+    labs(title = "Gene Expression over Pseudotime", color = "Branching Path") +
+    xlab(xlab) +
+    ylab(ylab)
   return(p)
 }

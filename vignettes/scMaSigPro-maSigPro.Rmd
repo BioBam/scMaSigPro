@@ -58,11 +58,12 @@ Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
 ### Bioconductor and Dependencies
 ```{r, eval=FALSE, echo=TRUE}
 # Install Dependencies
-if (!requireNamespace("BiocManager", quietly = TRUE))
-install.packages("BiocManager")
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
 BiocManager::install(version = "3.14")
 
-BiocManager::install(c('SingleCellExperiment', 'maSigPro', 'MatrixGenerics', 'S4Vectors'))
+BiocManager::install(c("SingleCellExperiment", "maSigPro", "MatrixGenerics", "S4Vectors"))
 ```
 
 ### scMaSigPro latest version
@@ -70,17 +71,18 @@ To install `scMaSigPro` from GitHub, use the following R code:
 ```{r, eval=FALSE, echo=TRUE}
 # Install devtools if not already installed
 if (!requireNamespace("devtools", quietly = TRUE)) {
-    install.packages("devtools")
+  install.packages("devtools")
 }
 
 # Install scMaSigPro
 devtools::install_github("BioBam/scMaSigPro",
-                         ref = "main",
-                         build_vignettes = FALSE,
-                         build_manual = TRUE,
-                         upgrade = "never",
-                         force = TRUE,
-                         quiet = TRUE)
+  ref = "main",
+  build_vignettes = FALSE,
+  build_manual = TRUE,
+  upgrade = "never",
+  force = TRUE,
+  quiet = TRUE
+)
 ```
 
 ### Installing `maSigPro`
