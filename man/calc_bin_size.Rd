@@ -8,6 +8,8 @@ calc_bin_size(x, clus_mem_col = "scmp_cluster_members")
 }
 \arguments{
 \item{x}{A data frame containing the "cluster.members" column.}
+
+\item{clus_mem_col}{The name of the column containing the cluster members.}
 }
 \value{
 A numeric value representing the size of the bin (number of elements

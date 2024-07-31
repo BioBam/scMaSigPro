@@ -24,26 +24,17 @@ plotBinTile <- function(scmpObj,
                         bin_size_col = scmpObj@Parameters@bin_size_col,
                         bin_ptime_col = scmpObj@Parameters@bin_ptime_col) {
   # Check Object Validity
-  assert_that(is(scmpObj, "ScMaSigPro"),
+  assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'scMaSigPro'."
   )
 
   # Check whether the compression data exist or not
   compression.info <- as.data.frame(colData(scmpObj@Dense))
 
-  # Check for extended data
-  if (nrow(compression.info) < 1) {
-    compression.info <- as.data.frame(colData(scmpObj@Sparse))
-  }
-
   # Check if values are binned
-  assert_that(nrow(compression.info) >= 1,
-    msg = "Please run 'sc.squeeze()' first."
+  assertthat::assert_that(nrow(as.data.frame(colData(scmpObj@Dense))) >= 1,
+    msg = "No binning information found. Please run 'sc.squeeze()', first."
   )
-
-  # get conesa colors
-  conesa_colors <- getConesaColors()[c(TRUE, FALSE)][c(1:length(unique(compression.info[[path_col]])))]
-  names(conesa_colors) <- unique(unique(compression.info[[path_col]]))
 
   # Create plot data
   plt.data <- data.frame(

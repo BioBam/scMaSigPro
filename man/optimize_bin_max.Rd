@@ -32,12 +32,12 @@ optimize_bin_max(
 
 \item{bin}{The name of the bin identifier column in `bin_table`.}
 
+\item{bin.size}{The name of the bin size column in `bin_table`.}
+
 \item{method}{The method for handling small bins: 'merge' to merge with previous or next bin,
 'drop' to remove small bins, or 'ignore' to leave small bins as they are.}
 
 \item{drop}{The threshold below which a bin is considered too small and subject to the method.}
-
-\item{bin_size}{The name of the bin size column in `bin_table`.}
 }
 \value{
 A dataframe with adjusted bins. The structure of the dataframe will be the same as `bin_table`

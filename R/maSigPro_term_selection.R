@@ -19,7 +19,10 @@ sc.two.ways.stepback <- function(y = y, d = d, alfa = 0.05, family = gaussian(),
   d <- d[, names(result)[-1]]
   while (max > alfa) {
     varout <- names(result)[result == max]
-    pos <- position(matrix = d, vari = varout)
+    # Clean String
+    varout <- clean_string(varout, action = "remove")
+
+    pos <- maSigPro::position(matrix = d, vari = varout)
     OUT <- as.data.frame(cbind(OUT, d[, pos]))
     x <- ncol(OUT)
     colnames(OUT)[x] <- colnames(d)[pos]
@@ -133,7 +136,9 @@ sc.two.ways.stepfor <-
       max <- max(result2[-1], na.rm = TRUE)
       while (max > alfa) {
         varout <- names(result2)[result2 == max]
-        pos <- position(matrix = design, vari = varout)
+        # Clean String
+        varout <- clean_string(varout, action = "remove")
+        pos <- maSigPro::position(matrix = design, vari = varout)
         d <- as.data.frame(cbind(d, design[, pos]))
         x <- ncol(d)
         colnames(d)[x] <- colnames(design)[pos]
@@ -191,11 +196,15 @@ sc.stepback <- function(y = y, d = d, alfa = 0.05, family = gaussian(), epsilon 
     }
   }
   while (max > alfa) {
-    varout <- names(result$coefficients[, 4])[result$coefficients[
+    varout <- as.character(names(result$coefficients[, 4])[result$coefficients[
       ,
       4
-    ] == max][1]
-    pos <- position(matrix = d, vari = varout)
+    ] == max][1])
+
+    # Clean String
+    varout <- clean_string(varout, action = "remove")
+
+    pos <- maSigPro::position(matrix = d, vari = paste(varout))
     d <- d[, -pos]
     if (length(result$coefficients[, 4][-1]) == 2) {
       min <- min(result$coefficients[, 4][-1], na.rm = TRUE)

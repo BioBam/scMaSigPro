@@ -4,7 +4,6 @@
 #' Plot trend of the single gene across the binned pseudotime.
 #'
 #' @import ggplot2
-#' @importFrom RColorConesa getConesaColors
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param feature_id Name of the gene to be plotted.
@@ -20,6 +19,9 @@
 #' \code{scMaSigPro::sc.filter()}. (Default is TRUE)
 #' @param summary_mode Compress the expression values per replicate (if present)
 #'  per binned pseudotime point. Default is 'median'. Other option 'mean'
+#' @param curves Whether to plot the fitted curves. (Default is TRUE)
+#' @param lines Whether to plot the lines. (Default is FALSE)
+#' @param points Whether to plot the points. (Default is TRUE)
 #'
 #' @return ggplot2 plot object.
 #'
@@ -35,7 +37,29 @@ plotTrend <- function(scmpObj,
                       logType = "log",
                       pseudoCount = 1,
                       significant = TRUE,
-                      summary_mode = "median") {
+                      summary_mode = "median",
+                      curves = TRUE,
+                      lines = FALSE,
+                      points = TRUE) {
+  # Debugg
+  # scmpObj  <- multi_scmp_ob_A
+  # feature_id <- gene_br_Y_18[1]
+  # xlab  <-  "Pooled Pseudotime"
+  # ylab  <-  "Pseudobulk Expression"
+  # plot  <-  "counts"
+  # summary_mode  <-  "median"
+  # logs  <-  FALSE
+  # logType  <-  "log"
+  # smoothness  <-  1
+  # includeInflu <- TRUE
+  # verbose  <-  TRUE
+  # pseudoCount  <-  1
+  # significant  <-  FALSE
+  # curves  <-  TRUE
+  # lines  <-  FALSE
+  # points  <-  TRUE
+  # parallel  <-  FALSE
+
   # Invoke Variables
   pb.counts <- "pb.counts"
   pooled.time <- "pooled.time"
@@ -45,12 +69,15 @@ plotTrend <- function(scmpObj,
   offset_vector <- scmpObj@Design@offset
 
   # Check summary_mode
-  assert_that(any(summary_mode %in% c("median", "mean")),
+  assertthat::assert_that(any(summary_mode %in% c("median", "mean")),
     msg = paste(
       paste0("'", summary_mode, "'"), "is not a valid option. Please use one of",
       paste(c("median", "mean"), collapse = ", ")
     )
   )
+
+  # Check Assertion
+  assertthat::assert_that(curves || lines || points, msg = "At least one of 'curves', 'lines', or 'points' must be TRUE.")
 
   # Extract edisgn
   alloc.frame <- scmpObj@Design@assignment_matrix %>% as.data.frame()
@@ -59,12 +86,12 @@ plotTrend <- function(scmpObj,
   bulk.counts <- scmpObj@Dense@assays@data@listData$bulk.counts
 
   # Check
-  assert_that(all(feature_id %in% rownames(bulk.counts)),
-    msg = "Feature Id doesn't exist please select another one"
+  assertthat::assert_that(all(feature_id %in% rownames(bulk.counts)),
+    msg = paste0("'", feature_id, "' doesn't exist please select another one.")
   )
 
   if (significant) {
-    assert_that(any(feature_id %in% unique(unlist(scmpObj@Significant@genes))),
+    assertthat::assert_that(any(feature_id %in% unique(unlist(scmpObj@Significant@genes))),
       msg = "Feature Id didn't pass the R2 threshold, please re-run sc.filter, with lower a value or set 'significant' to 'FALSE'"
     )
   }
@@ -106,7 +133,7 @@ plotTrend <- function(scmpObj,
   # stop()
   for (i in path.names) {
     # Extract Coeff
-    a <- reg.coeffs(
+    a <- maSigPro::reg.coeffs(
       coefficients = betas,
       groups.vector = groups.vector,
       group = i
@@ -140,8 +167,8 @@ plotTrend <- function(scmpObj,
 
   xlim[2] <- max(points.df[[pooled.time]])
 
-  conesa_colors <- getConesaColors()[c(TRUE, FALSE)][c(1:length(unique(points.df[[path]])))]
-  names(conesa_colors) <- unique(points.df[[path]])
+  scmp_pal <- scmp_colors(n = length(path.names))
+  names(scmp_pal) <- unique(points.df[[path]])
 
   # Extract sol
   data.sol <- showSol(scmpObj, view = FALSE, return = TRUE)
@@ -153,20 +180,24 @@ plotTrend <- function(scmpObj,
   }
 
   # if log is requestion
-  if (logs) {
-    if (logType == "log2") {
-      points.df$pb.counts <- log2(points.df$pb.counts + pseudoCount)
-      ylab <- paste0("log2(", ylab, ")")
-    } else if (logType == "log") {
-      points.df$pb.counts <- log(points.df$pb.counts + pseudoCount)
-      ylab <- paste0("log(", ylab, ")")
-    } else if (logType == "log10") {
-      points.df$pb.counts <- log10(points.df$pb.counts + pseudoCount)
-      ylab <- paste0("log10(", ylab, ")")
-    } else {
-      stop("'logType' should be one of 'log2', 'log10', 'log'")
+  suppressWarnings(
+    expr = {
+      if (logs) {
+        if (logType == "log2") {
+          points.df$pb.counts <- log2(points.df$pb.counts + pseudoCount)
+          ylab <- paste0("log2(", ylab, ")")
+        } else if (logType == "log") {
+          points.df$pb.counts <- log(points.df$pb.counts + pseudoCount)
+          ylab <- paste0("log(", ylab, ")")
+        } else if (logType == "log10") {
+          points.df$pb.counts <- log10(points.df$pb.counts + pseudoCount)
+          ylab <- paste0("log10(", ylab, ")")
+        } else {
+          stop("'logType' should be one of 'log2', 'log10', 'log'")
+        }
+      }
     }
-  }
+  )
 
   # Generate line.df
   line.df <- points.df
@@ -174,12 +205,12 @@ plotTrend <- function(scmpObj,
   # Apply Summary Operation
   if (summary_mode == "mean") {
     line.df <- line.df %>%
-      group_by(pooled.time, path) %>%
-      summarize(pb.counts = mean(pb.counts), .groups = "drop")
+      dplyr::group_by(pooled.time, path) %>%
+      dplyr::summarize(pb.counts = mean(pb.counts), .groups = "drop")
   } else if (summary_mode == "median") {
     line.df <- line.df %>%
-      group_by(pooled.time, path) %>%
-      summarize(pb.counts = median(pb.counts), .groups = "drop")
+      dplyr::group_by(pooled.time, path) %>%
+      dplyr::summarize(pb.counts = median(pb.counts), .groups = "drop")
   }
 
   if (sum(offset_vector) != 0) {
@@ -187,17 +218,34 @@ plotTrend <- function(scmpObj,
   }
 
   # Plot
+  layer_names <- c(NULL)
   p <- ggplot() +
-    geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.5, size = 2, stroke = 1, shape = 21) +
-    geom_line(data = line.df, aes(x = pooled.time, y = pb.counts, color = path), linetype = "solid", linewidth = 1, alpha = 0.7) +
-    geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "dashed", linewidth = 1, alpha = 0.7) +
     ggtitle(
       paste("Feature Id:", feature_id),
       subtitle = paste("R2:", round(data.sol[, 2], 3), "| p-Value:", round(data.sol[, 1], 3))
     ) +
     xlab(xlab) +
-    ylab(ylab) +
-    theme_classic(base_size = 12) +
+    ylab(ylab)
+  names(p$layers) <- layer_names
+
+  if (points) {
+    p <- p + geom_point(data = points.df, aes(x = pooled.time, y = pb.counts, color = path), fill = "#102C57", alpha = 0.4, size = 1.5, stroke = 1, shape = 21)
+    layer_names <- c(layer_names, "points")
+    names(p$layers) <- layer_names
+  }
+  if (lines) {
+    p <- p + geom_line(data = line.df, aes(x = pooled.time, y = pb.counts, color = path), linetype = "dashed", linewidth = 0.6, alpha = 0.7)
+    layer_names <- c(layer_names, "lines")
+    names(p$layers) <- layer_names
+  }
+  if (curves) {
+    p <- p + geom_line(data = curve.df, aes(x = x, y = y, color = path), linetype = "solid", linewidth = 0.7, alpha = 0.8)
+    layer_names <- c(layer_names, "curves")
+    names(p$layers) <- layer_names
+  }
+
+
+  p <- p + theme_classic(base_size = 12) +
     theme(
       legend.position = "bottom",
       panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
@@ -206,7 +254,6 @@ plotTrend <- function(scmpObj,
     scale_x_continuous(breaks = seq(min(xlim), max(xlim), by = round(log10(length(points.df[[pooled.time]]))))) +
     labs(color = "Paths") +
     # coord_cartesian(xlim = xlim, ylim = ylim) +
-    scale_color_manual(values = conesa_colors)
-  #
+    scale_color_manual(values = scmp_pal)
   return(p)
 }
