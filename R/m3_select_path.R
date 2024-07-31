@@ -44,7 +44,7 @@ m3_select_path <- function(cds,
                            )) {
   if (use_shiny == FALSE) {
     # Check whether the lower dimensions are calculated
-    assert_that(
+    assertthat::assert_that(
       all(names(m3_pp) %in% c(
         "root_pp", "path1_pp", "path2_pp", "path1_name",
         "path2_name"
@@ -68,16 +68,16 @@ m3_select_path <- function(cds,
   count <- "count"
 
   # Validate is supplied opject is a valid
-  assert_that(is(cds, "cell_data_set"),
+  assertthat::assert_that(is(cds, "cell_data_set"),
     msg = "Please supply a valid monocle3 cdsect"
   )
   # Check whether the lower dimensions are calculated
-  assert_that(nrow(as.data.frame(reducedDims(cds)[[toupper(latent_space)]])) > 1,
+  assertthat::assert_that(nrow(as.data.frame(reducedDims(cds)[[toupper(latent_space)]])) > 1,
     msg = paste(latent_space, "not found, in the cds")
   )
 
   # Check whether the lower dimensions are calculated
-  assert_that(nrow(as.data.frame(reducedDims(cds)[[toupper(latent_space)]])) == ncol(cds),
+  assertthat::assert_that(nrow(as.data.frame(reducedDims(cds)[[toupper(latent_space)]])) == ncol(cds),
     msg = paste("Dimensions of", latent_space, "do not correspond to dimensions of counts")
   )
 
@@ -89,22 +89,22 @@ m3_select_path <- function(cds,
   dims[["cell"]] <- rownames(dims)
 
   # Check whether the lower dimensions are calculated
-  assert_that(all(rownames(dims) == colnames(cds)),
+  assertthat::assert_that(all(rownames(dims) == colnames(cds)),
     msg = paste("Cell Barcodes do not among", latent_space, "and counts")
   )
 
   # Check if supplied anno_col exist in the cds
-  assert_that(anno_col %in% names(cds@colData),
+  assertthat::assert_that(anno_col %in% names(cds@colData),
     msg = paste(anno_col, "does not exist in the cell.level metadata")
   )
 
   # Extract the vertex cell relationships
-  assert_that(!is.null(cds@principal_graph_aux@listData[[toupper(latent_space)]]$pr_graph_cell_proj_closest_vertex),
+  assertthat::assert_that(!is.null(cds@principal_graph_aux@listData[[toupper(latent_space)]]$pr_graph_cell_proj_closest_vertex),
     msg = paste("Vertex information is missing")
   )
 
   # Check pseudotime
-  assert_that(!is.null(cds@principal_graph_aux@listData[[toupper(latent_space)]][["pseudotime"]]),
+  assertthat::assert_that(!is.null(cds@principal_graph_aux@listData[[toupper(latent_space)]][["pseudotime"]]),
     msg = paste("No Pseudotime information found")
   )
 
@@ -127,7 +127,7 @@ m3_select_path <- function(cds,
   )
 
   # Check before merge
-  assert_that(all(anno.df[["cell"]] == dims[["cell"]]),
+  assertthat::assert_that(all(anno.df[["cell"]] == dims[["cell"]]),
     msg = paste("Cells in lower dimensions does not match with cells for which anno_col is supplied")
   )
 
@@ -147,10 +147,10 @@ m3_select_path <- function(cds,
   pTime.frame <- dims <- NULL
 
   # Extract the graph and MST
-  assert_that(!is.null(cds@principal_graph@listData[[toupper(latent_space)]]),
+  assertthat::assert_that(!is.null(cds@principal_graph@listData[[toupper(latent_space)]]),
     msg = paste("Principal Graph not found in cds")
   )
-  assert_that(!is.null(cds@principal_graph_aux@listData[[toupper(latent_space)]]$dp_mst),
+  assertthat::assert_that(!is.null(cds@principal_graph_aux@listData[[toupper(latent_space)]]$dp_mst),
     msg = paste("MST not found in the cds")
   )
 

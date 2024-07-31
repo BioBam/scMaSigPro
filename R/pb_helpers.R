@@ -13,17 +13,15 @@
 #' the "cluster.members" column of the input data frame.
 #'
 #' @param x A data frame containing the "cluster.members" column.
+#' @param clus_mem_col The name of the column containing the cluster members.
 #'
 #' @return A numeric value representing the size of the bin (number of elements
 #' in the "cluster.members" column).
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @importFrom stringr str_split
 #'
 #' @keywords internal
-# Define a function 'calc_bin_size' which takes a data frame 'x' as input
-
 calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
   # Use the 'str_split' function from the 'stringr' package to split the 'cluster.members' column
   # of the input data frame 'x' by the '|' character.
@@ -31,7 +29,7 @@ calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
   # 'c()' is used to concatenate these vectors into a single vector.
   # Finally, 'length' is used to get the length of this vector (i.e., the number of split strings),
   # which is stored in the 'size' variable.
-  size <- length(c(str_split(x[[clus_mem_col]], "\\|"))[[1]])
+  size <- length(c(stringr::str_split(x[[clus_mem_col]], "\\|"))[[1]])
 
   # Convert the 'size' variable to a numeric value and return it as the result of the function
   return(as.numeric(size))
@@ -46,6 +44,7 @@ calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
 #' @param vec A character vector where elements may be repeated and
 #' might contain the value "root".
 #' @param path_prefix Prefix used to annoate the paths, default is "Path".
+#' @param root_label The label for the root element, default is "root".
 #'
 #' @return A character vector with the same length as the input where
 #' unique elements, excluding "root", are renamed to "Path1", "Path2", etc.
@@ -80,6 +79,9 @@ convert_to_path <- function(vec, path_prefix, root_label) {
 #'     \item{bin_size}{A numeric column representing the bin size.}
 #'     \item{binned_time}{A numeric column representing the binned time.}
 #'   }
+#' @param bin_size_colname The name of the column containing the bin size.
+#' @param bin_col The name of the column containing the bin intervals.
+#' @param verbose Logical; if TRUE, prints detailed output.
 #'
 #' @return A numeric vector containing four elements:
 #'   \describe{
@@ -91,7 +93,6 @@ convert_to_path <- function(vec, path_prefix, root_label) {
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @importFrom stringr str_remove_all
 #'
 #' @keywords internal
 create_range <- function(x, bin_size_colname = "scmp_bin_size",
@@ -100,7 +101,7 @@ create_range <- function(x, bin_size_colname = "scmp_bin_size",
   y <- as.character(x[[bin_col]])
 
   # Remove square and round brackets from the character string
-  y <- y %>% str_remove_all(pattern = "\\[|\\]|\\(|\\)")
+  y <- y %>% stringr::str_remove_all(pattern = "\\[|\\]|\\(|\\)")
 
   # Split the character string by comma and extract the first element (lower bound of the range)
   y1 <- as.numeric(sapply(strsplit(y, ","), "[", 1))
@@ -254,7 +255,7 @@ extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, a
     coeff <- rep(0, (length(vars.in) + 1))
     if (length(novar) != 0) {
       for (m in 1:length(novar)) {
-        coeff[position(dis, novar[m]) + 1] <- NA
+        coeff[maSigPro::position(dis, novar[m]) + 1] <- NA
       }
     }
     p.valor <- t <- as.numeric(rep(NA, (length(vars.in) + 1)))
@@ -314,8 +315,8 @@ extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, a
 #' @param nBins Expected number of bins.
 #' @param bin Column name for the bin column.
 #' @param bin.size Column name for the bin size column.
-#' @param lbond Column name for the lower bound column.
-#' @param ubond Column name for the upper bound column.
+#' @param lbound Column name for the lower bound column.
+#' @param ubound Column name for the upper bound column.
 #' @keywords internal
 
 extract_interval <- function(time.vector, nBins = 1, bin, bin.size, lbound, ubound) {
@@ -401,7 +402,7 @@ select_longer_vector <- function(vector1, vector2,
 #' @param lbound The name of the lower bound column in `bin_table`.
 #' @param ubound The name of the upper bound column in `bin_table`.
 #' @param bin The name of the bin identifier column in `bin_table`.
-#' @param bin_size The name of the bin size column in `bin_table`.
+#' @param bin.size The name of the bin size column in `bin_table`.
 #' @param method The method for handling small bins: 'merge' to merge with previous or next bin,
 #' 'drop' to remove small bins, or 'ignore' to leave small bins as they are.
 #' @param drop The threshold below which a bin is considered too small and subject to the method.
@@ -500,7 +501,7 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @keywords internal
+#' @export
 
 pb_counts <- function(scmpObj,
                       bin_mem_col = scmpObj@Parameters@bin_mem_col,
@@ -508,12 +509,12 @@ pb_counts <- function(scmpObj,
                       assay_name = "counts",
                       cluster_count_by = "sum") {
   # Check Object Validity
-  assert_that(is(scmpObj, "ScMaSigPro"),
+  assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'scMaSigPro'."
   )
 
   # Count slot
-  assert_that(
+  assertthat::assert_that(
     all(
       assay_name %in% names(scmpObj@Sparse@assays@data@listData)
     ),
@@ -526,10 +527,10 @@ pb_counts <- function(scmpObj,
   # Get Pseudobulk Profile
   pseudo_bulk_profile <- as.data.frame(colData(scmpObj@Dense))
 
-  assert_that(bin_mem_col %in% colnames(pseudo_bulk_profile),
+  assertthat::assert_that(bin_mem_col %in% colnames(pseudo_bulk_profile),
     msg = paste0("'", bin_mem_col, "' does not exist in level.meta.data")
   )
-  assert_that(bin_col %in% colnames(pseudo_bulk_profile),
+  assertthat::assert_that(bin_col %in% colnames(pseudo_bulk_profile),
     msg = paste0("'", bin_col, "' does not exist in level.meta.data")
   )
 
@@ -542,7 +543,7 @@ pb_counts <- function(scmpObj,
     bin <- meta.info[i, , drop = FALSE]
 
     # Split the row
-    cell.vector <- c(str_split(bin[1], "\\|"))[[1]]
+    cell.vector <- c(stringr::str_split(bin[1], "\\|"))[[1]]
 
     # Get col cells
     col_indices <- which(colnames(counts) %in% cell.vector)
@@ -554,7 +555,7 @@ pb_counts <- function(scmpObj,
     pb.vector <- switch(cluster_count_by,
       "mean" = as.matrix(round(rowMeans(bin_matrix))),
       "sum"  = as.matrix(rowSums(bin_matrix)),
-      stop("Invalid cluster_count_by value. Please choose either 'mean' or 'sum'.")
+      stop("Invalid 'aggregate' value. Please choose either 'mean' or 'sum'.")
     )
 
     # Return

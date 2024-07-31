@@ -5,9 +5,7 @@
 #'
 #' @import ggplot2
 #' @importFrom stats complete.cases cutree hclust
-#' @importFrom RColorConesa getConesaColors
 #' @importFrom mclust Mclust
-#' @importFrom stringr str_split_i
 #' @importFrom stats as.dist cor kmeans
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
@@ -29,22 +27,50 @@
 #' @param summary_mode Compress the expression values per replicate (if present)
 #'  per binned pseudotime point. Default is 'median'. Other option 'mean'
 #' @param pseudoCount Add a pseudo-count before taking the log. (Default is 1)
+#' @param curves Whether to plot the fitted curves. (Default is TRUE)
+#' @param lines Whether to plot the lines. (Default is FALSE)
+#' @param points Whether to plot the points. (Default is TRUE)
+#' @param loess_span The fraction of the data used when estimating each y-value,
+#' when plotting curves. (Default is 0.75)
 #'
 #' @return ggplot2 plot object.
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #' @export
 plotTrendCluster <- function(scmpObj,
                              xlab = "Pooled Pseudotime",
-                             ylab = "Pseudobulk Expression",
+                             ylab = "log(Pseudobulk Expression)",
                              plot = "counts",
                              summary_mode = "median",
-                             logs = FALSE, logType = "log",
+                             logs = TRUE, logType = "log",
                              smoothness = 1,
                              includeInflu = TRUE,
                              verbose = TRUE,
                              pseudoCount = 1,
                              significant = FALSE,
-                             parallel = FALSE) {
+                             curves = TRUE,
+                             lines = FALSE,
+                             points = TRUE,
+                             parallel = FALSE,
+                             loess_span = 0.8) {
+  # # # Debugg
+  # scmpObj <- multi_scmp_ob_A
+  # xlab <- "Pooled Pseudotime"
+  # ylab <- "Pseudobulk Expression"
+  # plot <- "counts"
+  # summary_mode <- "median"
+  # logs <- TRUE
+  # logType <- "log"
+  # smoothness <- 1
+  # includeInflu <- TRUE
+  # verbose <- TRUE
+  # pseudoCount <- 1
+  # significant <- FALSE
+  # c <- curves <- TRUE
+  # l <- lines <- TRUE
+  # p <- points <- TRUE
+  # parallel <- FALSE
+
+
   # Global vars
   scmp_clusters <- "scmp_clusters"
   feature_id <- "feature_id"
@@ -52,11 +78,14 @@ plotTrendCluster <- function(scmpObj,
   offset_vector <- scmpObj@Design@offset
 
   # Check
-  assert_that(!isEmpty(scmpObj@Significant@clusters),
+  assertthat::assert_that(!isEmpty(scmpObj@Significant@clusters),
     msg = "Please run 'sc.cluster.trend', before plotting cluster trends"
   )
 
-  assert_that(any(plot %in% c("coeff", "counts")),
+  # Check Assertion
+  assertthat::assert_that(curves || lines || points, msg = "At least one of 'curves', 'lines', or 'points' must be TRUE.")
+
+  assertthat::assert_that(any(plot %in% c("coeff", "counts")),
     msg = paste(
       paste0("'", plot, "'"), "is not a valid option. Please use one of",
       paste(c("coeff", "counts"), collapse = ", ")
@@ -93,7 +122,10 @@ plotTrendCluster <- function(scmpObj,
                                                                              log = logs, log_type = logType,
                                                                              pCount = pseudoCount,
                                                                              sig = significant,
-                                                                             summary = summary_mode) {
+                                                                             summary = summary_mode,
+                                                                             c = curves,
+                                                                             l = lines,
+                                                                             p = points) {
     # Run per genes
     plt <- tryCatch(
       {
@@ -106,6 +138,9 @@ plotTrendCluster <- function(scmpObj,
           pseudoCount = pCount,
           significant = sig,
           summary_mode = summary,
+          curves = c,
+          lines = l,
+          points = p
         )
         return(plt)
       },
@@ -130,16 +165,27 @@ plotTrendCluster <- function(scmpObj,
   plt.list <- Filter(Negate(is.null), all.plt.list)
 
   # Start Traversing
-  data.list <- lapply(plt.list, function(gene_i.plot) {
-    # Extract layers
-    point.data <- gene_i.plot$layers[[1]][["data"]]
-    line.data <- gene_i.plot$layers[[2]][["data"]]
-    curve.data <- gene_i.plot$layers[[3]][["data"]]
+  data.list <- lapply(plt.list, function(gene_i.plot,
+                                         c = curves,
+                                         l = lines,
+                                         p = points) {
+    point.data <- NULL
+    line.data <- NULL
+    curve.data <- NULL
 
-    # Set columns
-    colnames(point.data) <- c("x_axis", "y_axis", "group")
-    colnames(line.data) <- c("x_axis", "group", "y_axis")
-    colnames(curve.data) <- c("x_axis", "y_axis", "group")
+    # Extract layers
+    if (c) {
+      curve.data <- gene_i.plot$layers[["curves"]][["data"]]
+      colnames(curve.data) <- c("x_axis", "y_axis", "group")
+    }
+    if (l) {
+      line.data <- gene_i.plot$layers[["lines"]][["data"]]
+      colnames(line.data) <- c("x_axis", "y_axis", "group")
+    }
+    if (p) {
+      point.data <- gene_i.plot$layers[["points"]][["data"]]
+      colnames(point.data) <- c("x_axis", "y_axis", "group")
+    }
 
     return(list(
       points = point.data,
@@ -168,44 +214,72 @@ plotTrendCluster <- function(scmpObj,
 
   # Df list
   collapsed.df <- lapply(cluster.data.list, function(clus_i.list,
-                                                     summary = summary_mode) {
-    # Extract Sub.list
-    line.list <- lapply(clus_i.list, function(line) {
-      return(line[["line"]])
-    })
-    point.list <- lapply(clus_i.list, function(line) {
-      return(line[["points"]])
-    })
-    curve.list <- lapply(clus_i.list, function(line) {
-      return(line[["curve"]])
-    })
+                                                     summary = summary_mode,
+                                                     c = curves,
+                                                     l = lines,
+                                                     p = points) {
+    point.df <- NULL
+    line.df <- NULL
+    curve.df <- NULL
+    # Define a summarization function
 
-    # Collapse to Dataframe
-    line.df <- do.call("rbind", line.list)
-    point.df <- do.call("rbind", point.list)
-    curve.df <- do.call("rbind", curve.list)
+    if (l) {
+      # Extract Sub.list
+      line.list <- lapply(clus_i.list, function(line) {
+        return(line[["line"]])
+      })
+      line.df <- do.call("rbind", line.list)
+    }
+
+    if (p) {
+      point.list <- lapply(clus_i.list, function(point) {
+        return(point[["points"]])
+      })
+      point.df <- do.call("rbind", point.list)
+    }
+
+    if (c) {
+      curve.list <- lapply(clus_i.list, function(curve) {
+        return(curve[["curve"]])
+      })
+      curve.df <- do.call("rbind", curve.list)
+    }
+
+
 
     # Grouping and summarizing with .data pronoun
     if (summary == "mean") {
-      line.df <- line.df %>%
-        group_by(.data$x_axis, .data$group) %>%
-        summarize(y_axis = mean(.data$y_axis, na.rm = TRUE), .groups = "drop")
-      point.df <- point.df %>%
-        group_by(.data$x_axis, .data$group) %>%
-        summarize(y_axis = mean(.data$y_axis, na.rm = TRUE), .groups = "drop")
-      curve.df <- curve.df %>%
-        group_by(.data$x_axis, .data$group) %>%
-        summarize(y_axis = mean(.data$y_axis, na.rm = TRUE), .groups = "drop")
+      if (!is.null(line.df)) {
+        line.df <- line.df %>%
+          dplyr::group_by(.data$x_axis, .data$group) %>%
+          dplyr::summarize(y_axis = mean(.data$y_axis, na.rm = TRUE), .groups = "drop")
+      }
+      if (!is.null(point.df)) {
+        point.df <- point.df %>%
+          dplyr::group_by(.data$x_axis, .data$group) %>%
+          dplyr::summarize(y_axis = mean(.data$y_axis, na.rm = TRUE), .groups = "drop")
+      }
+      if (!is.null(curve.df)) {
+        curve.df <- curve.df %>%
+          dplyr::group_by(.data$x_axis, .data$group) %>%
+          dplyr::summarize(y_axis = mean(.data$y_axis, na.rm = TRUE), .groups = "drop")
+      }
     } else if (summary == "median") {
-      line.df <- line.df %>%
-        group_by(.data$x_axis, .data$group) %>%
-        summarize(y_axis = median(.data$y_axis, na.rm = TRUE), .groups = "drop")
-      point.df <- point.df %>%
-        group_by(.data$x_axis, .data$group) %>%
-        summarize(y_axis = median(.data$y_axis, na.rm = TRUE), .groups = "drop")
-      curve.df <- curve.df %>%
-        group_by(.data$x_axis, .data$group) %>%
-        summarize(y_axis = median(.data$y_axis, na.rm = TRUE), .groups = "drop")
+      if (!is.null(line.df)) {
+        line.df <- line.df %>%
+          dplyr::group_by(.data$x_axis, .data$group) %>%
+          dplyr::summarize(y_axis = median(.data$y_axis, na.rm = TRUE), .groups = "drop")
+      }
+      if (!is.null(point.df)) {
+        point.df <- point.df %>%
+          dplyr::group_by(.data$x_axis, .data$group) %>%
+          dplyr::summarize(y_axis = median(.data$y_axis, na.rm = TRUE), .groups = "drop")
+      }
+      if (!is.null(curve.df)) {
+        curve.df <- curve.df %>%
+          dplyr::group_by(.data$x_axis, .data$group) %>%
+          dplyr::summarize(y_axis = median(.data$y_axis, na.rm = TRUE), .groups = "drop")
+      }
     }
 
     return(list(
@@ -225,49 +299,59 @@ plotTrendCluster <- function(scmpObj,
     cluster_name <- paste0("cluster_", i)
 
     # Extract 'line', 'curve', and 'points' data frames and add the 'cluster' column
-    line_df <- collapsed.df[[i]]$line
-    line_df$cluster <- cluster_name
-    lines_list[[i]] <- line_df
+    if (lines) {
+      line_df <- collapsed.df[[i]]$line
+      line_df$cluster <- cluster_name
+      lines_list[[i]] <- line_df
+    }
 
-    curve_df <- collapsed.df[[i]]$curve
-    curve_df$cluster <- cluster_name
-    curves_list[[i]] <- curve_df
-
-    points_df <- collapsed.df[[i]]$points
-    points_df$cluster <- cluster_name
-    points_list[[i]] <- points_df
+    if (curves) {
+      curve_df <- collapsed.df[[i]]$curve
+      curve_df$cluster <- cluster_name
+      curves_list[[i]] <- curve_df
+    }
+    if (points) {
+      points_df <- collapsed.df[[i]]$points
+      points_df$cluster <- cluster_name
+      points_list[[i]] <- points_df
+    }
   }
 
   # Combine the data frames of the same type
-  lines_combined <- do.call(rbind, lines_list) %>% as.data.frame()
-  curves_combined <- do.call(rbind, curves_list) %>% as.data.frame()
-  points_combined <- do.call(rbind, points_list) %>% as.data.frame()
+  if (lines) {
+    lines_combined <- do.call(rbind, lines_list) %>% as.data.frame()
+    lines_combined <- merge(freq.table, lines_combined, by = "cluster")
+    lines_combined[["cluster"]] <- paste0(
+      paste("Cluster", stringr::str_split_i(string = lines_combined[["cluster"]], pattern = "_", i = 2), sep = ": "),
+      " (", lines_combined[["num"]], " Features)"
+    )
+  }
+  if (curves) {
+    curves_combined <- do.call(rbind, curves_list) %>% as.data.frame()
+    curves_combined <- merge(freq.table, curves_combined, by = "cluster")
+    curves_combined[["cluster"]] <- paste0(
+      paste("Cluster", stringr::str_split_i(string = curves_combined[["cluster"]], pattern = "_", i = 2), sep = ": "),
+      " (", curves_combined[["num"]], " Features)"
+    )
+  }
+  if (points) {
+    points_combined <- do.call(rbind, points_list) %>% as.data.frame()
+    points_combined <- merge(freq.table, points_combined, by = "cluster")
+    # Fix cluster info
+    points_combined[["cluster"]] <- paste0(
+      paste("Cluster", stringr::str_split_i(string = points_combined[["cluster"]], pattern = "_", i = 2), sep = ": "),
+      " (", points_combined[["num"]], " Features)"
+    )
+  }
 
   if (verbose) {
     message("Calculating 'loess', hang tight this can take a while depending on the smoothness...")
   }
 
-  # Add numbers
-  points_combined <- merge(freq.table, points_combined, by = "cluster")
-  lines_combined <- merge(freq.table, lines_combined, by = "cluster")
-  curves_combined <- merge(freq.table, curves_combined, by = "cluster")
-
-  # Fix cluster info
-  points_combined[["cluster"]] <- paste0(
-    paste("Cluster", str_split_i(string = points_combined[["cluster"]], pattern = "_", i = 2), sep = ": "),
-    " (", points_combined[["num"]], " Features)"
-  )
-  lines_combined[["cluster"]] <- paste0(
-    paste("Cluster", str_split_i(string = lines_combined[["cluster"]], pattern = "_", i = 2), sep = ": "),
-    " (", lines_combined[["num"]], " Features)"
-  )
-  curves_combined[["cluster"]] <- paste0(
-    paste("Cluster", str_split_i(string = curves_combined[["cluster"]], pattern = "_", i = 2), sep = ": "),
-    " (", curves_combined[["num"]], " Features)"
-  )
-
   if (sum(offset_vector) != 0) {
-    lines_combined <- points_combined
+    if (lines) {
+      lines_combined <- points_combined
+    }
   }
 
 
@@ -276,33 +360,44 @@ plotTrendCluster <- function(scmpObj,
   # View(lines_combined)
 
   # Initiate plotting
-  p <- ggplot() +
-    geom_point(
+  p <- ggplot()
+
+  if (points) {
+    p <- p + geom_point(
       data = points_combined, aes(x = .data$x_axis, y = .data$y_axis, color = .data$group),
       fill = "#102C57", alpha = 0.5, size = 0.5, stroke = 0.5, shape = 21
-    ) +
-    geom_path(
+    )
+  }
+  if (lines) {
+    p <- p + geom_path(
       data = lines_combined,
       aes(
         x = .data$x_axis, y = .data$y_axis, color = .data$group, group = .data$group,
-      ), linetype = "solid", linewidth = 0.5
-    ) +
-    geom_smooth(
+      ), linetype = "dashed", linewidth = 0.5
+    )
+  }
+
+  if (curves) {
+    p <- p + geom_smooth(
       data = curves_combined,
       se = FALSE,
-      formula = y ~ x, span = 0.7,
-      method = "loess",
+      # formula =  y ~ s(x , k = scmpObj@Parameters@poly_degree,  bs = "cs"),
+      # method = "gam",
+      formula = y ~ x,
+      method = "loess", span = loess_span,
       aes(
         x = .data$x_axis, y = .data$y_axis, color = .data$group, group = .data$group,
-      ), linetype = "dashed", linewidth = 0.5
-    ) +
-    facet_wrap(~ .data$cluster, scales = "free_y") + # Create a panel for each cluster_id
-    scale_color_manual(values = colorConesa(length(unique(lines_combined$group)))) + # Custom colors for paths
+      ), linetype = "solid", linewidth = 0.5
+    )
+  }
+
+  p <- p + facet_wrap(~ .data$cluster, scales = "free_y") + # Create a panel for each cluster_id
+    scale_color_manual(values = scmp_colors(length(unique(cDense(scmpObj)[[scmpObj@Parameters@path_col]])))) + # Custom colors for paths
     theme_classic(base_size = 10) +
     theme(
       strip.background = element_blank(),
       strip.text.x = element_text(size = 10, angle = 0),
-      legend.position = "bottom", legend.title.align = 0.5,
+      legend.position = "bottom", legend.title = element_text(hjust = 0.5),
       panel.grid.major = element_line(color = "grey90", linewidth = 0.3, linetype = "dashed"),
       panel.grid.minor = element_blank(),
       axis.text.x = element_text(angle = 45, hjust = 1) # Rotate x-axis text if necessary

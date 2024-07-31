@@ -55,7 +55,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
                         max_it = 100,
                         link = "log") {
   # Check the type of the 'design' parameter and set the corresponding variables
-  assert_that(is(scmpObj, "ScMaSigPro"),
+  assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
     msg = "Please provide object of class 'ScMaSigPro'"
   )
 
@@ -70,7 +70,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
   G <- nrow(dat)
 
   # Check for the log function
-  assert_that(link %in% c("log", "identity"),
+  assertthat::assert_that(link %in% c("log", "identity"),
     msg = "link function should be either 'log' or 'identity'"
   )
 
@@ -78,8 +78,8 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
   family[["link"]] <- link
 
   # Add check
-  # assert_that((dat@Dim[1] > 1), msg = paste(min_na, "for 'min_na' is too high. Try lowering the threshold."))
-  assert_that(min_na <= ncol(dat),
+  # assertthat::assert_that((dat@Dim[1] > 1), msg = paste(min_na, "for 'min_na' is too high. Try lowering the threshold."))
+  assertthat::assert_that(min_na <= ncol(dat),
     msg = paste(
       min_na,
       "for 'min_na' is too high. Try lowering the threshold."
@@ -129,7 +129,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     } else {
       n_cores <- as.integer(n_cores)
       # Check Required Cores
-      assert_that(n_cores <= availableCores(),
+      assertthat::assert_that(n_cores <= availableCores(),
         msg = paste("Number of cores requested is invalid. This session has access to", as.integer(availableCores()), "cores only.")
       )
       numCores <- n_cores

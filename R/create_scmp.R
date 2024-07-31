@@ -33,22 +33,32 @@ create_scmp <- function(counts,
                         path_col,
                         use_as_bin = FALSE) {
   # Validation Checks
-  assert_that(ncol(counts) == nrow(cell_data),
+  assertthat::assert_that(ncol(counts) == nrow(cell_data),
     msg = paste("Number of cells in raw-counts and cell-level-metadata are different.")
   )
 
-  assert_that(all(colnames(counts) == rownames(cell_data)),
+  assertthat::assert_that(all(colnames(counts) == rownames(cell_data)),
     msg = paste("Rownames of raw-counts and cell-level-metadata are different.")
   )
 
   if (!is.null(bin_counts) || !is.null(bin_cell_data)) {
-    assert_that(nrow(bin_counts) == nrow(bin_cell_data),
+    assertthat::assert_that(nrow(bin_counts) == nrow(bin_cell_data),
       msg = paste("Number of cells in bin_counts and bin_cell_data are different.")
     )
-    assert_that(all(rownames(bin_counts) == rownames(bin_cell_data)),
+    assertthat::assert_that(all(rownames(bin_counts) == rownames(bin_cell_data)),
       msg = paste("Rownames of bin_counts and bin_cell_data are different.")
     )
   }
+
+  # Validate if path_col is present in cell_data
+  assertthat::assert_that(path_col %in% colnames(cell_data),
+    msg = paste("Column name '", path_col, "' not found in cell_data.")
+  )
+
+  # Validate if ptime_col is present in cell_data
+  assertthat::assert_that(ptime_col %in% colnames(cell_data),
+    msg = paste("Column name '", ptime_col, "' not found in cell_data.")
+  )
 
   # Create Single-Cell Experiment Object
   sparse_tmp <- SingleCellExperiment(
@@ -61,7 +71,7 @@ create_scmp <- function(counts,
     Sparse = sparse_tmp,
     Dense = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
   )
-  sparse_tmp <- NULL
+  rm(sparse_tmp)
 
   # Use as bin
   if (use_as_bin) {
@@ -76,7 +86,7 @@ create_scmp <- function(counts,
 
     # Transfer Data
     scmpObj@Dense <- sparse_tmp
-    sparse_tmp <- NULL
+    rm(sparse_tmp)
 
     # Update the slots
     scmpObj@Parameters@bin_ptime_col <- ptime_col

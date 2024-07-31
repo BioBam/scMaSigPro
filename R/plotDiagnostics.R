@@ -5,7 +5,6 @@
 #' diagnostics of optimized model or full model.
 #'
 #' @importFrom stats residuals fitted rstandard predict
-#' @importFrom stringr str_remove
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param feature_id Name of the gene to be plotted.
@@ -22,12 +21,12 @@ plotDiagnostics <- function(scmpObj,
                             feature_id,
                             model = "optimized") {
   # Check if the results exist
-  assert_that(!isEmpty(scmpObj@Significant@genes),
+  assertthat::assert_that(!isEmpty(scmpObj@Significant@genes),
     msg = paste("No Significant genes found, please run the workflow first")
   )
 
   # Check model type
-  assert_that(all(model %in% c("optimized", "full", "intercept")),
+  assertthat::assert_that(all(model %in% c("optimized", "full", "intercept")),
     msg = paste("The requested gene is not available in the significant genes list")
   )
 
@@ -35,7 +34,7 @@ plotDiagnostics <- function(scmpObj,
   avail_genes <- unique(unlist(scmpObj@Significant@genes))
 
   # Check if the requested gene is availble as singificant gene
-  assert_that(all(feature_id %in% avail_genes),
+  assertthat::assert_that(all(feature_id %in% avail_genes),
     msg = paste("The requested gene is not available in the significant genes list")
   )
 
@@ -71,7 +70,7 @@ plotDiagnostics <- function(scmpObj,
     all_terms <- colnames(coeff_matrix_sub)[-1]
 
     # Remove any occurance of beta
-    all_terms <- str_remove(string = all_terms, pattern = "beta")
+    all_terms <- stringr::str_remove(string = all_terms, pattern = "beta")
 
     # Remove intercept
     all_terms <- all_terms[-1]
