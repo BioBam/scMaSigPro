@@ -13,7 +13,6 @@ export(cSparse)
 export(create_scmp)
 export(eDense)
 export(eSparse)
-export(m3_select_path)
 export(pathAssign)
 export(pb_counts)
 export(plotBinTile)
@@ -67,15 +66,13 @@ importFrom(S4Vectors,
 )
 importFrom(SingleCellExperiment,
   SingleCellExperiment,
-  colData,
-  reducedDims
+  colData
 )
 importFrom(SummarizedExperiment,
   "colData<-",
   assay
 )
 importFrom(dplyr,
-  arrange,
   bind_rows,
   filter,
   group_by,
@@ -83,8 +80,6 @@ importFrom(dplyr,
   join_by,
   left_join,
   mutate,
-  n,
-  pull,
   rename_with,
   row_number,
   select,
@@ -94,7 +89,6 @@ importFrom(dplyr,
 )
 importFrom(e1071,skewness)
 importFrom(entropy,discretize)
-importFrom(igraph,get.data.frame)
 importFrom(maSigPro,
   get.siggenes,
   make.design.matrix,
@@ -114,50 +108,7 @@ importFrom(parallel,
   mclapply
 )
 importFrom(parallelly,availableCores)
-importFrom(plotly,
-  config,
-  event_data,
-  ggplotly,
-  layout,
-  plotlyOutput,
-  renderPlotly
-)
 importFrom(rlang,":=")
-importFrom(scales,rescale)
-importFrom(shiny,
-  HTML,
-  actionButton,
-  column,
-  fluidPage,
-  fluidRow,
-  h3,
-  h4,
-  h5,
-  hr,
-  mainPanel,
-  modalButton,
-  modalDialog,
-  observeEvent,
-  radioButtons,
-  reactive,
-  reactiveVal,
-  removeModal,
-  renderText,
-  renderUI,
-  runApp,
-  shinyApp,
-  showModal,
-  showNotification,
-  sidebarLayout,
-  sidebarPanel,
-  sliderInput,
-  stopApp,
-  tagList,
-  textInput,
-  titlePanel,
-  uiOutput,
-  verbatimTextOutput
-)
 importFrom(stats,
   IQR,
   anova,
@@ -181,8 +132,7 @@ importFrom(stats,
   predict,
   residuals,
   rstandard,
-  sd,
-  setNames
+  sd
 )
 importFrom(utils,
   View,

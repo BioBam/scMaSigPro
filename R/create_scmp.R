@@ -20,6 +20,8 @@
 #'
 #' @return An object of class \code{\link{ScMaSigPro}}, with aligned pseudotime.
 #'
+#' @importFrom S4Vectors DataFrame
+#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #' @export
 

@@ -35,36 +35,6 @@ calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
   return(as.numeric(size))
 }
 ###############################################################################
-#' @title Convert Vector Elements to Path Names (Internal)
-#'
-#' @description
-#' `convert_to_path()` transforms a vector by renaming its unique elements
-#' (excluding the "root" element) to a sequence named "Path1", "Path2", etc.
-#'
-#' @param vec A character vector where elements may be repeated and
-#' might contain the value "root".
-#' @param path_prefix Prefix used to annoate the paths, default is "Path".
-#' @param root_label The label for the root element, default is "root".
-#'
-#' @return A character vector with the same length as the input where
-#' unique elements, excluding "root", are renamed to "Path1", "Path2", etc.
-#'
-#' @importFrom stats setNames
-#'
-#' @keywords internal
-convert_to_path <- function(vec, path_prefix, root_label) {
-  # Exclude "root" from the transformation and get the unique values
-  unique_vals <- unique(vec[vec != root_label])
-
-  # Create a named vector for the mapping
-  name_map <- setNames(paste0(path_prefix, 1:length(unique_vals)), unique_vals)
-
-  # Map and replace the non-root elements
-  vec[vec != root_label] <- name_map[vec[vec != root_label]]
-
-  return(vec)
-}
-###############################################################################
 #' @title Create Range Function
 #'
 #' @description
@@ -344,45 +314,6 @@ extract_interval <- function(time.vector, nBins = 1, bin, bin.size, lbound, ubou
 
   # Return
   return(new_bin_table_current)
-}
-
-###############################################################################
-#' Select the Longer of Two Vectors
-#'
-#' This function compares the lengths of two vectors and returns the longer one.
-#' If both vectors have the same length, the function returns 1.
-#'
-#' @param vector1 A numeric vector.
-#' @param vector2 A numeric vector.
-#' @param vector1_label A label (character string) for `vector1`.
-#' @param vector2_label A label (character string) for `vector2`.
-#'
-#' @return A list containing:
-#' \itemize{
-#'   \item \code{long_vec}: The longer vector of `vector1` and `vector2`.
-#'   \item \code{long_vec_label}: The label corresponding to the longer vector.
-#'   \item \code{short_vec}: The shorter vector of `vector1` and `vector2`.
-#'   \item \code{short_vec_label}: The label corresponding to the shorter vector.
-#' }
-#' If both vectors are of the same length, the function returns 1.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#' @keywords internal
-select_longer_vector <- function(vector1, vector2,
-                                 vector1_label, vector2_label) {
-  if (length(vector1) > length(vector2)) {
-    return(list(
-      long_vec = vector1, long_vec_label = vector1_label,
-      short_vec = vector2, short_vec_label = vector2_label
-    ))
-  } else if (length(vector2) > length(vector1)) {
-    return(list(
-      long_vec = vector2, long_vec_label = vector2_label,
-      short_vec = vector1, short_vec_label = vector1_label
-    ))
-  } else {
-    return(list(empty = 1))
-  }
 }
 
 ###############################################################################

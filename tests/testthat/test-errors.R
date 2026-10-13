@@ -6,6 +6,10 @@ bad_cells <- data.frame(x = 1:2)
 cases <- list(
   "as_scmp rejects an unknown 'from'" =
     quote(as_scmp(load_dataset("splat.sim"), from = "seurat")),
+  "as_scmp no longer converts Monocle3 objects (from = 'cds')" =
+    quote(as_scmp(load_dataset("splat.sim"), from = "cds")),
+  "as_scmp rejects an object that is not a SingleCellExperiment" =
+    quote(as_scmp(SummarizedExperiment::SummarizedExperiment(list(counts = matrix(1, 2, 2))))),
   "sc.squeeze rejects a non-ScMaSigPro input" =
     quote(sc.squeeze(42)),
   "sc.squeeze rejects an unknown pseudotime column" =
