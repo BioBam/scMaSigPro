@@ -185,15 +185,10 @@ sc.restruct <- function(scmpObj,
 
   new_bin_info <- bin_root_tmp
 
-  compressed.sparse <- SingleCellExperiment::SingleCellExperiment(assays = list(
-    bulk.counts = as(
-      matrix(NA, nrow = 0, ncol = nrow(new_bin_info)),
-      "dgCMatrix"
-    )
-  ))
-
-  compressed.sparse@colData <- S4Vectors::DataFrame(new_bin_info)
-  scmpObj@Dense <- compressed.sparse
+  # Bin metadata only; pb_counts() adds the assay
+  scmpObj@Dense <- SingleCellExperiment::SingleCellExperiment(
+    colData = S4Vectors::DataFrame(new_bin_info)
+  )
 
   # Get Counts
   scmpObj <- pb_counts(

@@ -30,8 +30,9 @@ aggregate counts within each cluster. Available options are 'mean' or 'sum'.
 (Default = "sum").}
 }
 \value{
-A matrix. The matrix includes pseudo bulk counts with each row being
-a gene and each column being a bin.
+An object of class \code{\link{ScMaSigPro}} whose \code{Dense} slot is rebuilt
+as a valid \code{SingleCellExperiment}: the \code{bulk.counts} assay (genes x bins)
+and the bin-level metadata.
 }
 \description{
 \code{pb_counts()} creates a dataframe of pseudo bulk counts from single
@@ -45,6 +46,10 @@ counts from the counts data frame. It then calculates the mean or sum of these
 counts (depending on the specified method), and adds these to a new data frame
 of pseudo bulk counts. The result is a pseudo bulk counts data frame where
 each row is a gene and each column is a bin.
+
+Bins are identified by the rownames of the \code{Dense} cell metadata (see
+\code{\link[=cDense]{cDense()}}); these become the column names of \code{bulk.counts}. The \code{bin_col}
+column is used only when the metadata has no rownames.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

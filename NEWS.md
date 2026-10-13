@@ -1,4 +1,15 @@
-## scMaSigPro 0.0.4.9000 (development version)
+## scMaSigPro 0.0.5
+
+* Bug Fixes
+    * `sc.squeeze()` no longer scrambles the cell metadata in the `Sparse` slot. Binning stacked the cells path by path, but the count matrix kept its original column order, so `colData()`, `counts()`, `assay()` and `cSparse()` paired every cell with another cell's counts (on `splat.sim`, `counts(ob@Sparse)[, "Cell2"]` returned the counts of `Cell1`). Pseudo-bulk counts, fits and gene lists were not affected because they match cells by name. Running `sc.squeeze()` again repairs objects binned with 0.0.4.
+    * The `Dense` slot is now a valid `SingleCellExperiment`. It used to report 0 genes (`dim(ob@Dense)` was `0 x <bins>`), failed `validObject()`, and `ob@Dense[1:3, ]` errored. `pb_counts()` now builds it from the `bulk.counts` assay and the bin metadata together; `sc.squeeze()`, `sc.restruct()` and `pb_counts()` check the result with `validObject()`.
+    * `pb_counts()` names the bins after the rownames of the `Dense` metadata (the `bin_col` column is used only when there are no rownames) and stops on duplicated names. After bins were reordered by hand with `cDense<-` (Common Root Cells vignette), the counts kept the old, duplicated bin labels and `sc.p.vector()` failed with "subscript out of bounds"; such objects now run through the workflow.
+    * When `split_bins = TRUE` leaves cells outside every bin (3 of the 1,977 cells of `multi.lin.sce` with the default `bin_method`), `sc.squeeze()` now warns and removes them from the `Sparse` slot. Previously they were silently dropped from the cell metadata only, which left the object invalid. They were never part of any bin, so results do not change.
+    * The bundled `scmp.ob` dataset was regenerated: it passes `validObject()` and its results are numerically unchanged.
+    * Printing a binned object lists the branching paths in the order they appear in the cell metadata, as before binning.
+
+* Dependency Changes
+    * `SummarizedExperiment` (already installed with `SingleCellExperiment`) is declared in Imports.
 
 * Documentation
     * Vignettes no longer download data or images from the web. The "Common Root Cells" vignette uses the bundled `multi.lin.sce` dataset and includes the Monocle3 extraction steps as an unevaluated recipe; the Quick Start vignette no longer writes into `data/` during the build.
