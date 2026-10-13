@@ -75,7 +75,7 @@ convert_to_path <- function(vec, path_prefix, root_label) {
 #'
 #' @param x A data frame that should contain the following columns:
 #'   \describe{
-#'     \item{bin}{A factor column representing the bin intervals in the format "[x, y]".}
+#'     \item{bin}{A factor column representing the bin intervals in the format `"[x, y]"`.}
 #'     \item{bin_size}{A numeric column representing the bin size.}
 #'     \item{binned_time}{A numeric column representing the binned time.}
 #'   }

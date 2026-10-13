@@ -32,7 +32,7 @@ use_as_bin == TRUE)}
 for inferred Pseudotime values. (Default is "Pseudotime")}
 
 \item{path_col}{A character string representing the column name for branching
-path assignment. (Default is `path_prefix`)}
+path assignment. (Default is \code{path_prefix})}
 
 \item{use_as_bin}{A logical indicating to run MaSigPro analysis without
 pseudotime binning. Defaults to FALSE.}
@@ -41,7 +41,7 @@ pseudotime binning. Defaults to FALSE.}
 An object of class \code{\link{ScMaSigPro}}, with aligned pseudotime.
 }
 \description{
-`create_scmp()` initializes a ScMaSigPro object with the given counts,
+\code{create_scmp()} initializes a ScMaSigPro object with the given counts,
 cell level metadata, and other optional parameters.
 }
 \author{

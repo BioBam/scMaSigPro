@@ -12,7 +12,7 @@
 \item{value}{The value of the branch Assignment Matrix.}
 }
 \value{
-Modified `ScMaSigPro` object with new Assignment Matrix.
+Modified \code{ScMaSigPro} object with new Assignment Matrix.
 }
 \description{
 Set or get the Assignment Matrix.

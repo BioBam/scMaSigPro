@@ -12,10 +12,10 @@ parameters and associated data. Inherits slots from \code{SingleCellExperiment}.
 \section{Slots}{
 
 \describe{
-\item{\code{Sparse}}{Object of class \code{\link{SingleCellExperiment}}.
+\item{\code{Sparse}}{Object of class \code{\link[SingleCellExperiment]{SingleCellExperiment}}.
 See \pkg{SingleCellExperiment} for more details.}
 
-\item{\code{Dense}}{Object of class \code{\link{SingleCellExperiment}}.
+\item{\code{Dense}}{Object of class \code{\link[SingleCellExperiment]{SingleCellExperiment}}.
 See \pkg{SingleCellExperiment} for more details.}
 
 \item{\code{Design}}{Object of Class \code{\link{MatrixDesign}}.}

@@ -19,7 +19,7 @@ The modified \code{\link{ScMaSigPro}} object with the updated
 expression data in the Sparse slot.
 }
 \description{
-`eSparse<-` is a generic function for setting expression counts in the Sparse slot
+\verb{eSparse<-} is a generic function for setting expression counts in the Sparse slot
 of an \code{\link{ScMaSigPro}} object.
 }
 \author{

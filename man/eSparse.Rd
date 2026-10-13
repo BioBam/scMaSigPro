@@ -18,7 +18,7 @@ Default is "counts", which will return the default expression matrix.}
 An expression matrix for the specified assay from the Sparse slot.
 }
 \description{
-`eSparse` is a generic function for retrieving expression counts stored in the
+\code{eSparse} is a generic function for retrieving expression counts stored in the
 Sparse slot of an \code{\link{ScMaSigPro}} object.
 }
 \author{

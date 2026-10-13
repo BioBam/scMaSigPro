@@ -54,7 +54,7 @@ the offsets.}
 \item{link}{Type of link function to use in the model. Default is "log".}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}, with updated `Profile`
+An object of class \code{\link{ScMaSigPro}}, with updated \code{Profile}
 slot.
 }
 \description{

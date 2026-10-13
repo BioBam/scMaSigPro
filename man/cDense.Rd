@@ -9,10 +9,10 @@ cDense(object, value = "missing")
 \arguments{
 \item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The new value for the `colData` slot of Dense. (When Setting)}
+\item{value}{The new value for the \code{colData} slot of Dense. (When Setting)}
 }
 \value{
-`colData` for the `Dense` Slot.
+\code{colData} for the \code{Dense} Slot.
 }
 \description{
 Get or set cell level metadata for the Dense slot of an

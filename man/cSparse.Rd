@@ -9,10 +9,10 @@ cSparse(object, value = "missing")
 \arguments{
 \item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The new value for the `colData` slot of Sparse. (When Setting)}
+\item{value}{The new value for the \code{colData} slot of Sparse. (When Setting)}
 }
 \value{
-`colData` for the `Sparse` Slot.
+\code{colData} for the \code{Sparse} Slot.
 }
 \description{
 Get or set cell level metadata for the Sparse slot of an
