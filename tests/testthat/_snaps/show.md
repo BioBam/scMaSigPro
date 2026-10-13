@@ -72,6 +72,20 @@
       No. of Significant Profiles: 49
       No. of Influential Features: 4
 
+---
+
+    Code
+      print(multi_restruct())
+    Output
+      Class: ScMaSigProClass
+      nCells: 1977
+      nFeatures: 501
+      Pseudotime Range: 0 62.806
+      Branching Paths: Root, Y_15, Y_18, Y_18_links_Y_15, Y_52
+      Binned Pseudotime: 1-28(Range), 13.39(Mean), 
+      Number of bins-> Y_15: 23 Y_18: 24 Y_52: 19
+      Average bin Size-> Y_15: 35 Y_18: 49 Y_52: 50
+
 # showPoly() prints the full model formula
 
     Code

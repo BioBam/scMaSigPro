@@ -62,6 +62,9 @@ cases <- list(
 
 for (nm in names(cases)) {
   test_that(nm, {
+    # Snapshots are skipped when NOT_CRAN is unset (R CMD check on CI and on
+    # Bioconductor); the error itself is asserted everywhere.
+    expect_error(eval(cases[[nm]]))
     expect_snapshot(error = TRUE, eval(cases[[nm]]))
   })
 }
