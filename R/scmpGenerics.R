@@ -41,12 +41,12 @@ setGeneric("cSparse<-", function(object, value) standardGeneric("cSparse<-"))
 #'
 #' @export
 setMethod("cSparse", "ScMaSigPro", function(object, value) {
-  if (identical(value, "missing")) {
-    return(as.data.frame(object@Sparse@colData)) # Getter
-  } else {
-    object@Sparse@colData <- DataFrame(value) # Setter
-    return(invisible(object))
-  }
+    if (identical(value, "missing")) {
+        return(as.data.frame(object@Sparse@colData)) # Getter
+    } else {
+        object@Sparse@colData <- DataFrame(value) # Setter
+        return(invisible(object))
+    }
 })
 
 #' @title Replacement method for cSparse
@@ -60,8 +60,8 @@ setMethod("cSparse", "ScMaSigPro", function(object, value) {
 #'
 #' @export
 setReplaceMethod("cSparse", "ScMaSigPro", function(object, value) {
-  object@Sparse@colData <- DataFrame(value)
-  return(object)
+    object@Sparse@colData <- DataFrame(value)
+    return(object)
 })
 ###############################################################################
 #' @title Get the data for Dense Slot.
@@ -107,12 +107,12 @@ setGeneric("cDense<-", function(object, value) standardGeneric("cDense<-"))
 #'
 #' @export
 setMethod("cDense", "ScMaSigPro", function(object, value) {
-  if (identical(value, "missing")) {
-    return(as.data.frame(object@Dense@colData))
-  } else {
-    object@Dense@colData <- DataFrame(value)
-    return(invisible(object))
-  }
+    if (identical(value, "missing")) {
+        return(as.data.frame(object@Dense@colData))
+    } else {
+        object@Dense@colData <- DataFrame(value)
+        return(invisible(object))
+    }
 })
 
 #' @title Replacement method for cDense
@@ -126,8 +126,8 @@ setMethod("cDense", "ScMaSigPro", function(object, value) {
 #'
 #' @export
 setReplaceMethod("cDense", "ScMaSigPro", function(object, value) {
-  object@Dense@colData <- DataFrame(value)
-  return(object)
+    object@Dense@colData <- DataFrame(value)
+    return(object)
 })
 ###############################################################################
 #' @title Get Expression Counts from Sparse Slot
@@ -186,20 +186,20 @@ setGeneric("eSparse<-", function(object, i = "counts", value) standardGeneric("e
 #'
 #' @export
 setMethod("eSparse", signature(object = "ScMaSigPro"), function(object, i = "counts", ...) {
-  if (i == "counts") {
-    assayNames <- names(object@Sparse@assays@data@listData)
-    if (length(assayNames) > 0) {
-      return(as.matrix(object@Sparse@assays@data@listData[[assayNames[1]]]))
+    if (i == "counts") {
+        assayNames <- names(object@Sparse@assays@data@listData)
+        if (length(assayNames) > 0) {
+            return(as.matrix(object@Sparse@assays@data@listData[[assayNames[1]]]))
+        } else {
+            stop("No assays found in the object.")
+        }
     } else {
-      stop("No assays found in the object.")
+        # Return the specific assay's data matrix
+        if (!i %in% names(object@Sparse@assays@data@listData)) {
+            stop(paste0("Assay '", i, "' not found in the object."))
+        }
+        return(as.matrix(object@Sparse@assays@data@listData[[i]]))
     }
-  } else {
-    # Return the specific assay's data matrix
-    if (!i %in% names(object@Sparse@assays@data@listData)) {
-      stop(paste0("Assay '", i, "' not found in the object."))
-    }
-    return(as.matrix(object@Sparse@assays@data@listData[[i]]))
-  }
 })
 
 #' @title Set Expression Counts in Sparse Slot
@@ -220,23 +220,23 @@ setMethod("eSparse", signature(object = "ScMaSigPro"), function(object, i = "cou
 #'
 #' @export
 setMethod("eSparse<-", signature(object = "ScMaSigPro", i = "character", value = "matrix"), function(object, i, value) {
-  if (!inherits(value, "dgCMatrix")) {
-    value <- as(value, "dgCMatrix")
-  }
+    if (!inherits(value, "dgCMatrix")) {
+        value <- as(value, "dgCMatrix")
+    }
 
-  # Check if the specified assay exists; if not, create a new entry
-  if (!i %in% names(object@Sparse@assays@data@listData)) {
-    message(paste0("Creating a new assay as '", i, "'."))
-    # Update the assay data
-    object@Sparse@assays@data@listData[[i]] <- value
-  } else if (i %in% names(object@Sparse@assays@data@listData)) {
-    warning(paste0("Overwritting assay '", i, "'."))
-    # Update the assay data
-    object@Sparse@assays@data@listData[[i]] <- value
-  }
+    # Check if the specified assay exists; if not, create a new entry
+    if (!i %in% names(object@Sparse@assays@data@listData)) {
+        message(paste0("Creating a new assay as '", i, "'."))
+        # Update the assay data
+        object@Sparse@assays@data@listData[[i]] <- value
+    } else if (i %in% names(object@Sparse@assays@data@listData)) {
+        warning(paste0("Overwritting assay '", i, "'."))
+        # Update the assay data
+        object@Sparse@assays@data@listData[[i]] <- value
+    }
 
-  # Return the modified object
-  return(object)
+    # Return the modified object
+    return(object)
 })
 
 ##############################################################################
@@ -296,20 +296,20 @@ setGeneric("eDense<-", function(object, i = "bulk.counts", value) standardGeneri
 #'
 #' @export
 setMethod("eDense", signature(object = "ScMaSigPro"), function(object, i = "bulk.counts", ...) {
-  if (i == "bulk.counts") {
-    assayNames <- names(object@Dense@assays@data@listData)
-    if (length(assayNames) > 0) {
-      return(as.matrix(object@Dense@assays@data@listData[[assayNames[1]]]))
+    if (i == "bulk.counts") {
+        assayNames <- names(object@Dense@assays@data@listData)
+        if (length(assayNames) > 0) {
+            return(as.matrix(object@Dense@assays@data@listData[[assayNames[1]]]))
+        } else {
+            stop("No assays found in the object.")
+        }
     } else {
-      stop("No assays found in the object.")
+        # Return the specific assay's data matrix
+        if (!i %in% names(object@Dense@assays@data@listData)) {
+            stop(paste0("Assay '", i, "' not found in the object."))
+        }
+        return(as.matrix(object@Dense@assays@data@listData[[i]]))
     }
-  } else {
-    # Return the specific assay's data matrix
-    if (!i %in% names(object@Dense@assays@data@listData)) {
-      stop(paste0("Assay '", i, "' not found in the object."))
-    }
-    return(as.matrix(object@Dense@assays@data@listData[[i]]))
-  }
 })
 
 #' @title Set or Update Expression Data in Dense Slot
@@ -331,23 +331,23 @@ setMethod("eDense", signature(object = "ScMaSigPro"), function(object, i = "bulk
 #'
 #' @export
 setMethod("eDense<-", signature(object = "ScMaSigPro", i = "character", value = "matrix"), function(object, i, value) {
-  if (!inherits(value, "dgCMatrix")) {
-    value <- as(value, "dgCMatrix")
-  }
+    if (!inherits(value, "dgCMatrix")) {
+        value <- as(value, "dgCMatrix")
+    }
 
-  # Check if the specified assay exists; if not, create a new entry
-  if (!i %in% names(object@Dense@assays@data@listData)) {
-    message(paste0("Creating a new assay as '", i, "'."))
-    # Update the assay data
-    object@Dense@assays@data@listData[[i]] <- value
-  } else if (i %in% names(object@Dense@assays@data@listData)) {
-    warning(paste0("Overwritting assay '", i, "'."))
-    # Update the assay data
-    object@Dense@assays@data@listData[[i]] <- value
-  }
+    # Check if the specified assay exists; if not, create a new entry
+    if (!i %in% names(object@Dense@assays@data@listData)) {
+        message(paste0("Creating a new assay as '", i, "'."))
+        # Update the assay data
+        object@Dense@assays@data@listData[[i]] <- value
+    } else if (i %in% names(object@Dense@assays@data@listData)) {
+        warning(paste0("Overwritting assay '", i, "'."))
+        # Update the assay data
+        object@Dense@assays@data@listData[[i]] <- value
+    }
 
-  # Return the modified object
-  return(object)
+    # Return the modified object
+    return(object)
 })
 
 ##############################################################################
@@ -386,12 +386,12 @@ setGeneric("pathAssign<-", function(object, value) standardGeneric("pathAssign<-
 #'
 #' @export
 setMethod("pathAssign", "ScMaSigPro", function(object, value) {
-  if (identical(value, "missing")) {
-    return(object@Design@assignment_matrix) # Getter
-  } else {
-    object@Design@assignment_matrix <- as.matrix(value) # Setter
-    return(invisible(object))
-  }
+    if (identical(value, "missing")) {
+        return(object@Design@assignment_matrix) # Getter
+    } else {
+        object@Design@assignment_matrix <- as.matrix(value) # Setter
+        return(invisible(object))
+    }
 })
 
 #' @title Replacement method for pathAssign
@@ -405,8 +405,8 @@ setMethod("pathAssign", "ScMaSigPro", function(object, value) {
 #'
 #' @export
 setReplaceMethod("pathAssign", "ScMaSigPro", function(object, value) {
-  object@Design@assignment_matrix <- as.matrix(value)
-  return(object)
+    object@Design@assignment_matrix <- as.matrix(value)
+    return(object)
 })
 ##############################################################################
 #' @title Get or set the Predictor Matrix
@@ -444,12 +444,12 @@ setGeneric("predictors<-", function(object, value) standardGeneric("predictors<-
 #'
 #' @export
 setMethod("predictors", "ScMaSigPro", function(object, value) {
-  if (identical(value, "missing")) {
-    return(object@Design@predictor_matrix) # Getter
-  } else {
-    object@Design@predictor_matrix <- as.matrix(value) # Setter
-    return(invisible(object))
-  }
+    if (identical(value, "missing")) {
+        return(object@Design@predictor_matrix) # Getter
+    } else {
+        object@Design@predictor_matrix <- as.matrix(value) # Setter
+        return(invisible(object))
+    }
 })
 
 #' @title Replacement method for predictors
@@ -463,16 +463,16 @@ setMethod("predictors", "ScMaSigPro", function(object, value) {
 #'
 #' @export
 setReplaceMethod("predictors", "ScMaSigPro", function(object, value) {
-  object@Design@predictor_matrix <- as.matrix(value)
-  return(object)
+    object@Design@predictor_matrix <- as.matrix(value)
+    return(object)
 })
 ##############################################################################
 setMethod(
-  "show",
-  "ScMaSigPro",
-  function(object) {
-    .ScMaSigPro_show(object)
-  }
+    "show",
+    "ScMaSigPro",
+    function(object) {
+        .ScMaSigPro_show(object)
+    }
 )
 ###############################################################################
 # Constructor
@@ -483,13 +483,13 @@ ScMaSigPro <- function(Sparse = new("SingleCellExperiment"),
                        Design = new("MatrixDesign"),
                        Parameters = new("ParameterConfig"),
                        Significant = new("Significant")) {
-  new("ScMaSigPro",
-    Sparse = Sparse,
-    Profile = Profile,
-    Estimate = Estimate,
-    Dense = Dense,
-    Design = Design,
-    ParameterConfig = Parameters,
-    Significant = Significant # new("Significant"),
-  )
+    new("ScMaSigPro",
+        Sparse = Sparse,
+        Profile = Profile,
+        Estimate = Estimate,
+        Dense = Dense,
+        Design = Design,
+        ParameterConfig = Parameters,
+        Significant = Significant # new("Significant"),
+    )
 }

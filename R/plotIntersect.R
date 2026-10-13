@@ -29,53 +29,53 @@ plotIntersect <- function(scmpObj,
                           width_ratio = 0.1,
                           show_sets_size = FALSE,
                           return = FALSE) {
-  # Debug
-  # scmpObj <- multi_scmp_ob
-  # min_intersection_size <- 2
-  # keep_empty_groups <- FALSE
-  # width_ratio <- 0.1
-  # show_sets_size <- FALSE
-  # verbose <- TRUE
+    # Debug
+    # scmpObj <- multi_scmp_ob
+    # min_intersection_size <- 2
+    # keep_empty_groups <- FALSE
+    # width_ratio <- 0.1
+    # show_sets_size <- FALSE
+    # verbose <- TRUE
 
-  # Check the data
-  assertthat::assert_that(
-    is(scmpObj, "ScMaSigPro"),
-    msg = "Please supply an object of the class 'ScMaSigPro'"
-  )
-
-  # Check if siggenes results exist for groups
-  assertthat::assert_that(!isEmpty(scmpObj@Significant@genes),
-    msg = "'sig.genes@Summary' slot is empty, please run 'sc.get.siggenes'"
-  )
-
-  if (!keep_empty_groups) {
-    keep_empty_groups <- NULL
-  }
-
-  gene_list <- scmpObj@Significant@genes
-
-  # Create list object
-  upset_r_gene_list <- fromListWithNames(gene_list)
-
-  if (return) {
-    return(as.data.frame(upset_r_gene_list))
-  } else {
-    # Create Plot
-    p <- UpSetR::upset(
-      upset_r_gene_list,
-      main.bar.color = "#F58A53",
-      matrix.color = "#15918A",
-      line.size = 1.5,
-      cutoff = min_intersection_size,
-      empty.intersections = keep_empty_groups,
-      point.size = 3,
-      shade.color = "purple",
-      text.scale = 1.5,
-      sets.x.label = "Number of Features",
-      sets.bar.color = "#EE446F",
-      keep.order = TRUE,
-      order.by = "freq"
+    # Check the data
+    assertthat::assert_that(
+        is(scmpObj, "ScMaSigPro"),
+        msg = "Please supply an object of the class 'ScMaSigPro'"
     )
-    return(p)
-  }
+
+    # Check if siggenes results exist for groups
+    assertthat::assert_that(!isEmpty(scmpObj@Significant@genes),
+        msg = "'sig.genes@Summary' slot is empty, please run 'sc.get.siggenes'"
+    )
+
+    if (!keep_empty_groups) {
+        keep_empty_groups <- NULL
+    }
+
+    gene_list <- scmpObj@Significant@genes
+
+    # Create list object
+    upset_r_gene_list <- fromListWithNames(gene_list)
+
+    if (return) {
+        return(as.data.frame(upset_r_gene_list))
+    } else {
+        # Create Plot
+        p <- UpSetR::upset(
+            upset_r_gene_list,
+            main.bar.color = "#F58A53",
+            matrix.color = "#15918A",
+            line.size = 1.5,
+            cutoff = min_intersection_size,
+            empty.intersections = keep_empty_groups,
+            point.size = 3,
+            shade.color = "purple",
+            text.scale = 1.5,
+            sets.x.label = "Number of Features",
+            sets.bar.color = "#EE446F",
+            keep.order = TRUE,
+            order.by = "freq"
+        )
+        return(p)
+    }
 }

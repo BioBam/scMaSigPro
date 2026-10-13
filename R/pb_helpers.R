@@ -23,16 +23,16 @@
 #'
 #' @keywords internal
 calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
-  # Use the 'str_split' function from the 'stringr' package to split the 'cluster.members' column
-  # of the input data frame 'x' by the '|' character.
-  # This returns a list where each element is a vector of the split strings.
-  # 'c()' is used to concatenate these vectors into a single vector.
-  # Finally, 'length' is used to get the length of this vector (i.e., the number of split strings),
-  # which is stored in the 'size' variable.
-  size <- length(c(stringr::str_split(x[[clus_mem_col]], "\\|"))[[1]])
+    # Use the 'str_split' function from the 'stringr' package to split the 'cluster.members' column
+    # of the input data frame 'x' by the '|' character.
+    # This returns a list where each element is a vector of the split strings.
+    # 'c()' is used to concatenate these vectors into a single vector.
+    # Finally, 'length' is used to get the length of this vector (i.e., the number of split strings),
+    # which is stored in the 'size' variable.
+    size <- length(c(stringr::str_split(x[[clus_mem_col]], "\\|"))[[1]])
 
-  # Convert the 'size' variable to a numeric value and return it as the result of the function
-  return(as.numeric(size))
+    # Convert the 'size' variable to a numeric value and return it as the result of the function
+    return(as.numeric(size))
 }
 ###############################################################################
 #' @title Create Range Function
@@ -67,32 +67,32 @@ calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
 #' @keywords internal
 create_range <- function(x, bin_size_colname = "scmp_bin_size",
                          bin_col = "scmp_bin", verbose = TRUE) {
-  # Convert the factor column "bin" to character
-  y <- as.character(x[[bin_col]])
+    # Convert the factor column "bin" to character
+    y <- as.character(x[[bin_col]])
 
-  # Remove square and round brackets from the character string
-  y <- y %>% stringr::str_remove_all(pattern = "\\[|\\]|\\(|\\)")
+    # Remove square and round brackets from the character string
+    y <- y %>% stringr::str_remove_all(pattern = "\\[|\\]|\\(|\\)")
 
-  # Split the character string by comma and extract the first element (lower bound of the range)
-  y1 <- as.numeric(sapply(strsplit(y, ","), "[", 1))
-  # Extract the first element
-  # y1 <- as.numeric(vapply(strsplit(y, ","), function(x) x[1], numeric(1)))
+    # Split the character string by comma and extract the first element (lower bound of the range)
+    y1 <- as.numeric(sapply(strsplit(y, ","), "[", 1))
+    # Extract the first element
+    # y1 <- as.numeric(vapply(strsplit(y, ","), function(x) x[1], numeric(1)))
 
-  # Split the character string by comma and extract the second element (upper bound of the range)
-  y2 <- as.numeric(sapply(strsplit(y, ","), "[", 2))
-  # y2 <- as.numeric(vapply(strsplit(y, ","), function(x) x[2], numeric(1)))
+    # Split the character string by comma and extract the second element (upper bound of the range)
+    y2 <- as.numeric(sapply(strsplit(y, ","), "[", 2))
+    # y2 <- as.numeric(vapply(strsplit(y, ","), function(x) x[2], numeric(1)))
 
-  if (verbose) {
-    message(paste0(
-      "Lower Bound:", y1, ", Upper Bound:", y2, ", Number of cells:", x[[bin_size_colname]]
-    ))
-  }
+    if (verbose) {
+        message(paste0(
+            "Lower Bound:", y1, ", Upper Bound:", y2, ", Number of cells:", x[[bin_size_colname]]
+        ))
+    }
 
-  # Combine the lower bound, upper bound, bin size, and binned time into a numeric vector
-  rangeVec <- c(y1, y2, x[[bin_size_colname]])
+    # Combine the lower bound, upper bound, bin size, and binned time into a numeric vector
+    rangeVec <- c(y1, y2, x[[bin_size_colname]])
 
-  # Return the numeric vector
-  return(as.numeric(rangeVec))
+    # Return the numeric vector
+    return(as.numeric(rangeVec))
 }
 ###############################################################################
 #' @title estBinSize
@@ -136,43 +136,43 @@ create_range <- function(x, bin_size_colname = "scmp_bin_size",
 #'
 #' @keywords internal
 estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
-  estBins <- switch(bin_method,
-    "Freedman.Diaconis" = {
-      # Freedman-Diaconis rule: bin size is proportional to the interquartile range (IQR)
-      # and inversely proportional to the cube root of the number of data points.
-      2 * IQR(time_vector) / nPoints^(1 / 3)
-    },
-    "Sqrt" = {
-      # Square root rule: bin size is proportional to the square root of the number of data points.
-      nPoints^(1 / 2)
-    },
-    "Sturges" = {
-      # Sturges' rule: bin size is proportional to the log (base 2) of the number of data points.
-      log2(nPoints) + 1
-    },
-    "Rice" = {
-      # Rice Rule: bin size is proportional to twice the cube root of the number of data points.
-      2 * nPoints^(1 / 3)
-    },
-    "Doane" = {
-      # Doane's formula: accounts for data skewness in the calculation of bin size.
-      sigma <- ((6 * (nPoints - 2)) / ((nPoints + 1) * (nPoints + 3)))^(1 / 2)
-      sk <- skewness(time_vector)
-      1 + log2(nPoints) + log2(1 + (abs(sk) / sigma))
-    },
-    "Scott.Normal" = {
-      # Scott's normal reference rule: assumes the data is nearly normal in distribution.
-      # Bin size is proportional to the standard deviation and inversely proportional to the cube root of the number of data points.
-      3.49 * abs(sd(time_vector)) / nPoints^(1 / 3)
-    },
-    stop(paste("Invalid bin_method: ", bin_method, ". Please choose one of the following: 'Freedman.Diaconis', 'Sqrt', 'Sturges', 'Rice', 'Doane', 'Scott.Normal'"))
-  )
+    estBins <- switch(bin_method,
+        "Freedman.Diaconis" = {
+            # Freedman-Diaconis rule: bin size is proportional to the interquartile range (IQR)
+            # and inversely proportional to the cube root of the number of data points.
+            2 * IQR(time_vector) / nPoints^(1 / 3)
+        },
+        "Sqrt" = {
+            # Square root rule: bin size is proportional to the square root of the number of data points.
+            nPoints^(1 / 2)
+        },
+        "Sturges" = {
+            # Sturges' rule: bin size is proportional to the log (base 2) of the number of data points.
+            log2(nPoints) + 1
+        },
+        "Rice" = {
+            # Rice Rule: bin size is proportional to twice the cube root of the number of data points.
+            2 * nPoints^(1 / 3)
+        },
+        "Doane" = {
+            # Doane's formula: accounts for data skewness in the calculation of bin size.
+            sigma <- ((6 * (nPoints - 2)) / ((nPoints + 1) * (nPoints + 3)))^(1 / 2)
+            sk <- skewness(time_vector)
+            1 + log2(nPoints) + log2(1 + (abs(sk) / sigma))
+        },
+        "Scott.Normal" = {
+            # Scott's normal reference rule: assumes the data is nearly normal in distribution.
+            # Bin size is proportional to the standard deviation and inversely proportional to the cube root of the number of data points.
+            3.49 * abs(sd(time_vector)) / nPoints^(1 / 3)
+        },
+        stop(paste("Invalid bin_method: ", bin_method, ". Please choose one of the following: 'Freedman.Diaconis', 'Sqrt', 'Sturges', 'Rice', 'Doane', 'Scott.Normal'"))
+    )
 
 
-  # Scale the estimated bin size by the drop factor.
-  estBins <- drop_fac * estBins
+    # Scale the estimated bin size by the drop factor.
+    estBins <- drop_fac * estBins
 
-  return(estBins)
+    return(estBins)
 }
 ###############################################################################
 #' @title Extract Fitting
@@ -189,93 +189,100 @@ estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
 #'
 #' @keywords internal
 extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, alfa, influ.info) {
-  sol <- coefficients <- group.coeffs <- t.score <- sig.profiles <- NULL
-  y <- reg$y
-  result <- summary(lmf)
-  novar <- vars.in[!is.element(vars.in, names(result$coefficients[, 4]))]
-  influ <- influence.measures(reg)$is.inf
-  influ <- influ[, c(ncol(influ) - 3, ncol(influ) - 1)]
-  influ1 <- which(apply(influ, 1, all))
-  if (length(influ1) != 0) {
-    paste.names <- function(a) {
-      paste(names(a)[a], collapse = "/")
+    sol <- coefficients <- group.coeffs <- t.score <- sig.profiles <- NULL
+    y <- reg$y
+    result <- summary(lmf)
+    novar <- vars.in[!is.element(vars.in, names(result$coefficients[, 4]))]
+    influ <- influence.measures(reg)$is.inf
+    influ <- influ[, c(ncol(influ) - 3, ncol(influ) - 1)]
+    influ1 <- which(apply(influ, 1, all))
+    if (length(influ1) != 0) {
+        paste.names <- function(a) {
+            paste(names(a)[a], collapse = "/")
+        }
+        match <- match(rownames(dis), rownames(influ))
+        influ <- as.data.frame(apply(influ, 1, paste.names))
+        influ.info <- cbind(influ.info, influ[match, ])
+        colnames(influ.info)[ncol(influ.info)] <- name
+        influ.info <- as.matrix(influ.info)
     }
-    match <- match(rownames(dis), rownames(influ))
-    influ <- as.data.frame(apply(influ, 1, paste.names))
-    influ.info <- cbind(influ.info, influ[match, ])
-    colnames(influ.info)[ncol(influ.info)] <- name
-    influ.info <- as.matrix(influ.info)
-  }
-  result <- summary(reg)
-  if ((!(result$aic == -Inf) & !is.na(result$aic) & family$family == "gaussian") | family$family != "gaussian") {
-    if (family$family == "gaussian") {
-      test <- anova(model.glm.0, reg, test = "F")
-      p.value <- test[6][2, 1]
-    } else {
-      test <- anova(model.glm.0, reg, test = "Chisq")
-      p.value <- test[5][2, 1]
-    }
-    # Computing goodness of fitting:
-    bondad <- (reg$null.deviance - reg$deviance) / reg$null.deviance
-    if (bondad < 0) {
-      bondad <- 0
-    }
-    beta.coeff <- result$coefficients[, 1]
-    beta.p.valor <- result$coefficients[, 4]
-    coeff <- rep(0, (length(vars.in) + 1))
-    if (length(novar) != 0) {
-      for (m in 1:length(novar)) {
-        coeff[maSigPro::position(dis, novar[m]) + 1] <- NA
-      }
-    }
-    p.valor <- t <- as.numeric(rep(NA, (length(vars.in) + 1)))
+    result <- summary(reg)
+    if ((!(result$aic == -Inf) & !is.na(result$aic) & family$family == "gaussian") | family$family != "gaussian") {
+        if (family$family == "gaussian") {
+            test <- anova(model.glm.0, reg, test = "F")
+            p.value <- test[6][2, 1]
+        } else {
+            test <- anova(model.glm.0, reg, test = "Chisq")
+            p.value <- test[5][2, 1]
+        }
+        # Computing goodness of fitting:
+        bondad <- (reg$null.deviance - reg$deviance) / reg$null.deviance
+        if (bondad < 0) {
+            bondad <- 0
+        }
+        beta.coeff <- result$coefficients[, 1]
+        beta.p.valor <- result$coefficients[, 4]
+        coeff <- rep(0, (length(vars.in) + 1))
+        if (length(novar) != 0) {
+            for (m in 1:length(novar)) {
+                coeff[maSigPro::position(dis, novar[m]) + 1] <- NA
+            }
+        }
+        p.valor <- t <- as.numeric(rep(NA, (length(vars.in) + 1)))
 
-    if (result$coefficients[, 4][rownames(result$coefficients) ==
-      "(Intercept)"] < alfa) {
-      coeff[1] <- result$coefficients[, 1][rownames(result$coefficients) ==
-        "(Intercept)"]
-      p.valor[1] <- result$coefficients[, 4][rownames(result$coefficients) ==
-        "(Intercept)"]
-      t[1] <- result$coefficients[, 3][rownames(result$coefficients) ==
-        "(Intercept)"]
+        if (result$coefficients[, 4][
+            rownames(result$coefficients) == "(Intercept)"
+        ] < alfa) {
+            coeff[1] <- result$coefficients[, 1][
+                rownames(result$coefficients) == "(Intercept)"
+            ]
+            p.valor[1] <- result$coefficients[, 4][
+                rownames(result$coefficients) == "(Intercept)"
+            ]
+            t[1] <- result$coefficients[, 3][
+                rownames(result$coefficients) == "(Intercept)"
+            ]
+        }
+        for (j in 2:length(coeff)) {
+            if (is.element(vars.in[j - 1], rownames(result$coefficients))) {
+                coeff[j] <- result$coefficients[, 1][
+                    rownames(result$coefficients) == vars.in[j - 1]
+                ]
+                p.valor[j] <- result$coefficients[, 4][
+                    rownames(result$coefficients) == vars.in[j - 1]
+                ]
+                t[j] <- result$coefficients[, 3][
+                    rownames(result$coefficients) == vars.in[j - 1]
+                ]
+            }
+        }
+        if (!all(is.na(p.valor))) {
+            sol <- rbind(sol, as.numeric(c(
+                p.value, bondad,
+                p.valor
+            )))
+            coefficients <- rbind(coefficients, coeff)
+            t.score <- rbind(t.score, t)
+            sig.profiles <- rbind(sig.profiles, y)
+            h <- nrow(sol)
+            rownames(sol)[h] <- name
+            rownames(coefficients)[h] <- name
+            rownames(t.score)[h] <- name
+            rownames(sig.profiles)[h] <- name
+        }
     }
-    for (j in 2:length(coeff)) {
-      if (is.element(vars.in[j - 1], rownames(result$coefficients))) {
-        coeff[j] <- result$coefficients[, 1][rownames(result$coefficients) ==
-          vars.in[j - 1]]
-        p.valor[j] <- result$coefficients[, 4][rownames(result$coefficients) ==
-          vars.in[j - 1]]
-        t[j] <- result$coefficients[, 3][rownames(result$coefficients) ==
-          vars.in[j - 1]]
-      }
-    }
-    if (!all(is.na(p.valor))) {
-      sol <- rbind(sol, as.numeric(c(
-        p.value, bondad,
-        p.valor
-      )))
-      coefficients <- rbind(coefficients, coeff)
-      t.score <- rbind(t.score, t)
-      sig.profiles <- rbind(sig.profiles, y)
-      h <- nrow(sol)
-      rownames(sol)[h] <- name
-      rownames(coefficients)[h] <- name
-      rownames(t.score)[h] <- name
-      rownames(sig.profiles)[h] <- name
-    }
-  }
-  # Return Calculation
-  return(list(
-    p_value = p.value,
-    bondad = bondad,
-    p_valor = p.valor,
-    coeff = coeff,
-    t = t,
-    sig_profiles = y,
-    sol = sol,
-    influ.info = influ.info,
-    feature_name = name
-  ))
+    # Return Calculation
+    return(list(
+        p_value = p.value,
+        bondad = bondad,
+        p_valor = p.valor,
+        coeff = coeff,
+        t = t,
+        sig_profiles = y,
+        sol = sol,
+        influ.info = influ.info,
+        feature_name = name
+    ))
 }
 
 ###############################################################################
@@ -290,30 +297,30 @@ extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, a
 #' @keywords internal
 
 extract_interval <- function(time.vector, nBins = 1, bin, bin.size, lbound, ubound) {
-  # Create Dataframe
-  new_range_current <- as.data.frame(entropy::discretize(
-    time.vector,
-    numBins = nBins, r = range(time.vector)
-  ))
-  # Set columns
-  colnames(new_range_current) <- c(bin, bin.size)
-
-  # Current bin new table
-  new_bin_table_current <- as.data.frame(
-    t(as.data.frame(
-      apply(
-        new_range_current, 1, create_range,
-        bin_size_colname = bin.size,
-        bin_col = bin,
-        verbose = FALSE
-      )
+    # Create Dataframe
+    new_range_current <- as.data.frame(entropy::discretize(
+        time.vector,
+        numBins = nBins, r = range(time.vector)
     ))
-  )
-  # Set column names
-  colnames(new_bin_table_current) <- c(lbound, ubound, bin.size)
+    # Set columns
+    colnames(new_range_current) <- c(bin, bin.size)
 
-  # Return
-  return(new_bin_table_current)
+    # Current bin new table
+    new_bin_table_current <- as.data.frame(
+        t(as.data.frame(
+            apply(
+                new_range_current, 1, create_range,
+                bin_size_colname = bin.size,
+                bin_col = bin,
+                verbose = FALSE
+            )
+        ))
+    )
+    # Set column names
+    colnames(new_bin_table_current) <- c(lbound, ubound, bin.size)
+
+    # Return
+    return(new_bin_table_current)
 }
 
 ###############################################################################
@@ -344,58 +351,58 @@ extract_interval <- function(time.vector, nBins = 1, bin, bin.size, lbound, ubou
 optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
                              time_vector, lbound, ubound, bin, bin.size, method,
                              drop) {
-  # Initiate an empty uniform bin
-  uniform_bin_df <- data.frame(matrix(NA, ncol = ncol(bin_table)))
-  colnames(uniform_bin_df) <- colnames(bin_table)
+    # Initiate an empty uniform bin
+    uniform_bin_df <- data.frame(matrix(NA, ncol = ncol(bin_table)))
+    colnames(uniform_bin_df) <- colnames(bin_table)
 
-  # Binning one-by one
-  for (i in c(1:nrow(bin_table))) {
-    # histo_bin
-    current_bin_df <- c(unlist(bin_table[i, , drop = FALSE]))
+    # Binning one-by one
+    for (i in c(1:nrow(bin_table))) {
+        # histo_bin
+        current_bin_df <- c(unlist(bin_table[i, , drop = FALSE]))
 
-    # Get size of the bins
-    current_bin_size <- current_bin_df[[bin.size]]
+        # Get size of the bins
+        current_bin_size <- current_bin_df[[bin.size]]
 
-    # Check if the bin size is big
-    if (current_bin_size > max_allowed) {
-      # get pseudotime
-      pTime.for.big.interval <- time_vector[(time_vector >= current_bin_df[[lbound]] & time_vector <= current_bin_df[[ubound]])]
+        # Check if the bin size is big
+        if (current_bin_size > max_allowed) {
+            # get pseudotime
+            pTime.for.big.interval <- time_vector[(time_vector >= current_bin_df[[lbound]] & time_vector <= current_bin_df[[ubound]])]
 
-      # Estimate how many splits are required
-      potential_splits <- ceiling(estBinSize(
-        time_vector = pTime.for.big.interval, nPoints = length(pTime.for.big.interval),
-        drop_fac = drop, bin_method = method
-      ))
+            # Estimate how many splits are required
+            potential_splits <- ceiling(estBinSize(
+                time_vector = pTime.for.big.interval, nPoints = length(pTime.for.big.interval),
+                drop_fac = drop, bin_method = method
+            ))
 
-      # Run the extraction
-      small_splitted_bin_df <- extract_interval(
-        time.vector = pTime.for.big.interval,
-        nBins = potential_splits,
-        bin = bin, bin.size = bin.size, lbound = lbound, ubound = ubound
-      )
-      # Validation
-      if (verbose) {
-        message(paste("Splitting bin with", current_bin_size, "cells into", nrow(small_splitted_bin_df), "with sizes as", paste(small_splitted_bin_df[[bin.size]], collapse = ", ")))
-      }
+            # Run the extraction
+            small_splitted_bin_df <- extract_interval(
+                time.vector = pTime.for.big.interval,
+                nBins = potential_splits,
+                bin = bin, bin.size = bin.size, lbound = lbound, ubound = ubound
+            )
+            # Validation
+            if (verbose) {
+                message(paste("Splitting bin with", current_bin_size, "cells into", nrow(small_splitted_bin_df), "with sizes as", paste(small_splitted_bin_df[[bin.size]], collapse = ", ")))
+            }
 
-      # Add new Row
-      uniform_bin_df <- rbind(uniform_bin_df, small_splitted_bin_df)
-    } else if (current_bin_size <= max_allowed) {
-      uniform_bin_df <- rbind(uniform_bin_df, current_bin_df)
-      if (verbose) {
-        if (current_bin_size != 0) {
-          message(paste("Skipping bin with size", current_bin_size))
+            # Add new Row
+            uniform_bin_df <- rbind(uniform_bin_df, small_splitted_bin_df)
+        } else if (current_bin_size <= max_allowed) {
+            uniform_bin_df <- rbind(uniform_bin_df, current_bin_df)
+            if (verbose) {
+                if (current_bin_size != 0) {
+                    message(paste("Skipping bin with size", current_bin_size))
+                }
+            }
         }
-      }
     }
-  }
-  uniform_bin_df <- uniform_bin_df[-1, ]
+    uniform_bin_df <- uniform_bin_df[-1, ]
 
-  # Correct the rows
-  rownames(uniform_bin_df) <- NULL
+    # Correct the rows
+    rownames(uniform_bin_df) <- NULL
 
-  # Return the new data
-  return(uniform_bin_df)
+    # Return the new data
+    return(uniform_bin_df)
 }
 
 ################################################################################
@@ -444,84 +451,84 @@ pb_counts <- function(scmpObj,
                       bin_col = scmpObj@Parameters@bin_col,
                       assay_name = "counts",
                       cluster_count_by = "sum") {
-  # Check Object Validity
-  assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
-    msg = "Please provide object of class 'scMaSigPro'."
-  )
-
-  # Count slot
-  assertthat::assert_that(
-    all(
-      assay_name %in% names(scmpObj@Sparse@assays@data@listData)
-    ),
-    msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObj.")
-  )
-
-  # Get assay
-  counts <- scmpObj@Sparse@assays@data@listData[[assay_name]]
-
-  # Get Pseudobulk Profile
-  bin_data <- colData(scmpObj@Dense)
-  pseudo_bulk_profile <- as.data.frame(bin_data)
-
-  assertthat::assert_that(bin_mem_col %in% colnames(pseudo_bulk_profile),
-    msg = paste0("'", bin_mem_col, "' does not exist in level.meta.data")
-  )
-  assertthat::assert_that(bin_col %in% colnames(pseudo_bulk_profile),
-    msg = paste0("'", bin_col, "' does not exist in level.meta.data")
-  )
-
-  # Bins are named by the rownames of the bin metadata; these become the
-  # column names of the assay (sc.set.poly() and sc.p.vector() rely on it)
-  bin_ids <- rownames(bin_data)
-  if (is.null(bin_ids)) {
-    bin_ids <- as.character(bin_data[[bin_col]])
-    rownames(bin_data) <- bin_ids
-  }
-  assertthat::assert_that(anyDuplicated(bin_ids) == 0,
-    msg = "Bin names (the rownames of the 'Dense' cell metadata) must be unique."
-  )
-
-  # Get the meta-information for pseudobulking
-  meta.info <- pseudo_bulk_profile[, c(bin_mem_col, bin_col)]
-
-  # Run mclapply
-  pb.counts <- lapply(1:nrow(meta.info), function(i) {
-    # Get the bin.info
-    bin <- meta.info[i, , drop = FALSE]
-
-    # Split the row
-    cell.vector <- c(stringr::str_split(bin[1], "\\|"))[[1]]
-
-    # Get col cells
-    col_indices <- which(colnames(counts) %in% cell.vector)
-
-    # Subset the matrix using these indices
-    bin_matrix <- as.matrix(counts[, col_indices, drop = FALSE])
-
-    # Get Pseudobulked-counts
-    pb.vector <- switch(cluster_count_by,
-      "mean" = as.matrix(round(rowMeans(bin_matrix))),
-      "sum"  = as.matrix(rowSums(bin_matrix)),
-      stop("Invalid 'aggregate' value. Please choose either 'mean' or 'sum'.")
+    # Check Object Validity
+    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+        msg = "Please provide object of class 'scMaSigPro'."
     )
 
-    # Return
-    return(pb.vector)
-  })
+    # Count slot
+    assertthat::assert_that(
+        all(
+            assay_name %in% names(scmpObj@Sparse@assays@data@listData)
+        ),
+        msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObj.")
+    )
 
-  # Convert the list output of mclapply to a matrix and set the row names
-  pb.counts <- do.call(cbind, pb.counts)
-  rownames(pb.counts) <- rownames(counts)
-  colnames(pb.counts) <- bin_ids
+    # Get assay
+    counts <- scmpObj@Sparse@assays@data@listData[[assay_name]]
 
-  # Rebuild Dense so that the assay and the bin metadata are parallel
-  scmpObj@Dense <- SingleCellExperiment(
-    assays = list(bulk.counts = as(pb.counts, "dgCMatrix")),
-    colData = bin_data
-  )
-  methods::validObject(scmpObj)
+    # Get Pseudobulk Profile
+    bin_data <- colData(scmpObj@Dense)
+    pseudo_bulk_profile <- as.data.frame(bin_data)
 
-  # return
-  return(scmpObj)
+    assertthat::assert_that(bin_mem_col %in% colnames(pseudo_bulk_profile),
+        msg = paste0("'", bin_mem_col, "' does not exist in level.meta.data")
+    )
+    assertthat::assert_that(bin_col %in% colnames(pseudo_bulk_profile),
+        msg = paste0("'", bin_col, "' does not exist in level.meta.data")
+    )
+
+    # Bins are named by the rownames of the bin metadata; these become the
+    # column names of the assay (sc.set.poly() and sc.p.vector() rely on it)
+    bin_ids <- rownames(bin_data)
+    if (is.null(bin_ids)) {
+        bin_ids <- as.character(bin_data[[bin_col]])
+        rownames(bin_data) <- bin_ids
+    }
+    assertthat::assert_that(anyDuplicated(bin_ids) == 0,
+        msg = "Bin names (the rownames of the 'Dense' cell metadata) must be unique."
+    )
+
+    # Get the meta-information for pseudobulking
+    meta.info <- pseudo_bulk_profile[, c(bin_mem_col, bin_col)]
+
+    # Run mclapply
+    pb.counts <- lapply(1:nrow(meta.info), function(i) {
+        # Get the bin.info
+        bin <- meta.info[i, , drop = FALSE]
+
+        # Split the row
+        cell.vector <- c(stringr::str_split(bin[1], "\\|"))[[1]]
+
+        # Get col cells
+        col_indices <- which(colnames(counts) %in% cell.vector)
+
+        # Subset the matrix using these indices
+        bin_matrix <- as.matrix(counts[, col_indices, drop = FALSE])
+
+        # Get Pseudobulked-counts
+        pb.vector <- switch(cluster_count_by,
+            "mean" = as.matrix(round(rowMeans(bin_matrix))),
+            "sum"  = as.matrix(rowSums(bin_matrix)),
+            stop("Invalid 'aggregate' value. Please choose either 'mean' or 'sum'.")
+        )
+
+        # Return
+        return(pb.vector)
+    })
+
+    # Convert the list output of mclapply to a matrix and set the row names
+    pb.counts <- do.call(cbind, pb.counts)
+    rownames(pb.counts) <- rownames(counts)
+    colnames(pb.counts) <- bin_ids
+
+    # Rebuild Dense so that the assay and the bin metadata are parallel
+    scmpObj@Dense <- SingleCellExperiment(
+        assays = list(bulk.counts = as(pb.counts, "dgCMatrix")),
+        colData = bin_data
+    )
+    methods::validObject(scmpObj)
+
+    # return
+    return(scmpObj)
 }
