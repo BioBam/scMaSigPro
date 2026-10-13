@@ -61,13 +61,13 @@ data("splat.sim", package = "scMaSigPro")
 # Step-2: Convert to ScMaSigPro Object
 # Here, we convert the sce object to an scMaSigPro object
 scmp.sce <- as_scmp(
-  object = splat.sim, from = "sce",
-  verbose = FALSE,
-  additional_params = list(
-    labels_exist = TRUE,
-    exist_ptime_col = "Step",
-    exist_path_col = "Group"
-  )
+    object = splat.sim, from = "sce",
+    verbose = FALSE,
+    additional_params = list(
+        labels_exist = TRUE,
+        exist_ptime_col = "Step",
+        exist_path_col = "Group"
+    )
 )
 
 }

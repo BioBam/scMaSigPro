@@ -54,227 +54,227 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
                         log_offset = FALSE,
                         max_it = 100,
                         link = "log") {
-  # Check the type of the 'design' parameter and set the corresponding variables
-  assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
-    msg = "Please provide object of class 'ScMaSigPro'"
-  )
-
-  # Extract from s4
-  dis <- as.data.frame(scmpObj@Design@predictor_matrix)
-  groups.vector <- scmpObj@Design@groups.vector
-  alloc <- scmpObj@Design@assignment_matrix
-
-  # Convert 'scmpObj' to matrix and select relevant columns based on 'design' rows
-  dat <- as.matrix(scmpObj@Dense@assays@data@listData$bulk.counts)
-  dat <- dat[, as.character(rownames(dis))]
-  G <- nrow(dat)
-
-  # Check for the log function
-  assertthat::assert_that(link %in% c("log", "identity"),
-    msg = "link function should be either 'log' or 'identity'"
-  )
-
-  # Update the family
-  family[["link"]] <- link
-
-  # Add check
-  # assertthat::assert_that((dat@Dim[1] > 1), msg = paste(min_na, "for 'min_na' is too high. Try lowering the threshold."))
-  assertthat::assert_that(min_na <= ncol(dat),
-    msg = paste(
-      min_na,
-      "for 'min_na' is too high. Try lowering the threshold."
+    # Check the type of the 'design' parameter and set the corresponding variables
+    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+        msg = "Please provide object of class 'ScMaSigPro'"
     )
-  )
 
-  # Removing rows with many missings:
-  count.na <- function(x) (length(x) - length(x[is.na(x)]))
-  dat <- dat[apply(dat, 1, count.na) >= min_na, ]
-  # if(verbose){
-  #     message(paste("'min_na' is set at", min_na))
-  #     message(paste("After filtering with 'min_na'", scmpObj@Dense@assays@data@listData$bulk.counts@Dim[1] - dat@Dim[1], "gene are dropped"))
-  # }
+    # Extract from s4
+    dis <- as.data.frame(scmpObj@Design@predictor_matrix)
+    groups.vector <- scmpObj@Design@groups.vector
+    alloc <- scmpObj@Design@assignment_matrix
 
-  # Removing rows with all zeros:
-  # dat[is.na(dat)] <- 0
-  # dat <- dat[rowSums(dat) != 0, , drop = FALSE]
-  sumatot <- apply(dat, 1, sum)
-  counts0 <- which(sumatot == 0)
-  if (length(counts0) > 0) {
-    dat <- dat[-counts0, ]
-  }
+    # Convert 'scmpObj' to matrix and select relevant columns based on 'design' rows
+    dat <- as.matrix(scmpObj@Dense@assays@data@listData$bulk.counts)
+    dat <- dat[, as.character(rownames(dis))]
+    G <- nrow(dat)
 
-  # Get dimensions for the input
-  g <- dim(dat)[1]
-  n <- dim(dat)[2]
-  p <- dim(dis)[2]
-  sc.p.vector <- vector(mode = "numeric", length = g)
+    # Check for the log function
+    assertthat::assert_that(link %in% c("log", "identity"),
+        msg = "link function should be either 'log' or 'identity'"
+    )
 
-  # Calculate  offset
-  if (offset) {
-    dat <- dat + 1
-    offsetData <- scmp_estimateSizeFactorsForMatrix(dat)
-    if (log_offset) {
-      offsetData <- log(offsetData)
-    }
-    scmpObj@Design@offset <- offsetData
-  } else {
-    offsetData <- NULL # scmpObj@Design@offset
-  }
+    # Update the family
+    family[["link"]] <- link
 
-  if (parallel) {
-    os_name <- get_os()
-    if (os_name == "windows") {
-      numCores <- 1
-      warning("Currently, we only support sequential processing on windows based systems...")
-    } else {
-      n_cores <- as.integer(n_cores)
-      # Check Required Cores
-      assertthat::assert_that(n_cores <= availableCores(),
-        msg = paste("Number of cores requested is invalid. This session has access to", as.integer(availableCores()), "cores only.")
-      )
-      numCores <- n_cores
-    }
-    if (verbose) {
-      message(paste("Running with", numCores, "cores..."))
-    }
-  } else {
-    numCores <- 1
-    if (verbose) {
-      pb <- txtProgressBar(min = 0, max = g, style = 3)
-    }
-  }
+    # Add check
+    # assertthat::assert_that((dat@Dim[1] > 1), msg = paste(min_na, "for 'min_na' is too high. Try lowering the threshold."))
+    assertthat::assert_that(min_na <= ncol(dat),
+        msg = paste(
+            min_na,
+            "for 'min_na' is too high. Try lowering the threshold."
+        )
+    )
 
-  # Check for weight usage
-  useWeights <- FALSE
-  logWeights <- FALSE
-  useInverseWeights <- FALSE
-  if (useWeights) {
-    # Get the pathframe
-    compressed.data <- as.data.frame(scmpObj@Dense@colData)
+    # Removing rows with many missings:
+    count.na <- function(x) (length(x) - length(x[is.na(x)]))
+    dat <- dat[apply(dat, 1, count.na) >= min_na, ]
+    # if(verbose){
+    #     message(paste("'min_na' is set at", min_na))
+    #     message(paste("After filtering with 'min_na'", scmpObj@Dense@assays@data@listData$bulk.counts@Dim[1] - dat@Dim[1], "gene are dropped"))
+    # }
 
-    # Get bin_name and bin size
-    weight_df <- compressed.data[, c(scmpObj@Parameters@bin_size_colname),
-      drop = TRUE
-    ]
-
-    # Set names
-    names(weight_df) <- rownames(compressed.data)
-
-    # Log of weights
-    if (logWeights) {
-      weight_df <- log(weight_df)
+    # Removing rows with all zeros:
+    # dat[is.na(dat)] <- 0
+    # dat <- dat[rowSums(dat) != 0, , drop = FALSE]
+    sumatot <- apply(dat, 1, sum)
+    counts0 <- which(sumatot == 0)
+    if (length(counts0) > 0) {
+        dat <- dat[-counts0, ]
     }
 
-    # Take inverse weights
-    if (useInverseWeights) {
-      weight_df <- 1 / weight_df
-    }
-  } else {
-    weight_df <- NULL
-  }
-  p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat,
-                                          dis_lapply = dis,
-                                          family_lapply = family,
-                                          epsilon_lapply = epsilon,
-                                          offsetdata_lapply = offsetData,
-                                          pb_lapply = pb,
-                                          weights_lapply = weight_df,
-                                          verbose_lapply = verbose,
-                                          max_it_lapply = max_it) {
-    y <- as.numeric(dat_lapply[i, ])
+    # Get dimensions for the input
+    g <- dim(dat)[1]
+    n <- dim(dat)[2]
+    p <- dim(dis)[2]
+    sc.p.vector <- vector(mode = "numeric", length = g)
 
-    # Print prog_lapplyress every 100 g_lapplyenes
-    div <- c(1:round(g_lapply / 100)) * 100
-
-    if (parallel == FALSE) {
-      if (is.element(i, div) && verbose_lapply) {
-        if (verbose) {
-          setTxtProgressBar(pb_lapply, i)
+    # Calculate  offset
+    if (offset) {
+        dat <- dat + 1
+        offsetData <- scmp_estimateSizeFactorsForMatrix(dat)
+        if (log_offset) {
+            offsetData <- log(offsetData)
         }
-      }
-    }
-
-    # Set full Model
-    model.glm <- glm(y ~ .,
-      data = dis_lapply, family = family_lapply, epsilon = epsilon_lapply,
-      offset = offsetdata_lapply, weights = weights_lapply,
-      maxit = max_it_lapply
-    )
-    sc_p_val <- NA
-    if (model.glm$null.deviance == 0) {
-      sc_p_val <- 1
+        scmpObj@Design@offset <- offsetData
     } else {
-      model.glm.0 <- glm(y ~ 1,
-        family = family_lapply, epsilon = epsilon_lapply,
-        offset = offsetdata_lapply, weights = weights_lapply,
-        maxit = max_it_lapply
-      )
-
-      # Perform ANOVA or Chi-square test based on the dis_lapplytribution
-      if (family_lapply$family == "gaussian") {
-        test <- anova(model.glm.0, model.glm, test = "F")
-        sc_p_val <- ifelse(is.na(test[6][2, 1]), 1, test[6][2, 1])
-      } else {
-        test <- anova(model.glm.0, model.glm, test = "Chisq")
-        sc_p_val <- ifelse(is.na(test[5][2, 1]), 1, test[5][2, 1])
-      }
+        offsetData <- NULL # scmpObj@Design@offset
     }
 
-    return(sc_p_val)
-  }, mc.cores = numCores)
-  # Stop the cluster
+    if (parallel) {
+        os_name <- get_os()
+        if (os_name == "windows") {
+            numCores <- 1
+            warning("Currently, we only support sequential processing on windows based systems...")
+        } else {
+            n_cores <- as.integer(n_cores)
+            # Check Required Cores
+            assertthat::assert_that(n_cores <= availableCores(),
+                msg = paste("Number of cores requested is invalid. This session has access to", as.integer(availableCores()), "cores only.")
+            )
+            numCores <- n_cores
+        }
+        if (verbose) {
+            message(paste("Running with", numCores, "cores..."))
+        }
+    } else {
+        numCores <- 1
+        if (verbose) {
+            pb <- txtProgressBar(min = 0, max = g, style = 3)
+        }
+    }
 
-  names(p.vector.list) <- rownames(dat)
-  sc.p.vector <- unlist(p.vector.list, recursive = T, use.names = T)
-  #----------------------------------------------------------------------
-  # Correct p-values using FDR correction and select significant genes
-  p.adjusted <- unlist(
-    p.adjust(sc.p.vector,
-      method = mt_correction,
-      n = length(sc.p.vector)
-    ),
-    recursive = T, use.names = T
-  )
-  names(p.adjusted) <- names(sc.p.vector)
-  genes.selected <- rownames(dat)[which(p.adjusted <= p_value)]
-  FDR <- sort(sc.p.vector)[length(genes.selected)]
+    # Check for weight usage
+    useWeights <- FALSE
+    logWeights <- FALSE
+    useInverseWeights <- FALSE
+    if (useWeights) {
+        # Get the pathframe
+        compressed.data <- as.data.frame(scmpObj@Dense@colData)
 
-  # Subset the expression values of significant genes
-  SELEC <- dat[rownames(dat) %in% genes.selected, , drop = FALSE]
+        # Get bin_name and bin size
+        weight_df <- compressed.data[, c(scmpObj@Parameters@bin_size_colname),
+            drop = TRUE
+        ]
 
-  if (nrow(SELEC) == 0) {
-    message("No significant genes detected. Try changing parameters.")
-    return(scmpObj)
-  } else {
-    # Prepare 'sc.p.vector' for output
-    names(sc.p.vector) <- rownames(dat)
+        # Set names
+        names(weight_df) <- rownames(compressed.data)
 
-    # Add Data to the class
-    profile.obj <- new("VariableProfiles",
-      non_flat = rownames(SELEC),
-      p_values = sc.p.vector,
-      adj_p_values = p.adjusted,
-      fdr = FDR
+        # Log of weights
+        if (logWeights) {
+            weight_df <- log(weight_df)
+        }
+
+        # Take inverse weights
+        if (useInverseWeights) {
+            weight_df <- 1 / weight_df
+        }
+    } else {
+        weight_df <- NULL
+    }
+    p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat,
+                                            dis_lapply = dis,
+                                            family_lapply = family,
+                                            epsilon_lapply = epsilon,
+                                            offsetdata_lapply = offsetData,
+                                            pb_lapply = pb,
+                                            weights_lapply = weight_df,
+                                            verbose_lapply = verbose,
+                                            max_it_lapply = max_it) {
+        y <- as.numeric(dat_lapply[i, ])
+
+        # Print prog_lapplyress every 100 g_lapplyenes
+        div <- c(1:round(g_lapply / 100)) * 100
+
+        if (parallel == FALSE) {
+            if (is.element(i, div) && verbose_lapply) {
+                if (verbose) {
+                    setTxtProgressBar(pb_lapply, i)
+                }
+            }
+        }
+
+        # Set full Model
+        model.glm <- glm(y ~ .,
+            data = dis_lapply, family = family_lapply, epsilon = epsilon_lapply,
+            offset = offsetdata_lapply, weights = weights_lapply,
+            maxit = max_it_lapply
+        )
+        sc_p_val <- NA
+        if (model.glm$null.deviance == 0) {
+            sc_p_val <- 1
+        } else {
+            model.glm.0 <- glm(y ~ 1,
+                family = family_lapply, epsilon = epsilon_lapply,
+                offset = offsetdata_lapply, weights = weights_lapply,
+                maxit = max_it_lapply
+            )
+
+            # Perform ANOVA or Chi-square test based on the dis_lapplytribution
+            if (family_lapply$family == "gaussian") {
+                test <- anova(model.glm.0, model.glm, test = "F")
+                sc_p_val <- ifelse(is.na(test[6][2, 1]), 1, test[6][2, 1])
+            } else {
+                test <- anova(model.glm.0, model.glm, test = "Chisq")
+                sc_p_val <- ifelse(is.na(test[5][2, 1]), 1, test[5][2, 1])
+            }
+        }
+
+        return(sc_p_val)
+    }, mc.cores = numCores)
+    # Stop the cluster
+
+    names(p.vector.list) <- rownames(dat)
+    sc.p.vector <- unlist(p.vector.list, recursive = T, use.names = T)
+    #----------------------------------------------------------------------
+    # Correct p-values using FDR correction and select significant genes
+    p.adjusted <- unlist(
+        p.adjust(sc.p.vector,
+            method = mt_correction,
+            n = length(sc.p.vector)
+        ),
+        recursive = T, use.names = T
     )
+    names(p.adjusted) <- names(sc.p.vector)
+    genes.selected <- rownames(dat)[which(p.adjusted <= p_value)]
+    FDR <- sort(sc.p.vector)[length(genes.selected)]
 
-    # Update Slot
-    scmpObj@Profile <- profile.obj
+    # Subset the expression values of significant genes
+    SELEC <- dat[rownames(dat) %in% genes.selected, , drop = FALSE]
 
-    # Update Parameter Slot useInverseWeights
-    # scmpObj@Parameters@useWeights <- useWeights
-    scmpObj@Parameters@log_offset <- log_offset
-    # scmpObj@Parameters@logWeights <- logWeights
-    scmpObj@Parameters@max_it <- as.integer(max_it)
-    # scmpObj@Parameters@useInverseWeights <- useInverseWeights
-    scmpObj@Parameters@offset <- offset
-    scmpObj@Parameters@p_value <- p_value
-    scmpObj@Parameters@min_na <- min_na
-    scmpObj@Parameters@g <- g
-    scmpObj@Parameters@mt_correction <- mt_correction
-    scmpObj@Parameters@epsilon <- epsilon
-    scmpObj@Parameters@distribution <- family
-    scmpObj@Parameters@link <- link
+    if (nrow(SELEC) == 0) {
+        message("No significant genes detected. Try changing parameters.")
+        return(scmpObj)
+    } else {
+        # Prepare 'sc.p.vector' for output
+        names(sc.p.vector) <- rownames(dat)
 
-    return(scmpObj)
-  }
+        # Add Data to the class
+        profile.obj <- new("VariableProfiles",
+            non_flat = rownames(SELEC),
+            p_values = sc.p.vector,
+            adj_p_values = p.adjusted,
+            fdr = FDR
+        )
+
+        # Update Slot
+        scmpObj@Profile <- profile.obj
+
+        # Update Parameter Slot useInverseWeights
+        # scmpObj@Parameters@useWeights <- useWeights
+        scmpObj@Parameters@log_offset <- log_offset
+        # scmpObj@Parameters@logWeights <- logWeights
+        scmpObj@Parameters@max_it <- as.integer(max_it)
+        # scmpObj@Parameters@useInverseWeights <- useInverseWeights
+        scmpObj@Parameters@offset <- offset
+        scmpObj@Parameters@p_value <- p_value
+        scmpObj@Parameters@min_na <- min_na
+        scmpObj@Parameters@g <- g
+        scmpObj@Parameters@mt_correction <- mt_correction
+        scmpObj@Parameters@epsilon <- epsilon
+        scmpObj@Parameters@distribution <- family
+        scmpObj@Parameters@link <- link
+
+        return(scmpObj)
+    }
 }

@@ -59,7 +59,7 @@ Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
 # Install BiocManager if needed, then scMaSigPro together with its
 # Bioconductor dependencies from GitHub
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
+    install.packages("BiocManager")
 }
 BiocManager::install("BioBam/scMaSigPro")
 ```
@@ -70,7 +70,7 @@ You can easily install `maSigPro` from Bioconductor using the following steps:
 ```{r, "maSigPro-install", echo=TRUE, eval=FALSE}
 # Install Bioconductor if not already installed
 if (!require("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
+    install.packages("BiocManager")
 }
 
 # install maSigPro
@@ -128,13 +128,13 @@ To simplify the analysis, we'll convert the binarized groups into a single colum
 ```{r, "non-binarize", echo=TRUE, eval=TRUE}
 # Add group column
 metadata$Group <- apply(metadata[, c(3:6)], 1, FUN = function(x) {
-  return(names(x[x == 1]))
+    return(names(x[x == 1]))
 })
 
 # Remove binary columns
-metadata <- metadata[, !(colnames(metadata) %in%
-  c("Control", "Cold", "Heat", "Salt")),
-drop = FALSE
+metadata <- metadata[,
+    !(colnames(metadata) %in% c("Control", "Cold", "Heat", "Salt")),
+    drop = FALSE
 ]
 
 # View
@@ -154,11 +154,11 @@ the analysis without using `sc.squeeze()`, which is specifically designed for sc
 pseudo-bulking.
 ```{r, "create-scmpObject", echo=TRUE, eval=TRUE}
 scmp_ob <- create_scmp(
-  counts = count,
-  cell_data = metadata,
-  ptime_col = "Time",
-  path_col = "Group",
-  use_as_bin = TRUE
+    counts = count,
+    cell_data = metadata,
+    ptime_col = "Time",
+    path_col = "Group",
+    use_as_bin = TRUE
 )
 
 # Print Console output
@@ -179,8 +179,8 @@ The `eDense()` function retrieves the dense expression file from the `scMaSigPro
  
 ```{r, "eDense(scmp_ob)"}
 expect_identical(
-  object = as.data.frame(eDense(scmp_ob)),
-  expected = data.abiotic
+    object = as.data.frame(eDense(scmp_ob)),
+    expected = data.abiotic
 )
 ```
 
@@ -218,20 +218,21 @@ which accounts for variations in bin sizes. Since we are not dealing with
 scRNA-Seq data, we will disable this parameter.
 ```{r, "compare p.vetor"}
 # Using maSigPro
-gc <- capture_output(fit <- p.vector(data.abiotic, design,
-  Q = 0.05,
-  MT.adjust = "BH", min.obs = 20
+gc <- capture_output(fit <- p.vector(
+    data.abiotic, design,
+    Q = 0.05,
+    MT.adjust = "BH", min.obs = 20
 ))
 
 # Using ScMaSigPro
 scmp_ob <- sc.p.vector(scmp_ob,
-  min_na = 20,
-  verbose = FALSE,
-  link = "identity",
-  offset = FALSE,
-  max_it = 25,
-  epsilon = 0.00001,
-  family = gaussian()
+    min_na = 20,
+    verbose = FALSE,
+    link = "identity",
+    offset = FALSE,
+    max_it = 25,
+    epsilon = 0.00001,
+    family = gaussian()
 )
 ```
 
@@ -241,10 +242,10 @@ results from `sc.p.vector()`:
 ```{r, "testthat pvector"}
 # Compare p-values
 expect_identical(
-  matrix(scmp_ob@Profile@p_values,
-    dimnames = list(names(scmp_ob@Profile@p_values), "p.value")
-  ),
-  expected = as.matrix(fit$p.vector[, 1, drop = FALSE])
+    matrix(scmp_ob@Profile@p_values,
+        dimnames = list(names(scmp_ob@Profile@p_values), "p.value")
+    ),
+    expected = as.matrix(fit$p.vector[, 1, drop = FALSE])
 )
 
 # Compare adjusted p-values
@@ -262,10 +263,10 @@ gc <- capture_output(tstep <- T.fit(fit, step.method = "backward", alfa = 0.05))
 
 # Using scMaSigPro
 scmp_ob <- sc.t.fit(scmp_ob,
-  offset = FALSE,
-  verbose = FALSE,
-  epsilon = 0.00001,
-  family = gaussian()
+    offset = FALSE,
+    verbose = FALSE,
+    epsilon = 0.00001,
+    family = gaussian()
 )
 ```
 
@@ -302,22 +303,22 @@ We'll compare the s3 object (sigs) from `maSigPro::get.siggenes()' with the resu
 ```{r}
 # Compare Cold vs Control
 expect_identical(scmp_ob@Significant@genes$ColdvsControl,
-  expected = sigs$summary$ColdvsControl
+    expected = sigs$summary$ColdvsControl
 )
 
 # Compare Heat vs Control
 expect_identical(scmp_ob@Significant@genes$HeatvsControl,
-  expected = sigs$summary$HeatvsControl[sigs$summary$HeatvsControl != " "]
+    expected = sigs$summary$HeatvsControl[sigs$summary$HeatvsControl != " "]
 )
 
 # Compare Salt vs Control
 expect_identical(scmp_ob@Significant@genes$SaltvsControl,
-  expected = sigs$summary$SaltvsControl[sigs$summary$SaltvsControl != " "]
+    expected = sigs$summary$SaltvsControl[sigs$summary$SaltvsControl != " "]
 )
 
 # Compare Control
 expect_identical(scmp_ob@Significant@genes$Control,
-  expected = sigs$summary$Control[sigs$summary$Control != " "]
+    expected = sigs$summary$Control[sigs$summary$Control != " "]
 )
 ```
 
@@ -336,8 +337,8 @@ suma2Venn(sigs$summary[, c(1:4)])
 
 # Upset plot of scMaSigPro
 plotIntersect(
-  scmpObj = scmp_ob,
-  min_intersection_size = 0
+    scmpObj = scmp_ob,
+    min_intersection_size = 0
 )
 ```
 
@@ -355,16 +356,16 @@ STMDE66 <- data.abiotic[rownames(data.abiotic) == "STMDE66", ]
 
 # Plotting with maSigPro
 PlotGroups(STMDE66,
-  edesign = edesign.abiotic, show.fit = TRUE,
-  dis = design$dis, groups.vector = design$groups.vector
+    edesign = edesign.abiotic, show.fit = TRUE,
+    dis = design$dis, groups.vector = design$groups.vector
 )
 
 # Plotting the same gene with scMaSigPro
 plotTrend(scmp_ob, "STMDE66",
-  logs = FALSE, pseudoCount = 0,
-  smoothness = 0.01, significant = FALSE,
-  summary_mode = "mean",
-  curves = TRUE, lines = TRUE, points = TRUE
+    logs = FALSE, pseudoCount = 0,
+    smoothness = 0.01, significant = FALSE,
+    summary_mode = "mean",
+    curves = TRUE, lines = TRUE, points = TRUE
 )
 ```
 
@@ -372,25 +373,25 @@ plotTrend(scmp_ob, "STMDE66",
 ```{r, "Cluster Plots", fig.width=7, warning=FALSE}
 # Plot clustered Trend
 gc <- capture_output(
-  res <- see.genes(sigs$sig.genes$ColdvsControl,
-    show.fit = TRUE, dis = design$dis,
-    cluster.method = "hclust", cluster.data = 1, k = 9
-  )
+    res <- see.genes(sigs$sig.genes$ColdvsControl,
+        show.fit = TRUE, dis = design$dis,
+        cluster.method = "hclust", cluster.data = 1, k = 9
+    )
 )
 
 # Compute Clusters
 scmp_ob <- sc.cluster.trend(scmp_ob,
-  geneSet = "ColdvsControl",
-  cluster_by = "counts"
+    geneSet = "ColdvsControl",
+    cluster_by = "counts"
 )
 ```
 
 ### Plot cluster Trends 
 ```{r, "Plot Clustered Trends", fig.width=8, fig.height=8}
 plotTrendCluster(
-  scmpObj = scmp_ob,
-  plot = "coeff",
-  verbose = FALSE
+    scmpObj = scmp_ob,
+    plot = "coeff",
+    verbose = FALSE
 )
 ```
 

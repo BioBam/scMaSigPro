@@ -31,7 +31,7 @@ Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
 # Install BiocManager if needed, then scMaSigPro together with its
 # Bioconductor dependencies from GitHub
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
+    install.packages("BiocManager")
 }
 BiocManager::install("BioBam/scMaSigPro")
 ```
@@ -72,17 +72,17 @@ tsne$group <- colData(multi.lin.sce)$group
 tsne$pseudotime <- colData(multi.lin.sce)$Monocle3_Pseudotime
 
 p_group <- ggplot(tsne, aes(x = tSNE1, y = tSNE2, colour = group)) +
-  geom_point(size = 0.7, alpha = 0.8) +
-  theme_minimal() +
-  theme(legend.position = "bottom") +
-  labs(title = "A. Branch assignment", colour = "Branch")
+    geom_point(size = 0.7, alpha = 0.8) +
+    theme_minimal() +
+    theme(legend.position = "bottom") +
+    labs(title = "A. Branch assignment", colour = "Branch")
 
 p_time <- ggplot(tsne, aes(x = tSNE1, y = tSNE2, colour = pseudotime)) +
-  geom_point(size = 0.7, alpha = 0.8) +
-  scale_colour_viridis_c() +
-  theme_minimal() +
-  theme(legend.position = "bottom") +
-  labs(title = "B. Monocle3 pseudotime", colour = "Pseudotime")
+    geom_point(size = 0.7, alpha = 0.8) +
+    scale_colour_viridis_c() +
+    theme_minimal() +
+    theme(legend.position = "bottom") +
+    labs(title = "B. Monocle3 pseudotime", colour = "Pseudotime")
 
 ggpubr::ggarrange(p_group, p_time, ncol = 2)
 ```
@@ -124,7 +124,7 @@ Monocle3 is not a dependency of `scMaSigPro`.
 ## `cds` here had t-SNE coordinates stored in the UMAP slot, because
 ## monocle3::learn_graph() only works on the UMAP slot (monocle3 issue #242).
 y_to_cells <- as.data.frame(
-  principal_graph_aux(cds)$UMAP$pr_graph_cell_proj_closest_vertex
+    principal_graph_aux(cds)$UMAP$pr_graph_cell_proj_closest_vertex
 )
 y_to_cells$cells <- rownames(y_to_cells)
 y_to_cells$Y <- y_to_cells$V1
@@ -135,12 +135,12 @@ endpoints <- names(which(igraph::degree(mst) == 1))
 endpoints <- endpoints[!endpoints %in% root]
 
 cellWeights <- lapply(endpoints, function(endpoint) {
-  path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
-  path <- as.character(path)
-  df <- y_to_cells[y_to_cells$Y %in% path, ]
-  df <- data.frame(weights = as.numeric(colnames(cds) %in% df$cells))
-  colnames(df) <- endpoint
-  df
+    path <- igraph::shortest_paths(mst, root, endpoint)$vpath[[1]]
+    path <- as.character(path)
+    df <- y_to_cells[y_to_cells$Y %in% path, ]
+    df <- data.frame(weights = as.numeric(colnames(cds) %in% df$cells))
+    colnames(df) <- endpoint
+    df
 })
 cellWeights <- as.matrix(do.call(cbind, cellWeights))
 rownames(cellWeights) <- colnames(cds)
@@ -151,16 +151,16 @@ cellWeights <- cellWeights[, c("path_Y_18", "path_Y_52", "path_Y_15")]
 cellWeights <- cellWeights[rowSums(cellWeights) != 0, ]
 
 group <- apply(cellWeights, 1, function(x) {
-  on <- names(x)[x == 1]
-  if (length(on) == 3) "root" else paste(on, collapse = "|")
+    on <- names(x)[x == 1]
+    if (length(on) == 3) "root" else paste(on, collapse = "|")
 })
 
 # Cell table with the Monocle3 pseudotime and the path label of each kept
 # cell; it holds the same information as colData(multi.lin.sce) used below
 cell_data <- data.frame(
-  Pseudotime = pseudotime(cds)[names(group)],
-  Path = group,
-  row.names = names(group)
+    Pseudotime = pseudotime(cds)[names(group)],
+    Path = group,
+    row.names = names(group)
 )
 ```
 
@@ -188,11 +188,11 @@ of the link segment, it is part of both the `Y_15` and `Y_18` branches.
 ### Creating Object
 ```{r, "create-object"}
 multi_scmp_ob <- create_scmp(
-  counts = as.matrix(counts(multi.lin.sce)),
-  cell_data = cellData,
-  ptime_col = "Monocle3_Pseudotime",
-  path_col = "group",
-  use_as_bin = FALSE
+    counts = as.matrix(counts(multi.lin.sce)),
+    cell_data = cellData,
+    ptime_col = "Monocle3_Pseudotime",
+    path_col = "group",
+    use_as_bin = FALSE
 )
 multi_scmp_ob
 ```
@@ -230,23 +230,23 @@ multi_scmp_ob_A <- sc.set.poly(multi_scmp_ob_A, poly_degree = 3)
 
 # Detect non-flat profiles
 multi_scmp_ob_A <- sc.p.vector(
-  multi_scmp_ob_A,
-  verbose = FALSE
+    multi_scmp_ob_A,
+    verbose = FALSE
 )
 
 # Model refinement
 multi_scmp_ob_A <- sc.t.fit(
-  multi_scmp_ob_A,
-  verbose = FALSE
+    multi_scmp_ob_A,
+    verbose = FALSE
 )
 
 # Apply filter
 multi_scmp_ob_A <- sc.filter(
-  scmpObj = multi_scmp_ob_A,
-  rsq = 0.55,
-  vars = "groups",
-  intercept = "dummy",
-  includeInflu = TRUE
+    scmpObj = multi_scmp_ob_A,
+    rsq = 0.55,
+    vars = "groups",
+    intercept = "dummy",
+    includeInflu = TRUE
 )
 
 # Plot upset
@@ -274,11 +274,11 @@ later. First, let's look at the genes that have similar expression in the
 ```{r, "sample-gene", fig.align='center', fig.width=8, fig.height=5, fig.alt='Trend of one gene with similar expression in root, link and Y_15'}
 ## Similar expression in Root, the link segment and Y_15
 gene_br_Y_15 <- rownames(shared_genes)[
-  shared_genes$Y_52vsRoot == 1 &
-    shared_genes$Y_18vsRoot == 1 &
-    shared_genes$Y_15vsRoot == 0 &
-    shared_genes$Root == 1 &
-    shared_genes$Y_18_links_Y_15vsRoot == 0
+    shared_genes$Y_52vsRoot == 1 &
+        shared_genes$Y_18vsRoot == 1 &
+        shared_genes$Y_15vsRoot == 0 &
+        shared_genes$Root == 1 &
+        shared_genes$Y_18_links_Y_15vsRoot == 0
 ]
 head(gene_br_Y_15)
 plotTrend(multi_scmp_ob_A, feature_id = gene_br_Y_15[1], points = FALSE, lines = TRUE)
@@ -368,15 +368,15 @@ rownames(Y_15_binned_data) <- paste(Y_15_binned_data$group2, Y_15_binned_data$sc
 
 # Create plot
 ggplot() +
-  geom_tile(
-    data = Y_18_binned_data,
-    aes(x = scmp_binned_pseudotime, y = group), fill = "blue", alpha = 0.2
-  ) +
-  geom_tile(
-    data = Y_18_binned_data,
-    aes(x = scmp_binned_pseudotime, y = group2), fill = "red", alpha = 0.2
-  ) +
-  theme_minimal()
+    geom_tile(
+        data = Y_18_binned_data,
+        aes(x = scmp_binned_pseudotime, y = group), fill = "blue", alpha = 0.2
+    ) +
+    geom_tile(
+        data = Y_18_binned_data,
+        aes(x = scmp_binned_pseudotime, y = group2), fill = "red", alpha = 0.2
+    ) +
+    theme_minimal()
 ```
 
 As we can see above, the tiles in blue represent the original bins, while the
@@ -399,8 +399,8 @@ multi_scmp_ob_A_manual@Parameters@path_col <- "group2"
 
 ## Perform Aggregation
 multi_scmp_ob_A_manual <- pb_counts(
-  scmpObj = multi_scmp_ob_A_manual,
-  assay_name = "counts",
+    scmpObj = multi_scmp_ob_A_manual,
+    assay_name = "counts",
 )
 
 ## Plot
@@ -416,9 +416,9 @@ in this vignette.
 ```{r, "restruct", fig.align='center', fig.width=8, fig.height=5, fig.alt='Bin sizes after reordering with sc.restruct()'}
 ## Showcase sc.restruct wrapper
 multi_scmp_ob_B <- sc.restruct(multi_scmp_ob_A,
-  end_node_list = list("Y_15", "Y_18", "Y_52"),
-  root_node = "Root", link_node_list = list("Y_18_links_Y_15"),
-  verbose = FALSE, link_sep = "_links_", assay_name = "counts", aggregate = "sum"
+    end_node_list = list("Y_15", "Y_18", "Y_52"),
+    root_node = "Root", link_node_list = list("Y_18_links_Y_15"),
+    verbose = FALSE, link_sep = "_links_", assay_name = "counts", aggregate = "sum"
 )
 # Show the new path
 plotBinTile(multi_scmp_ob_B)
@@ -435,23 +435,23 @@ multi_scmp_ob_B <- sc.set.poly(multi_scmp_ob_B, poly_degree = 3)
 
 # Detect non-flat profiles
 multi_scmp_ob_B <- sc.p.vector(
-  multi_scmp_ob_B,
-  verbose = FALSE
+    multi_scmp_ob_B,
+    verbose = FALSE
 )
 
 # Model refinement
 multi_scmp_ob_B <- sc.t.fit(
-  multi_scmp_ob_B,
-  verbose = FALSE
+    multi_scmp_ob_B,
+    verbose = FALSE
 )
 
 # Apply filter
 multi_scmp_ob_B <- sc.filter(
-  scmpObj = multi_scmp_ob_B,
-  rsq = 0.5,
-  vars = "groups",
-  intercept = "dummy",
-  includeInflu = TRUE
+    scmpObj = multi_scmp_ob_B,
+    rsq = 0.5,
+    vars = "groups",
+    intercept = "dummy",
+    includeInflu = TRUE
 )
 
 # Plot upset
@@ -467,7 +467,7 @@ the root cells for each of the downstream branches.
 ```{r, "approach-2-clusters", fig.align='center', fig.width=8, fig.height=5, fig.alt='Clustered gene trends after reordering'}
 ## Perform Clustering
 multi_scmp_ob_B <- sc.cluster.trend(multi_scmp_ob_B,
-  k = 4, cluster_method = "kmeans"
+    k = 4, cluster_method = "kmeans"
 )
 
 ## Plot Clusters

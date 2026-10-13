@@ -39,7 +39,7 @@ Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
 # Install BiocManager if needed, then scMaSigPro together with its
 # Bioconductor dependencies from GitHub
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
+    install.packages("BiocManager")
 }
 BiocManager::install("BioBam/scMaSigPro")
 ```
@@ -73,11 +73,11 @@ df$Group <- splat.sim@colData$Group
 
 # Plot the data
 ggplot(
-  df,
-  aes(x = PC1, y = PC2, color = Step, shape = Group)
+    df,
+    aes(x = PC1, y = PC2, color = Step, shape = Group)
 ) +
-  geom_point() +
-  theme_minimal()
+    geom_point() +
+    theme_minimal()
 ```
 
 If you are interested in learning how this data is simulated and what information
@@ -125,13 +125,13 @@ the parameter `labels_exist` and then pass the existing column names as a named 
 ```{r, "Convert to `scMaSigPro` Object", eval=TRUE, echo=TRUE}
 # Helper Function to convert annotated SCE object to scmpObject
 scmp_ob <- as_scmp(
-  object = splat.sim, from = "sce",
-  verbose = TRUE,
-  additional_params = list(
-    labels_exist = TRUE,
-    exist_ptime_col = "Step",
-    exist_path_col = "Group"
-  )
+    object = splat.sim, from = "sce",
+    verbose = TRUE,
+    additional_params = list(
+        labels_exist = TRUE,
+        exist_ptime_col = "Step",
+        exist_path_col = "Group"
+    )
 )
 ```
 
@@ -262,8 +262,8 @@ We can execute `sc.p.vector()` as follows:
 ```{r, "Detecting Genes with Non-Flat Profiles", eval=TRUE, echo=TRUE}
 # Detect non-flat profiles
 scmp_ob <- sc.p.vector(scmp_ob,
-  offset = TRUE, p_value = 0.05, verbose = FALSE,
-  log_offset = TRUE
+    offset = TRUE, p_value = 0.05, verbose = FALSE,
+    log_offset = TRUE
 )
 scmp_ob
 ```
@@ -305,11 +305,11 @@ In our case, we are interested in genes differentially expressed between paths
 and over pseudotime continuum, so we will choose `vars = 'groups`.
 ```{r, "vars = groups",eval=TRUE, echo=TRUE}
 scmp_ob <- sc.filter(
-  scmpObj = scmp_ob,
-  rsq = 0.7,
-  vars = "groups",
-  intercept = "dummy",
-  includeInflu = TRUE
+    scmpObj = scmp_ob,
+    rsq = 0.7,
+    vars = "groups",
+    intercept = "dummy",
+    includeInflu = TRUE
 )
 ```
 
@@ -332,8 +332,8 @@ FigureB <- plotTrend(scmp_ob, "Gene95", logs = TRUE, logType = "log", lines = TR
 FigureC <- plotTrend(scmp_ob, "Gene10", logs = TRUE, logType = "log", lines = TRUE)
 FigureD <- plotTrend(scmp_ob, "Gene92", logs = TRUE, logType = "log", lines = TRUE)
 ggpubr::ggarrange(FigureA, FigureB, FigureC, FigureD,
-  ncol = 2, nrow = 2,
-  labels = c("A", "B", "C", "D")
+    ncol = 2, nrow = 2,
+    labels = c("A", "B", "C", "D")
 )
 ```
 
@@ -361,20 +361,20 @@ genes into 4 clusters.
 ```{r, "Cluster Trends"}
 # Cluster Trend
 scmp_ob <- sc.cluster.trend(
-  scmp_ob,
-  geneSet = "union",
-  k = 4
+    scmp_ob,
+    geneSet = "union",
+    k = 4
 )
 ```
 
 ```{r, "plot", fig.width=8, fig.height=6}
 # Plot
 plotTrendCluster(
-  scmpObj = scmp_ob,
-  plot = "coeff",
-  logs = TRUE,
-  verbose = FALSE,
-  lines = TRUE
+    scmpObj = scmp_ob,
+    plot = "coeff",
+    logs = TRUE,
+    verbose = FALSE,
+    lines = TRUE
 )
 ```
 

@@ -57,109 +57,108 @@
 #' @importFrom methods is new
 #' @keywords classes
 setClass(
-  "ParameterConfig",
-  representation(
-    bin_ptime_col = "character",
-    path_prefix = "character",
-    root_label = "character",
-    ptime_col = "character",
-    selection_method = "character",
-    bin_method = "character",
-    path_col = "character",
-    bin_col = "character",
-    bin_size_col = "character",
-    bin_mem_col = "character",
-    anno_col = "character",
-    g = "integer",
-    p_value = "numeric",
-    min_na = "numeric",
-    mt_correction = "character",
-    link = "character",
-    epsilon = "numeric",
-    offset = "logical",
-    log_offset = "logical",
-    max_it = "integer",
-    poly_degree = "integer",
-    distribution = "ANY",
-    cluster_method = "character",
-    use_dim = "character",
-    fill_na = "character"
-  ),
-  validity = function(object) {
-    errors <- character(0)
+    "ParameterConfig",
+    representation(
+        bin_ptime_col = "character",
+        path_prefix = "character",
+        root_label = "character",
+        ptime_col = "character",
+        selection_method = "character",
+        bin_method = "character",
+        path_col = "character",
+        bin_col = "character",
+        bin_size_col = "character",
+        bin_mem_col = "character",
+        anno_col = "character",
+        g = "integer",
+        p_value = "numeric",
+        min_na = "numeric",
+        mt_correction = "character",
+        link = "character",
+        epsilon = "numeric",
+        offset = "logical",
+        log_offset = "logical",
+        max_it = "integer",
+        poly_degree = "integer",
+        distribution = "ANY",
+        cluster_method = "character",
+        use_dim = "character",
+        fill_na = "character"
+    ),
+    validity = function(object) {
+        errors <- character(0)
 
-    # Check if any character slots are empty or not of type character
-    char_slots <- c(
-      "bin_ptime_col", "path_prefix", "root_label", "ptime_col", "bin_method",
-      "path_col", "bin_col", "bin_size_col", "bin_mem_col",
-      "mt_correction", "selection_method", "anno_col", "cluster_method",
-      "use_dim", "fill_na", "link"
-    )
+        # Check if any character slots are empty or not of type character
+        char_slots <- c(
+            "bin_ptime_col", "path_prefix", "root_label", "ptime_col", "bin_method",
+            "path_col", "bin_col", "bin_size_col", "bin_mem_col",
+            "mt_correction", "selection_method", "anno_col", "cluster_method",
+            "use_dim", "fill_na", "link"
+        )
 
-    for (slot_name in char_slots) {
-      slot_value <- slot(object, slot_name)
-      if (length(slot_value) == 0 || !is.character(slot_value)) {
-        errors <- c(errors, paste(slot_name, "must not be empty and should
+        for (slot_name in char_slots) {
+            slot_value <- slot(object, slot_name)
+            if (length(slot_value) == 0 || !is.character(slot_value)) {
+                errors <- c(errors, paste(slot_name, "must not be empty and should
                                   be of type character."))
-      }
-    }
+            }
+        }
 
-    if (!is.integer(object@g)) {
-      stop("Slot 'g' must be an integer.")
-    }
+        if (!is.integer(object@g)) {
+            stop("Slot 'g' must be an integer.")
+        }
 
-    if (!is.numeric(object@p_value)) {
-    }
+        if (!is.numeric(object@p_value)) {}
 
-    if (!is.numeric(object@epsilon)) {
-      stop("Slot 'epsilon' must be numeric.")
-    }
+        if (!is.numeric(object@epsilon)) {
+            stop("Slot 'epsilon' must be numeric.")
+        }
 
-    # Check for slot min.na
-    if (!is.numeric(object@min_na)) {
-      stop("Slot 'min_na' must be an integer.")
-    }
+        # Check for slot min.na
+        if (!is.numeric(object@min_na)) {
+            stop("Slot 'min_na' must be an integer.")
+        }
 
-    # Check if any of the character slots have multiple values
-    for (slot_name in char_slots) {
-      slot_value <- slot(object, slot_name)
-      if (length(slot_value) > 1) {
-        errors <- c(errors, paste(
-          slot_name,
-          "should not contain multiple values."
-        ))
-      }
-    }
+        # Check if any of the character slots have multiple values
+        for (slot_name in char_slots) {
+            slot_value <- slot(object, slot_name)
+            if (length(slot_value) > 1) {
+                errors <- c(errors, paste(
+                    slot_name,
+                    "should not contain multiple values."
+                ))
+            }
+        }
 
-    if (length(errors) == 0) TRUE else errors
-  },
-  prototype = list(
-    bin_ptime_col = "scmp_binned_pseudotime",
-    path_prefix = "Path",
-    root_label = "root",
-    ptime_col = "Pseudotime",
-    path_col = "Path",
-    bin_method = "Sturges",
-    bin_col = "scmp_bin",
-    g = 0L,
-    p_value = 0.05,
-    min_na = 6,
-    bin_size_col = "scmp_bin_size",
-    bin_mem_col = "scmp_bin_members",
-    mt_correction = "BH",
-    selection_method = "backward",
-    link = "log",
-    epsilon = 1e-8,
-    offset = TRUE,
-    log_offset = FALSE,
-    max_it = 100L,
-    anno_col = "cell_type",
-    poly_degree = 2L,
-    distribution = MASS::negative.binomial(10),
-    cluster_method = "hclust",
-    use_dim = "col",
-    fill_na = "zero"
-  )
+        if (length(errors) == 0) TRUE else errors
+    },
+    prototype = list(
+        bin_ptime_col = "scmp_binned_pseudotime",
+        path_prefix = "Path",
+        root_label = "root",
+        ptime_col = "Pseudotime",
+        path_col = "Path",
+        bin_method = "Sturges",
+        bin_col = "scmp_bin",
+        g = 0L,
+        p_value = 0.05,
+        min_na = 6,
+        bin_size_col = "scmp_bin_size",
+        bin_mem_col = "scmp_bin_members",
+        mt_correction = "BH",
+        selection_method = "backward",
+        link = "log",
+        epsilon = 1e-8,
+        offset = TRUE,
+        log_offset = FALSE,
+        max_it = 100L,
+        anno_col = "cell_type",
+        poly_degree = 2L,
+        distribution = MASS::negative.binomial(10),
+        cluster_method = "hclust",
+        use_dim = "col",
+        fill_na = "zero"
+    )
 )
 
 ###############################################################################
@@ -183,34 +182,34 @@ setClass(
 #' @importFrom methods is new
 #' @keywords classes
 setClass(
-  "MatrixDesign",
-  representation(
-    predictor_matrix = "matrix",
-    groups.vector = "character",
-    assignment_matrix = "matrix",
-    offset = "numeric"
-  ),
-  prototype = list(
-    predictor_matrix = matrix(NA, nrow = 0, ncol = 0),
-    groups.vector = character(),
-    assignment_matrix = matrix(NA, nrow = 0, ncol = 0),
-    offset = numeric()
-  ),
-  validity = function(object) {
-    if (!validObject(object@predictor_matrix)) {
-      stop("predictor_matrix slot is not a valid matrix.")
+    "MatrixDesign",
+    representation(
+        predictor_matrix = "matrix",
+        groups.vector = "character",
+        assignment_matrix = "matrix",
+        offset = "numeric"
+    ),
+    prototype = list(
+        predictor_matrix = matrix(NA, nrow = 0, ncol = 0),
+        groups.vector = character(),
+        assignment_matrix = matrix(NA, nrow = 0, ncol = 0),
+        offset = numeric()
+    ),
+    validity = function(object) {
+        if (!validObject(object@predictor_matrix)) {
+            stop("predictor_matrix slot is not a valid matrix.")
+        }
+        if (!validObject(object@groups.vector)) {
+            stop("groups.vector slot is not a valid character vector.")
+        }
+        if (!validObject(object@assignment_matrix)) {
+            stop("assignment_matrix slot is not a valid matrix.")
+        }
+        if (!validObject(object@offset)) {
+            stop("offset slot is not a valid vector.")
+        }
+        TRUE
     }
-    if (!validObject(object@groups.vector)) {
-      stop("groups.vector slot is not a valid character vector.")
-    }
-    if (!validObject(object@assignment_matrix)) {
-      stop("assignment_matrix slot is not a valid matrix.")
-    }
-    if (!validObject(object@offset)) {
-      stop("offset slot is not a valid vector.")
-    }
-    TRUE
-  }
 )
 ###############################################################################
 #' @title VariableProfiles
@@ -237,33 +236,33 @@ setClass(
 
 # Define the VariableProfiles with the following slots:
 setClass("VariableProfiles",
-  slots = c(
-    non_flat = "character",
-    p_values = "numeric",
-    adj_p_values = "numeric",
-    fdr = "numeric"
-  ),
-  validity = function(object) {
-    if (!is.character(object@non_flat)) {
-      stop("Slot 'non_flat' must be a character vector of gene names.")
-    }
-    if (!is.numeric(object@p_values)) {
-      stop("Slot 'p_values' must be a numeric vector.")
-    }
-    if (!is.numeric(object@adj_p_values)) {
-      stop("Slot 'adj_p_values' must be a numeric vector.")
-    }
-    if (!is.numeric(object@fdr)) {
-      stop("Slot 'fdr' must be numeric.")
-    }
-    TRUE
-  },
-  prototype = list(
-    non_flat = character(),
-    p_values = numeric(0),
-    adj_p_values = numeric(0),
-    fdr = numeric(0)
-  )
+    slots = c(
+        non_flat = "character",
+        p_values = "numeric",
+        adj_p_values = "numeric",
+        fdr = "numeric"
+    ),
+    validity = function(object) {
+        if (!is.character(object@non_flat)) {
+            stop("Slot 'non_flat' must be a character vector of gene names.")
+        }
+        if (!is.numeric(object@p_values)) {
+            stop("Slot 'p_values' must be a numeric vector.")
+        }
+        if (!is.numeric(object@adj_p_values)) {
+            stop("Slot 'adj_p_values' must be a numeric vector.")
+        }
+        if (!is.numeric(object@fdr)) {
+            stop("Slot 'fdr' must be numeric.")
+        }
+        TRUE
+    },
+    prototype = list(
+        non_flat = character(),
+        p_values = numeric(0),
+        adj_p_values = numeric(0),
+        fdr = numeric(0)
+    )
 )
 ###############################################################################
 #' @title Estimates
@@ -287,43 +286,43 @@ setClass("VariableProfiles",
 #' @importFrom methods is new
 #' @keywords classes
 setClass(
-  "Estimates",
-  representation(
-    significance_matrix = "matrix",
-    coefficient_matrix = "matrix",
-    path_coefficient_matrix = "matrix",
-    t_score_matrix = "matrix",
-    path = "character",
-    influential = "matrix"
-  ),
-  validity = function(object) {
-    if (!is.matrix(object@significance_matrix)) {
-      stop("significance_matrix slot must be a matrix.")
-    }
-    if (!is.matrix(object@coefficient_matrix)) {
-      stop("coefficient_matrix slot must be a matrix.")
-    }
-    if (!is.matrix(object@path_coefficient_matrix)) {
-      stop("path_coefficient_matrix slot must be a matrix.")
-    }
-    if (!is.matrix(object@t_score_matrix)) {
-      stop("t_score_matrix slot must be a matrix.")
-    }
-    if (!is.character(object@path)) {
-      stop("path slot must be a character.")
-    }
-    if (!is.matrix(object@influential)) {
-      stop("influential slot must be a matrix.")
-    }
-  },
-  prototype = list(
-    significance_matrix = matrix(NA, nrow = 0, ncol = 0),
-    coefficient_matrix = matrix(NA, nrow = 0, ncol = 0),
-    path_coefficient_matrix = matrix(0, nrow = 0, ncol = 0),
-    t_score_matrix = matrix(NA, nrow = 0, ncol = 0),
-    path = character(),
-    influential = matrix(NA, nrow = 0, ncol = 0)
-  )
+    "Estimates",
+    representation(
+        significance_matrix = "matrix",
+        coefficient_matrix = "matrix",
+        path_coefficient_matrix = "matrix",
+        t_score_matrix = "matrix",
+        path = "character",
+        influential = "matrix"
+    ),
+    validity = function(object) {
+        if (!is.matrix(object@significance_matrix)) {
+            stop("significance_matrix slot must be a matrix.")
+        }
+        if (!is.matrix(object@coefficient_matrix)) {
+            stop("coefficient_matrix slot must be a matrix.")
+        }
+        if (!is.matrix(object@path_coefficient_matrix)) {
+            stop("path_coefficient_matrix slot must be a matrix.")
+        }
+        if (!is.matrix(object@t_score_matrix)) {
+            stop("t_score_matrix slot must be a matrix.")
+        }
+        if (!is.character(object@path)) {
+            stop("path slot must be a character.")
+        }
+        if (!is.matrix(object@influential)) {
+            stop("influential slot must be a matrix.")
+        }
+    },
+    prototype = list(
+        significance_matrix = matrix(NA, nrow = 0, ncol = 0),
+        coefficient_matrix = matrix(NA, nrow = 0, ncol = 0),
+        path_coefficient_matrix = matrix(0, nrow = 0, ncol = 0),
+        t_score_matrix = matrix(NA, nrow = 0, ncol = 0),
+        path = character(),
+        influential = matrix(NA, nrow = 0, ncol = 0)
+    )
 )
 ###############################################################################
 #' @title Significant
@@ -341,23 +340,23 @@ setClass(
 #' @importFrom methods is new as
 #' @keywords classes
 setClass(
-  "Significant",
-  representation(
-    genes = "list",
-    clusters = "list"
-  ),
-  validity = function(object) {
-    if (!is.list(object@genes)) {
-      stop("genes slot must be a list")
-    }
-    if (!is.list(object@clusters)) {
-      stop("clusters slot must be a list")
-    }
-  },
-  prototype = list(
-    genes = list(),
-    clusters = list()
-  )
+    "Significant",
+    representation(
+        genes = "list",
+        clusters = "list"
+    ),
+    validity = function(object) {
+        if (!is.list(object@genes)) {
+            stop("genes slot must be a list")
+        }
+        if (!is.list(object@clusters)) {
+            stop("clusters slot must be a list")
+        }
+    },
+    prototype = list(
+        genes = list(),
+        clusters = list()
+    )
 )
 ###############################################################################
 #' @title ScMaSigPro
@@ -384,55 +383,55 @@ setClass(
 #' @keywords classes
 
 setClass(
-  "ScMaSigPro",
-  representation(
-    Sparse = "SingleCellExperiment",
-    Dense = "SingleCellExperiment",
-    Design = "MatrixDesign",
-    Profile = "VariableProfiles",
-    Estimate = "Estimates",
-    Significant = "Significant",
-    Parameters = "ParameterConfig"
-  ),
-  validity = function(object) {
-    # Check sparse slot
-    if (!validObject(object@Sparse)) {
-      stop("'Sparse' slot is not a valid 'SingleCellExperiment' class object.")
-    }
+    "ScMaSigPro",
+    representation(
+        Sparse = "SingleCellExperiment",
+        Dense = "SingleCellExperiment",
+        Design = "MatrixDesign",
+        Profile = "VariableProfiles",
+        Estimate = "Estimates",
+        Significant = "Significant",
+        Parameters = "ParameterConfig"
+    ),
+    validity = function(object) {
+        # Check sparse slot
+        if (!validObject(object@Sparse)) {
+            stop("'Sparse' slot is not a valid 'SingleCellExperiment' class object.")
+        }
 
-    # Check VariableProfiles slot
-    if (!validObject(object@Profile)) {
-      stop("'Profile' slot is not a valid 'VariableProfiles' class object.")
-    }
+        # Check VariableProfiles slot
+        if (!validObject(object@Profile)) {
+            stop("'Profile' slot is not a valid 'VariableProfiles' class object.")
+        }
 
-    # Check Estimates slot
-    if (!validObject(object@Estimate)) {
-      stop("'Estimates' slot is not a valid 'Estimates' class object.")
-    }
+        # Check Estimates slot
+        if (!validObject(object@Estimate)) {
+            stop("'Estimates' slot is not a valid 'Estimates' class object.")
+        }
 
-    # Check dense slot
-    if (!validObject(object@Dense)) {
-      stop("'Dense' slot is not a valid 'SingleCellExperiment' class object.")
-    }
+        # Check dense slot
+        if (!validObject(object@Dense)) {
+            stop("'Dense' slot is not a valid 'SingleCellExperiment' class object.")
+        }
 
-    # Check MatrixDesign slot
-    if (!validObject(object@Design)) {
-      stop("'Design' slot is not a valid 'MatrixDesign' class object.")
-    }
+        # Check MatrixDesign slot
+        if (!validObject(object@Design)) {
+            stop("'Design' slot is not a valid 'MatrixDesign' class object.")
+        }
 
-    # Check ParameterConfig slot
-    if (!validObject(object@Parameters)) {
-      stop("'Parameters' slot is not a valid 'ParameterConfig' class object.")
-    }
-    # Check ParameterConfig slot
-    if (!validObject(object@Significant)) {
-      stop("'Significant' slot is not a valid 'Significant' object.")
-    }
-  },
-  prototype = list(
-    Profile = new("VariableProfiles"),
-    Estimate = new("Estimates"),
-    Parameters = new("ParameterConfig"),
-    Significant = new("Significant")
-  )
+        # Check ParameterConfig slot
+        if (!validObject(object@Parameters)) {
+            stop("'Parameters' slot is not a valid 'ParameterConfig' class object.")
+        }
+        # Check ParameterConfig slot
+        if (!validObject(object@Significant)) {
+            stop("'Significant' slot is not a valid 'Significant' object.")
+        }
+    },
+    prototype = list(
+        Profile = new("VariableProfiles"),
+        Estimate = new("Estimates"),
+        Parameters = new("ParameterConfig"),
+        Significant = new("Significant")
+    )
 )

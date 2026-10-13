@@ -39,13 +39,13 @@
 #' # Step-2: Convert to ScMaSigPro Object
 #' # Here, we convert the sce object to an scMaSigPro object
 #' scmp.sce <- as_scmp(
-#'   object = splat.sim, from = "sce",
-#'   verbose = FALSE,
-#'   additional_params = list(
-#'     labels_exist = TRUE,
-#'     exist_ptime_col = "Step",
-#'     exist_path_col = "Group"
-#'   )
+#'     object = splat.sim, from = "sce",
+#'     verbose = FALSE,
+#'     additional_params = list(
+#'         labels_exist = TRUE,
+#'         exist_ptime_col = "Step",
+#'         exist_path_col = "Group"
+#'     )
 #' )
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
@@ -58,73 +58,73 @@ as_scmp <- function(object, from = "sce",
                     path_col = path_prefix,
                     verbose = TRUE,
                     additional_params = list(
-                      labels_exist = FALSE
+                        labels_exist = FALSE
                     )) {
-  # Check Conversion Type
-  assertthat::assert_that(identical(from, "sce"),
-    msg = paste(
-      "'from' must be \"sce\": as_scmp() converts SingleCellExperiment objects",
-      "only. Monocle3 'cell_data_set' objects (from = \"cds\") are no longer",
-      "converted; pass the counts and a cell table with pseudotime and path",
-      "columns to create_scmp(), as shown in the 'Common Root Cells' vignette."
+    # Check Conversion Type
+    assertthat::assert_that(identical(from, "sce"),
+        msg = paste(
+            "'from' must be \"sce\": as_scmp() converts SingleCellExperiment objects",
+            "only. Monocle3 'cell_data_set' objects (from = \"cds\") are no longer",
+            "converted; pass the counts and a cell table with pseudotime and path",
+            "columns to create_scmp(), as shown in the 'Common Root Cells' vignette."
+        )
     )
-  )
 
-  # Validate S4
-  assertthat::assert_that(is(object, "SingleCellExperiment"),
-    msg = paste(
-      "'object' must be a SingleCellExperiment. To start from a count matrix",
-      "and a table of cell metadata, use create_scmp()."
+    # Validate S4
+    assertthat::assert_that(is(object, "SingleCellExperiment"),
+        msg = paste(
+            "'object' must be a SingleCellExperiment. To start from a count matrix",
+            "and a table of cell metadata, use create_scmp()."
+        )
     )
-  )
 
-  # Check and validate additional parameters
-  if (!is.null(additional_params)) {
-    assertthat::assert_that(is.list(additional_params),
-      msg = "Please provide 'additional_params' as a named list.
+    # Check and validate additional parameters
+    if (!is.null(additional_params)) {
+        assertthat::assert_that(is.list(additional_params),
+            msg = "Please provide 'additional_params' as a named list.
       See details for more information"
-    )
-    # Check additional parameters
-    assertthat::assert_that(all(names(additional_params) %in% c("exist_ptime_col", "exist_path_col", "labels_exist")),
-      msg = "Allowed additional parameters for sce are 'exist_ptime_col',
+        )
+        # Check additional parameters
+        assertthat::assert_that(all(names(additional_params) %in% c("exist_ptime_col", "exist_path_col", "labels_exist")),
+            msg = "Allowed additional parameters for sce are 'exist_ptime_col',
                   'exist_path_col', and 'labels_exist'."
+        )
+    } else {
+        additional_params <- list(
+            labels_exist = NULL,
+            exist_ptime_col = NULL,
+            exist_path_col = NULL
+        )
+    }
+
+    if (verbose) {
+        message("Supplied object: SingleCellExperiment object")
+    }
+    # Annotate the sce object
+    annotated_sce <- annotate_sce(
+        sce = object,
+        ptime_col = ptime_col,
+        path_prefix = path_prefix,
+        root_label = root_label,
+        path_col = path_col,
+        exist_ptime_col = additional_params[["exist_ptime_col"]],
+        exist_path_col = additional_params[["exist_path_col"]],
+        labels_exist = additional_params[["labels_exist"]],
+        verbose = verbose
     )
-  } else {
-    additional_params <- list(
-      labels_exist = NULL,
-      exist_ptime_col = NULL,
-      exist_path_col = NULL
+
+    # Create Object
+    scmpObj <- new("ScMaSigPro",
+        Sparse = annotated_sce,
+        Dense = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
     )
-  }
 
-  if (verbose) {
-    message("Supplied object: SingleCellExperiment object")
-  }
-  # Annotate the sce object
-  annotated_sce <- annotate_sce(
-    sce = object,
-    ptime_col = ptime_col,
-    path_prefix = path_prefix,
-    root_label = root_label,
-    path_col = path_col,
-    exist_ptime_col = additional_params[["exist_ptime_col"]],
-    exist_path_col = additional_params[["exist_path_col"]],
-    labels_exist = additional_params[["labels_exist"]],
-    verbose = verbose
-  )
+    # Update the Parametersaram slot
+    scmpObj@Parameters@ptime_col <- ptime_col
+    scmpObj@Parameters@root_label <- root_label
+    scmpObj@Parameters@path_prefix <- path_prefix
+    scmpObj@Parameters@path_col <- path_col
 
-  # Create Object
-  scmpObj <- new("ScMaSigPro",
-    Sparse = annotated_sce,
-    Dense = SingleCellExperiment(assays = list(bulk.counts = matrix(0, nrow = 0, ncol = 0)))
-  )
-
-  # Update the Parametersaram slot
-  scmpObj@Parameters@ptime_col <- ptime_col
-  scmpObj@Parameters@root_label <- root_label
-  scmpObj@Parameters@path_prefix <- path_prefix
-  scmpObj@Parameters@path_col <- path_col
-
-  # Return Object
-  return(scmpObj)
+    # Return Object
+    return(scmpObj)
 }

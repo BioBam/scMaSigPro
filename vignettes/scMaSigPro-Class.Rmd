@@ -38,7 +38,7 @@ Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
 # Install BiocManager if needed, then scMaSigPro together with its
 # Bioconductor dependencies from GitHub
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
+    install.packages("BiocManager")
 }
 BiocManager::install("BioBam/scMaSigPro")
 ```
@@ -214,14 +214,15 @@ top-4 genes for this tutorial.
 ```{r, "Pseudotime"}
 # Increasing effect along Pseudotime
 pTime_up <- queryCoeff(scmp.ob,
-  query = "pseudotime",
-  change = "increasing",
-  verbose = FALSE
+    query = "pseudotime",
+    change = "increasing",
+    verbose = FALSE
 )
 
 # Order
-pTime_up <- pTime_up[order(pTime_up$betascmp_binned_pseudotime,
-  decreasing = TRUE
+pTime_up <- pTime_up[order(
+    pTime_up$betascmp_binned_pseudotime,
+    decreasing = TRUE
 ), , drop = FALSE]
 
 # View
@@ -230,26 +231,27 @@ head(pTime_up, 4)
 # Plot
 pTime_up.plots <- list()
 for (i in rownames(head(pTime_up, 4))) {
-  pTime_up.plots[[i]] <- plotTrend(scmp.ob, i)
+    pTime_up.plots[[i]] <- plotTrend(scmp.ob, i)
 }
 
 # Plot combined
 ggpubr::ggarrange(pTime_up.plots[[1]], pTime_up.plots[[2]], pTime_up.plots[[3]], pTime_up.plots[[4]],
-  ncol = 2, nrow = 2, labels = c("A", "B", "C", "D")
+    ncol = 2, nrow = 2, labels = c("A", "B", "C", "D")
 )
 ```
 
 ```{r, "Pseudotime_path"}
 # Increasing effect along Pseudotime * Path
 pTime_path_up <- queryCoeff(scmp.ob,
-  query = "pseudotime_path",
-  change = "increasing",
-  verbose = FALSE
+    query = "pseudotime_path",
+    change = "increasing",
+    verbose = FALSE
 )
 
 # Order
-pTime_path_up <- pTime_path_up[order(pTime_path_up$betascmp_binned_pseudotimexPath2,
-  decreasing = TRUE
+pTime_path_up <- pTime_path_up[order(
+    pTime_path_up$betascmp_binned_pseudotimexPath2,
+    decreasing = TRUE
 ), , drop = FALSE]
 
 # View
@@ -258,7 +260,7 @@ head(pTime_path_up, 4)
 # Plot
 pTime_path_up.plots <- list()
 for (i in rownames(head(pTime_path_up, 4))) {
-  pTime_path_up.plots[[i]] <- plotTrend(scmp.ob, i)
+    pTime_path_up.plots[[i]] <- plotTrend(scmp.ob, i)
 }
 
 # Plot combined

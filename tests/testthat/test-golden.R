@@ -19,30 +19,30 @@ is_p_leaf <- function(path) grepl("^fits/[^/]+/(p_values|adj_p_values|sol)$", pa
 log_p <- function(x) log10(pmax(x, 1e-300))
 
 walk_compare <- function(cur, gold, path) {
-  if (is.list(gold) && !is.data.frame(gold) && !is.null(names(gold))) {
-    expect_identical(names(cur), names(gold), label = paste(path, "names"))
-    for (nm in names(gold)) {
-      walk_compare(cur[[nm]], gold[[nm]], paste(path, nm, sep = "/"))
+    if (is.list(gold) && !is.data.frame(gold) && !is.null(names(gold))) {
+        expect_identical(names(cur), names(gold), label = paste(path, "names"))
+        for (nm in names(gold)) {
+            walk_compare(cur[[nm]], gold[[nm]], paste(path, nm, sep = "/"))
+        }
+    } else if (is.list(gold) && !is.data.frame(gold)) {
+        expect_identical(length(cur), length(gold), label = paste(path, "length"))
+        for (i in seq_along(gold)) {
+            walk_compare(cur[[i]], gold[[i]], paste0(path, "[[", i, "]]"))
+        }
+    } else {
+        expect_equal(cur, gold, tolerance = TOL, label = path, expected.label = "golden")
+        if (is_p_leaf(path)) {
+            expect_equal(log_p(cur), log_p(gold),
+                tolerance = TOL,
+                label = paste(path, "(log10)"), expected.label = "golden"
+            )
+        }
     }
-  } else if (is.list(gold) && !is.data.frame(gold)) {
-    expect_identical(length(cur), length(gold), label = paste(path, "length"))
-    for (i in seq_along(gold)) {
-      walk_compare(cur[[i]], gold[[i]], paste0(path, "[[", i, "]]"))
-    }
-  } else {
-    expect_equal(cur, gold, tolerance = TOL, label = path, expected.label = "golden")
-    if (is_p_leaf(path)) {
-      expect_equal(log_p(cur), log_p(gold),
-        tolerance = TOL,
-        label = paste(path, "(log10)"), expected.label = "golden"
-      )
-    }
-  }
 }
 
 for (section in setdiff(names(golden), "meta")) {
-  test_that(paste("golden:", section), {
-    expect_true(section %in% names(current))
-    walk_compare(current[[section]], golden[[section]], section)
-  })
+    test_that(paste("golden:", section), {
+        expect_true(section %in% names(current))
+        walk_compare(current[[section]], golden[[section]], section)
+    })
 }
