@@ -28,7 +28,7 @@ test_that("Reproduce Results of MaSigPro", {
     cell_data = cell_metadata,
     ptime_col = "Time",
     path_col = "Group",
-    use_as_bin = T
+    use_as_bin = TRUE
   )
 
   # Step-4: Create MaSigPro Design
