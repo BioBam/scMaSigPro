@@ -29,6 +29,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Suggests:
     testthat,
+    SummarizedExperiment,
     roxygen2,
     knitr,
     rmarkdown,
