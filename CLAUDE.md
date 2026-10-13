@@ -55,7 +55,7 @@ Accessors (R/scmpGenerics.R): `cSparse()` / `cDense()` return colData as a data.
 ### Pipeline
 
 ```
-as_scmp(sce | monocle3 cds)   or   create_scmp(counts, cell_data, ptime_col, path_col)
+as_scmp(sce)   or   create_scmp(counts, cell_data, ptime_col, path_col)
   -> sc.squeeze()        bin pseudotime per path            -> @Dense          R/sc.squeeze.R, R/pb_helpers.R
      -> sc.restruct()    optional: multi-branch, shared root                    R/sc.restruct.R
   -> sc.set.poly()       maSigPro::make.design.matrix        -> @Design         R/sc.set.poly.R
@@ -70,7 +70,7 @@ as_scmp(sce | monocle3 cds)   or   create_scmp(counts, cell_data, ptime_col, pat
 
 **maSigPro lineage**: `sc.set.poly` dummy-codes paths, derives a `Replicate` column by run-length encoding, and calls `maSigPro::make.design.matrix`. `sc.p.vector` / `sc.t.fit` are re-implementations of `maSigPro::p.vector` / `T.fit` that add a GLM `offset` (DESeq2 median-of-ratios size factors, vendored in R/DESeq2_estimateSizeFactorsForMatrix.R, computed on counts + 1) and default to `MASS::negative.binomial(10)` with a log link. R/maSigPro_term_selection.R holds copies of maSigPro's `stepback` / `stepfor` / `two.ways.*` modified to pass offset and weights. **Invariant**: with `family = gaussian()`, `link = "identity"`, `offset = FALSE`, results must be `identical()` to maSigPro's. `tests/testthat/test-reproduce-masigpro.R` enforces this slot by slot (design matrices, p-values, FDR, sol, coefficients, t-scores, influence, gene lists). Run it after touching any fitting code.
 
-**Monocle3 entry point**: `as_scmp(from = "cds")` calls `m3_select_path()` (R/m3_select_path.R), which pulls the principal graph, closest-vertex map and pseudotime out of the `cell_data_set`, then launches `shinySelect()` (R/shinySelect.R), a Shiny + plotly lasso app where the user picks a root node and two paths. The selection feeds `create_scmp()`. `m3_select_path(use_shiny = FALSE, m3_pp = list(root_pp =, path1_pp =, path2_pp =))` is the non-interactive route; `as_scmp()` itself only supports interactive.
+**Trajectory-tool outputs**: the package takes a `SingleCellExperiment` whose `colData` already holds a pseudotime column and a path column (`as_scmp()`), or a count matrix plus a cell table with those two columns (`create_scmp()`). Users extract pseudotime and hard path labels from their trajectory tool first; the Common-Root-Cells vignette shows the Monocle3 recipe. The former interactive Shiny selector and the `from = "cds"` route (`R/shinySelect.R`, `R/m3_select_path.R`, `R/align_pseudotime.R`) were removed in 0.0.5.9000 and are preserved on the `archive/shiny-monocle3` branch (commit 65b5458) for a future companion package. Never reference `monocle3` from `R/`: it is GitHub-only and an undeclared namespace is an R CMD check WARNING.
 
 **Multi-branch with a common root (`sc.restruct`)**: after `sc.squeeze`, duplicates the root path's bins into each leaf path and shifts each leaf's `bin_ptime_col` by the root's bin count, so the design sees full-length paths that share early bins. Added in PR #2 (`multi_lineage`); see `vignettes/Common-Root-Cells.Rmd` and the `multi.lin.sce` dataset.
 
@@ -90,7 +90,6 @@ as_scmp(sce | monocle3 cds)   or   create_scmp(counts, cell_data, ptime_col, pat
 
 ### Known quirks (verified in source, not yet fixed)
 
-- `R/align_pseudotime.R:109` assigns to `@Parameters@ptime_colname`; the slot is `ptime_col`. `align_pseudotime = TRUE` on the cds route will error whenever the two paths differ in length.
 - `sc.t.fit()` overwrites its `p_value` argument with `scmpObj@Parameters@p_value` (R/sc.t.fit.R:85), so the argument has no effect; set `p_value` in `sc.p.vector()` instead.
 - `plotDiagnostics()` composes its four panels with patchwork operators (`+`, `/`), but patchwork is not declared anywhere; it only works when patchwork is attached.
 - `plotTrend()` uses `x^5` for the degree-6 term (R/plotTrend.R:152); harmless for `poly_degree <= 5`.

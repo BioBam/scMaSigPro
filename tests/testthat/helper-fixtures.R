@@ -30,7 +30,7 @@ splat_scmp <- function() {
   fixture("splat_scmp", function() {
     as_scmp(
       object = load_dataset("splat.sim"), from = "sce",
-      align_pseudotime = FALSE, verbose = FALSE,
+      verbose = FALSE,
       additional_params = list(
         labels_exist = TRUE,
         exist_ptime_col = "Step",

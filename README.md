@@ -40,7 +40,6 @@ data("splat.sim", package = "scMaSigPro")
 # Helper Function to convert annotated SCE object to scmpObject
 scmp.ob <- as_scmp(
   object = splat.sim, from = "sce",
-  align_pseudotime = FALSE,
   verbose = TRUE,
   additional_params = list(
     labels_exist = TRUE,

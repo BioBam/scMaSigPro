@@ -1,7 +1,7 @@
 Package: scMaSigPro
 Type: Package
 Title: Differential Expression Analysis Along Single-Cell Trajectories
-Version: 0.0.5
+Version: 0.0.5.9000
 Authors@R: c(
     person("Ana", "Conesa", role = "aut", email = "ana.conesa@csic.es",
            comment = c(ORCID = "0000-0001-9597-311X")),
@@ -21,9 +21,9 @@ Description: Identifies genes whose expression changes along single-cell
     <doi:10.1093/bioinformatics/btae443>.
 License: GPL (>= 2)
 Imports:
-    assertthat, e1071, dplyr, entropy, ggplot2, igraph, magrittr, maSigPro (>= 1.74.0),
-    MASS, MatrixGenerics (>= 1.14.0), methods, parallel, parallelly, plotly, rlang,
-    S4Vectors (>= 0.40.2), scales, shiny, SingleCellExperiment (>= 1.24.0), stats, stringr, utils, mclust,
+    assertthat, e1071, dplyr, entropy, ggplot2, magrittr, maSigPro (>= 1.74.0),
+    MASS, MatrixGenerics (>= 1.14.0), methods, parallel, parallelly, rlang,
+    S4Vectors (>= 0.40.2), SingleCellExperiment (>= 1.24.0), stats, stringr, utils, mclust,
     SummarizedExperiment
 Depends: R (>= 4.0)
 Encoding: UTF-8

@@ -154,6 +154,14 @@ group <- apply(cellWeights, 1, function(x) {
   on <- names(x)[x == 1]
   if (length(on) == 3) "root" else paste(on, collapse = "|")
 })
+
+# Cell table with the Monocle3 pseudotime and the path label of each kept
+# cell; it holds the same information as colData(multi.lin.sce) used below
+cell_data <- data.frame(
+  Pseudotime = pseudotime(cds)[names(group)],
+  Path = group,
+  row.names = names(group)
+)
 ```
 
 ## `scMaSigPro` object

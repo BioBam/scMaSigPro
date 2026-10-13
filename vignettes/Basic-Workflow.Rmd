@@ -95,11 +95,17 @@ color gradient effectively captures the progression of cells along the pseudotim
 axis, providing insights into the temporal dynamics of cellular differentiation.
 
 ### Convert to `scMaSigPro` Object
-`scMaSigPro` offers various options to directly convert widely used single-cell
-related S4 objects directly to the scmpClass class (now referred to as `scmpObject`),
-such as [`SingleCellExperiment`](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) or [`Monocle3`](https://cole-trapnell-lab.github.io/monocle3/)'s [`cell_data_set`](https://cole-trapnell-lab.github.io/monocle3/) class. Here, using the
-simulated object (of the [`SingleCellExperiment`](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html) class) that we have just loaded into the R environment, we will 
-demonstrate the direct conversion to `scmpObject` object.
+`scMaSigPro` stores the data and results in its own class (now referred to as
+`scmpObject`). `as_scmp()` creates it from a
+[`SingleCellExperiment`](https://bioconductor.org/packages/release/bioc/html/SingleCellExperiment.html)
+whose cell metadata holds a pseudotime column and a branching-path column, and
+`create_scmp()` creates it from a count matrix and a table of cell metadata with
+the same two columns. Pseudotime and path labels from trajectory tools such as
+[`Monocle3`](https://cole-trapnell-lab.github.io/monocle3/) or slingshot are
+extracted by the user first; the "Common Root Cells" vignette shows how for a
+Monocle3 `cell_data_set`. Here, using the simulated object (of the
+`SingleCellExperiment` class) that we have just loaded into the R environment,
+we will demonstrate the direct conversion to `scmpObject` object.
 
 In our case, we already have pseudotime and path information stored in the
 `colData` slot of the `splat.sim`. The _Step_ column holds the information for the
@@ -120,7 +126,6 @@ the parameter `labels_exist` and then pass the existing column names as a named 
 # Helper Function to convert annotated SCE object to scmpObject
 scmp_ob <- as_scmp(
   object = splat.sim, from = "sce",
-  align_pseudotime = FALSE,
   verbose = TRUE,
   additional_params = list(
     labels_exist = TRUE,

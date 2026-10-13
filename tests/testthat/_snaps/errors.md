@@ -4,8 +4,23 @@
       eval(cases[[nm]])
     Condition
       Error:
-      ! Currently, accepted options in the 'from' parameter are 'cds'
-          ('cds/CellDataSet' object) and 'sce' ('SingleCellExperiment').
+      ! 'from' must be "sce": as_scmp() converts SingleCellExperiment objects only. Monocle3 'cell_data_set' objects (from = "cds") are no longer converted; pass the counts and a cell table with pseudotime and path columns to create_scmp(), as shown in the 'Common Root Cells' vignette.
+
+# as_scmp no longer converts Monocle3 objects (from = 'cds')
+
+    Code
+      eval(cases[[nm]])
+    Condition
+      Error:
+      ! 'from' must be "sce": as_scmp() converts SingleCellExperiment objects only. Monocle3 'cell_data_set' objects (from = "cds") are no longer converted; pass the counts and a cell table with pseudotime and path columns to create_scmp(), as shown in the 'Common Root Cells' vignette.
+
+# as_scmp rejects an object that is not a SingleCellExperiment
+
+    Code
+      eval(cases[[nm]])
+    Condition
+      Error:
+      ! 'object' must be a SingleCellExperiment. To start from a count matrix and a table of cell metadata, use create_scmp().
 
 # sc.squeeze rejects a non-ScMaSigPro input
 

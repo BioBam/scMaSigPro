@@ -14,7 +14,6 @@ data("splat.sim", package = "scMaSigPro")
 # Convert the annotated SingleCellExperiment to a ScMaSigPro object
 scmp.ob <- as_scmp(
   object = splat.sim, from = "sce",
-  align_pseudotime = FALSE,
   verbose = FALSE,
   additional_params = list(
     labels_exist = TRUE,

@@ -1,3 +1,14 @@
+## scMaSigPro 0.0.5.9000 (development version)
+
+* Breaking changes
+    * `as_scmp()` no longer converts Monocle3 `cell_data_set` objects. The `from = "cds"` route and the interactive Shiny app it opened to pick the root and the branching paths are removed, together with the exported `m3_select_path()` and the internal `shinySelect()` and `align_pseudotime()`. `as_scmp()` now takes any `SingleCellExperiment` (subclasses other than `cell_data_set` used to return `NULL`), and `from` defaults to `"sce"`, its only accepted value.
+    * The `interactive`, `align_pseudotime` and `anno_col` arguments of `as_scmp()` are removed. They only applied to the Monocle3 route, where `align_pseudotime = TRUE` never worked. Scripts written for earlier versions, including the README, the vignettes and the code accompanying the 2024 paper, pass `align_pseudotime`; delete that argument from the call.
+    * The interactive branch selector will be maintained in a separate package that depends on Monocle3. Until then, the removed code is preserved on the `archive/shiny-monocle3` branch (commit 65b5458).
+    * To analyse a Monocle3 trajectory now, extract the pseudotime and a path label for every cell and pass the counts and that cell table to `create_scmp()`. The "Common Root Cells" vignette shows the extraction steps.
+
+* Dependency Changes
+    * `shiny`, `plotly`, `igraph` and `scales` are no longer dependencies, so installing scMaSigPro pulls in 55 non-base packages instead of 98.
+
 ## scMaSigPro 0.0.5
 
 * Bug Fixes
