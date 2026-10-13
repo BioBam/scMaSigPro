@@ -81,13 +81,20 @@ as_scmp <- function(object, from = "sce",
     # Check and validate additional parameters
     if (!is.null(additional_params)) {
         assertthat::assert_that(is.list(additional_params),
-            msg = "Please provide 'additional_params' as a named list.
-      See details for more information"
+            msg = paste(
+                "Please provide 'additional_params' as a named list.",
+                "See details for more information"
+            )
         )
         # Check additional parameters
-        assertthat::assert_that(all(names(additional_params) %in% c("exist_ptime_col", "exist_path_col", "labels_exist")),
-            msg = "Allowed additional parameters for sce are 'exist_ptime_col',
-                  'exist_path_col', and 'labels_exist'."
+        assertthat::assert_that(
+            all(names(additional_params) %in% c(
+                "exist_ptime_col", "exist_path_col", "labels_exist"
+            )),
+            msg = paste(
+                "Allowed additional parameters for sce are 'exist_ptime_col',",
+                "'exist_path_col', and 'labels_exist'."
+            )
         )
     } else {
         additional_params <- list(

@@ -28,7 +28,7 @@
       eval(cases[[nm]])
     Condition
       Error:
-      ! Please provide object of class 'scMaSigPro'.
+      ! Please provide object of class 'ScMaSigPro'.
 
 # sc.squeeze rejects an unknown pseudotime column
 
@@ -36,7 +36,7 @@
       eval(cases[[nm]])
     Condition
       Error:
-      ! 'nope' does not exist in cell.level.metadata Please review the 'ptime_col' parameter.
+      ! 'nope' does not exist in cell.level.metadata. Please review the 'ptime_col' parameter.
 
 # sc.squeeze rejects an unknown path column
 
@@ -68,7 +68,7 @@
       eval(cases[[nm]])
     Condition
       Error:
-      ! Please provide object of class 'scMaSigPro'
+      ! Please provide object of class 'ScMaSigPro'
 
 # sc.p.vector rejects an unknown link
 
@@ -100,7 +100,7 @@
       eval(cases[[nm]])
     Condition
       Error:
-      ! Invalid selction for 'vars'
+      ! Invalid selection for 'vars'
 
 # showSol errors before sc.t.fit
 
@@ -148,7 +148,7 @@
       eval(cases[[nm]])
     Condition
       Error:
-      ! Feature Id didn't pass the R2 threshold, please re-run sc.filter, with lower a value or set 'significant' to 'FALSE'
+      ! Feature Id didn't pass the R2 threshold, please re-run sc.filter() with a lower 'rsq' value or set 'significant' to 'FALSE'
 
 # plotTrend needs at least one layer
 
@@ -172,7 +172,7 @@
       eval(cases[[nm]])
     Condition
       Error:
-      ! 'sig.genes@Summary' slot is empty, please run 'sc.get.siggenes'
+      ! 'Significant' slot is empty, please run 'sc.filter()' first.
 
 # plotTrendCluster errors before sc.cluster.trend
 
@@ -204,7 +204,7 @@
       eval(cases[[nm]])
     Condition
       Error:
-      ! Invalid query, please select on of 'pseudotime', 'pseudotime_path' or 'path'
+      ! Invalid query, please select one of 'pseudotime', 'pseudotime_path' or 'path'
 
 # queryCoeff rejects an unknown change
 
@@ -212,7 +212,7 @@
       eval(cases[[nm]])
     Condition
       Error:
-      ! Invalid change, please select on of 'increasing' or 'decreasing'
+      ! Invalid change, please select one of 'increasing' or 'decreasing'
 
 # create_scmp rejects mismatched cells
 

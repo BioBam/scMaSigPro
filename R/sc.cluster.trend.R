@@ -5,7 +5,7 @@
 #' trends later.
 #'
 #' @import ggplot2
-#' @importFrom stats complete.cases cutree hclust
+#' @importFrom stats cutree hclust
 #' @importFrom mclust Mclust
 #' @importFrom stats as.dist cor kmeans
 #'

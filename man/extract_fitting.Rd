@@ -17,7 +17,7 @@ extract_fitting(
 )
 }
 \arguments{
-\item{reg}{Regression Result form \code{stats::glm()}}
+\item{reg}{Regression Result from \code{stats::glm()}}
 
 \item{lmf}{Full model object generated from the \code{stats::glm()}}
 
@@ -27,13 +27,16 @@ extract_fitting(
 
 \item{family}{Family used for modelling the data.}
 
-\item{name}{description}
+\item{name}{Feature (gene) name, used as the row name of \code{sol} and as
+the column name of the gene's entry in \code{influ.info}.}
 
-\item{vars.in}{description}
+\item{vars.in}{Names of the predictors (the columns of \code{dis}); they fix
+the order of the returned coefficients, p-values and t-scores.}
 
 \item{alfa}{Significance threshold (Q-Value)}
 
-\item{influ.info}{description}
+\item{influ.info}{Matrix of influential observations collected so far;
+a column for this gene is appended when it has influential observations.}
 }
 \description{
 Extract Fitting

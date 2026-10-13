@@ -5,9 +5,17 @@
     * The `interactive`, `align_pseudotime` and `anno_col` arguments of `as_scmp()` are removed. They only applied to the Monocle3 route, where `align_pseudotime = TRUE` never worked. Scripts written for earlier versions, including the README, the vignettes and the code accompanying the 2024 paper, pass `align_pseudotime`; delete that argument from the call.
     * The interactive branch selector will be maintained in a separate package that depends on Monocle3. Until then, the removed code is preserved on the `archive/shiny-monocle3` branch (commit 65b5458).
     * To analyse a Monocle3 trajectory now, extract the pseudotime and a path label for every cell and pass the counts and that cell table to `create_scmp()`. The "Common Root Cells" vignette shows the extraction steps.
+    * `showCoeff()`, `showGroupCoeff()`, `showInflu()`, `showParams()`, `showSigProf()`, `showSol()` and `showTS()` no longer have `view` and `return` arguments: they always return their result and never open the data viewer. Delete `view =` and `return =` from calls; to browse a result, use `View(showCoeff(obj))`.
+    * `.ScMaSigPro_show()`, the helper behind the `show()` method, is no longer exported. Printing an object is unchanged.
 
 * Dependency Changes
     * `shiny`, `plotly`, `igraph` and `scales` are no longer dependencies, so installing scMaSigPro pulls in 55 non-base packages instead of 98.
+
+* Minor changes
+    * Error and progress messages are corrected: misspellings ("doesn't exit", "Overwritting", "onservations", "selction", "select on of"), the class name (`ScMaSigPro`, not `scMaSigPro`), and pointers to functions that do not exist (`plotIntersect()` now points to `sc.filter()`, `showPoly()` to `sc.set.poly()`). `plotDiagnostics()` reports an invalid `model` instead of a missing gene, and messages no longer contain line breaks and indentation copied from the source code. Code that matches the old wording, such as the "Overwritting assay" warning of `eSparse<-` and `eDense<-`, must be updated.
+
+* Internal
+    * Unused code is removed: debugging leftovers, commented-out code, the never-enabled `useWeights` branches of `sc.p.vector()` and `sc.t.fit()`, the unexported and broken `ScMaSigPro()` constructor, and 19 unused `importFrom` directives. Results are unchanged.
 
 ## scMaSigPro 0.0.5
 

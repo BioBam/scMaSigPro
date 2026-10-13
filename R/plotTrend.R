@@ -41,25 +41,6 @@ plotTrend <- function(scmpObj,
                       curves = TRUE,
                       lines = FALSE,
                       points = TRUE) {
-    # Debugg
-    # scmpObj  <- multi_scmp_ob_A
-    # feature_id <- gene_br_Y_18[1]
-    # xlab  <-  "Pooled Pseudotime"
-    # ylab  <-  "Pseudobulk Expression"
-    # plot  <-  "counts"
-    # summary_mode  <-  "median"
-    # logs  <-  FALSE
-    # logType  <-  "log"
-    # smoothness  <-  1
-    # includeInflu <- TRUE
-    # verbose  <-  TRUE
-    # pseudoCount  <-  1
-    # significant  <-  FALSE
-    # curves  <-  TRUE
-    # lines  <-  FALSE
-    # points  <-  TRUE
-    # parallel  <-  FALSE
-
     # Invoke Variables
     pb.counts <- "pb.counts"
     pooled.time <- "pooled.time"
@@ -91,8 +72,13 @@ plotTrend <- function(scmpObj,
     )
 
     if (significant) {
-        assertthat::assert_that(any(feature_id %in% unique(unlist(scmpObj@Significant@genes))),
-            msg = "Feature Id didn't pass the R2 threshold, please re-run sc.filter, with lower a value or set 'significant' to 'FALSE'"
+        assertthat::assert_that(
+            any(feature_id %in% unique(unlist(scmpObj@Significant@genes))),
+            msg = paste(
+                "Feature Id didn't pass the R2 threshold, please re-run",
+                "sc.filter() with a lower 'rsq' value or set 'significant' to",
+                "'FALSE'"
+            )
         )
     }
 
@@ -108,7 +94,7 @@ plotTrend <- function(scmpObj,
     colnames(rm) <- rownames(scmpObj@Design@predictor_matrix)
 
     # Extract the beta
-    betas.table <- showCoeff(scmpObj, view = FALSE, return = TRUE)
+    betas.table <- showCoeff(scmpObj)
     betas <- betas.table[rownames(betas.table) %in% feature_id, , drop = FALSE]
 
     # Set Data
@@ -128,9 +114,6 @@ plotTrend <- function(scmpObj,
         pb.counts = as.vector(t(as.matrix(yy))),
         path = scmpObj@Dense@colData[[scmpObj@Parameters@path_col]]
     )
-    # View(yy)
-    # View(points.df)
-    # stop()
     for (i in path.names) {
         # Extract Coeff
         a <- maSigPro::reg.coeffs(
@@ -163,7 +146,6 @@ plotTrend <- function(scmpObj,
 
     # Calc limits
     xlim <- c(min(points.df[[pooled.time]], na.rm = TRUE), max(points.df[[pooled.time]], na.rm = TRUE) * 1.3)
-    # ylim <- c(min(as.numeric(points.df[[pb.counts]]), na.rm = TRUE), max(as.numeric(points.df[[pb.counts]]), na.rm = TRUE))
 
     xlim[2] <- max(points.df[[pooled.time]])
 
@@ -171,7 +153,7 @@ plotTrend <- function(scmpObj,
     names(scmp_pal) <- unique(points.df[[path]])
 
     # Extract sol
-    data.sol <- showSol(scmpObj, view = FALSE, return = TRUE)
+    data.sol <- showSol(scmpObj)
     data.sol <- data.sol[feature_id, , drop = FALSE]
 
     # Correct by offset

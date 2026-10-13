@@ -13,26 +13,24 @@
 # 10. showGroupCoeff():
 
 ###############################################################################
-#' @title Show or Return the Coefficient matrix
+#' @title Return the Coefficient matrix
 #'
 #' @description
-#' This function is used to view or return the Coefficients from the provided
+#' This function returns the Coefficients from the provided
 #' scMaSigPro object.
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param view Whether to view the data in the explorer. (Default: FALSE)
 #' @param includeInflu Whether to include genes with influential observations.
-#' @param return Whether to return the data. (Default: TRUE)
 #'
 #' @return The computed Coefficient matrix as a dataframe.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-showCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
+showCoeff <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
     assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'scMaSigPro'"
+        msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Check if the sol exist
@@ -44,41 +42,31 @@ showCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE)
     coefficients <- scmpObj@Estimate@coefficient_matrix %>% as.data.frame()
 
     if (!includeInflu) {
-        influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
+        influ.gene <- colnames(showInflu(scmpObj))
         coefficients <- coefficients[!(rownames(coefficients) %in% influ.gene), ]
     }
 
-    # If viewing is requested
-    if (view) {
-        View(coefficients)
-    }
-
-    # If requested
-    if (return) {
-        return(coefficients)
-    }
+    return(coefficients)
 }
 
 ###############################################################################
 #' @title Return the matrix of genes with influential observation
 #'
 #' @description
-#' This function is used to view or return the matrix of genes with influential
+#' This function returns the matrix of genes with influential
 #' observation from the provided scMaSigPro object.
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param view Whether to view the data in the explorer. (Default: FALSE)
-#' @param return Whether to return the data. (Default: TRUE)
 #'
 #' @return Matrix of genes with influential observation.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-showInflu <- function(scmpObj, view = FALSE, return = TRUE) {
+showInflu <- function(scmpObj) {
     # Check Object Validity
     assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'scMaSigPro'"
+        msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Check if the sol exist
@@ -89,38 +77,28 @@ showInflu <- function(scmpObj, view = FALSE, return = TRUE) {
     # Extract
     influ <- scmpObj@Estimate@influential
 
-    # If viewing is requested
-    if (view) {
-        View(influ)
-    }
-
-    # If requested
-    if (return) {
-        return(influ)
-    }
+    return(influ)
 }
 
 ###############################################################################
-#' @title Show or Return the t-score matrix
+#' @title Return the t-score matrix
 #'
 #' @description
-#' This function is used to view or return the t-scores from the provided
+#' This function returns the t-scores from the provided
 #' scMaSigPro object.
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param view Whether to view the data in the explorer. (Default: FALSE)
 #' @param includeInflu Whether to include genes with influential observations.
-#' @param return Whether to return the data. (Default: TRUE)
 #'
 #' @return The computed t-score matrix as a dataframe.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-showTS <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
+showTS <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
     assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'scMaSigPro'"
+        msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Check if the sol exist
@@ -132,42 +110,32 @@ showTS <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
     tscore <- scmpObj@Estimate@t_score_matrix
 
     if (!includeInflu) {
-        influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
+        influ.gene <- colnames(showInflu(scmpObj))
         tscore <- tscore[!(rownames(tscore) %in% influ.gene), ]
     }
 
-    # If viewing is requested
-    if (view) {
-        View(tscore)
-    }
-
-    # If requested
-    if (return) {
-        return(tscore)
-    }
+    return(tscore)
 }
 
 ###############################################################################
-#' @title Show or Return the P-values after model fitting.
+#' @title Return the P-values after model fitting.
 #'
 #' @description
-#' This function is used to view or return the matrix of p-values for each term
+#' This function returns the matrix of p-values for each term
 #' and the full model from the provided scMaSigPro object.
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param view Whether to view the data in the explorer. (Default: FALSE)
 #' @param includeInflu Whether to include genes with influential observations.
-#' @param return Whether to return the data. (Default: TRUE)
 #'
 #' @return The computed p-values for each term and full model as a dataframe.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-showSol <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
+showSol <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
     assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'scMaSigPro'"
+        msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Check if the sol exist
@@ -179,45 +147,32 @@ showSol <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
     sol <- scmpObj@Estimate@significance_matrix %>% as.data.frame()
 
     if (!includeInflu) {
-        influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
+        influ.gene <- colnames(showInflu(scmpObj))
         sol <- sol[!(rownames(sol) %in% influ.gene), ]
     }
 
-    # If viewing is requested
-    if (view) {
-        View(sol)
-    }
-
-    # If requested
-    if (return) {
-        return(sol)
-    }
+    return(sol)
 }
 
 ###############################################################################
-#' @title Show or Return the counts for non-flat profile.
+#' @title Return the counts for non-flat profile.
 #'
 #' @description
-#' This function is used to view or return the pseudo-bulk counts of the genes
+#' This function returns the pseudo-bulk counts of the genes
 #' with non-flat profiles. from the provided scMaSigPro object.
 #'
-#' @importFrom utils View
-#'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param view Whether to view the data in the explorer. (Default: FALSE)
 #' @param includeInflu Whether to include genes with influential observations.
-#' @param return Whether to return the data. (Default: TRUE)
 #'
 #' @return Pseudo-bulk counts as matrix for genes with non-flat profiles.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-showSigProf <- function(scmpObj, view = FALSE, return = TRUE,
-                        includeInflu = FALSE) {
+showSigProf <- function(scmpObj, includeInflu = FALSE) {
     # Check Object Validity
     assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'scMaSigPro'"
+        msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Check if the sol exist
@@ -226,28 +181,17 @@ showSigProf <- function(scmpObj, view = FALSE, return = TRUE,
     )
 
     # Extract
-    sol <- showSol(scmpObj,
-        view = FALSE, return = TRUE,
-        includeInflu = includeInflu
-    ) %>% as.data.frame()
+    sol <- showSol(scmpObj, includeInflu = includeInflu) %>% as.data.frame()
     # Extract rownames
     bulk.counts <- scmpObj@Dense@assays@data@listData$bulk.counts
     bulk.counts <- bulk.counts[rownames(bulk.counts) %in% rownames(sol), , drop = FALSE]
 
     if (!includeInflu) {
-        influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
+        influ.gene <- colnames(showInflu(scmpObj))
         bulk.counts <- bulk.counts[!(rownames(bulk.counts) %in% influ.gene), ]
     }
 
-    # If viewing is requested
-    if (view) {
-        View(as.matrix(bulk.counts))
-    }
-
-    # If requested
-    if (return) {
-        return(bulk.counts)
-    }
+    return(bulk.counts)
 }
 
 ###############################################################################
@@ -266,7 +210,7 @@ showSigProf <- function(scmpObj, view = FALSE, return = TRUE,
 showPoly <- function(scmpObj) {
     # Check Object Validity
     assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'scMaSigPro'"
+        msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Check if the sol exist
@@ -274,14 +218,14 @@ showPoly <- function(scmpObj) {
         all(!is.na(colnames(scmpObj@Design@predictor_matrix)) | length(
             colnames(scmpObj@Design@predictor_matrix) > 1
         )),
-        msg = "Please setup the model first, using 'sc.make.design.matrix()'"
+        msg = "Please setup the model first, using 'sc.set.poly()'"
     )
 
     # Extract columns
     df.col <- colnames(scmpObj@Design@predictor_matrix)
 
     # Extract betas
-    beta_names <- paste0("beta", seq(1:length(df.col)))
+    beta_names <- paste0("beta", seq_along(df.col))
 
     # Generate formula string
     formula_parts <- vapply(seq_along(df.col),
@@ -301,25 +245,20 @@ showPoly <- function(scmpObj) {
 #' @title Show the parameters used during the workflow.
 #'
 #' @description
-#' Get or View all the parameters used during the workflow.
+#' Get all the parameters used during the workflow.
 #'
 #' @importFrom methods slot slotNames
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param view Whether to view the data in the explorer. (Default: FALSE)
-#' @param return Whether to return the data. (Default: TRUE)
-#'
-#' @return The computed solution as a data.frame if return is set to TRUE.
-#' If return is FALSE, the function does not return anything.
 #'
 #' @return Dataframe of the parameters used in the analysis.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-showParams <- function(scmpObj, view = FALSE, return = TRUE) {
+showParams <- function(scmpObj) {
     # Check Object Validity
     assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'scMaSigPro'"
+        msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Get slot names, assuming 'param' is a slot within 'scmpObj'
@@ -355,36 +294,26 @@ showParams <- function(scmpObj, view = FALSE, return = TRUE) {
     )
     rownames(params) <- NULL
 
-    # If viewing is requested and the 'View' function is available
-    if (view && exists("View")) {
-        View(params)
-    }
-
-    # If requested, return the parameters
-    if (return) {
-        return(params)
-    }
+    return(params)
 }
 
 ###############################################################################
-#' @title Show or Return the Branching Path Coefficient matrix
+#' @title Return the Branching Path Coefficient matrix
 #'
 #' @description
-#' This function is used to view or return the branching paths Coefficients from
+#' This function returns the branching paths Coefficients from
 #' the provided scMaSigPro object.
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param view Whether to view the data in the explorer. (Default: FALSE)
-#' @param return Whether to return the data. (Default: TRUE)
 #' @param includeInflu Whether to include genes with influential observations.
 #'
 #' @return The computed branching path Coefficient matrix as a dataframe.
 #'
 #' @export
-showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = TRUE) {
+showGroupCoeff <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
     assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'scMaSigPro'"
+        msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Check if the sol exist
@@ -396,19 +325,11 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
     grpCoeff <- scmpObj@Estimate@path_coefficient_matrix %>% as.data.frame()
 
     if (!includeInflu) {
-        influ.gene <- colnames(showInflu(scmpObj, return = TRUE, view = FALSE))
+        influ.gene <- colnames(showInflu(scmpObj))
         grpCoeff <- grpCoeff[!(rownames(grpCoeff) %in% influ.gene), ]
     }
 
-    # If viewing is requested
-    if (view) {
-        View(grpCoeff)
-    }
-
-    # If requested
-    if (return) {
-        return(grpCoeff)
-    }
+    return(grpCoeff)
 }
 
 ###############################################################################
@@ -421,10 +342,7 @@ showGroupCoeff <- function(scmpObj, view = FALSE, return = TRUE, includeInflu = 
 #'
 #' @param object An object of class \code{ScMaSigPro}.
 #'
-#' @importFrom S4Vectors coolcat
-#'
 #' @keywords internal
-#' @export
 .ScMaSigPro_show <- function(object) {
     # Show Basic information
     cat("Class: ScMaSigProClass\n")

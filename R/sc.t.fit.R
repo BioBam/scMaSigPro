@@ -53,21 +53,6 @@ sc.t.fit <- function(scmpObj,
                      log_offset = scmpObj@Parameters@log_offset,
                      max_it = scmpObj@Parameters@max_it,
                      link = scmpObj@Parameters@link) {
-    # Debugging
-    # scmpObj <- multi_scmp_ob
-    # selection_method <- "backward"
-    # p_value <- scmpObj@Parameters@p_value
-    # nvar_correction <- FALSE
-    # family <- scmpObj@Parameters@distribution
-    # epsilon <- scmpObj@Parameters@epsilon
-    # offset <- scmpObj@Parameters@offset
-    # verbose <- TRUE
-    # parallel <- FALSE
-    # n_cores <- availableCores() - 2
-    # log_offset <- scmpObj@Parameters@log_offset
-    # max_it <- scmpObj@Parameters@max_it
-    # link <- scmpObj@Parameters@link
-
     assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'"
     )
@@ -92,7 +77,7 @@ sc.t.fit <- function(scmpObj,
     G <- scmpObj@Parameters@g
 
     dat.all <- scmpObj@Dense@assays@data@listData$bulk.counts
-    dat <- dat.all[scmpObj@Profile@non_flat, , drop = F]
+    dat <- dat.all[scmpObj@Profile@non_flat, , drop = FALSE]
     dat <- rbind(c(rep(1, ncol(dat))), dat)
     dat <- dat[, as.character(rownames(dis))]
 
@@ -108,35 +93,6 @@ sc.t.fit <- function(scmpObj,
         p_value <- p_value / ncol(dis)
     }
 
-    # Check for weight usage
-    useWeights <- FALSE
-    useInverseWeights <- FALSE
-    logWeights <- FALSE
-    if (useWeights) {
-        # Get the pathframe
-        compressed.data <- as.data.frame(scmpObj@Dense@colData)
-
-        # Get bin_name and bin size
-        weight_df <- compressed.data[, c(scmpObj@Parameters@bin_size_colname),
-            drop = TRUE
-        ]
-
-        # Set names
-        names(weight_df) <- rownames(compressed.data)
-
-        # Log of weights
-        if (logWeights) {
-            weight_df <- log(weight_df)
-        }
-
-        # Take inverse weights
-        if (useInverseWeights) {
-            weight_df <- 1 / weight_df
-        }
-    } else {
-        weight_df <- NULL
-    }
-
     # Calculate  offset
     if (offset) {
         dat <- dat + 1
@@ -146,7 +102,7 @@ sc.t.fit <- function(scmpObj,
         }
         scmpObj@Design@offset <- offsetData
     } else {
-        offsetData <- NULL # scmpObj@Design@offset
+        offsetData <- NULL
     }
 
     if (parallel) {
@@ -163,7 +119,7 @@ sc.t.fit <- function(scmpObj,
             numCores <- n_cores
         }
         if (verbose) {
-            message(paste("Running with", numCores, "cores..."))
+            message("Running with ", numCores, " cores...")
         }
     } else {
         numCores <- 1
@@ -193,7 +149,6 @@ sc.t.fit <- function(scmpObj,
                      vars_in_lapply = vars.in,
                      Q_lapply = p_value,
                      influ.info_lapply = influ.info,
-                     weights_lapply = weight_df,
                      max_it_lapply = max_it) {
                 y <- y_input[[gene_name]]
 
@@ -203,20 +158,19 @@ sc.t.fit <- function(scmpObj,
                     alfa = Q_lapply, family = family_lapply,
                     epsilon = epsilon_lapply,
                     useOffset = offsetData_lapply,
-                    useWeight = weights_lapply,
+                    useWeight = NULL,
                     max_it = max_it_lapply
                 )
                 lmf_scmpObj <- glm(y ~ .,
                     data = as.data.frame(dis_lapply),
                     family = family_lapply, epsilon = epsilon_lapply,
-                    offset = offsetData_lapply, weights = weights_lapply,
+                    offset = offsetData_lapply,
                     maxit = max_it_lapply
                 )
                 model.glm.0_scmpObj <- glm(y ~ 1,
                     family = family_lapply,
                     epsilon = epsilon_lapply,
                     offset = offsetData_lapply,
-                    weights = weights_lapply,
                     maxit = max_it_lapply
                 )
 
@@ -235,16 +189,9 @@ sc.t.fit <- function(scmpObj,
                     vars.in = vars_in_lapply, alfa = Q_lapply,
                     influ.info = influ.info_lapply
                 ))
-                # return(list(
-                #     reg = reg,
-                #     lmf = lmf,
-                #     model.glm.0 = model.glm.0
-                # ))
             },
-            mc.cores = numCores, mc.set.seed = 2023
+            mc.cores = numCores
         )
-
-        # })
     } else if (selection_method == "forward") {
         result_list <- parallel::mclapply(names(y_input),
             function(gene_name, g_lapply = g,
@@ -258,7 +205,6 @@ sc.t.fit <- function(scmpObj,
                      vars_in_lapply = vars.in,
                      Q_lapply = p_value,
                      influ.info_lapply = influ.info,
-                     weights_lapply = weight_df,
                      max_it_lapply = max_it) {
                 y <- y_input[[gene_name]]
 
@@ -267,20 +213,19 @@ sc.t.fit <- function(scmpObj,
                     alfa = Q_lapply, family = family_lapply,
                     epsilon = epsilon_lapply,
                     useOffset = offsetData_lapply,
-                    useWeight = weights_lapply,
+                    useWeight = NULL,
                     max_it = max_it_lapply
                 )
                 lmf_scmpObj <- glm(y ~ .,
                     data = as.data.frame(dis_lapply),
                     family = family_lapply, epsilon = epsilon_lapply,
-                    offset = offsetData_lapply, weights = weights_lapply,
+                    offset = offsetData_lapply,
                     maxit = max_it_lapply
                 )
                 model.glm.0_scmpObj <- glm(y ~ 1,
                     family = family_lapply,
                     epsilon = epsilon_lapply,
                     offset = offsetData_lapply,
-                    weights = weights_lapply,
                     maxit = max_it_lapply
                 )
                 div <- c(1:round(g / 100)) * 100
@@ -299,7 +244,7 @@ sc.t.fit <- function(scmpObj,
                     alfa = Q_lapply, influ.info = influ.info_lapply
                 ))
             },
-            mc.cores = numCores, mc.set.seed = 2023
+            mc.cores = numCores
         )
     } else if (selection_method == "two.ways.backward") {
         result_list <- parallel::mclapply(names(y_input),
@@ -315,7 +260,6 @@ sc.t.fit <- function(scmpObj,
                      vars_in_lapply = vars.in,
                      Q_lapply = p_value,
                      influ.info_lapply = influ.info,
-                     weights_lapply = weight_df,
                      max_it_lapply = max_it) {
                 y <- y_input[[gene_name]]
 
@@ -325,20 +269,19 @@ sc.t.fit <- function(scmpObj,
                     family = family_lapply,
                     epsilon = epsilon_lapply,
                     useOffset = offsetData_lapply,
-                    useWeight = weights_lapply,
+                    useWeight = NULL,
                     max_it = max_it_lapply
                 )
                 lmf_scmpObj <- glm(y ~ .,
                     data = as.data.frame(dis_lapply),
                     family = family_lapply, epsilon = epsilon_lapply,
-                    offset = offsetData_lapply, weights = weights_lapply,
+                    offset = offsetData_lapply,
                     maxit = max_it_lapply
                 )
                 model.glm.0_scmpObj <- glm(y ~ 1,
                     family = family_lapply,
                     epsilon = epsilon_lapply,
                     offset = offsetData_lapply,
-                    weights = weights_lapply,
                     maxit = max_it_lapply
                 )
                 div <- c(1:round(g / 100)) * 100
@@ -357,9 +300,8 @@ sc.t.fit <- function(scmpObj,
                     alfa = Q_lapply, influ.info = influ.info_lapply
                 ))
             },
-            mc.cores = numCores, mc.set.seed = 2023
+            mc.cores = numCores
         )
-        # })
     } else if (selection_method == "two.ways.forward") {
         result_list <- parallel::mclapply(names(y_input),
             function(gene_name, g_lapply = g,
@@ -373,7 +315,6 @@ sc.t.fit <- function(scmpObj,
                      vars_in_lapply = vars.in,
                      Q_lapply = p_value,
                      influ.info_lapply = influ.info,
-                     weights_lapply = weight_df,
                      max_it_lapply = max_it) {
                 y <- y_input[[gene_name]]
 
@@ -382,20 +323,19 @@ sc.t.fit <- function(scmpObj,
                     alfa = Q_lapply, family = family_lapply,
                     epsilon = epsilon_lapply,
                     useOffset = offsetData_lapply,
-                    useWeight = weights_lapply,
+                    useWeight = NULL,
                     max_it = max_it_lapply
                 )
                 lmf_scmpObj <- glm(y ~ .,
                     data = as.data.frame(dis_lapply),
                     family = family_lapply, epsilon = epsilon_lapply,
-                    offset = offsetData_lapply, weights = weights_lapply,
+                    offset = offsetData_lapply,
                     maxit = max_it_lapply
                 )
                 model.glm.0_scmpObj <- glm(y ~ 1,
                     family = family_lapply,
                     epsilon = epsilon_lapply,
                     offset = offsetData_lapply,
-                    weights = weights_lapply,
                     maxit = max_it_lapply
                 )
                 div <- c(1:round(g / 100)) * 100
@@ -414,7 +354,7 @@ sc.t.fit <- function(scmpObj,
                     alfa = Q_lapply, influ.info = influ.info_lapply
                 ))
             },
-            mc.cores = numCores, mc.set.seed = 2023
+            mc.cores = numCores
         )
     } else {
         stop("stepwise method must be one of backward, forward, two.ways.backward, two.ways.forward")
@@ -441,8 +381,7 @@ sc.t.fit <- function(scmpObj,
         return(element[["influ.info"]])
     })
 
-    # Assuming 'parallel' is your list
-    # influ.info.list <- influ.info.list[!sapply(influ.info.list, function(x) is.logical(x))]
+    # Keep the genes that have influential observations
     influ.info.list <- influ.info.list[!vapply(
         influ.info.list, is.logical,
         logical(1)
@@ -482,14 +421,14 @@ sc.t.fit <- function(scmpObj,
             vars.in,
             sep = ""
         ))
-        if (!is.null(groups.vector) & !is.null(alloc)) {
+        if (!is.null(groups.vector) && !is.null(alloc)) {
             groups <- colnames(alloc)[3:ncol(alloc)]
             degree <- (length(groups.vector) / length(groups)) -
                 1
-            for (w in 1:nrow(coefficients)) {
+            for (w in seq_len(nrow(coefficients))) {
                 A <- NULL
                 col.names <- NULL
-                for (l in 1:length(groups)) {
+                for (l in seq_along(groups)) {
                     B <- reg.coeffs(
                         coefficients = coefficients[w, ],
                         groups.vector = groups.vector, group = groups[l]
@@ -510,19 +449,18 @@ sc.t.fit <- function(scmpObj,
 
     if (!is.null(influ.info)) {
         if (verbose) {
-            message(paste(
-                "\nInfluence:",
-                ncol(influ.info),
-                "genes with influential onservations detected. Model validation for these genes is recommended"
-            ))
+            message(
+                "\nInfluence: ", ncol(influ.info), " genes with influential ",
+                "observations detected. Model validation for these genes is ",
+                "recommended"
+            )
         }
     } else {
         if (verbose) {
-            message(paste("\nNo genes with influential observations detected"))
+            message("\nNo genes with influential observations detected")
         }
         influ.info <- matrix(data = NA, nrow = 0, ncol = 0)
     }
-    # influ.info <- influ.info[, -1]
 
     # Create a constructor for the class
     t.fit.object <- new("Estimates",

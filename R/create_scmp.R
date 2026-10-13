@@ -54,12 +54,12 @@ create_scmp <- function(counts,
 
     # Validate if path_col is present in cell_data
     assertthat::assert_that(path_col %in% colnames(cell_data),
-        msg = paste("Column name '", path_col, "' not found in cell_data.")
+        msg = paste0("Column name '", path_col, "' not found in cell_data.")
     )
 
     # Validate if ptime_col is present in cell_data
     assertthat::assert_that(ptime_col %in% colnames(cell_data),
-        msg = paste("Column name '", ptime_col, "' not found in cell_data.")
+        msg = paste0("Column name '", ptime_col, "' not found in cell_data.")
     )
 
     # Create Single-Cell Experiment Object

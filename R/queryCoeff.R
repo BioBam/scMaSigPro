@@ -45,16 +45,24 @@ queryCoeff <- function(scmpObj,
             all(
                 change %in% c("increasing", "decreasing")
             ),
-            msg = "Invalid change, please select on of 'increasing' or 'decreasing'"
+            msg = paste(
+                "Invalid change, please select one of 'increasing' or",
+                "'decreasing'"
+            )
         )
     }
 
     # Check query
     assertthat::assert_that(
         all(
-            query %in% c("pseudotime", "pseudotime_path", "path", "path_pseudotime")
+            query %in% c(
+                "pseudotime", "pseudotime_path", "path", "path_pseudotime"
+            )
         ),
-        msg = "Invalid query, please select on of 'pseudotime', 'pseudotime_path' or 'path'"
+        msg = paste(
+            "Invalid query, please select one of 'pseudotime',",
+            "'pseudotime_path' or 'path'"
+        )
     )
 
     # Check coefficents
@@ -76,7 +84,7 @@ queryCoeff <- function(scmpObj,
     coeff_vector <- colnames(coeff_matrix)
 
     # Print Model formula
-    message(paste("Polynomial-GLM Formula:", showPoly(scmpObj)))
+    message("Polynomial-GLM Formula: ", showPoly(scmpObj))
 
     # Get groups
     compare_groups_vector <- unique(scmpObj@Design@groups.vector)
@@ -86,10 +94,10 @@ queryCoeff <- function(scmpObj,
 
     # Verbose
     if (verbose) {
-        message(paste0(
+        message(
             "Number of available groups ", length(compare_groups_vector),
             ", i.e. ", paste(compare_groups_vector, collapse = ", ")
-        ))
+        )
     }
 
     # Query Simplification

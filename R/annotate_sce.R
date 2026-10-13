@@ -44,17 +44,17 @@ annotate_sce <- function(sce,
             all(!is.null(exist_ptime_col) & !is.null(exist_path_col)),
             msg = paste(
                 "Requested to set 'path_col' as", path_col,
-                "with 'labels_exist' as TRUE. Please supply
-                  'exist_ptime_col' and 'exist_path_col'"
+                "with 'labels_exist' as TRUE. Please supply",
+                "'exist_ptime_col' and 'exist_path_col'"
             )
         )
 
         if (verbose) {
-            message(paste0(
-                "Overwritting columns in cell level metadata, '", exist_path_col, "'
-        is replaced by '", path_col,
-                "' and '", exist_ptime_col, "' is replaced by '", ptime_col, "'."
-            ))
+            message(
+                "Overwriting columns in cell level metadata, '", exist_path_col,
+                "' is replaced by '", path_col, "' and '", exist_ptime_col,
+                "' is replaced by '", ptime_col, "'."
+            )
         }
 
         # Extract the cell metadata
@@ -63,12 +63,12 @@ annotate_sce <- function(sce,
         # Check columns
         assertthat::assert_that(
             all(exist_ptime_col %in% colnames(cell.meta)),
-            msg = paste("'", exist_ptime_col, "', doesn't exist in colData.")
+            msg = paste0("'", exist_ptime_col, "' doesn't exist in colData.")
         )
         # Check columns
         assertthat::assert_that(
             all(exist_path_col %in% colnames(cell.meta)),
-            msg = paste("'", exist_path_col, "', doesn't exist in colData")
+            msg = paste0("'", exist_path_col, "' doesn't exist in colData.")
         )
 
         # Override
@@ -84,7 +84,7 @@ annotate_sce <- function(sce,
         return(sce)
     } else {
         if (verbose) {
-            message(paste("Skipping overwritting of colnames in cell level metadata"))
+            message("Skipping overwriting of colnames in cell level metadata")
         }
         # Return
         return(sce)

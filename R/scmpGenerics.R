@@ -196,7 +196,7 @@ setMethod("eSparse", signature(object = "ScMaSigPro"), function(object, i = "cou
     } else {
         # Return the specific assay's data matrix
         if (!i %in% names(object@Sparse@assays@data@listData)) {
-            stop(paste0("Assay '", i, "' not found in the object."))
+            stop("Assay '", i, "' not found in the object.")
         }
         return(as.matrix(object@Sparse@assays@data@listData[[i]]))
     }
@@ -226,11 +226,11 @@ setMethod("eSparse<-", signature(object = "ScMaSigPro", i = "character", value =
 
     # Check if the specified assay exists; if not, create a new entry
     if (!i %in% names(object@Sparse@assays@data@listData)) {
-        message(paste0("Creating a new assay as '", i, "'."))
+        message("Creating a new assay as '", i, "'.")
         # Update the assay data
         object@Sparse@assays@data@listData[[i]] <- value
     } else if (i %in% names(object@Sparse@assays@data@listData)) {
-        warning(paste0("Overwritting assay '", i, "'."))
+        warning("Overwriting assay '", i, "'.")
         # Update the assay data
         object@Sparse@assays@data@listData[[i]] <- value
     }
@@ -306,7 +306,7 @@ setMethod("eDense", signature(object = "ScMaSigPro"), function(object, i = "bulk
     } else {
         # Return the specific assay's data matrix
         if (!i %in% names(object@Dense@assays@data@listData)) {
-            stop(paste0("Assay '", i, "' not found in the object."))
+            stop("Assay '", i, "' not found in the object.")
         }
         return(as.matrix(object@Dense@assays@data@listData[[i]]))
     }
@@ -337,11 +337,11 @@ setMethod("eDense<-", signature(object = "ScMaSigPro", i = "character", value = 
 
     # Check if the specified assay exists; if not, create a new entry
     if (!i %in% names(object@Dense@assays@data@listData)) {
-        message(paste0("Creating a new assay as '", i, "'."))
+        message("Creating a new assay as '", i, "'.")
         # Update the assay data
         object@Dense@assays@data@listData[[i]] <- value
     } else if (i %in% names(object@Dense@assays@data@listData)) {
-        warning(paste0("Overwritting assay '", i, "'."))
+        warning("Overwriting assay '", i, "'.")
         # Update the assay data
         object@Dense@assays@data@listData[[i]] <- value
     }
@@ -474,22 +474,3 @@ setMethod(
         .ScMaSigPro_show(object)
     }
 )
-###############################################################################
-# Constructor
-ScMaSigPro <- function(Sparse = new("SingleCellExperiment"),
-                       Profile = new("VariableProfiles"),
-                       Estimate = new("Estimates"),
-                       Dense = new("SingleCellExperiment"),
-                       Design = new("MatrixDesign"),
-                       Parameters = new("ParameterConfig"),
-                       Significant = new("Significant")) {
-    new("ScMaSigPro",
-        Sparse = Sparse,
-        Profile = Profile,
-        Estimate = Estimate,
-        Dense = Dense,
-        Design = Design,
-        ParameterConfig = Parameters,
-        Significant = Significant # new("Significant"),
-    )
-}

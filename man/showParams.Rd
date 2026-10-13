@@ -4,23 +4,16 @@
 \alias{showParams}
 \title{Show the parameters used during the workflow.}
 \usage{
-showParams(scmpObj, view = FALSE, return = TRUE)
+showParams(scmpObj)
 }
 \arguments{
 \item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
-
-\item{view}{Whether to view the data in the explorer. (Default: FALSE)}
-
-\item{return}{Whether to return the data. (Default: TRUE)}
 }
 \value{
-The computed solution as a data.frame if return is set to TRUE.
-If return is FALSE, the function does not return anything.
-
 Dataframe of the parameters used in the analysis.
 }
 \description{
-Get or View all the parameters used during the workflow.
+Get all the parameters used during the workflow.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
