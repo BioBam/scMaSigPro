@@ -14,9 +14,9 @@ create_range(
 \arguments{
 \item{x}{A data frame that should contain the following columns:
 \describe{
-  \item{bin}{A factor column representing the bin intervals in the format "[x, y]".}
-  \item{bin_size}{A numeric column representing the bin size.}
-  \item{binned_time}{A numeric column representing the binned time.}
+\item{bin}{A factor column representing the bin intervals in the format \code{"[x, y]"}.}
+\item{bin_size}{A numeric column representing the bin size.}
+\item{binned_time}{A numeric column representing the binned time.}
 }}
 
 \item{bin_size_colname}{The name of the column containing the bin size.}
@@ -27,15 +27,15 @@ create_range(
 }
 \value{
 A numeric vector containing four elements:
-  \describe{
-    \item{lower_bound}{The lower bound of the bin interval.}
-    \item{upper_bound}{The upper bound of the bin interval.}
-    \item{bin_size}{The bin size.}
-    \item{binned_time}{The binned time.}
-  }
+\describe{
+\item{lower_bound}{The lower bound of the bin interval.}
+\item{upper_bound}{The upper bound of the bin interval.}
+\item{bin_size}{The bin size.}
+\item{binned_time}{The binned time.}
+}
 }
 \description{
-`create_range()` converts a factor column "bin" into a character vector, extracts
+\code{create_range()} converts a factor column "bin" into a character vector, extracts
 numeric range values from the character vector, and combines them with
 additional columns "bin_size" and "binned_time" to return a numeric vector
 representing the range information.

@@ -5,7 +5,10 @@
 \alias{scmp.ob}
 \title{scMaSigPro Object with results}
 \format{
-An object of class \code{ScMaSigPro} of length 1.
+An object of class \code{ScMaSigPro} built from \code{splat.sim} by the Quick
+Start workflow (polynomial degree 1, negative binomial with log size-factor
+offsets). The script that regenerates it is
+\code{system.file("scripts", "make-scmp-ob.R", package = "scMaSigPro")}.
 }
 \usage{
 # Loading
@@ -13,7 +16,7 @@ data("scmp.ob", package = "scMaSigPro")
 }
 \description{
 A small scMaSigPro object created from simulated data. Please follow Vignette
-`scMaSigPro: Quick Start Guide` for more details.
+\verb{scMaSigPro: Quick Start Guide} for more details.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

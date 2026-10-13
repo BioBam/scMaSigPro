@@ -8,7 +8,7 @@ get_os()
 }
 \value{
 A string indicating the operating system: either 'osx', 'linux', or a
-lower-case version of `Sys.info()['sysname']` if the system is neither OS X
+lower-case version of \code{Sys.info()['sysname']} if the system is neither OS X
 nor Linux.
 }
 \description{

@@ -31,7 +31,7 @@ sc.squeeze(
 for inferred Pseudotime values in 'Sparse' data. (Default is "Pseudotime").}
 
 \item{path_col}{A character string representing the column name for branching
-path assignment in 'Sparse' or 'Dense' data. (Default is `path_prefix`).}
+path assignment in 'Sparse' or 'Dense' data. (Default is \code{path_prefix}).}
 
 \item{bin_method}{A character string representing the algorithm used for
 binning. Available options: "Freedman.Diaconis",
@@ -78,16 +78,16 @@ successive bins and fill the gaps.}
 See examples}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}, with updated `Dense`
+An object of class \code{\link{ScMaSigPro}}, with updated \code{Dense}
 slot.
 }
 \description{
-`sc.squeeze()` discretizes a continuous time series column into bins
+\code{sc.squeeze()} discretizes a continuous time series column into bins
 of equal size using entropy-based binning method. It automatically calculates
 the optimal number of bins using one of the supported methods.
 }
 \seealso{
-\code{\link{estBinSize}}, \code{\link{discretize}},
+\code{\link{estBinSize}}, \code{\link[entropy]{discretize}},
 \code{\link{create_range}}
 }
 \author{

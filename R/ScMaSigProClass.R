@@ -366,9 +366,9 @@ setClass(
 #' S4 class to store analysis of ScMaSigPro worflow. It stores results,
 #' parameters and associated data. Inherits slots from \code{SingleCellExperiment}.
 #'
-#' @slot Sparse Object of class \code{\link{SingleCellExperiment}}.
+#' @slot Sparse Object of class \code{\link[SingleCellExperiment]{SingleCellExperiment}}.
 #' See \pkg{SingleCellExperiment} for more details.
-#' @slot Dense Object of class \code{\link{SingleCellExperiment}}.
+#' @slot Dense Object of class \code{\link[SingleCellExperiment]{SingleCellExperiment}}.
 #' See \pkg{SingleCellExperiment} for more details.
 #' @slot Design Object of Class \code{\link{MatrixDesign}}.
 #' @slot Profile Object of Class \code{\link{VariableProfiles}}.

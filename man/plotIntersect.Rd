@@ -35,7 +35,7 @@ upset object for 'UpSetR'.
 }
 \description{
 Generate UpSet Plot on Intersection of Significant Genes from scMaSigPro
-object. It is a wrapper `UpSetR::upset`.
+object. It is a wrapper \code{UpSetR::upset}.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

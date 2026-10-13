@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotate_sce.R
 \name{annotate_sce}
 \alias{annotate_sce}
-\title{Annotate `SingleCellExperiment` class object with pseudotime and path
+\title{Annotate \code{SingleCellExperiment} class object with pseudotime and path
 information.}
 \usage{
 annotate_sce(
@@ -18,7 +18,7 @@ annotate_sce(
 )
 }
 \arguments{
-\item{sce}{A `SingleCellExperiment` object to be annotated.}
+\item{sce}{A \code{SingleCellExperiment} object to be annotated.}
 
 \item{ptime_col}{A character string representing the column name
 for inferred Pseudotime values. (Default is "Pseudotime")}
@@ -28,7 +28,7 @@ for inferred Pseudotime values. (Default is "Pseudotime")}
 \item{root_label}{Label used to annotate root cells. (Default is "root").}
 
 \item{path_col}{A character string representing the column name for branching
-path assignment. (Default is `path_prefix`)}
+path assignment. (Default is \code{path_prefix})}
 
 \item{exist_ptime_col}{The name of an existing pseudotime column
 to be replaced (if not NULL).}
@@ -42,11 +42,11 @@ should be overwritten. (Default is TRUE)}
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }
 \value{
-A \code{\link{SingleCellExperiment}} object with updated cell metadata.
+A \code{\link[SingleCellExperiment]{SingleCellExperiment}} object with updated cell metadata.
 }
 \description{
-`annotate_sce()` annotates a `SingleCellExperiment` class object with pseudotime
-and path information in its `cell.metadata` generated using `colData` from the
+\code{annotate_sce()} annotates a \code{SingleCellExperiment} class object with pseudotime
+and path information in its \code{cell.metadata} generated using \code{colData} from the
 \pkg{SingleCellExperiment} package.
 }
 \seealso{

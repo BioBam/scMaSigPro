@@ -12,7 +12,7 @@ predictors(object) <- value
 \item{value}{The value of the Predictors Matrix.}
 }
 \value{
-Modified `ScMaSigPro` object with new Predictor Matrix.
+Modified \code{ScMaSigPro} object with new Predictor Matrix.
 }
 \description{
 Replacement method for predictors.

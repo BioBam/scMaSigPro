@@ -13,7 +13,7 @@ asthe analysis progresses.
 
 \describe{
 \item{\code{bin_ptime_col}}{A character string representing the column name
-for binned Pseudotime values in 'Dense' data. See `colData` from the
+for binned Pseudotime values in 'Dense' data. See \code{colData} from the
 \pkg{SingleCellExperiment} package.}
 
 \item{\code{path_prefix}}{Update Description..}
@@ -21,14 +21,14 @@ for binned Pseudotime values in 'Dense' data. See `colData` from the
 \item{\code{root_label}}{Update Description..}
 
 \item{\code{ptime_col}}{A character string representing the column name
-for inferred Pseudotime values in 'Sparse' data. See `colData` from the
+for inferred Pseudotime values in 'Sparse' data. See \code{colData} from the
 \pkg{SingleCellExperiment} package.}
 
 \item{\code{bin_method}}{A character string representing the algorithm used for
 binning.}
 
 \item{\code{path_col}}{A character string representing the column name for branching
-path assignment in 'Sparse' or 'Dense' data. See `colData` from the
+path assignment in 'Sparse' or 'Dense' data. See \code{colData} from the
 \pkg{SingleCellExperiment} package.}
 
 \item{\code{bin_col}}{A character string representing the name of the column in which

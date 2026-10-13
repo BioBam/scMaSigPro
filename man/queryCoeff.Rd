@@ -29,7 +29,7 @@ queryCoeff(
 \item{change}{The effective change at the end of the pseudotime.
 (Default is NULL)}
 
-\item{strictly}{If `change != NULL`, selects features if all coefficients
+\item{strictly}{If \code{change != NULL}, selects features if all coefficients
 have similar change.}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
@@ -38,11 +38,11 @@ have similar change.}
 A subset of matrix of coefficients.
 }
 \description{
-This function extracts features from an object of class `scMaSigPro`
+This function extracts features from an object of class \code{scMaSigPro}
 based on a specified query. The function query the coefficients matrix.
 }
 \seealso{
-`scMaSigPro::sc.filter()`
+\code{scMaSigPro::sc.filter()}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}.

@@ -31,19 +31,19 @@ used. (Default = "counts").}
 \item{aggregate}{A character string specifying the method to aggregate counts
 within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").}
 
-\item{link_sep}{A character string to separate the link nodes. (Default = "_links_")}
+\item{link_sep}{A character string to separate the link nodes. (Default = "\emph{links}")}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}, with updated `Dense`
+An object of class \code{\link{ScMaSigPro}}, with updated \code{Dense}
 slot.
 }
 \description{
-`sc.restruct()` Add Description
+\code{sc.restruct()} Add Description
 }
 \seealso{
-\code{\link{estBinSize}}, \code{\link{discretize}},
+\code{\link{estBinSize}}, \code{\link[entropy]{discretize}},
 \code{\link{create_range}}
 }
 \author{

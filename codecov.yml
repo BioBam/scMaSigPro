@@ -1,0 +1,15 @@
+# Coverage gates (see the roadmap, Phase 1 and Phase 6).
+# The project-wide target is informational until the test suite is built out;
+# flip `informational` to false in Phase 6 to make it a required check.
+# The patch target applies to every PR from now on.
+comment: false
+coverage:
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 1%
+        informational: true
+    patch:
+      default:
+        target: 85%

@@ -18,7 +18,7 @@ The modified \code{\link{ScMaSigPro}} object with the updated or new expression 
 in the Dense slot.
 }
 \description{
-`eDense<-` updates or sets new expression data within the Dense slot of an
+\verb{eDense<-} updates or sets new expression data within the Dense slot of an
 \code{\link{ScMaSigPro}} object.
 }
 \seealso{

@@ -9,10 +9,10 @@ cSparse(object) <- value
 \arguments{
 \item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The new value for the `colData` slot. (When Setting)}
+\item{value}{The new value for the \code{colData} slot. (When Setting)}
 }
 \value{
-Modified `ScMaSigPro` object when setting.
+Modified \code{ScMaSigPro} object when setting.
 }
 \description{
 Set cell level metadata for the Sparse slot of an

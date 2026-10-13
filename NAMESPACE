@@ -52,115 +52,139 @@ exportMethods(eSparse)
 exportMethods(pathAssign)
 exportMethods(predictors)
 import(ggplot2)
-importFrom(MASS,glm.nb)
-importFrom(MASS,negative.binomial)
-importFrom(MatrixGenerics,rowMeans)
-importFrom(MatrixGenerics,rowSums)
-importFrom(S4Vectors,DataFrame)
-importFrom(S4Vectors,coolcat)
-importFrom(S4Vectors,isEmpty)
-importFrom(SingleCellExperiment,SingleCellExperiment)
-importFrom(SingleCellExperiment,colData)
-importFrom(SingleCellExperiment,reducedDims)
-importFrom(dplyr,arrange)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,group_by_at)
-importFrom(dplyr,join_by)
-importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
-importFrom(dplyr,n)
-importFrom(dplyr,pull)
-importFrom(dplyr,rename_with)
-importFrom(dplyr,row_number)
-importFrom(dplyr,select)
-importFrom(dplyr,summarise)
-importFrom(dplyr,summarize)
-importFrom(dplyr,ungroup)
+importFrom(MASS,
+  glm.nb,
+  negative.binomial
+)
+importFrom(MatrixGenerics,
+  rowMeans,
+  rowSums
+)
+importFrom(S4Vectors,
+  DataFrame,
+  coolcat,
+  isEmpty
+)
+importFrom(SingleCellExperiment,
+  SingleCellExperiment,
+  colData,
+  reducedDims
+)
+importFrom(dplyr,
+  arrange,
+  bind_rows,
+  filter,
+  group_by,
+  group_by_at,
+  join_by,
+  left_join,
+  mutate,
+  n,
+  pull,
+  rename_with,
+  row_number,
+  select,
+  summarise,
+  summarize,
+  ungroup
+)
 importFrom(e1071,skewness)
 importFrom(entropy,discretize)
 importFrom(igraph,get.data.frame)
-importFrom(maSigPro,get.siggenes)
-importFrom(maSigPro,make.design.matrix)
-importFrom(maSigPro,reg.coeffs)
+importFrom(maSigPro,
+  get.siggenes,
+  make.design.matrix,
+  reg.coeffs
+)
 importFrom(magrittr,"%>%")
 importFrom(mclust,Mclust)
-importFrom(methods,as)
-importFrom(methods,is)
-importFrom(methods,new)
-importFrom(methods,slot)
-importFrom(methods,slotNames)
-importFrom(parallel,detectCores)
-importFrom(parallel,mclapply)
+importFrom(methods,
+  as,
+  is,
+  new,
+  slot,
+  slotNames
+)
+importFrom(parallel,
+  detectCores,
+  mclapply
+)
 importFrom(parallelly,availableCores)
-importFrom(plotly,config)
-importFrom(plotly,event_data)
-importFrom(plotly,ggplotly)
-importFrom(plotly,layout)
-importFrom(plotly,plotlyOutput)
-importFrom(plotly,renderPlotly)
+importFrom(plotly,
+  config,
+  event_data,
+  ggplotly,
+  layout,
+  plotlyOutput,
+  renderPlotly
+)
 importFrom(rlang,":=")
 importFrom(scales,rescale)
-importFrom(shiny,HTML)
-importFrom(shiny,actionButton)
-importFrom(shiny,column)
-importFrom(shiny,fluidPage)
-importFrom(shiny,fluidRow)
-importFrom(shiny,h3)
-importFrom(shiny,h4)
-importFrom(shiny,h5)
-importFrom(shiny,hr)
-importFrom(shiny,mainPanel)
-importFrom(shiny,modalButton)
-importFrom(shiny,modalDialog)
-importFrom(shiny,observeEvent)
-importFrom(shiny,radioButtons)
-importFrom(shiny,reactive)
-importFrom(shiny,reactiveVal)
-importFrom(shiny,removeModal)
-importFrom(shiny,renderText)
-importFrom(shiny,renderUI)
-importFrom(shiny,runApp)
-importFrom(shiny,shinyApp)
-importFrom(shiny,showModal)
-importFrom(shiny,showNotification)
-importFrom(shiny,sidebarLayout)
-importFrom(shiny,sidebarPanel)
-importFrom(shiny,sliderInput)
-importFrom(shiny,stopApp)
-importFrom(shiny,tagList)
-importFrom(shiny,textInput)
-importFrom(shiny,titlePanel)
-importFrom(shiny,uiOutput)
-importFrom(shiny,verbatimTextOutput)
-importFrom(stats,IQR)
-importFrom(stats,anova)
-importFrom(stats,as.dist)
-importFrom(stats,complete.cases)
-importFrom(stats,cor)
-importFrom(stats,cutree)
-importFrom(stats,dist)
-importFrom(stats,family)
-importFrom(stats,fitted)
-importFrom(stats,gaussian)
-importFrom(stats,glm)
-importFrom(stats,glm.control)
-importFrom(stats,hclust)
-importFrom(stats,influence.measures)
-importFrom(stats,kmeans)
-importFrom(stats,median)
-importFrom(stats,na.omit)
-importFrom(stats,p.adjust)
-importFrom(stats,poisson)
-importFrom(stats,predict)
-importFrom(stats,residuals)
-importFrom(stats,rstandard)
-importFrom(stats,sd)
-importFrom(stats,setNames)
-importFrom(utils,View)
-importFrom(utils,combn)
-importFrom(utils,data)
-importFrom(utils,packageVersion)
-importFrom(utils,setTxtProgressBar)
-importFrom(utils,txtProgressBar)
+importFrom(shiny,
+  HTML,
+  actionButton,
+  column,
+  fluidPage,
+  fluidRow,
+  h3,
+  h4,
+  h5,
+  hr,
+  mainPanel,
+  modalButton,
+  modalDialog,
+  observeEvent,
+  radioButtons,
+  reactive,
+  reactiveVal,
+  removeModal,
+  renderText,
+  renderUI,
+  runApp,
+  shinyApp,
+  showModal,
+  showNotification,
+  sidebarLayout,
+  sidebarPanel,
+  sliderInput,
+  stopApp,
+  tagList,
+  textInput,
+  titlePanel,
+  uiOutput,
+  verbatimTextOutput
+)
+importFrom(stats,
+  IQR,
+  anova,
+  as.dist,
+  complete.cases,
+  cor,
+  cutree,
+  dist,
+  family,
+  fitted,
+  gaussian,
+  glm,
+  glm.control,
+  hclust,
+  influence.measures,
+  kmeans,
+  median,
+  na.omit,
+  p.adjust,
+  poisson,
+  predict,
+  residuals,
+  rstandard,
+  sd,
+  setNames
+)
+importFrom(utils,
+  View,
+  combn,
+  data,
+  packageVersion,
+  setTxtProgressBar,
+  txtProgressBar
+)

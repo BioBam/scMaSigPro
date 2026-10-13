@@ -1,11 +1,10 @@
 suppressPackageStartupMessages(library(testthat))
 suppressPackageStartupMessages(library(scMaSigPro))
-suppressPackageStartupMessages(library(maSigPro))
 
 test_that("Reproduce Results of MaSigPro", {
   # Step-1: Load Data
-  data("data.abiotic")
-  data("edesign.abiotic")
+  utils::data("data.abiotic", package = "maSigPro", envir = environment())
+  utils::data("edesign.abiotic", package = "maSigPro", envir = environment())
 
   # Step-2: Set-up data for scMaSigPro
   count <- as.matrix(data.abiotic)
@@ -28,12 +27,12 @@ test_that("Reproduce Results of MaSigPro", {
     cell_data = cell_metadata,
     ptime_col = "Time",
     path_col = "Group",
-    use_as_bin = T
+    use_as_bin = TRUE
   )
 
   # Step-4: Create MaSigPro Design
-  design_1 <- make.design.matrix(edesign = edesign.abiotic, degree = 1)
-  design_3 <- make.design.matrix(edesign = edesign.abiotic, degree = 3)
+  design_1 <- maSigPro::make.design.matrix(edesign = edesign.abiotic, degree = 1)
+  design_3 <- maSigPro::make.design.matrix(edesign = edesign.abiotic, degree = 3)
 
   # Step-5: Set polynomial and make design
   test.scmp.1 <- sc.set.poly(test.scmp, poly_degree = 1)
@@ -74,11 +73,11 @@ test_that("Reproduce Results of MaSigPro", {
   )
 
   # Step-6: Run P.vector
-  gc <- capture_output(fit_1 <- p.vector(data.abiotic, design_1,
+  gc <- capture_output(fit_1 <- maSigPro::p.vector(data.abiotic, design_1,
     Q = 0.05,
     MT.adjust = "BH", min.obs = 20
   ))
-  gc <- capture_output(fit_3 <- p.vector(data.abiotic, design_3,
+  gc <- capture_output(fit_3 <- maSigPro::p.vector(data.abiotic, design_3,
     Q = 0.05,
     MT.adjust = "BH", min.obs = 20
   ))
@@ -144,8 +143,8 @@ test_that("Reproduce Results of MaSigPro", {
   )
 
   # Step-8: Run t.fit
-  gc <- capture_output(tstep_1 <- T.fit(fit_1, step.method = "backward", alfa = 0.05))
-  gc <- capture_output(tstep_3 <- T.fit(fit_3, step.method = "backward", alfa = 0.05))
+  gc <- capture_output(tstep_1 <- maSigPro::T.fit(fit_1, step.method = "backward", alfa = 0.05))
+  gc <- capture_output(tstep_3 <- maSigPro::T.fit(fit_3, step.method = "backward", alfa = 0.05))
 
   # Step-9: Run sc.t.fit
   test.scmp.1 <- sc.t.fit(test.scmp.1, verbose = FALSE)
@@ -182,8 +181,8 @@ test_that("Reproduce Results of MaSigPro", {
   expect_identical(showInflu(test.scmp.3), expected = tstep_3$influ.info)
 
   # Step-10: Compute Clusters with maSigPro
-  sigs.1 <- get.siggenes(tstep_1, rsq = 0.6, vars = "groups")
-  sigs.3 <- get.siggenes(tstep_3, rsq = 0.6, vars = "groups")
+  sigs.1 <- maSigPro::get.siggenes(tstep_1, rsq = 0.6, vars = "groups")
+  sigs.3 <- maSigPro::get.siggenes(tstep_3, rsq = 0.6, vars = "groups")
 
   # Step-11: Compute Clusters with scMaSigPro
   test.scmp.1 <- sc.filter(test.scmp.1, rsq = 0.6, vars = "groups")

@@ -9,10 +9,10 @@
 \arguments{
 \item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The new value for the `colData` slot. (When Setting)}
+\item{value}{The new value for the \code{colData} slot. (When Setting)}
 }
 \value{
-Modified `ScMaSigPro` object.
+Modified \code{ScMaSigPro} object.
 }
 \description{
 Replacement method for cSparse

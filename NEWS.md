@@ -1,3 +1,15 @@
+## scMaSigPro 0.0.4.9000 (development version)
+
+* Documentation
+    * Vignettes no longer download data or images from the web. The "Common Root Cells" vignette uses the bundled `multi.lin.sce` dataset and includes the Monocle3 extraction steps as an unevaluated recipe; the Quick Start vignette no longer writes into `data/` during the build.
+    * Installation instructions use `BiocManager::install("BioBam/scMaSigPro")` instead of pinning Bioconductor 3.14.
+    * Scripts that regenerate the bundled datasets live in `inst/scripts/`; the dataset help pages point to them instead of embedding the code.
+
+* Infrastructure
+    * `.Rbuildignore` is now tracked, so fresh clones and CI build the same package as the maintainer.
+    * GitHub Actions rebuilt on the current r-lib templates: R CMD check (plus a weekly run), test coverage via codecov, lint (advisory), pkgdown, and the R-universe build that mirrors Bioconductor's submission checks including BiocCheck. Workflows run on `main` and `devel`.
+    * DESCRIPTION: title in title case, Description cites the paper, ORCIDs for all four authors (the previous `OCRID` typo meant none were recognised), `LazyData` removed, roxygen markdown enabled.
+
 ## scMaSigPro 0.0.4 (2024-07-30)
 
 * Dependency Changes

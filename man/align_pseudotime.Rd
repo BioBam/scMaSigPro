@@ -16,16 +16,16 @@ align_pseudotime(
 \item{scmpObj}{description}
 
 \item{ptime_col}{A character string representing the column name
-for inferred Pseudotime values in 'Sparse' data. See `colData` from the
+for inferred Pseudotime values in 'Sparse' data. See \code{colData} from the
 \pkg{SingleCellExperiment} package. (Default is "Pseudotime")}
 
 \item{path_col}{A character string representing the column name for branching
-path assignment in 'Sparse' data. See `colData` from the
+path assignment in 'Sparse' data. See \code{colData} from the
 \pkg{SingleCellExperiment} package.
-(Default is `path_prefix`)}
+(Default is \code{path_prefix})}
 
 \item{method}{Method used for re-scaling the longer pseudotime value. Currently
-only `scales::rescale` is supported. (Default is "rescale")}
+only \code{scales::rescale} is supported. (Default is "rescale")}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }
@@ -33,11 +33,11 @@ only `scales::rescale` is supported. (Default is "rescale")}
 An object of class \code{\link{ScMaSigPro}}, with aligned pseudotime.
 }
 \description{
-`align_pseudotime()` is an internal function that aligns the pseudotime from
+\code{align_pseudotime()} is an internal function that aligns the pseudotime from
 two different trajectory paths. It first identifies the path which has a longer
 pseudotime range, and then it uses the range of the shorter path to rescale
 the range of the longer one. It uses a simple rescaling mechanism from
-`scales::rescale`. In future we expect to support strategies like dynamic time
+\code{scales::rescale}. In future we expect to support strategies like dynamic time
 warping from dtw package.
 }
 \author{

@@ -20,7 +20,7 @@
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @seealso \code{\link{estBinSize}}, \code{\link{discretize}},
+#' @seealso \code{\link{estBinSize}}, \code{\link[entropy]{discretize}},
 #' \code{\link{create_range}}
 #'
 #' @export
