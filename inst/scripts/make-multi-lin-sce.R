@@ -157,5 +157,4 @@ reducedDims(multi.lin.sce)[["TSNE"]] <- redDim
 
 # Save Object
 save(multi.lin.sce, file = "data/multi.lin.sce.RData")
-tools::resaveRdaFiles(paths = "data/")
-tools::resaveRdaFiles(paths = "extdata/")
+tools::resaveRdaFiles("data/multi.lin.sce.RData")
