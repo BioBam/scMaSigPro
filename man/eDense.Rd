@@ -18,7 +18,7 @@ Default is "bulk.counts", which will return the default expression matrix.}
 An expression matrix for the specified dataset from the Dense slot.
 }
 \description{
-`eDense` is a generic function for retrieving expression counts stored in the Dense slot
+\code{eDense} is a generic function for retrieving expression counts stored in the Dense slot
 of an \code{\link{ScMaSigPro}} object.
 }
 \author{

@@ -18,7 +18,7 @@ values}
 
 \item{locfunc}{a function to compute a location for a sample. By default, the
 median is used. However, especially for low counts, the
-function from `genefilter` package may give better results.}
+function from \code{genefilter} package may give better results.}
 
 \item{geoMeans}{by default this is not provided, and the
 geometric means of the counts are calculated within the function.

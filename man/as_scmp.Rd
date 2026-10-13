@@ -20,10 +20,10 @@ as_scmp(
 )
 }
 \arguments{
-\item{object}{An S4 object of class `cds/CellDataSet` or `SingleCellExperiment`.}
+\item{object}{An S4 object of class \code{cds/CellDataSet} or \code{SingleCellExperiment}.}
 
 \item{from}{Character string specifying the class of 'object'. Use "cds" for
-`cds/CellDataSet` class and "sce" for `SingleCellExperiment` class.}
+\code{cds/CellDataSet} class and "sce" for \code{SingleCellExperiment} class.}
 
 \item{path_prefix}{Prefix used to annotate the paths. (Default is "Path").}
 
@@ -36,7 +36,7 @@ for inferred Pseudotime values. (Default is "Pseudotime")}
 See \code{\link{align_pseudotime}} for more details. (Default is FALSE).}
 
 \item{path_col}{A character string representing the column name for branching
-path assignment. (Default is `path_prefix`)}
+path assignment. (Default is \code{path_prefix})}
 
 \item{anno_col}{A character string representing the column name for cell level
 metadata containing cell level annotations. (Default is "cell_type").}
@@ -52,7 +52,7 @@ paths. (Default is TRUE).}
 An object of class \code{\link{ScMaSigPro}}.
 }
 \description{
-`as_scmp()` converts a cds/CellDataSet object from Monocle3 or a
+\code{as_scmp()} converts a cds/CellDataSet object from Monocle3 or a
 SingleCellExperiment #' object to an instance of the scmpClass object.
 }
 \examples{

@@ -23,7 +23,7 @@
 #' (if not NULL).
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #'
-#' @return A \code{\link{SingleCellExperiment}} object with updated cell metadata.
+#' @return A \code{\link[SingleCellExperiment]{SingleCellExperiment}} object with updated cell metadata.
 #'
 #' @seealso \pkg{SingleCellExperiment} package.
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}

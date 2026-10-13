@@ -17,11 +17,11 @@ extract_fitting(
 )
 }
 \arguments{
-\item{reg}{Regression Result form `stats::glm()`}
+\item{reg}{Regression Result form \code{stats::glm()}}
 
-\item{lmf}{Full model object generated from the `stats::glm()`}
+\item{lmf}{Full model object generated from the \code{stats::glm()}}
 
-\item{model.glm.0}{Intercept model object generated from the `stats::glm()`}
+\item{model.glm.0}{Intercept model object generated from the \code{stats::glm()}}
 
 \item{dis}{Dataframe for the predictors}
 

@@ -34,7 +34,7 @@ A matrix. The matrix includes pseudo bulk counts with each row being
 a gene and each column being a bin.
 }
 \description{
-`pb_counts()` creates a dataframe of pseudo bulk counts from single
+\code{pb_counts()} creates a dataframe of pseudo bulk counts from single
 cell counts. It does this by either taking the mean or sum of counts across
 cells in each bin, depending on the specified method.
 }

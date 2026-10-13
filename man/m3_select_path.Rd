@@ -29,13 +29,13 @@ metadata containing cell level annotations. (Default is "cell_type").}
 for inferred Pseudotime values. (Default is "Pseudotime")}
 
 \item{path_col}{A character string representing the column name for branching
-path assignment. (Default is `path_prefix`)}
+path assignment. (Default is \code{path_prefix})}
 
 \item{use_shiny}{Enable the selection for shiny-selection wizard.
 (Default is TRUE)}
 
 \item{plot_purity}{Plot a bar plot, showing the the principal points against
-the of `anno_col`. This will show the count of annotations for each of
+the of \code{anno_col}. This will show the count of annotations for each of
 the principal points. (Default is TRUE)}
 
 \item{m3_pp}{A list containing the character vectors for principal
@@ -46,7 +46,7 @@ An object of class \code{\link{ScMaSigPro}},
 subsetted based on the specified paths.
 }
 \description{
-`m3_select_path()` helps select branching paths from a from a 'Cell Dataset'
+\code{m3_select_path()} helps select branching paths from a from a 'Cell Dataset'
 object from Monocle3 TI Analysis. This function also has an in-built shiny app
 thats enabled interactive selection.
 }
