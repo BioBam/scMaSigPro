@@ -6,6 +6,9 @@ test_that("show() output is stable at every stage", {
   expect_snapshot(print(splat_design(2)))
   expect_snapshot(print(splat_fitted("default")))
   expect_snapshot(print(splat_clustered()))
+  # Appended last: unnamed snapshots are matched by position, so adding it here
+  # leaves the five snapshots above untouched.
+  expect_snapshot(print(multi_restruct()))
 })
 
 test_that("showPoly() prints the full model formula", {

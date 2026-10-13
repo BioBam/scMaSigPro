@@ -11,6 +11,13 @@ current <- build_golden()
 # real change in the model is caught. Discrete results compare exactly.
 TOL <- 1e-6
 
+# waldo (like all.equal) switches to an absolute difference when the mean
+# reference value is below the tolerance, so on the raw scale every p-value
+# below 1e-6 is effectively unchecked. Compare p-value leaves on the log10
+# scale as well; 1e-300 floors exact zeros (underflow).
+is_p_leaf <- function(path) grepl("^fits/[^/]+/(p_values|adj_p_values|sol)$", path)
+log_p <- function(x) log10(pmax(x, 1e-300))
+
 walk_compare <- function(cur, gold, path) {
   if (is.list(gold) && !is.data.frame(gold) && !is.null(names(gold))) {
     expect_identical(names(cur), names(gold), label = paste(path, "names"))
@@ -24,6 +31,12 @@ walk_compare <- function(cur, gold, path) {
     }
   } else {
     expect_equal(cur, gold, tolerance = TOL, label = path, expected.label = "golden")
+    if (is_p_leaf(path)) {
+      expect_equal(log_p(cur), log_p(gold),
+        tolerance = TOL,
+        label = paste(path, "(log10)"), expected.label = "golden"
+      )
+    }
   }
 }
 

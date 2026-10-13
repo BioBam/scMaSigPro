@@ -174,8 +174,10 @@ build_golden <- function() {
   options <- list(
     split_bins = freeze(dense_snapshot(sc.squeeze(splat_scmp(), split_bins = TRUE))),
     prune_bins = freeze(dense_snapshot(sc.squeeze(splat_scmp(), prune_bins = TRUE))),
-    fill_gaps = freeze(dense_snapshot(sc.squeeze(splat_scmp(), fill_gaps = TRUE))),
-    drop_trails = freeze(dense_snapshot(sc.squeeze(splat_scmp(), drop_trails = TRUE))),
+    # fill_gaps and drop_trails alone are no-ops on splat.sim; pair them with
+    # an option that creates a gap (prune_bins) or unequal paths (Doane: 9/8).
+    fill_gaps = freeze(dense_snapshot(sc.squeeze(splat_scmp(), prune_bins = TRUE, fill_gaps = TRUE))),
+    drop_trails = freeze(dense_snapshot(sc.squeeze(splat_scmp(), bin_method = "Doane", drop_trails = TRUE))),
     mean = freeze(dense_snapshot(sc.squeeze(splat_scmp(), aggregate = "mean")))
   )
 
@@ -218,7 +220,15 @@ build_golden <- function() {
     meta = list(
       frozen_version = "0.0.4",
       generated = format(Sys.time(), "%Y-%m-%d"),
-      r_version = R.version.string
+      r_version = R.version.string,
+      # Frozen as they are today, known to be wrong; these move in Phase 5.
+      known_wrong = c(
+        "squeeze/by_method/Freedman.Diaconis" = "ledger g: bin width used as count",
+        "squeeze/by_method/Scott.Normal" = "ledger g: bin width used as count",
+        "fits/default" = "ledger h: raw size factors as log-link offset",
+        "fits/vignette" = "ledger h: offsets recomputed in sc.t.fit",
+        "squeeze" = "ledger S3: breaks parsed from rounded cut() labels"
+      )
     ),
     sparse_cells = sorted_df(cSparse(binned)),
     squeeze = list(
