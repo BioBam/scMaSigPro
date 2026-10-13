@@ -18,7 +18,7 @@
       nCells: 200
       nFeatures: 100
       Pseudotime Range: 1 100
-      Branching Paths: Path1, Path2
+      Branching Paths: Path2, Path1
       Binned Pseudotime: 1-8(Range), 4.5(Mean), 
       Number of bins-> Path1: 8 Path2: 8
       Average bin Size-> Path1: 12 Path2: 13
@@ -32,7 +32,7 @@
       nCells: 200
       nFeatures: 100
       Pseudotime Range: 1 100
-      Branching Paths: Path1, Path2
+      Branching Paths: Path2, Path1
       Binned Pseudotime: 1-8(Range), 4.5(Mean), 
       Number of bins-> Path1: 8 Path2: 8
       Average bin Size-> Path1: 12 Path2: 13
@@ -47,7 +47,7 @@
       nCells: 200
       nFeatures: 100
       Pseudotime Range: 1 100
-      Branching Paths: Path1, Path2
+      Branching Paths: Path2, Path1
       Binned Pseudotime: 1-8(Range), 4.5(Mean), 
       Number of bins-> Path1: 8 Path2: 8
       Average bin Size-> Path1: 12 Path2: 13
@@ -64,7 +64,7 @@
       nCells: 200
       nFeatures: 100
       Pseudotime Range: 1 100
-      Branching Paths: Path1, Path2
+      Branching Paths: Path2, Path1
       Binned Pseudotime: 1-8(Range), 4.5(Mean), 
       Number of bins-> Path1: 8 Path2: 8
       Average bin Size-> Path1: 12 Path2: 13
@@ -81,7 +81,7 @@
       nCells: 1977
       nFeatures: 501
       Pseudotime Range: 0 62.806
-      Branching Paths: Root, Y_15, Y_18, Y_18_links_Y_15, Y_52
+      Branching Paths: Root, Y_15, Y_52, Y_18, Y_18_links_Y_15
       Binned Pseudotime: 1-28(Range), 13.39(Mean), 
       Number of bins-> Y_15: 23 Y_18: 24 Y_52: 19
       Average bin Size-> Y_15: 35 Y_18: 49 Y_52: 50

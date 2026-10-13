@@ -12,6 +12,7 @@
 #' @importFrom magrittr %>%
 #' @importFrom rlang :=
 #' @importFrom dplyr group_by filter row_number ungroup summarise summarize
+#' @importFrom SummarizedExperiment assay colData<-
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param ptime_col A character string representing the column name
@@ -398,12 +399,27 @@ sc.squeeze <- function(scmpObj,
   processed_binned_cell_metadata <- bind_rows(processed_binned_cell_metadata.list) %>%
     as.data.frame()
 
-  ## Add Processed Cell Matadata back with slot update
-  scmpObj@Sparse@colData <- DataFrame(processed_cell_metadata)
-
-  # Set the 'cell' column as rownames
+  # Put the cell metadata back in the column order of the counts: the
+  # per-path frames above were stacked path by path
   rownames(processed_cell_metadata) <- processed_cell_metadata$cell
-  processed_cell_metadata <- processed_cell_metadata[, colnames(processed_cell_metadata) != "cell", drop = FALSE]
+  assay_cells <- colnames(assay(scmpObj@Sparse, assay_name, withDimnames = FALSE))
+  if (is.null(assay_cells)) {
+    assay_cells <- colnames(scmpObj@Sparse)
+  }
+  is_binned <- assay_cells %in% rownames(processed_cell_metadata)
+  if (!all(is_binned)) {
+    warning(
+      sum(!is_binned), " cell(s) could not be assigned to a bin and are ",
+      "removed from the 'Sparse' slot."
+    )
+    scmpObj@Sparse <- scmpObj@Sparse[, is_binned]
+    assay_cells <- assay_cells[is_binned]
+  }
+  colData(scmpObj@Sparse) <- DataFrame(processed_cell_metadata[
+    match(assay_cells, rownames(processed_cell_metadata)), ,
+    drop = FALSE
+  ])
+
   rownames(processed_binned_cell_metadata) <- processed_binned_cell_metadata[[bin_col]]
 
   # Prune and Trails
@@ -472,14 +488,10 @@ sc.squeeze <- function(scmpObj,
     processed_binned_cell_metadata <- pB.frame
   }
 
-  compressed.sparse <- SingleCellExperiment(assays = list(
-    bulk.counts = as(
-      matrix(NA, nrow = 0, ncol = nrow(processed_binned_cell_metadata)),
-      "dgCMatrix"
-    )
-  ))
-  compressed.sparse@colData <- DataFrame(processed_binned_cell_metadata)
-  scmpObj@Dense <- compressed.sparse
+  # Bin metadata only; pb_counts() adds the assay
+  scmpObj@Dense <- SingleCellExperiment(
+    colData = DataFrame(processed_binned_cell_metadata)
+  )
 
   # Get Counts
   scmpObj <- pb_counts(
@@ -498,5 +510,6 @@ sc.squeeze <- function(scmpObj,
   scmpObj@Parameters@bin_col <- bin_col
   scmpObj@Parameters@bin_mem_col <- bin_mem_col
   scmpObj@Parameters@bin_size_col <- bin_size_col
+  methods::validObject(scmpObj)
   return(scmpObj)
 }

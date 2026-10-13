@@ -488,8 +488,9 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
 #' retrieve the counts. (Default = "counts").
 #'
 #' @return
-#' A matrix. The matrix includes pseudo bulk counts with each row being
-#' a gene and each column being a bin.
+#' An object of class \code{\link{ScMaSigPro}} whose `Dense` slot is rebuilt
+#' as a valid `SingleCellExperiment`: the `bulk.counts` assay (genes x bins)
+#' and the bin-level metadata.
 #'
 #' @details
 #' The function operates by iterating over each row of the pseudo_bulk_profile.
@@ -498,6 +499,10 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
 #' counts (depending on the specified method), and adds these to a new data frame
 #' of pseudo bulk counts. The result is a pseudo bulk counts data frame where
 #' each row is a gene and each column is a bin.
+#'
+#' Bins are identified by the rownames of the `Dense` cell metadata (see
+#' [cDense()]); these become the column names of `bulk.counts`. The `bin_col`
+#' column is used only when the metadata has no rownames.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
@@ -525,13 +530,25 @@ pb_counts <- function(scmpObj,
   counts <- scmpObj@Sparse@assays@data@listData[[assay_name]]
 
   # Get Pseudobulk Profile
-  pseudo_bulk_profile <- as.data.frame(colData(scmpObj@Dense))
+  bin_data <- colData(scmpObj@Dense)
+  pseudo_bulk_profile <- as.data.frame(bin_data)
 
   assertthat::assert_that(bin_mem_col %in% colnames(pseudo_bulk_profile),
     msg = paste0("'", bin_mem_col, "' does not exist in level.meta.data")
   )
   assertthat::assert_that(bin_col %in% colnames(pseudo_bulk_profile),
     msg = paste0("'", bin_col, "' does not exist in level.meta.data")
+  )
+
+  # Bins are named by the rownames of the bin metadata; these become the
+  # column names of the assay (sc.set.poly() and sc.p.vector() rely on it)
+  bin_ids <- rownames(bin_data)
+  if (is.null(bin_ids)) {
+    bin_ids <- as.character(bin_data[[bin_col]])
+    rownames(bin_data) <- bin_ids
+  }
+  assertthat::assert_that(anyDuplicated(bin_ids) == 0,
+    msg = "Bin names (the rownames of the 'Dense' cell metadata) must be unique."
   )
 
   # Get the meta-information for pseudobulking
@@ -565,10 +582,14 @@ pb_counts <- function(scmpObj,
   # Convert the list output of mclapply to a matrix and set the row names
   pb.counts <- do.call(cbind, pb.counts)
   rownames(pb.counts) <- rownames(counts)
-  colnames(pb.counts) <- meta.info[[bin_col]]
+  colnames(pb.counts) <- bin_ids
 
-  # Return the counts
-  scmpObj@Dense@assays@data@listData$bulk.counts <- as(pb.counts, "dgCMatrix")
+  # Rebuild Dense so that the assay and the bin metadata are parallel
+  scmpObj@Dense <- SingleCellExperiment(
+    assays = list(bulk.counts = as(pb.counts, "dgCMatrix")),
+    colData = bin_data
+  )
+  methods::validObject(scmpObj)
 
   # return
   return(scmpObj)
