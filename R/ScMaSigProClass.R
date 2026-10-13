@@ -1,19 +1,21 @@
 # ScMaSigProClass with all the super-classes
 # Author: Priyansh Srivastava
-# Date: 2019-05-01
 
 ###############################################################################
 #' @title ParameterConfig
 #'
 #' @description
 #' S4 Class to hold parameters used in the analysis. It is constantly updated
-#' asthe analysis progresses.
+#' as the analysis progresses.
 #'
 #' @slot bin_ptime_col A character string representing the column name
 #' for binned Pseudotime values in 'Dense' data. See `colData` from the
 #' \pkg{SingleCellExperiment} package.
-#' @slot path_prefix Update Description..
-#' @slot root_label Update Description..
+#' @slot path_prefix A character string, the prefix for branching path
+#' labels given to [as_scmp()] (Default is "Path"); [as_scmp()] also uses
+#' it as the default `path_col`.
+#' @slot root_label A character string, the label for root cells given to
+#' [as_scmp()] (Default is "root"). It is stored for reference only.
 #' @slot ptime_col A character string representing the column name
 #' for inferred Pseudotime values in 'Sparse' data. See `colData` from the
 #' \pkg{SingleCellExperiment} package.
@@ -30,7 +32,9 @@
 #' which cells per bin are stored.
 #' @slot anno_col A character string representing the column name for cell level
 #' metadata containing cell level annotations. (Default is "cell_type").
-#' @slot g Update Description..
+#' @slot g An integer, the number of features that [sc.p.vector()] fitted:
+#' those left after removing features with fewer than `min_na` values or with
+#' zero counts in every bin.
 #' @slot p_value Significance Level.
 #' @slot min_na Minimum values needed per gene across cells to estimate the
 #' model.
@@ -99,16 +103,16 @@ setClass(
         for (slot_name in char_slots) {
             slot_value <- slot(object, slot_name)
             if (length(slot_value) == 0 || !is.character(slot_value)) {
-                errors <- c(errors, paste(slot_name, "must not be empty and should
-                                  be of type character."))
+                errors <- c(errors, paste(
+                    slot_name,
+                    "must not be empty and should be of type character."
+                ))
             }
         }
 
         if (!is.integer(object@g)) {
             stop("Slot 'g' must be an integer.")
         }
-
-        if (!is.numeric(object@p_value)) {}
 
         if (!is.numeric(object@epsilon)) {
             stop("Slot 'epsilon' must be numeric.")
@@ -230,8 +234,7 @@ setClass(
 #' @keywords classes
 
 #' @author Priyansh Srivastava <spriyansh29@@gmail.com>
-#' @importFrom stats family gaussian poisson
-#' @importFrom utils data combn
+#' @importFrom stats gaussian
 #' @importFrom MASS negative.binomial
 
 # Define the VariableProfiles with the following slots:

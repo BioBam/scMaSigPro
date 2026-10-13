@@ -2,7 +2,7 @@
 % Please edit documentation in R/pb_helpers.R
 \name{pb_counts}
 \alias{pb_counts}
-\title{Create Pseduo-bulk Counts}
+\title{Create Pseudo-bulk Counts}
 \usage{
 pb_counts(
   scmpObj,

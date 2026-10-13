@@ -4,8 +4,6 @@
 #' `sc.filter()` creates lists of significant genes based on user-specified
 #' constraints.
 #'
-#' @importFrom maSigPro get.siggenes
-#'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param rsq Coefficient of determination or R-squared value threshold.
 #' @param includeInflu Whether to include genes with influential observations.
@@ -64,7 +62,7 @@ sc.filter <- function(scmpObj,
         all(
             vars %in% c("all", "each", "groups")
         ),
-        msg = "Invalid selction for 'vars'"
+        msg = "Invalid selection for 'vars'"
     )
 
     # Initiate empty list
@@ -138,32 +136,6 @@ sc.filter <- function(scmpObj,
         # Add names
         names(sig.list) <- avail_groups
     }
-
-    # # Create a named tstep
-    ## Donot remove this ##
-    # tstep <- list(
-    #   dis = scmpObj@design@predictor,
-    #   edesign = scmpObj@design@alloc,
-    #   groups.vector = scmpObj@estimate@path,
-    #   sol = showSol(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
-    #   coefficients = showCoeff(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
-    #   sig.profiles = showSigProf(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
-    #   group.coeffs = scmpObj@estimate@group.coeffs
-    # )
-
-    # sig.genes.s3 <- get.siggenes(tstep,
-    #   rsq = rsq, add.IDs = FALSE, IDs = NULL, matchID.col = 1,
-    #   only.names = FALSE, vars = vars,
-    #   intercept = intercept,
-    #   groups.vector = NULL, trat.repl.spots = "none",
-    #   r = 0.7
-    # )
-
-    # Create Object
-    # siggenes.object <- new("Significant",
-    #   summary = sig.genes.s3$summary,
-    #   sig.genes = sig.genes.s3$sig.genes
-    # )
 
     # Create Object
     siggenes.object <- new("Significant",

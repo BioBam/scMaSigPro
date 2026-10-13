@@ -74,18 +74,16 @@ create_range <- function(x, bin_size_colname = "scmp_bin_size",
     y <- y %>% stringr::str_remove_all(pattern = "\\[|\\]|\\(|\\)")
 
     # Split the character string by comma and extract the first element (lower bound of the range)
-    y1 <- as.numeric(sapply(strsplit(y, ","), "[", 1))
-    # Extract the first element
-    # y1 <- as.numeric(vapply(strsplit(y, ","), function(x) x[1], numeric(1)))
+    y1 <- as.numeric(vapply(strsplit(y, ","), function(z) z[1], character(1)))
 
     # Split the character string by comma and extract the second element (upper bound of the range)
-    y2 <- as.numeric(sapply(strsplit(y, ","), "[", 2))
-    # y2 <- as.numeric(vapply(strsplit(y, ","), function(x) x[2], numeric(1)))
+    y2 <- as.numeric(vapply(strsplit(y, ","), function(z) z[2], character(1)))
 
     if (verbose) {
-        message(paste0(
-            "Lower Bound:", y1, ", Upper Bound:", y2, ", Number of cells:", x[[bin_size_colname]]
-        ))
+        message(
+            "Lower Bound:", y1, ", Upper Bound:", y2, ", Number of cells:",
+            x[[bin_size_colname]]
+        )
     }
 
     # Combine the lower bound, upper bound, bin size, and binned time into a numeric vector
@@ -165,7 +163,11 @@ estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
             # Bin size is proportional to the standard deviation and inversely proportional to the cube root of the number of data points.
             3.49 * abs(sd(time_vector)) / nPoints^(1 / 3)
         },
-        stop(paste("Invalid bin_method: ", bin_method, ". Please choose one of the following: 'Freedman.Diaconis', 'Sqrt', 'Sturges', 'Rice', 'Doane', 'Scott.Normal'"))
+        stop(
+            "Invalid bin_method: ", bin_method, ". Please choose one of the ",
+            "following: 'Freedman.Diaconis', 'Sqrt', 'Sturges', 'Rice', ",
+            "'Doane', 'Scott.Normal'"
+        )
     )
 
 
@@ -177,15 +179,18 @@ estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
 ###############################################################################
 #' @title Extract Fitting
 #'
-#' @param reg Regression Result form `stats::glm()`
+#' @param reg Regression Result from `stats::glm()`
 #' @param lmf Full model object generated from the `stats::glm()`
 #' @param model.glm.0 Intercept model object generated from the `stats::glm()`
 #' @param dis Dataframe for the predictors
 #' @param family Family used for modelling the data.
-#' @param name description
-#' @param vars.in description
+#' @param name Feature (gene) name, used as the row name of `sol` and as
+#' the column name of the gene's entry in `influ.info`.
+#' @param vars.in Names of the predictors (the columns of `dis`); they fix
+#' the order of the returned coefficients, p-values and t-scores.
 #' @param alfa Significance threshold (Q-Value)
-#' @param influ.info description
+#' @param influ.info Matrix of influential observations collected so far;
+#' a column for this gene is appended when it has influential observations.
 #'
 #' @keywords internal
 extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, alfa, influ.info) {
@@ -207,7 +212,9 @@ extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, a
         influ.info <- as.matrix(influ.info)
     }
     result <- summary(reg)
-    if ((!(result$aic == -Inf) & !is.na(result$aic) & family$family == "gaussian") | family$family != "gaussian") {
+    gaussian_ok <- !(result$aic == -Inf) && !is.na(result$aic) &&
+        family$family == "gaussian"
+    if (gaussian_ok || family$family != "gaussian") {
         if (family$family == "gaussian") {
             test <- anova(model.glm.0, reg, test = "F")
             p.value <- test[6][2, 1]
@@ -224,7 +231,7 @@ extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, a
         beta.p.valor <- result$coefficients[, 4]
         coeff <- rep(0, (length(vars.in) + 1))
         if (length(novar) != 0) {
-            for (m in 1:length(novar)) {
+            for (m in seq_along(novar)) {
                 coeff[maSigPro::position(dis, novar[m]) + 1] <- NA
             }
         }
@@ -356,7 +363,7 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
     colnames(uniform_bin_df) <- colnames(bin_table)
 
     # Binning one-by one
-    for (i in c(1:nrow(bin_table))) {
+    for (i in seq_len(nrow(bin_table))) {
         # histo_bin
         current_bin_df <- c(unlist(bin_table[i, , drop = FALSE]))
 
@@ -382,7 +389,11 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
             )
             # Validation
             if (verbose) {
-                message(paste("Splitting bin with", current_bin_size, "cells into", nrow(small_splitted_bin_df), "with sizes as", paste(small_splitted_bin_df[[bin.size]], collapse = ", ")))
+                message(
+                    "Splitting bin with ", current_bin_size, " cells into ",
+                    nrow(small_splitted_bin_df), " with sizes as ",
+                    paste(small_splitted_bin_df[[bin.size]], collapse = ", ")
+                )
             }
 
             # Add new Row
@@ -391,7 +402,7 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
             uniform_bin_df <- rbind(uniform_bin_df, current_bin_df)
             if (verbose) {
                 if (current_bin_size != 0) {
-                    message(paste("Skipping bin with size", current_bin_size))
+                    message("Skipping bin with size ", current_bin_size)
                 }
             }
         }
@@ -406,7 +417,7 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
 }
 
 ################################################################################
-#' @title Create Pseduo-bulk Counts
+#' @title Create Pseudo-bulk Counts
 #'
 #' @description
 #' `pb_counts()` creates a dataframe of pseudo bulk counts from single
@@ -453,7 +464,7 @@ pb_counts <- function(scmpObj,
                       cluster_count_by = "sum") {
     # Check Object Validity
     assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'scMaSigPro'."
+        msg = "Please provide object of class 'ScMaSigPro'."
     )
 
     # Count slot
@@ -461,7 +472,7 @@ pb_counts <- function(scmpObj,
         all(
             assay_name %in% names(scmpObj@Sparse@assays@data@listData)
         ),
-        msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObj.")
+        msg = paste0("'", assay_name, "' ", "doesn't exist in scmpObj.")
     )
 
     # Get assay
@@ -493,7 +504,7 @@ pb_counts <- function(scmpObj,
     meta.info <- pseudo_bulk_profile[, c(bin_mem_col, bin_col)]
 
     # Run mclapply
-    pb.counts <- lapply(1:nrow(meta.info), function(i) {
+    pb.counts <- lapply(seq_len(nrow(meta.info)), function(i) {
         # Get the bin.info
         bin <- meta.info[i, , drop = FALSE]
 

@@ -5,7 +5,6 @@
 #' object. It is a wrapper `UpSetR::upset`.
 #'
 #' @importFrom S4Vectors isEmpty
-#' @importFrom utils packageVersion
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param min_intersection_size Minimal number of observations in an intersection
@@ -29,14 +28,6 @@ plotIntersect <- function(scmpObj,
                           width_ratio = 0.1,
                           show_sets_size = FALSE,
                           return = FALSE) {
-    # Debug
-    # scmpObj <- multi_scmp_ob
-    # min_intersection_size <- 2
-    # keep_empty_groups <- FALSE
-    # width_ratio <- 0.1
-    # show_sets_size <- FALSE
-    # verbose <- TRUE
-
     # Check the data
     assertthat::assert_that(
         is(scmpObj, "ScMaSigPro"),
@@ -45,7 +36,7 @@ plotIntersect <- function(scmpObj,
 
     # Check if siggenes results exist for groups
     assertthat::assert_that(!isEmpty(scmpObj@Significant@genes),
-        msg = "'sig.genes@Summary' slot is empty, please run 'sc.get.siggenes'"
+        msg = "'Significant' slot is empty, please run 'sc.filter()' first."
     )
 
     if (!keep_empty_groups) {

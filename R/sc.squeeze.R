@@ -5,13 +5,12 @@
 #' of equal size using entropy-based binning method. It automatically calculates
 #' the optimal number of bins using one of the supported methods.
 #'
-#' @importFrom parallel mclapply detectCores
+#' @importFrom parallel mclapply
 #' @importFrom entropy discretize
-#' @importFrom dplyr left_join join_by mutate select bind_rows group_by_at
-#' @importFrom dplyr summarise rename_with
+#' @importFrom dplyr bind_rows group_by_at
 #' @importFrom magrittr %>%
 #' @importFrom rlang :=
-#' @importFrom dplyr group_by filter row_number ungroup summarise summarize
+#' @importFrom dplyr group_by filter ungroup summarise summarize
 #' @importFrom SummarizedExperiment assay colData<-
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
@@ -76,9 +75,6 @@ sc.squeeze <- function(scmpObj,
                        aggregate = "sum",
                        fill_gaps = FALSE,
                        additional_params = list(use_unique_time_points = FALSE)) {
-    # suppressPackageStartupMessages(library(entropy))
-    # suppressPackageStartupMessages(library(assertthat))
-    # suppressPackageStartupMessages(library(SingleCellExperiment))
     # Initiate Variable
     scmp_bin_lower_bound <- "scmp_l_bound"
     scmp_bin_upper_bound <- "scmp_u_bound"
@@ -86,7 +82,7 @@ sc.squeeze <- function(scmpObj,
 
     # Check Object Validity
     assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'scMaSigPro'."
+        msg = "Please provide object of class 'ScMaSigPro'."
     )
 
     # Extract cell metadata
@@ -107,14 +103,14 @@ sc.squeeze <- function(scmpObj,
         all(
             assay_name %in% names(scmpObj@Sparse@assays@data@listData)
         ),
-        msg = paste0("'", assay_name, "' ", "doesn't exit in scmpObj.")
+        msg = paste0("'", assay_name, "' ", "doesn't exist in scmpObj.")
     )
 
     # Checks
     assertthat::assert_that(ptime_col %in% colnames(raw_cell_metadata),
         msg = paste0(
-            "'", ptime_col,
-            "' does not exist in cell.level.metadata Please review the 'ptime_col' parameter."
+            "'", ptime_col, "' does not exist in cell.level.metadata. ",
+            "Please review the 'ptime_col' parameter."
         )
     )
     assertthat::assert_that(path_col %in% colnames(raw_cell_metadata),
@@ -136,8 +132,10 @@ sc.squeeze <- function(scmpObj,
     )
     if (!is.null(additional_params)) {
         assertthat::assert_that(is.list(additional_params),
-            msg = "Please provide 'additional_params' as a named list.
-      See details for more information"
+            msg = paste(
+                "Please provide 'additional_params' as a named list.",
+                "See details for more information"
+            )
         )
 
         assertthat::assert_that(names(additional_params) %in% c("use_unique_time_points"),
@@ -157,16 +155,18 @@ sc.squeeze <- function(scmpObj,
     )
 
     if (verbose) {
-        message(paste("Computing optimal bin-size with", bin_method, "method."))
-        message(paste("Number of available path in the dataset:", length(avail.paths)))
-        message(paste("Paths:", paste(avail.paths, collapse = ", ")))
-        message(paste("Drop factor:", drop_fac))
+        message("Computing optimal bin-size with ", bin_method, " method.")
+        message(
+            "Number of available path in the dataset: ", length(avail.paths)
+        )
+        message("Paths: ", paste(avail.paths, collapse = ", "))
+        message("Drop factor: ", drop_fac)
     }
 
     # Order
     avail.paths <- avail.paths[order(avail.paths)]
     if (verbose) {
-        message(paste("Setting", avail.paths[1], "as reference."))
+        message("Setting ", avail.paths[1], " as reference.")
     }
 
     # Apply transformations on data
@@ -197,13 +197,13 @@ sc.squeeze <- function(scmpObj,
             time_vector <- unique(time_vector)
             length_n <- length(time_vector)
             if (v) {
-                message(paste("Using only unique points in the time series"))
+                message("Using only unique points in the time series")
             }
         }
 
         # Validation
         if (length_n <= 7) {
-            message(paste("Time points are already less than 7 in", path))
+            message("Time points are already less than 7 in ", path)
         }
 
         # Calculate Optimal Number of Bins
@@ -215,14 +215,14 @@ sc.squeeze <- function(scmpObj,
                 ))
 
                 if (verbose) {
-                    message(paste(
-                        "Estimated Bin Sizes =", estBins, "with",
-                        bin_method, "binning for", length_n, "time points for", path
-                    ))
+                    message(
+                        "Estimated Bin Sizes = ", estBins, " with ", bin_method,
+                        " binning for ", length_n, " time points for ", path
+                    )
                 }
             },
             error = function(e) {
-                message(paste("Error message: ", e$message))
+                message("Error message: ", e$message)
                 stop("Unable to estimate bin size")
             }
         )
@@ -237,10 +237,10 @@ sc.squeeze <- function(scmpObj,
 
         # Client-Verbose
         if (verbose) {
-            message(paste(
-                "For", path, ",", length_n, "time points has been compressed to",
-                nrow(bin_table), "bins"
-            ))
+            message(
+                "For ", path, ", ", length_n,
+                " time points has been compressed to ", nrow(bin_table), " bins"
+            )
         }
 
         # Get Mean and SD
@@ -257,10 +257,10 @@ sc.squeeze <- function(scmpObj,
         # Split bins
         if (split) {
             if (verbose) {
-                message(paste(
-                    "Optimizing bin sizes, with maximum allowed bin size as",
+                message(
+                    "Optimizing bin sizes, with maximum allowed bin size as ",
                     max.allowed
-                ))
+                )
             }
 
             # Adjust maximum Size
@@ -290,10 +290,11 @@ sc.squeeze <- function(scmpObj,
                 it <- it + 1
             }
             if (verbose) {
-                message(paste(
-                    "Finally, for", path, ",", length_n, "time points has been compressed to",
-                    nrow(bin_table), "bins and the sum is ", sum(bin_table[[bin.size]])
-                ))
+                message(
+                    "Finally, for ", path, ", ", length_n,
+                    " time points has been compressed to ", nrow(bin_table),
+                    " bins and the sum is ", sum(bin_table[[bin.size]])
+                )
             }
         }
 
@@ -301,19 +302,15 @@ sc.squeeze <- function(scmpObj,
         bin_table[[bin_ptime_col]] <- as.numeric(rownames(bin_table))
 
         # Loop over each row of raw_cell_metadata
-        for (i in 1:nrow(path.frame)) {
+        for (i in seq_len(nrow(path.frame))) {
             # Get row from the Path frame
             raw_i <- path.frame[i, , drop = FALSE]
-            # print(paste("Completed raw_i <- path.frame[i, , drop = FALSE] for", path))
-
-
-            # View(raw_i)
-            # stop()
             pseudotime_i <- raw_i[[ptime_col]]
-            # print(paste("Completed pseudotime_i <- raw_i[[ptime_col]] for", path))
 
             # Check limits
-            if (pseudotime_i >= min(bin_table[, lbound]) & pseudotime_i <= max(bin_table[, ubound])) {
+            in_range <- pseudotime_i >= min(bin_table[, lbound]) &&
+                pseudotime_i <= max(bin_table[, ubound])
+            if (in_range) {
                 # Check if the last elemenst (Last interval close both)
                 if (max(path.frame[[ptime_col]] == pseudotime_i)) {
                     matching_bins <- bin_table[
@@ -353,14 +350,8 @@ sc.squeeze <- function(scmpObj,
         processed.path.frame <- as.data.frame(path.frame)
         processed.path.frame <- processed.path.frame[!is.na(processed.path.frame[[bin_ptime_col]]), , drop = FALSE]
 
-        # print(paste("processed.path.frame <- as.data.frame(path.frame)", path))
-
         # Set the 'cell' column as rownames
         rownames(processed.path.frame) <- processed.path.frame$cell
-
-        # print(paste("rownames(processed.path.frame) <- processed.path.frame$cell", path))
-
-        # print(paste("setted rownames for", path))
 
         # Create Binned Path Frame
         binned.path.frame <- processed.path.frame %>%
@@ -443,7 +434,7 @@ sc.squeeze <- function(scmpObj,
             binned.path.frame <- processed_binned_cell_metadata[processed_binned_cell_metadata[[path_col]] == path, , drop = FALSE]
 
             # Generate refernce
-            ref_time <- c(1:nrow(binned.path.frame))
+            ref_time <- seq_len(nrow(binned.path.frame))
 
             # Align with the binned Pseudotime
             binned.pseudotime <- binned.path.frame[[bin_ptime_col]]
@@ -482,7 +473,10 @@ sc.squeeze <- function(scmpObj,
         # Print a message about the rows that will be removed
         if (verbose) {
             if (nrow(rows_to_remove) > 0) {
-                message(paste("Dropped trailing bin", rows_to_remove[[bin_ptime_col]], "from", rows_to_remove[[path_col]]))
+                message(sprintf(
+                    "Dropped trailing bin %s from %s\n",
+                    rows_to_remove[[bin_ptime_col]], rows_to_remove[[path_col]]
+                ), appendLF = FALSE)
             }
         }
 

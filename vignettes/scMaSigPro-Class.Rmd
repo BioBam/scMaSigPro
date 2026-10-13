@@ -267,16 +267,6 @@ for (i in rownames(head(pTime_path_up, 4))) {
 ggpubr::ggarrange(pTime_path_up.plots[[1]], pTime_path_up.plots[[2]], pTime_path_up.plots[[3]], pTime_path_up.plots[[4]], ncol = 2, nrow = 2, labels = c("A", "B", "C", "D"))
 ```
 
-```{r, echo=FALSE}
-# library(scMaSigPro)
-# library(assertthat)
-# data("scmp.ob", package = "scMaSigPro")
-# scmp.ob.more <- readRDS("../../masigpro.rds")
-# scmp.ob.empty <- readRDS("../../empty.rds")
-#
-# get_features(scmpObj = scmp.ob.more, query = "pseudotime_path")
-```
-
 This concludes the vignette of `scMaSigPro-Class`. Please refer 
 to other vignettes for more in-depth analysis.
 

@@ -4,7 +4,7 @@
 #' Plot trends of multiple genes (clustered) across the binned pseudotime.
 #'
 #' @import ggplot2
-#' @importFrom stats complete.cases cutree hclust
+#' @importFrom stats cutree hclust
 #' @importFrom mclust Mclust
 #' @importFrom stats as.dist cor kmeans
 #'
@@ -52,25 +52,6 @@ plotTrendCluster <- function(scmpObj,
                              points = TRUE,
                              parallel = FALSE,
                              loess_span = 0.8) {
-    # # # Debugg
-    # scmpObj <- multi_scmp_ob_A
-    # xlab <- "Pooled Pseudotime"
-    # ylab <- "Pseudobulk Expression"
-    # plot <- "counts"
-    # summary_mode <- "median"
-    # logs <- TRUE
-    # logType <- "log"
-    # smoothness <- 1
-    # includeInflu <- TRUE
-    # verbose <- TRUE
-    # pseudoCount <- 1
-    # significant <- FALSE
-    # c <- curves <- TRUE
-    # l <- lines <- TRUE
-    # p <- points <- TRUE
-    # parallel <- FALSE
-
-
     # Global vars
     scmp_clusters <- "scmp_clusters"
     feature_id <- "feature_id"
@@ -353,11 +334,6 @@ plotTrendCluster <- function(scmpObj,
         }
     }
 
-
-    # View(points_combined)
-    # View(curves_combined)
-    # View(lines_combined)
-
     # Initiate plotting
     p <- ggplot()
 
@@ -380,8 +356,6 @@ plotTrendCluster <- function(scmpObj,
         p <- p + geom_smooth(
             data = curves_combined,
             se = FALSE,
-            # formula =  y ~ s(x , k = scmpObj@Parameters@poly_degree,  bs = "cs"),
-            # method = "gam",
             formula = y ~ x,
             method = "loess", span = loess_span,
             aes(

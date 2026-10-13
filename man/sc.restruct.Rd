@@ -16,8 +16,7 @@ sc.restruct(
 )
 }
 \arguments{
-\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.
-path assignment in 'Sparse' or 'Dense' data.}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
 \item{end_node_list}{A list of end nodes in of the branch.}
 
@@ -40,7 +39,11 @@ An object of class \code{\link{ScMaSigPro}}, with updated \code{Dense}
 slot.
 }
 \description{
-\code{sc.restruct()} Add Description
+\code{sc.restruct()} rebuilds the binned data so that every end path starts at
+the root: the bins of each link node are added to the paths it links, the
+root bins are added to every end node, the binned pseudotime of the later
+bins is shifted to follow them, and the pseudo-bulk counts are recomputed
+with \code{\link[=pb_counts]{pb_counts()}}.
 }
 \seealso{
 \code{\link{estBinSize}}, \code{\link[entropy]{discretize}},

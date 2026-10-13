@@ -25,7 +25,7 @@ plotBinTile <- function(scmpObj,
                         bin_ptime_col = scmpObj@Parameters@bin_ptime_col) {
     # Check Object Validity
     assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'scMaSigPro'."
+        msg = "Please provide object of class 'ScMaSigPro'."
     )
 
     # Check whether the compression data exist or not

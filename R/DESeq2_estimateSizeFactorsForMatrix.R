@@ -61,7 +61,7 @@ scmp_estimateSizeFactorsForMatrix <- function(counts, locfunc = stats::median,
             exp(locfunc((log(cnts) - loggeomeans)[is.finite(loggeomeans) & cnts > 0]))
         })
     } else {
-        if (!(is.numeric(controlGenes) | is.logical(controlGenes))) {
+        if (!(is.numeric(controlGenes) || is.logical(controlGenes))) {
             stop("controlGenes should be either a numeric or logical vector")
         }
         loggeomeansSub <- loggeomeans[controlGenes]

@@ -24,3 +24,18 @@ test_that("showParams() lists every parameter used so far", {
     expect_true(all(c("poly_degree", "p_value", "offset", "log_offset", "link", "distribution") %in% params$parameters))
     expect_snapshot(params)
 })
+
+test_that("show*() accessors have no view or return argument", {
+    fns <- list(
+        showCoeff = showCoeff, showGroupCoeff = showGroupCoeff,
+        showInflu = showInflu, showParams = showParams,
+        showSigProf = showSigProf, showSol = showSol, showTS = showTS
+    )
+    for (fn in names(fns)) {
+        expect_false(any(c("view", "return") %in% names(formals(fns[[fn]]))),
+            label = fn
+        )
+    }
+    # Calls that still pass view = or return = now fail
+    expect_error(showCoeff(splat_fitted("default"), view = TRUE))
+})

@@ -27,7 +27,10 @@ plotDiagnostics <- function(scmpObj,
 
     # Check model type
     assertthat::assert_that(all(model %in% c("optimized", "full", "intercept")),
-        msg = paste("The requested gene is not available in the significant genes list")
+        msg = paste(
+            "Invalid 'model', please select one of 'optimized', 'full' or",
+            "'intercept'"
+        )
     )
 
     # Get all the available genes

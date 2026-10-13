@@ -21,7 +21,7 @@ test_that("named assays can be set and retrieved in both slots", {
     m <- log1p(eSparse(ob))
     expect_message(eSparse(ob, "logcounts") <- m, "Creating a new assay")
     expect_equal(eSparse(ob, "logcounts"), m)
-    expect_warning(eSparse(ob, "logcounts") <- m, "Overwritting")
+    expect_warning(eSparse(ob, "logcounts") <- m, "Overwriting")
 
     d <- eDense(ob) * 2
     expect_message(eDense(ob, "scaled") <- d, "Creating a new assay")

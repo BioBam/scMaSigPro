@@ -2,16 +2,12 @@
 % Please edit documentation in R/show_functions.R
 \name{showSigProf}
 \alias{showSigProf}
-\title{Show or Return the counts for non-flat profile.}
+\title{Return the counts for non-flat profile.}
 \usage{
-showSigProf(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE)
+showSigProf(scmpObj, includeInflu = FALSE)
 }
 \arguments{
 \item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
-
-\item{view}{Whether to view the data in the explorer. (Default: FALSE)}
-
-\item{return}{Whether to return the data. (Default: TRUE)}
 
 \item{includeInflu}{Whether to include genes with influential observations.}
 }
@@ -19,7 +15,7 @@ showSigProf(scmpObj, view = FALSE, return = TRUE, includeInflu = FALSE)
 Pseudo-bulk counts as matrix for genes with non-flat profiles.
 }
 \description{
-This function is used to view or return the pseudo-bulk counts of the genes
+This function returns the pseudo-bulk counts of the genes
 with non-flat profiles. from the provided scMaSigPro object.
 }
 \author{

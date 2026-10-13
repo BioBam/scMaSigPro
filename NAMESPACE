@@ -6,7 +6,6 @@ export("eDense<-")
 export("eSparse<-")
 export("pathAssign<-")
 export("predictors<-")
-export(.ScMaSigPro_show)
 export(as_scmp)
 export(cDense)
 export(cSparse)
@@ -51,17 +50,13 @@ exportMethods(eSparse)
 exportMethods(pathAssign)
 exportMethods(predictors)
 import(ggplot2)
-importFrom(MASS,
-  glm.nb,
-  negative.binomial
-)
+importFrom(MASS,negative.binomial)
 importFrom(MatrixGenerics,
   rowMeans,
   rowSums
 )
 importFrom(S4Vectors,
   DataFrame,
-  coolcat,
   isEmpty
 )
 importFrom(SingleCellExperiment,
@@ -77,12 +72,6 @@ importFrom(dplyr,
   filter,
   group_by,
   group_by_at,
-  join_by,
-  left_join,
-  mutate,
-  rename_with,
-  row_number,
-  select,
   summarise,
   summarize,
   ungroup
@@ -90,7 +79,6 @@ importFrom(dplyr,
 importFrom(e1071,skewness)
 importFrom(entropy,discretize)
 importFrom(maSigPro,
-  get.siggenes,
   make.design.matrix,
   reg.coeffs
 )
@@ -103,42 +91,30 @@ importFrom(methods,
   slot,
   slotNames
 )
-importFrom(parallel,
-  detectCores,
-  mclapply
-)
+importFrom(parallel,mclapply)
 importFrom(parallelly,availableCores)
 importFrom(rlang,":=")
 importFrom(stats,
   IQR,
   anova,
   as.dist,
-  complete.cases,
   cor,
   cutree,
   dist,
-  family,
   fitted,
   gaussian,
   glm,
-  glm.control,
   hclust,
   influence.measures,
   kmeans,
   median,
-  na.omit,
   p.adjust,
-  poisson,
   predict,
   residuals,
   rstandard,
   sd
 )
 importFrom(utils,
-  View,
-  combn,
-  data,
-  packageVersion,
   setTxtProgressBar,
   txtProgressBar
 )

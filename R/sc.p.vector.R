@@ -4,10 +4,10 @@
 #' Performs a regression fit for each gene taking all variables present in the
 #' model.
 #'
-#' @importFrom stats anova dist glm median na.omit p.adjust glm.control
+#' @importFrom stats anova dist glm median p.adjust
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @importFrom parallelly availableCores
-#' @importFrom MASS negative.binomial glm.nb
+#' @importFrom MASS negative.binomial
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param p_value Significance level used for variable selection in the stepwise
@@ -78,7 +78,6 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     family[["link"]] <- link
 
     # Add check
-    # assertthat::assert_that((dat@Dim[1] > 1), msg = paste(min_na, "for 'min_na' is too high. Try lowering the threshold."))
     assertthat::assert_that(min_na <= ncol(dat),
         msg = paste(
             min_na,
@@ -89,14 +88,8 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     # Removing rows with many missings:
     count.na <- function(x) (length(x) - length(x[is.na(x)]))
     dat <- dat[apply(dat, 1, count.na) >= min_na, ]
-    # if(verbose){
-    #     message(paste("'min_na' is set at", min_na))
-    #     message(paste("After filtering with 'min_na'", scmpObj@Dense@assays@data@listData$bulk.counts@Dim[1] - dat@Dim[1], "gene are dropped"))
-    # }
 
     # Removing rows with all zeros:
-    # dat[is.na(dat)] <- 0
-    # dat <- dat[rowSums(dat) != 0, , drop = FALSE]
     sumatot <- apply(dat, 1, sum)
     counts0 <- which(sumatot == 0)
     if (length(counts0) > 0) {
@@ -118,7 +111,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         }
         scmpObj@Design@offset <- offsetData
     } else {
-        offsetData <- NULL # scmpObj@Design@offset
+        offsetData <- NULL
     }
 
     if (parallel) {
@@ -135,7 +128,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
             numCores <- n_cores
         }
         if (verbose) {
-            message(paste("Running with", numCores, "cores..."))
+            message("Running with ", numCores, " cores...")
         }
     } else {
         numCores <- 1
@@ -144,41 +137,12 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         }
     }
 
-    # Check for weight usage
-    useWeights <- FALSE
-    logWeights <- FALSE
-    useInverseWeights <- FALSE
-    if (useWeights) {
-        # Get the pathframe
-        compressed.data <- as.data.frame(scmpObj@Dense@colData)
-
-        # Get bin_name and bin size
-        weight_df <- compressed.data[, c(scmpObj@Parameters@bin_size_colname),
-            drop = TRUE
-        ]
-
-        # Set names
-        names(weight_df) <- rownames(compressed.data)
-
-        # Log of weights
-        if (logWeights) {
-            weight_df <- log(weight_df)
-        }
-
-        # Take inverse weights
-        if (useInverseWeights) {
-            weight_df <- 1 / weight_df
-        }
-    } else {
-        weight_df <- NULL
-    }
     p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat,
                                             dis_lapply = dis,
                                             family_lapply = family,
                                             epsilon_lapply = epsilon,
                                             offsetdata_lapply = offsetData,
                                             pb_lapply = pb,
-                                            weights_lapply = weight_df,
                                             verbose_lapply = verbose,
                                             max_it_lapply = max_it) {
         y <- as.numeric(dat_lapply[i, ])
@@ -197,7 +161,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         # Set full Model
         model.glm <- glm(y ~ .,
             data = dis_lapply, family = family_lapply, epsilon = epsilon_lapply,
-            offset = offsetdata_lapply, weights = weights_lapply,
+            offset = offsetdata_lapply,
             maxit = max_it_lapply
         )
         sc_p_val <- NA
@@ -206,7 +170,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         } else {
             model.glm.0 <- glm(y ~ 1,
                 family = family_lapply, epsilon = epsilon_lapply,
-                offset = offsetdata_lapply, weights = weights_lapply,
+                offset = offsetdata_lapply,
                 maxit = max_it_lapply
             )
 
@@ -222,10 +186,9 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
 
         return(sc_p_val)
     }, mc.cores = numCores)
-    # Stop the cluster
 
     names(p.vector.list) <- rownames(dat)
-    sc.p.vector <- unlist(p.vector.list, recursive = T, use.names = T)
+    sc.p.vector <- unlist(p.vector.list, recursive = TRUE, use.names = TRUE)
     #----------------------------------------------------------------------
     # Correct p-values using FDR correction and select significant genes
     p.adjusted <- unlist(
@@ -233,7 +196,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
             method = mt_correction,
             n = length(sc.p.vector)
         ),
-        recursive = T, use.names = T
+        recursive = TRUE, use.names = TRUE
     )
     names(p.adjusted) <- names(sc.p.vector)
     genes.selected <- rownames(dat)[which(p.adjusted <= p_value)]
@@ -260,12 +223,9 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         # Update Slot
         scmpObj@Profile <- profile.obj
 
-        # Update Parameter Slot useInverseWeights
-        # scmpObj@Parameters@useWeights <- useWeights
+        # Update Parameter Slot
         scmpObj@Parameters@log_offset <- log_offset
-        # scmpObj@Parameters@logWeights <- logWeights
         scmpObj@Parameters@max_it <- as.integer(max_it)
-        # scmpObj@Parameters@useInverseWeights <- useInverseWeights
         scmpObj@Parameters@offset <- offset
         scmpObj@Parameters@p_value <- p_value
         scmpObj@Parameters@min_na <- min_na

@@ -7,7 +7,7 @@
 \title{ParameterConfig}
 \description{
 S4 Class to hold parameters used in the analysis. It is constantly updated
-asthe analysis progresses.
+as the analysis progresses.
 }
 \section{Slots}{
 
@@ -16,9 +16,12 @@ asthe analysis progresses.
 for binned Pseudotime values in 'Dense' data. See \code{colData} from the
 \pkg{SingleCellExperiment} package.}
 
-\item{\code{path_prefix}}{Update Description..}
+\item{\code{path_prefix}}{A character string, the prefix for branching path
+labels given to \code{\link[=as_scmp]{as_scmp()}} (Default is "Path"); \code{\link[=as_scmp]{as_scmp()}} also uses
+it as the default \code{path_col}.}
 
-\item{\code{root_label}}{Update Description..}
+\item{\code{root_label}}{A character string, the label for root cells given to
+\code{\link[=as_scmp]{as_scmp()}} (Default is "root"). It is stored for reference only.}
 
 \item{\code{ptime_col}}{A character string representing the column name
 for inferred Pseudotime values in 'Sparse' data. See \code{colData} from the
@@ -43,7 +46,9 @@ which cells per bin are stored.}
 \item{\code{anno_col}}{A character string representing the column name for cell level
 metadata containing cell level annotations. (Default is "cell_type").}
 
-\item{\code{g}}{Update Description..}
+\item{\code{g}}{An integer, the number of features that \code{\link[=sc.p.vector]{sc.p.vector()}} fitted:
+those left after removing features with fewer than \code{min_na} values or with
+zero counts in every bin.}
 
 \item{\code{p_value}}{Significance Level.}
 
