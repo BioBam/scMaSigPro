@@ -23,12 +23,12 @@ for binned Pseudotime values in 'Dense' data.}
 path assignment in 'Sparse' or 'Dense' slot.}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}, with updated `Design`
+An object of class \code{\link{ScMaSigPro}}, with updated \code{Design}
 slot.
 }
 \description{
 Set up polynomial models and create Predictor Matrix that will contain the
-independent variables. It is a wrapper around `maSigPro::make.design.matrix`.
+independent variables. It is a wrapper around \code{maSigPro::make.design.matrix}.
 }
 \references{
 {Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.

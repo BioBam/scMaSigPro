@@ -11,17 +11,17 @@ select_longer_vector(vector1, vector2, vector1_label, vector2_label)
 
 \item{vector2}{A numeric vector.}
 
-\item{vector1_label}{A label (character string) for `vector1`.}
+\item{vector1_label}{A label (character string) for \code{vector1}.}
 
-\item{vector2_label}{A label (character string) for `vector2`.}
+\item{vector2_label}{A label (character string) for \code{vector2}.}
 }
 \value{
 A list containing:
 \itemize{
-  \item \code{long_vec}: The longer vector of `vector1` and `vector2`.
-  \item \code{long_vec_label}: The label corresponding to the longer vector.
-  \item \code{short_vec}: The shorter vector of `vector1` and `vector2`.
-  \item \code{short_vec_label}: The label corresponding to the shorter vector.
+\item \code{long_vec}: The longer vector of \code{vector1} and \code{vector2}.
+\item \code{long_vec_label}: The label corresponding to the longer vector.
+\item \code{short_vec}: The shorter vector of \code{vector1} and \code{vector2}.
+\item \code{short_vec_label}: The label corresponding to the shorter vector.
 }
 If both vectors are of the same length, the function returns 1.
 }

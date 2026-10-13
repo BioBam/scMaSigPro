@@ -23,22 +23,22 @@ and "Scott.Normal". See details.}
 A numeric value representing the estimated bin size, adjusted by the drop_fac.
 }
 \description{
-`estBinSize()` calculates the optimal bin size for discretizing a continuous variable.
+\code{estBinSize()} calculates the optimal bin size for discretizing a continuous variable.
 It uses various bin_methods for bin size estimation such as "Freedman.Diaconis",
 "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal".
 }
 \details{
 The function contains various rules for calculating the bin size:
 \describe{
-  \item{"Freedman.Diaconis"}{bin size is proportional to the interquartile range
-  (IQR) and inversely proportional to the cube root of the number of data points.}
-  \item{"Sqrt"}{bin size is proportional to the square root of the number of data points.}
-  \item{"Sturges"}{bin size is proportional to the log (base 2) of the number of data points.}
-  \item{"Rice"}{bin size is proportional to twice the cube root of the number of data points.}
-  \item{"Doane"}{bin size accounts for data skewness in the calculation.}
-  \item{"Scott.Normal"}{bin size is proportional to the standard deviation and
-  inversely proportional to the cube root of the number of data points, assuming
-  the data is nearly normal in distribution.}
+\item{"Freedman.Diaconis"}{bin size is proportional to the interquartile range
+(IQR) and inversely proportional to the cube root of the number of data points.}
+\item{"Sqrt"}{bin size is proportional to the square root of the number of data points.}
+\item{"Sturges"}{bin size is proportional to the log (base 2) of the number of data points.}
+\item{"Rice"}{bin size is proportional to twice the cube root of the number of data points.}
+\item{"Doane"}{bin size accounts for data skewness in the calculation.}
+\item{"Scott.Normal"}{bin size is proportional to the standard deviation and
+inversely proportional to the cube root of the number of data points, assuming
+the data is nearly normal in distribution.}
 }
 After estimating the bin size, it is scaled down by a factor specified by 'drop_fac'.
 }

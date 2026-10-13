@@ -26,13 +26,13 @@ optimize_bin_max(
 
 \item{time_vector}{A vector representing time or a sequence that bins refer to.}
 
-\item{lbound}{The name of the lower bound column in `bin_table`.}
+\item{lbound}{The name of the lower bound column in \code{bin_table}.}
 
-\item{ubound}{The name of the upper bound column in `bin_table`.}
+\item{ubound}{The name of the upper bound column in \code{bin_table}.}
 
-\item{bin}{The name of the bin identifier column in `bin_table`.}
+\item{bin}{The name of the bin identifier column in \code{bin_table}.}
 
-\item{bin.size}{The name of the bin size column in `bin_table`.}
+\item{bin.size}{The name of the bin size column in \code{bin_table}.}
 
 \item{method}{The method for handling small bins: 'merge' to merge with previous or next bin,
 'drop' to remove small bins, or 'ignore' to leave small bins as they are.}
@@ -40,7 +40,7 @@ optimize_bin_max(
 \item{drop}{The threshold below which a bin is considered too small and subject to the method.}
 }
 \value{
-A dataframe with adjusted bins. The structure of the dataframe will be the same as `bin_table`
+A dataframe with adjusted bins. The structure of the dataframe will be the same as \code{bin_table}
 with updated values for the bin size and bounds.
 }
 \description{

@@ -12,7 +12,7 @@
 \item{value}{The value of the branch Assignment Matrix.}
 }
 \value{
-Modified `ScMaSigPro` object.
+Modified \code{ScMaSigPro} object.
 }
 \description{
 Replacement method for pathAssign

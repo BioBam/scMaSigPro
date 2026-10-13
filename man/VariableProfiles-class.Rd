@@ -23,6 +23,6 @@ p-values for non-flat profiles.}
 }}
 
 \author{
-Priyansh Srivastava <spriyansh29@gmail.com>
+Priyansh Srivastava \href{mailto:spriyansh29@gmail.com}{spriyansh29@gmail.com}
 }
 \keyword{classes}

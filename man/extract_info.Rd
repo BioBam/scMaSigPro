@@ -2,7 +2,7 @@
 % Please edit documentation in R/show_functions.R
 \name{extract_info}
 \alias{extract_info}
-\title{Extract Information `.ScMaSigPro_show`}
+\title{Extract Information \code{.ScMaSigPro_show}}
 \usage{
 extract_info(data, return_type = "avg_bin_size", bin_size_col, path_col)
 }
@@ -16,6 +16,6 @@ extract_info(data, return_type = "avg_bin_size", bin_size_col, path_col)
 \item{path_col}{Column name with the path information.}
 }
 \description{
-Extract details for the console cat of `.ScMaSigPro_show`.
+Extract details for the console cat of \code{.ScMaSigPro_show}.
 }
 \keyword{internal}

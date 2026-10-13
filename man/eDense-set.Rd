@@ -19,7 +19,7 @@ The modified \code{\link{ScMaSigPro}} object with updated expression
 data in the Dense slot.
 }
 \description{
-`eDense<-` is a generic function for updating or setting expression counts in the Dense slot
+\verb{eDense<-} is a generic function for updating or setting expression counts in the Dense slot
 of an \code{\link{ScMaSigPro}} object.
 }
 \author{
