@@ -70,6 +70,10 @@ importFrom(SingleCellExperiment,
   colData,
   reducedDims
 )
+importFrom(SummarizedExperiment,
+  "colData<-",
+  assay
+)
 importFrom(dplyr,
   arrange,
   bind_rows,
