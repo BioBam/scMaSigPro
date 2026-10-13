@@ -46,4 +46,4 @@ splat.sim <- sce
  save(splat.sim, file = "data/splat.sim.RData")
 
 # Compress
-tools::resaveRdaFiles(paths = "data/")
+tools::resaveRdaFiles("data/splat.sim.RData")

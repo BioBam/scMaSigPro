@@ -42,4 +42,4 @@ scmp.ob <- sc.cluster.trend(scmp.ob, geneSet = "union", k = 4)
 
 # Save and compress
 save(scmp.ob, file = "data/scmp.ob.RData")
-tools::resaveRdaFiles(paths = "data/")
+tools::resaveRdaFiles("data/scmp.ob.RData")
