@@ -8,6 +8,11 @@
 \description{
 S4 class to store significantly selected features and their clusters.
 }
+\details{
+\code{validObject()} checks that every element of \code{genes} is a character
+vector of gene names and that \code{clusters} holds one value per gene, named
+by gene.
+}
 \section{Slots}{
 
 \describe{

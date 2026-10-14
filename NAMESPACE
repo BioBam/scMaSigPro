@@ -106,7 +106,8 @@ importFrom(methods,
   is,
   new,
   slot,
-  slotNames
+  slotNames,
+  validObject
 )
 importFrom(stats,
   IQR,
