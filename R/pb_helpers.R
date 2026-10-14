@@ -255,11 +255,9 @@ extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, a
         beta.coeff <- result$coefficients[, 1]
         beta.p.valor <- result$coefficients[, 4]
         coeff <- rep(0, (length(vars.in) + 1))
-        if (length(novar) != 0) {
-            for (m in seq_along(novar)) {
-                coeff[maSigPro::position(dis, novar[m]) + 1] <- NA
-            }
-        }
+        # Terms that are not estimable in the full model get NA: every column
+        # of dis with a name in novar (a name that is absent matches none)
+        coeff[which(colnames(dis) %in% novar) + 1] <- NA
         p.valor <- t <- as.numeric(rep(NA, (length(vars.in) + 1)))
 
         if (result$coefficients[, 4][
