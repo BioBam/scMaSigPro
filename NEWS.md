@@ -10,6 +10,8 @@
 
 * Dependency Changes
     * `shiny`, `plotly`, `igraph` and `scales` are no longer dependencies, so installing scMaSigPro pulls in 55 non-base packages instead of 98.
+    * `assertthat` is no longer a dependency. Argument checks use an internal helper and stop with the same messages. A check given `NA` or the wrong number of values (for example two values for an argument that takes one) now reports its own message instead of assertthat's generic "assert_that: ..." text.
+    * `stringr` is no longer a dependency; string handling uses base R and gives the same results. Without `assertthat` and `stringr`, installing scMaSigPro pulls in 52 non-base packages instead of 55. `sc.restruct()` still treats `link_sep` as a regular expression, so a separator containing `|` must be escaped (`link_sep = "\\|"`).
 
 * Minor changes
     * Error and progress messages are corrected: misspellings ("doesn't exit", "Overwritting", "onservations", "selction", "select on of"), the class name (`ScMaSigPro`, not `scMaSigPro`), and pointers to functions that do not exist (`plotIntersect()` now points to `sc.filter()`, `showPoly()` to `sc.set.poly()`). `plotDiagnostics()` reports an invalid `model` instead of a missing gene, and messages no longer contain line breaks and indentation copied from the source code. Code that matches the old wording, such as the "Overwritting assay" warning of `eSparse<-` and `eDense<-`, must be updated.

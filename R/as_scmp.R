@@ -61,33 +61,34 @@ as_scmp <- function(object, from = "sce",
                         labels_exist = FALSE
                     )) {
     # Check Conversion Type
-    assertthat::assert_that(identical(from, "sce"),
+    .check(identical(from, "sce"),
         msg = paste(
-            "'from' must be \"sce\": as_scmp() converts SingleCellExperiment objects",
-            "only. Monocle3 'cell_data_set' objects (from = \"cds\") are no longer",
-            "converted; pass the counts and a cell table with pseudotime and path",
-            "columns to create_scmp(), as shown in the 'Common Root Cells' vignette."
+            "'from' must be \"sce\": as_scmp() converts SingleCellExperiment",
+            "objects only. Monocle3 'cell_data_set' objects (from = \"cds\")",
+            "are no longer converted; pass the counts and a cell table with",
+            "pseudotime and path columns to create_scmp(), as shown in the",
+            "'Common Root Cells' vignette."
         )
     )
 
     # Validate S4
-    assertthat::assert_that(is(object, "SingleCellExperiment"),
+    .check(is(object, "SingleCellExperiment"),
         msg = paste(
-            "'object' must be a SingleCellExperiment. To start from a count matrix",
-            "and a table of cell metadata, use create_scmp()."
+            "'object' must be a SingleCellExperiment. To start from a count",
+            "matrix and a table of cell metadata, use create_scmp()."
         )
     )
 
     # Check and validate additional parameters
     if (!is.null(additional_params)) {
-        assertthat::assert_that(is.list(additional_params),
+        .check(is.list(additional_params),
             msg = paste(
                 "Please provide 'additional_params' as a named list.",
                 "See details for more information"
             )
         )
         # Check additional parameters
-        assertthat::assert_that(
+        .check(
             all(names(additional_params) %in% c(
                 "exist_ptime_col", "exist_path_col", "labels_exist"
             )),

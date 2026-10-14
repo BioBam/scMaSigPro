@@ -54,11 +54,11 @@ sc.filter <- function(scmpObj,
                       term_p_value = 0.05,
                       includeInflu = TRUE) {
     # Check Validity of the object
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'"
     )
 
-    assertthat::assert_that(
+    .check(
         all(
             vars %in% c("all", "each", "groups")
         ),
@@ -90,7 +90,7 @@ sc.filter <- function(scmpObj,
 
         # Get the genes
         sig.list <- apply(sol.sub, 2, function(column) row.names(sol.sub)[which(column <= term_p_value)])
-        names(sig.list) <- stringr::str_remove(names(sig.list), "p.valor_")
+        names(sig.list) <- sub("p.valor_", "", names(sig.list), fixed = TRUE)
     } else if (vars == "groups") {
         # Subset
         sol.sub <- sol[, !(colnames(sol) %in% c("p-value", "R-squared")), drop = FALSE]

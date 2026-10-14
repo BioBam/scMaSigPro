@@ -81,7 +81,7 @@ sc.squeeze <- function(scmpObj,
     cell <- "cell"
 
     # Check Object Validity
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'."
     )
 
@@ -99,7 +99,7 @@ sc.squeeze <- function(scmpObj,
     ) %in% cols_to_drop, drop = FALSE]
 
     # Count slot
-    assertthat::assert_that(
+    .check(
         all(
             assay_name %in% names(scmpObj@Sparse@assays@data@listData)
         ),
@@ -107,38 +107,42 @@ sc.squeeze <- function(scmpObj,
     )
 
     # Checks
-    assertthat::assert_that(ptime_col %in% colnames(raw_cell_metadata),
+    .check(ptime_col %in% colnames(raw_cell_metadata),
         msg = paste0(
             "'", ptime_col, "' does not exist in cell.level.metadata. ",
             "Please review the 'ptime_col' parameter."
         )
     )
-    assertthat::assert_that(path_col %in% colnames(raw_cell_metadata),
+    .check(path_col %in% colnames(raw_cell_metadata),
         msg = paste0(
-            "'", path_col,
-            "' does not exist in cell.level.metadata. Please review the 'path_col' parameter."
+            "'", path_col, "' does not exist in cell.level.metadata. ",
+            "Please review the 'path_col' parameter."
         )
     )
-    assertthat::assert_that(drop_fac >= 0.3,
+    .check(drop_fac >= 0.3,
         msg = "Invalid value for 'drop_fac'. It should be between 0.3 and 1."
     )
-    assertthat::assert_that(
+    .check(
         all(
             bin_method %in% c(
-                "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane", "Scott.Normal"
+                "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane",
+                "Scott.Normal"
             )
         ),
-        msg = "Available binning methods are 'Freedman.Diaconis', 'Sqrt', 'Sturges', 'Rice', 'Doane', and 'Scott.Normal'"
+        msg = paste(
+            "Available binning methods are 'Freedman.Diaconis', 'Sqrt',",
+            "'Sturges', 'Rice', 'Doane', and 'Scott.Normal'"
+        )
     )
     if (!is.null(additional_params)) {
-        assertthat::assert_that(is.list(additional_params),
+        .check(is.list(additional_params),
             msg = paste(
                 "Please provide 'additional_params' as a named list.",
                 "See details for more information"
             )
         )
 
-        assertthat::assert_that(names(additional_params) %in% c("use_unique_time_points"),
+        .check(names(additional_params) %in% c("use_unique_time_points"),
             msg = "Allowed additional parameters are 'use_unique_time_points'."
         )
     }
@@ -150,8 +154,11 @@ sc.squeeze <- function(scmpObj,
     avail.paths <- as.vector(unique(raw_cell_metadata[[path_col]]))
 
     # Check for path
-    assertthat::assert_that(length(avail.paths) >= 2,
-        msg = "Invalid number of paths detected. Please make sure that dataset has at least two paths"
+    .check(length(avail.paths) >= 2,
+        msg = paste(
+            "Invalid number of paths detected. Please make sure that dataset",
+            "has at least two paths"
+        )
     )
 
     if (verbose) {

@@ -29,12 +29,12 @@
 #' @export
 showCoeff <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Check if the sol exist
-    assertthat::assert_that(!all(dim(scmpObj@Estimate@coefficient_matrix) == c(0, 0)),
+    .check(!all(dim(scmpObj@Estimate@coefficient_matrix) == c(0, 0)),
         msg = "'coefficient_matrix' is not computed yet"
     )
 
@@ -65,12 +65,12 @@ showCoeff <- function(scmpObj, includeInflu = TRUE) {
 #' @export
 showInflu <- function(scmpObj) {
     # Check Object Validity
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Check if the sol exist
-    assertthat::assert_that(!all(dim(scmpObj@Estimate@influential) == c(0, 0)),
+    .check(!all(dim(scmpObj@Estimate@influential) == c(0, 0)),
         msg = "tscore is not computed yet"
     )
 
@@ -97,12 +97,12 @@ showInflu <- function(scmpObj) {
 #' @export
 showTS <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Check if the sol exist
-    assertthat::assert_that(!all(dim(scmpObj@Estimate@t_score_matrix) == c(0, 0)),
+    .check(!all(dim(scmpObj@Estimate@t_score_matrix) == c(0, 0)),
         msg = "tscore is not computed yet"
     )
 
@@ -134,12 +134,12 @@ showTS <- function(scmpObj, includeInflu = TRUE) {
 #' @export
 showSol <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Check if the sol exist
-    assertthat::assert_that(!all(dim(scmpObj@Estimate@significance_matrix) == c(0, 0)),
+    .check(!all(dim(scmpObj@Estimate@significance_matrix) == c(0, 0)),
         msg = "'significance_matrix' is not computed yet"
     )
 
@@ -171,12 +171,12 @@ showSol <- function(scmpObj, includeInflu = TRUE) {
 #' @export
 showSigProf <- function(scmpObj, includeInflu = FALSE) {
     # Check Object Validity
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Check if the sol exist
-    assertthat::assert_that(!all(dim(scmpObj@Estimate@significance_matrix) == c(0, 0)),
+    .check(!all(dim(scmpObj@Estimate@significance_matrix) == c(0, 0)),
         msg = "Sol is not computed yet"
     )
 
@@ -209,12 +209,12 @@ showSigProf <- function(scmpObj, includeInflu = FALSE) {
 #' @export
 showPoly <- function(scmpObj) {
     # Check Object Validity
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Check if the sol exist
-    assertthat::assert_that(
+    .check(
         all(!is.na(colnames(scmpObj@Design@predictor_matrix)) | length(
             colnames(scmpObj@Design@predictor_matrix) > 1
         )),
@@ -257,7 +257,7 @@ showPoly <- function(scmpObj) {
 #' @export
 showParams <- function(scmpObj) {
     # Check Object Validity
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'"
     )
 
@@ -312,12 +312,12 @@ showParams <- function(scmpObj) {
 #' @export
 showGroupCoeff <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'"
     )
 
     # Check if the sol exist
-    assertthat::assert_that(!all(dim(scmpObj@Estimate@path_coefficient_matrix) == c(0, 0)),
+    .check(!all(dim(scmpObj@Estimate@path_coefficient_matrix) == c(0, 0)),
         msg = "path_coefficient_matrix is not computed yet"
     )
 

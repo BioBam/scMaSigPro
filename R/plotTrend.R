@@ -50,15 +50,18 @@ plotTrend <- function(scmpObj,
     offset_vector <- scmpObj@Design@offset
 
     # Check summary_mode
-    assertthat::assert_that(any(summary_mode %in% c("median", "mean")),
+    .check(any(summary_mode %in% c("median", "mean")),
         msg = paste(
-            paste0("'", summary_mode, "'"), "is not a valid option. Please use one of",
+            paste0("'", summary_mode, "'"),
+            "is not a valid option. Please use one of",
             paste(c("median", "mean"), collapse = ", ")
         )
     )
 
     # Check Assertion
-    assertthat::assert_that(curves || lines || points, msg = "At least one of 'curves', 'lines', or 'points' must be TRUE.")
+    .check(curves || lines || points,
+        msg = "At least one of 'curves', 'lines', or 'points' must be TRUE."
+    )
 
     # Extract edisgn
     alloc.frame <- scmpObj@Design@assignment_matrix %>% as.data.frame()
@@ -67,12 +70,14 @@ plotTrend <- function(scmpObj,
     bulk.counts <- scmpObj@Dense@assays@data@listData$bulk.counts
 
     # Check
-    assertthat::assert_that(all(feature_id %in% rownames(bulk.counts)),
-        msg = paste0("'", feature_id, "' doesn't exist please select another one.")
+    .check(all(feature_id %in% rownames(bulk.counts)),
+        msg = paste0(
+            "'", feature_id, "' doesn't exist please select another one."
+        )
     )
 
     if (significant) {
-        assertthat::assert_that(
+        .check(
             any(feature_id %in% unique(unlist(scmpObj@Significant@genes))),
             msg = paste(
                 "Feature Id didn't pass the R2 threshold, please re-run",
