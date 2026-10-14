@@ -3,7 +3,7 @@
 on:
   push:
     branches: [main, devel]
-  pull_request:
+  # pull_request:
   schedule:
     # Weekly on Monday 06:00 UTC, so breakage in upstream packages or external
     # resources is caught even when nothing is pushed.
