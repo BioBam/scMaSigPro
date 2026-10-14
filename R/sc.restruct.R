@@ -23,8 +23,7 @@
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @seealso \code{\link{estBinSize}}, \code{\link[entropy]{discretize}},
-#' \code{\link{create_range}}
+#' @seealso \code{\link{estBinSize}}, \code{\link{create_range}}
 #'
 #' @export
 sc.restruct <- function(scmpObj,

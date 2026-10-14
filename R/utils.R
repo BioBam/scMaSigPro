@@ -114,3 +114,50 @@ scmp_colors <- function(n) {
         return(c(ten_pal, extra_pal[1:(n - 9)]))
     }
 }
+
+#' @title Summarise a Column Within Groups
+#'
+#' @description
+#' `.summarise_by()` applies `fun` to column `value` of `df` within each group
+#' of rows that share the values of the columns `by`, as
+#' `dplyr::group_by()` followed by `dplyr::summarise(.groups = "drop")` did:
+#' one row per group, ordered by the `by` columns in turn (radix order, so
+#' numbers increase and strings sort in the C locale, as dplyr sorts groups),
+#' with the columns `by` and then `value`. Keys are compared exactly, `NA` is a
+#' group of its own (sorted last), and the values reach `fun` in row order.
+#'
+#' @param df A data frame.
+#' @param by Names of the grouping columns.
+#' @param value Name of the column to summarise.
+#' @param fun A function returning one number.
+#' @param ... Further arguments to `fun`.
+#'
+#' @return A data frame with automatic row names.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
+#' @noRd
+.summarise_by <- function(df, by, value, fun, ...) {
+    keys <- unname(as.list(df[by]))
+    sorted <- df[do.call(order, c(keys, method = "radix")), , drop = FALSE]
+    n <- nrow(sorted)
+
+    # A group starts at the first row and wherever a key changes
+    starts <- rep(TRUE, n)
+    if (n > 1) {
+        same <- lapply(sorted[by], function(k) {
+            a <- k[-1]
+            b <- k[-n]
+            (!is.na(a) & !is.na(b) & a == b) | (is.na(a) & is.na(b))
+        })
+        starts[-1] <- !Reduce(`&`, same)
+    }
+
+    out <- sorted[starts, by, drop = FALSE]
+    out[[value]] <- vapply(split(sorted[[value]], cumsum(starts)), fun,
+        numeric(1), ...,
+        USE.NAMES = FALSE
+    )
+    rownames(out) <- NULL
+    out
+}

@@ -83,12 +83,11 @@ slot.
 }
 \description{
 \code{sc.squeeze()} discretizes a continuous time series column into bins
-of equal size using entropy-based binning method. It automatically calculates
-the optimal number of bins using one of the supported methods.
+of equal width. It automatically calculates the optimal number of bins
+using one of the supported methods.
 }
 \seealso{
-\code{\link{estBinSize}}, \code{\link[entropy]{discretize}},
-\code{\link{create_range}}
+\code{\link{estBinSize}}, \code{\link{create_range}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

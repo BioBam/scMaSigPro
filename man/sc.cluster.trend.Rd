@@ -29,7 +29,8 @@ sc.cluster.trend(
 \item{cluster_by}{Whether to use counts or coefficients for clustering.}
 
 \item{cluster_method}{Clustering method for data partioning. Currently "hclust",
-"kmeans" and "Mclust" are supported.}
+"kmeans" and "Mclust" are supported. "Mclust" needs the suggested package
+'mclust'.}
 
 \item{hclust.agglo.method}{Aggregation Method. (Default is "ward.D")}
 

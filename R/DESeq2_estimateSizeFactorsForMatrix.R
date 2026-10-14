@@ -29,7 +29,6 @@
 #' (\code{"poscounts"})
 #' @return a vector with the estimates size factors, one element per column
 #'
-#' @importFrom MatrixGenerics rowMeans rowSums
 #' @keywords internal
 scmp_estimateSizeFactorsForMatrix <- function(counts, locfunc = stats::median,
                                               geoMeans, controlGenes,
@@ -37,13 +36,15 @@ scmp_estimateSizeFactorsForMatrix <- function(counts, locfunc = stats::median,
     type <- match.arg(type, c("ratio", "poscounts"))
     if (missing(geoMeans)) {
         incomingGeoMeans <- FALSE
+        # counts is a base matrix from sc.p.vector() and a dense Matrix
+        # (dgeMatrix) from sc.t.fit(); the Matrix generics handle both
         if (type == "ratio") {
-            loggeomeans <- MatrixGenerics::rowMeans(log(counts))
+            loggeomeans <- Matrix::rowMeans(log(counts))
         } else if (type == "poscounts") {
             lc <- log(counts)
             lc[!is.finite(lc)] <- 0
-            loggeomeans <- MatrixGenerics::rowMeans(lc)
-            allZero <- MatrixGenerics::rowSums(counts) == 0
+            loggeomeans <- Matrix::rowMeans(lc)
+            allZero <- Matrix::rowSums(counts) == 0
             loggeomeans[allZero] <- -Inf
         }
     } else {

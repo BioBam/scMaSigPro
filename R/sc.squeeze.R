@@ -2,15 +2,10 @@
 #'
 #' @description
 #' `sc.squeeze()` discretizes a continuous time series column into bins
-#' of equal size using entropy-based binning method. It automatically calculates
-#' the optimal number of bins using one of the supported methods.
+#' of equal width. It automatically calculates the optimal number of bins
+#' using one of the supported methods.
 #'
 #' @importFrom parallel mclapply
-#' @importFrom entropy discretize
-#' @importFrom dplyr bind_rows group_by_at
-#' @importFrom magrittr %>%
-#' @importFrom rlang :=
-#' @importFrom dplyr group_by filter ungroup summarise summarize
 #' @importFrom SummarizedExperiment assay colData<-
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
@@ -54,8 +49,7 @@
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @seealso \code{\link{estBinSize}}, \code{\link[entropy]{discretize}},
-#' \code{\link{create_range}}
+#' @seealso \code{\link{estBinSize}}, \code{\link{create_range}}
 #'
 #' @export
 sc.squeeze <- function(scmpObj,
@@ -360,10 +354,17 @@ sc.squeeze <- function(scmpObj,
         # Set the 'cell' column as rownames
         rownames(processed.path.frame) <- processed.path.frame$cell
 
-        # Create Binned Path Frame
-        binned.path.frame <- processed.path.frame %>%
-            group_by_at(bin.time.col) %>%
-            summarise(!!sym(bin.members.colname) := paste0(!!sym(cell), collapse = "|"))
+        # Create Binned Path Frame: one row per binned time, in increasing
+        # order, with the cells of the bin (in metadata order) joined by "|"
+        cell_times <- processed.path.frame[[bin.time.col]]
+        bin_times <- sort(unique(cell_times))
+        bin_members <- vapply(
+            split(processed.path.frame[[cell]], match(cell_times, bin_times)),
+            paste0, character(1),
+            collapse = "|", USE.NAMES = FALSE
+        )
+        binned.path.frame <- data.frame(bin_times, bin_members)
+        colnames(binned.path.frame) <- c(bin.time.col, bin.members.colname)
 
         # Missing columns
         tmp.bin.name <- paste0(path, "_bin_", seq(1, nrow(binned.path.frame)))
@@ -396,11 +397,12 @@ sc.squeeze <- function(scmpObj,
         return(element[["compressed"]])
     })
 
-    # List to frame
-    processed_cell_metadata <- bind_rows(processed_cell_metadata.list) %>%
-        as.data.frame()
-    processed_binned_cell_metadata <- bind_rows(processed_binned_cell_metadata.list) %>%
-        as.data.frame()
+    # List to frame: the per-path frames have the same columns; the row
+    # names are set from the 'cell' and bin columns below
+    processed_cell_metadata <- do.call(rbind, processed_cell_metadata.list)
+    processed_binned_cell_metadata <- do.call(
+        rbind, processed_binned_cell_metadata.list
+    )
 
     # Put the cell metadata back in the column order of the counts: the
     # per-path frames above were stacked path by path
@@ -465,17 +467,16 @@ sc.squeeze <- function(scmpObj,
     if (drop_trails) {
         pB.frame <- processed_binned_cell_metadata
         # Find the maximum 'scmp_binned_pseudotime' for each 'Path'
-        pB.frame_tmp <- pB.frame %>%
-            group_by(!!sym(path_col)) %>%
-            summarize(max_time = max(!!sym(bin_ptime_col))) %>%
-            ungroup()
+        max_time <- tapply(pB.frame[[bin_ptime_col]], pB.frame[[path_col]], max)
 
         # Find the minimum of the max 'scmp_binned_pseudotime' across all 'Path'
-        min_max_time <- min(pB.frame_tmp$max_time)
+        min_max_time <- min(max_time)
 
         # Identify rows to be removed
-        rows_to_remove <- pB.frame %>%
-            filter(!!sym(bin_ptime_col) > min_max_time)
+        rows_to_remove <- pB.frame[
+            which(pB.frame[[bin_ptime_col]] > min_max_time), ,
+            drop = FALSE
+        ]
 
         # Print a message about the rows that will be removed
         if (verbose) {
@@ -488,8 +489,10 @@ sc.squeeze <- function(scmpObj,
         }
 
         # Filter out rows where 'scmp_binned_pseudotime' is greater than 'min_max_time'
-        pB.frame <- pB.frame %>%
-            filter(!!sym(bin_ptime_col) <= min_max_time)
+        pB.frame <- pB.frame[
+            which(pB.frame[[bin_ptime_col]] <= min_max_time), ,
+            drop = FALSE
+        ]
 
         processed_binned_cell_metadata <- pB.frame
     }

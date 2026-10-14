@@ -126,7 +126,6 @@ create_range <- function(x, bin_size_colname = "scmp_bin_size",
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @importFrom stats IQR sd
-#' @importFrom e1071 skewness
 #'
 #' @keywords internal
 estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
@@ -151,7 +150,7 @@ estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
         "Doane" = {
             # Doane's formula: accounts for data skewness in the calculation of bin size.
             sigma <- ((6 * (nPoints - 2)) / ((nPoints + 1) * (nPoints + 3)))^(1 / 2)
-            sk <- skewness(time_vector)
+            sk <- .skewness(time_vector)
             1 + log2(nPoints) + log2(1 + (abs(sk) / sigma))
         },
         "Scott.Normal" = {
@@ -171,6 +170,36 @@ estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
     estBins <- drop_fac * estBins
 
     return(estBins)
+}
+###############################################################################
+#' @title Sample Skewness
+#'
+#' @description
+#' `.skewness()` is the sample skewness b1 = m3 / s^3 of `x`, where m3 is the
+#' third central moment and s the standard deviation: type 3 of Joanes and
+#' Gill (1998), the default of `e1071::skewness()`, which it replaces. It is
+#' computed as sqrt(n) * sum(d^3) / sum(d^2)^(3/2) * (1 - 1/n)^(3/2) with
+#' d = x - mean(x), the same operations in the same order, so the Doane rule
+#' of `estBinSize()` gets the same number.
+#'
+#' @param x A numeric vector.
+#'
+#' @return A number: `NA` if `x` has missing values, `NaN` if all its values
+#' are equal.
+#'
+#' @references Joanes, D. N. and Gill, C. A. (1998). Comparing measures of
+#' sample skewness and kurtosis. The Statistician, 47, 183-189.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
+#' @noRd
+.skewness <- function(x) {
+    if (anyNA(x)) {
+        return(NA)
+    }
+    n <- length(x)
+    d <- x - mean(x)
+    sqrt(n) * sum(d^3) / sum(d^2)^(3 / 2) * (1 - 1 / n)^(3 / 2)
 }
 ###############################################################################
 #' @title Extract Fitting
@@ -300,10 +329,13 @@ extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, a
 #' @keywords internal
 
 extract_interval <- function(time.vector, nBins = 1, bin, bin.size, lbound, ubound) {
-    # Create Dataframe
-    new_range_current <- as.data.frame(entropy::discretize(
-        time.vector,
-        numBins = nBins, r = range(time.vector)
+    # Count the points in nBins bins of equal width spanning the range. cut()
+    # labels them "[a,b]" (first) and "(a,b]" with 3 significant digits, and
+    # create_range() reads the bounds back from these labels
+    time_range <- range(time.vector)
+    breaks <- seq(time_range[1], time_range[2], length.out = nBins + 1)
+    new_range_current <- as.data.frame(table(
+        cut(time.vector, breaks = breaks, include.lowest = TRUE)
     ))
     # Set columns
     colnames(new_range_current) <- c(bin, bin.size)
@@ -450,6 +482,8 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
 #' column is used only when the metadata has no rownames.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
+#' @importClassesFrom Matrix dgCMatrix
 #'
 #' @export
 

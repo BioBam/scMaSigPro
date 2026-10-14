@@ -84,7 +84,7 @@ p_time <- ggplot(tsne, aes(x = tSNE1, y = tSNE2, colour = pseudotime)) +
     theme(legend.position = "bottom") +
     labs(title = "B. Monocle3 pseudotime", colour = "Pseudotime")
 
-ggpubr::ggarrange(p_group, p_time, ncol = 2)
+patchwork::wrap_plots(p_group, p_time, ncol = 2)
 ```
 
 In panel A, the cells share a common root (`root`) and then diverge. One branch

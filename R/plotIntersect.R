@@ -2,7 +2,8 @@
 #'
 #' @description
 #' Generate UpSet Plot on Intersection of Significant Genes from scMaSigPro
-#' object. It is a wrapper `UpSetR::upset`.
+#' object. It is a wrapper `UpSetR::upset`, so drawing the plot needs the
+#' suggested package 'UpSetR'; `return = TRUE` does not.
 #'
 #' @importFrom S4Vectors isEmpty
 #'
@@ -51,6 +52,13 @@ plotIntersect <- function(scmpObj,
     if (return) {
         return(as.data.frame(upset_r_gene_list))
     } else {
+        .check(requireNamespace("UpSetR", quietly = TRUE),
+            msg = paste(
+                "plotIntersect() draws the plot with the 'UpSetR' package;",
+                "install it with install.packages('UpSetR'), or use",
+                "return = TRUE to get the data."
+            )
+        )
         # Create Plot
         p <- UpSetR::upset(
             upset_r_gene_list,

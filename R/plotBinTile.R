@@ -16,6 +16,9 @@
 #'
 #' @return ggplot2 plot object.
 #'
+#' @importFrom ggplot2 .data aes geom_text geom_tile ggplot labs
+#'   scale_fill_gradient theme_minimal xlab ylab
+#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export

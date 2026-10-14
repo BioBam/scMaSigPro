@@ -4,9 +4,7 @@
 #' This function clusters the counts or coefficients to visualize the collective
 #' trends later.
 #'
-#' @import ggplot2
 #' @importFrom stats cutree hclust
-#' @importFrom mclust Mclust
 #' @importFrom stats as.dist cor kmeans
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
@@ -14,7 +12,8 @@
 #' @param geneSet Specify the gene set to be used for clustering.
 #' (Default is "intersect")
 #' @param cluster_method Clustering method for data partioning. Currently "hclust",
-#' "kmeans" and "Mclust" are supported.
+#' "kmeans" and "Mclust" are supported. "Mclust" needs the suggested package
+#' 'mclust'.
 #' @param hclust.agglo.method Aggregation Method. (Default is "ward.D")
 #' @param hclust.distance Distance measurement.(Default is "cor")
 #' @param k Number of clusters for data partioning.
@@ -171,11 +170,17 @@ sc.cluster.trend <- function(scmpObj,
         kmeans_result <- kmeans(cluster_data, centers = k, iter.max = kmeans.iter.max)
         cluster_results <- kmeans_result$cluster
     } else if (cluster_method == "Mclust") {
+        .check(requireNamespace("mclust", quietly = TRUE),
+            msg = paste(
+                "cluster_method = 'Mclust' needs the 'mclust' package;",
+                "install it with install.packages('mclust')."
+            )
+        )
         if (mclust.k) {
-            mclust_res <- Mclust(cluster_data, verbose = FALSE)
+            mclust_res <- mclust::Mclust(cluster_data, verbose = FALSE)
             k <- mclust_res$G
         } else {
-            mclust_res <- Mclust(cluster_data, G = k, verbose = FALSE)
+            mclust_res <- mclust::Mclust(cluster_data, G = k, verbose = FALSE)
         }
         cluster_results <- mclust_res$classification
     }
