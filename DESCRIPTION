@@ -21,9 +21,9 @@ Description: Identifies genes whose expression changes along single-cell
     <doi:10.1093/bioinformatics/btae443>.
 License: GPL (>= 2)
 Imports:
-    assertthat, e1071, dplyr, entropy, ggplot2, magrittr, maSigPro (>= 1.74.0),
+    e1071, dplyr, entropy, ggplot2, magrittr, maSigPro (>= 1.74.0),
     MASS, MatrixGenerics (>= 1.14.0), methods, parallel, parallelly, rlang,
-    S4Vectors (>= 0.40.2), SingleCellExperiment (>= 1.24.0), stats, stringr, utils, mclust,
+    S4Vectors (>= 0.40.2), SingleCellExperiment (>= 1.24.0), stats, utils, mclust,
     SummarizedExperiment
 Depends: R (>= 4.0)
 Encoding: UTF-8

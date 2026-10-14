@@ -23,13 +23,9 @@
 #'
 #' @keywords internal
 calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
-    # Use the 'str_split' function from the 'stringr' package to split the 'cluster.members' column
-    # of the input data frame 'x' by the '|' character.
-    # This returns a list where each element is a vector of the split strings.
-    # 'c()' is used to concatenate these vectors into a single vector.
-    # Finally, 'length' is used to get the length of this vector (i.e., the number of split strings),
-    # which is stored in the 'size' variable.
-    size <- length(c(stringr::str_split(x[[clus_mem_col]], "\\|"))[[1]])
+    # Split the bin's cell members at each "|" (a fixed string, not a regular
+    # expression); the number of pieces is the number of cells in the bin
+    size <- length(strsplit(x[[clus_mem_col]], "|", fixed = TRUE)[[1]])
 
     # Convert the 'size' variable to a numeric value and return it as the result of the function
     return(as.numeric(size))
@@ -71,7 +67,7 @@ create_range <- function(x, bin_size_colname = "scmp_bin_size",
     y <- as.character(x[[bin_col]])
 
     # Remove square and round brackets from the character string
-    y <- y %>% stringr::str_remove_all(pattern = "\\[|\\]|\\(|\\)")
+    y <- gsub("\\[|\\]|\\(|\\)", "", y)
 
     # Split the character string by comma and extract the first element (lower bound of the range)
     y1 <- as.numeric(vapply(strsplit(y, ","), function(z) z[1], character(1)))
@@ -463,12 +459,12 @@ pb_counts <- function(scmpObj,
                       assay_name = "counts",
                       cluster_count_by = "sum") {
     # Check Object Validity
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'."
     )
 
     # Count slot
-    assertthat::assert_that(
+    .check(
         all(
             assay_name %in% names(scmpObj@Sparse@assays@data@listData)
         ),
@@ -482,10 +478,10 @@ pb_counts <- function(scmpObj,
     bin_data <- colData(scmpObj@Dense)
     pseudo_bulk_profile <- as.data.frame(bin_data)
 
-    assertthat::assert_that(bin_mem_col %in% colnames(pseudo_bulk_profile),
+    .check(bin_mem_col %in% colnames(pseudo_bulk_profile),
         msg = paste0("'", bin_mem_col, "' does not exist in level.meta.data")
     )
-    assertthat::assert_that(bin_col %in% colnames(pseudo_bulk_profile),
+    .check(bin_col %in% colnames(pseudo_bulk_profile),
         msg = paste0("'", bin_col, "' does not exist in level.meta.data")
     )
 
@@ -496,8 +492,11 @@ pb_counts <- function(scmpObj,
         bin_ids <- as.character(bin_data[[bin_col]])
         rownames(bin_data) <- bin_ids
     }
-    assertthat::assert_that(anyDuplicated(bin_ids) == 0,
-        msg = "Bin names (the rownames of the 'Dense' cell metadata) must be unique."
+    .check(anyDuplicated(bin_ids) == 0,
+        msg = paste(
+            "Bin names (the rownames of the 'Dense' cell metadata) must be",
+            "unique."
+        )
     )
 
     # Get the meta-information for pseudobulking
@@ -509,7 +508,7 @@ pb_counts <- function(scmpObj,
         bin <- meta.info[i, , drop = FALSE]
 
         # Split the row
-        cell.vector <- c(stringr::str_split(bin[1], "\\|"))[[1]]
+        cell.vector <- strsplit(bin[[1]], "|", fixed = TRUE)[[1]]
 
         # Get col cells
         col_indices <- which(colnames(counts) %in% cell.vector)

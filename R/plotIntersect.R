@@ -29,13 +29,13 @@ plotIntersect <- function(scmpObj,
                           show_sets_size = FALSE,
                           return = FALSE) {
     # Check the data
-    assertthat::assert_that(
+    .check(
         is(scmpObj, "ScMaSigPro"),
         msg = "Please supply an object of the class 'ScMaSigPro'"
     )
 
     # Check if siggenes results exist for groups
-    assertthat::assert_that(!isEmpty(scmpObj@Significant@genes),
+    .check(!isEmpty(scmpObj@Significant@genes),
         msg = "'Significant' slot is empty, please run 'sc.filter()' first."
     )
 

@@ -21,12 +21,12 @@ plotDiagnostics <- function(scmpObj,
                             feature_id,
                             model = "optimized") {
     # Check if the results exist
-    assertthat::assert_that(!isEmpty(scmpObj@Significant@genes),
+    .check(!isEmpty(scmpObj@Significant@genes),
         msg = paste("No Significant genes found, please run the workflow first")
     )
 
     # Check model type
-    assertthat::assert_that(all(model %in% c("optimized", "full", "intercept")),
+    .check(all(model %in% c("optimized", "full", "intercept")),
         msg = paste(
             "Invalid 'model', please select one of 'optimized', 'full' or",
             "'intercept'"
@@ -37,8 +37,11 @@ plotDiagnostics <- function(scmpObj,
     avail_genes <- unique(unlist(scmpObj@Significant@genes))
 
     # Check if the requested gene is availble as singificant gene
-    assertthat::assert_that(all(feature_id %in% avail_genes),
-        msg = paste("The requested gene is not available in the significant genes list")
+    .check(all(feature_id %in% avail_genes),
+        msg = paste(
+            "The requested gene is not available in the significant genes",
+            "list"
+        )
     )
 
     # Get the counts for the genes
@@ -73,7 +76,7 @@ plotDiagnostics <- function(scmpObj,
         all_terms <- colnames(coeff_matrix_sub)[-1]
 
         # Remove any occurance of beta
-        all_terms <- stringr::str_remove(string = all_terms, pattern = "beta")
+        all_terms <- sub("beta", "", all_terms, fixed = TRUE)
 
         # Remove intercept
         all_terms <- all_terms[-1]

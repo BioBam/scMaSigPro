@@ -58,33 +58,43 @@ sc.cluster.trend <- function(scmpObj,
     scmp_clusters <- "scmp_clusters"
 
     # Check if the gene set exists
-    assertthat::assert_that(any(geneSet %in% c(names(scmpObj@Significant@genes), "intersect", "union")),
+    .check(
+        any(geneSet %in% c(
+            names(scmpObj@Significant@genes), "intersect", "union"
+        )),
         msg = paste(
             paste0("'", geneSet, "'"), "does not exist. Please use one of",
-            paste(c(names(scmpObj@Significant@genes), "intersect", "union"), collapse = ", ")
+            paste(
+                c(names(scmpObj@Significant@genes), "intersect", "union"),
+                collapse = ", "
+            )
         )
     )
-    assertthat::assert_that(any(cluster_by %in% c("coeff", "counts")),
+    .check(any(cluster_by %in% c("coeff", "counts")),
         msg = paste(
-            paste0("'", cluster_by, "'"), "is not a valid option. Please use one of",
+            paste0("'", cluster_by, "'"),
+            "is not a valid option. Please use one of",
             paste(c("coeff", "counts"), collapse = ", ")
         )
     )
-    assertthat::assert_that(any(use_dim %in% c("row", "col")),
+    .check(any(use_dim %in% c("row", "col")),
         msg = paste(
-            paste0("'", use_dim, "'"), "is not a valid option. Please use one of",
+            paste0("'", use_dim, "'"),
+            "is not a valid option. Please use one of",
             paste(c("row", "col"), collapse = ", ")
         )
     )
-    assertthat::assert_that(any(fill_na %in% c("mean", "median", "zero")),
+    .check(any(fill_na %in% c("mean", "median", "zero")),
         msg = paste(
-            paste0("'", fill_na, "'"), "is not a valid option. Please use one of",
+            paste0("'", fill_na, "'"),
+            "is not a valid option. Please use one of",
             paste(c("mean", "median", "zero"), collapse = ", ")
         )
     )
-    assertthat::assert_that(any(cluster_method %in% c("hclust", "kmeans", "Mclust")),
+    .check(any(cluster_method %in% c("hclust", "kmeans", "Mclust")),
         msg = paste(
-            paste0("'", cluster_method, "'"), "is not a valid method. Please use one of",
+            paste0("'", cluster_method, "'"),
+            "is not a valid method. Please use one of",
             paste(c("hclust", "kmeans", "Mclust"), collapse = ", ")
         )
     )

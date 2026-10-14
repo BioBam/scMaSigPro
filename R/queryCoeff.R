@@ -31,17 +31,17 @@ queryCoeff <- function(scmpObj,
                        strictly = FALSE,
                        verbose = TRUE) {
     # Check Validity of the object
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'"
     )
     # Check for group_vector
-    assertthat::assert_that(!isEmpty(scmpObj@Design@groups.vector),
+    .check(!isEmpty(scmpObj@Design@groups.vector),
         msg = "'scmpObj@Design@groups.vector' is empty"
     )
 
     # Check for requested change
     if (!is.null(change)) {
-        assertthat::assert_that(
+        .check(
             all(
                 change %in% c("increasing", "decreasing")
             ),
@@ -53,7 +53,7 @@ queryCoeff <- function(scmpObj,
     }
 
     # Check query
-    assertthat::assert_that(
+    .check(
         all(
             query %in% c(
                 "pseudotime", "pseudotime_path", "path", "path_pseudotime"
@@ -90,7 +90,9 @@ queryCoeff <- function(scmpObj,
     compare_groups_vector <- unique(scmpObj@Design@groups.vector)
 
     # Generate group name vector
-    avail_groups_vector <- unique(unlist(stringr::str_split(compare_groups_vector, "vs")))
+    avail_groups_vector <- unique(unlist(
+        strsplit(compare_groups_vector, "vs", fixed = TRUE)
+    ))
 
     # Verbose
     if (verbose) {

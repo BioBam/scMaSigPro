@@ -31,7 +31,7 @@ sc.set.poly <- function(scmpObj,
                         bin_ptime_col = scmpObj@Parameters@bin_ptime_col,
                         path_col = scmpObj@Parameters@path_col) {
     # Check Object Validity
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'"
     )
 
@@ -39,13 +39,13 @@ sc.set.poly <- function(scmpObj,
     comp.cell.metadata <- as.data.frame(scmpObj@Dense@colData)
 
     # pseudotime_colname
-    assertthat::assert_that((bin_ptime_col %in% colnames(comp.cell.metadata)),
+    .check((bin_ptime_col %in% colnames(comp.cell.metadata)),
         msg = paste0(
             "'", bin_ptime_col, "' ", "doesn't exist in cell.metadata."
         )
     )
     # path_col
-    assertthat::assert_that((path_col %in% colnames(comp.cell.metadata)),
+    .check((path_col %in% colnames(comp.cell.metadata)),
         msg = paste0("'", path_col, "' ", "doesn't exist in cell.metadata.")
     )
 

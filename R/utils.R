@@ -45,10 +45,10 @@ clean_string <- function(input_string, action = c("check", "remove")) {
     action <- match.arg(action)
 
     if (action == "check") {
-        return(stringr::str_detect(input_string, "`"))
+        return(grepl("`", input_string, fixed = TRUE))
     } else if (action == "remove") {
         # Remove Backticks
-        processed_string <- stringr::str_replace_all(input_string, "`", "")
+        processed_string <- gsub("`", "", input_string, fixed = TRUE)
         return(processed_string)
     }
 }

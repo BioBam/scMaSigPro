@@ -36,17 +36,17 @@ sc.restruct <- function(scmpObj,
                         link_sep = "_links_",
                         verbose = TRUE) {
     # Check Object Validity
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'."
     )
 
     # Check if values are binned
-    assertthat::assert_that(nrow(as.data.frame(colData(scmpObj@Dense))) >= 1,
+    .check(nrow(as.data.frame(colData(scmpObj@Dense))) >= 1,
         msg = "No binning information found. Please run 'sc.squeeze()', first."
     )
 
     # Count slot
-    assertthat::assert_that(
+    .check(
         all(
             assay_name %in% names(scmpObj@Sparse@assays@data@listData)
         ),
@@ -70,8 +70,8 @@ sc.restruct <- function(scmpObj,
         link_value <- link_node_list[[i]]
         names(link_value) <- link_value
 
-        # Split
-        link_vec <- unlist(stringr::str_split(link_value, link_sep))
+        # Split; link_sep is a regular expression
+        link_vec <- unlist(strsplit(link_value, link_sep))
 
         # Traverse for each of the link
         for (j in link_vec) {

@@ -24,7 +24,7 @@ plotBinTile <- function(scmpObj,
                         bin_size_col = scmpObj@Parameters@bin_size_col,
                         bin_ptime_col = scmpObj@Parameters@bin_ptime_col) {
     # Check Object Validity
-    assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
+    .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'."
     )
 
@@ -32,7 +32,7 @@ plotBinTile <- function(scmpObj,
     compression.info <- as.data.frame(colData(scmpObj@Dense))
 
     # Check if values are binned
-    assertthat::assert_that(nrow(as.data.frame(colData(scmpObj@Dense))) >= 1,
+    .check(nrow(as.data.frame(colData(scmpObj@Dense))) >= 1,
         msg = "No binning information found. Please run 'sc.squeeze()', first."
     )
 
