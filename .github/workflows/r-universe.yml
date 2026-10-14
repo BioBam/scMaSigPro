@@ -9,7 +9,7 @@ name: Test R-universe
 on:
   push:
     branches: [main, devel]
-  pull_request:
+  # pull_request:
   workflow_dispatch:
 
 jobs:
