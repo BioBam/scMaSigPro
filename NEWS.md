@@ -24,6 +24,7 @@
 
 * Internal
     * Unused code is removed: debugging leftovers, commented-out code, the never-enabled `useWeights` branches of `sc.p.vector()` and `sc.t.fit()`, the unexported and broken `ScMaSigPro()` constructor, and 19 unused `importFrom` directives. Results are unchanged.
+    * The size factors that `sc.p.vector()` and `sc.t.fit()` use as offsets are computed by a new internal function written from the published median-of-ratios method (Anders and Huber 2010, Genome Biology 11:R106) instead of by a copy of DESeq2's `estimateSizeFactorsForMatrix()`. The copy was LGPL (>= 3) code without credit in a GPL (>= 2) package. No DESeq2 code remains, so the licence stays GPL (>= 2) and no DESeq2 author needs to be added to Authors@R: the function implements the method as published and copies no code. Offsets and results are identical. When every gene has a missing count, `sc.p.vector()` now stops with "Cannot compute size factors" instead of an unrelated error from the model fit.
 
 ## scMaSigPro 0.0.5
 
