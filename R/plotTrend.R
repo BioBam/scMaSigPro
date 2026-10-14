@@ -123,7 +123,7 @@ plotTrend <- function(scmpObj,
     )
     for (i in path.names) {
         # Extract Coeff
-        a <- maSigPro::reg.coeffs(
+        a <- .path_coeffs(
             coefficients = betas,
             groups.vector = groups.vector,
             group = i

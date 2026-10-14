@@ -6,7 +6,6 @@
 #' \code{scMaSigPro::sc.p.vector()}.
 #'
 #' @importFrom BiocParallel bplapply bpnworkers SerialParam
-#' @importFrom maSigPro reg.coeffs
 #' @importFrom stats influence.measures
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
@@ -209,7 +208,7 @@ sc.t.fit <- function(scmpObj,
                 A <- NULL
                 col.names <- NULL
                 for (l in seq_along(groups)) {
-                    B <- reg.coeffs(
+                    B <- .path_coeffs(
                         coefficients = coefficients[w, ],
                         groups.vector = groups.vector, group = groups[l]
                     )

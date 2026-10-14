@@ -4,6 +4,9 @@
 # selection method and polynomial degree (on a 200-gene subset, for speed), and
 # to the negative binomial family on maSigPro's NBdata.
 
+# maSigPro is suggested: without it the whole file is skipped
+skip_if_not_installed("maSigPro")
+
 quiet <- function(expr) {
     invisible(utils::capture.output(res <- expr))
     res

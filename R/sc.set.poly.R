@@ -2,9 +2,9 @@
 #'
 #' @description
 #' Set up polynomial models and create Predictor Matrix that will contain the
-#' independent variables. It is a wrapper around `maSigPro::make.design.matrix`.
-#'
-#' @importFrom maSigPro make.design.matrix
+#' independent variables: the design of the maSigPro model (Conesa et al.
+#' 2006), with a dummy for every path but the first, the reference, and its
+#' products with each power of the binned pseudotime up to `poly_degree`.
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param poly_degree Degree of the polynomial.
@@ -81,13 +81,8 @@ sc.set.poly <- function(scmpObj,
     # Reorder columns
     com.cell.meta <- as.matrix(com.cell.meta[, ord])
 
-    # Run Original MaSigPro make.matrix.design
-    designList <- make.design.matrix(com.cell.meta,
-        degree = poly_degree,
-        time.col = 1,
-        repl.col = 2,
-        group.cols = c(3:ncol(com.cell.meta))
-    )
+    # Build the design: time in column 1, the paths from column 3
+    designList <- .poly_design(com.cell.meta, degree = poly_degree)
 
     # Create offset
     offset_vector <- numeric(rep(nrow(designList$edesign)))
