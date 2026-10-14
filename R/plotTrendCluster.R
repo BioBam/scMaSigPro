@@ -20,8 +20,6 @@
 #' (Default is TRUE)
 #' @param significant Include gene only if the models are significant based on
 #' \code{scMaSigPro::sc.filter()}. (Default is TRUE)
-#' @param parallel Use forking process to run parallelly. (Default is FALSE)
-#' (Currently, Windows is not supported)
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #' @param summary_mode Compress the expression values per replicate (if present)
 #'  per binned pseudotime point. Default is 'median'. Other option 'mean'
@@ -49,7 +47,6 @@ plotTrendCluster <- function(scmpObj,
                              curves = TRUE,
                              lines = FALSE,
                              points = TRUE,
-                             parallel = FALSE,
                              loess_span = 0.8) {
     # Global vars
     scmp_clusters <- "scmp_clusters"

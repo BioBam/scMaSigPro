@@ -5,8 +5,7 @@
 #' model.
 #'
 #' @importFrom stats anova dist glm median p.adjust
-#' @importFrom utils setTxtProgressBar txtProgressBar
-#' @importFrom parallelly availableCores
+#' @importFrom BiocParallel bplapply bpnworkers SerialParam
 #' @importFrom MASS negative.binomial
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
@@ -23,11 +22,15 @@
 #' @param log_offset A logical value specifying whether to take the logarithm of
 #' the offsets.
 #' @param max_it Maximum number of iterations to fit the model.
-#' @param parallel Use forking process to run parallelly. (Default is FALSE)
-#' (Currently, Windows is not supported)
-#' @param n_cores Explicitly specify the number of cores to use for parallel model
-#' fitting. (Default is inferred from the system using availableCores()-2)
 #' @param verbose Print detailed output in the console. (Default is TRUE)
+#' @param BPPARAM A \code{BiocParallelParam} object that runs the per-gene
+#' fits, such as
+#' \code{\link[BiocParallel:MulticoreParam-class]{MulticoreParam}(2)} (Linux
+#' and macOS) or \code{\link[BiocParallel:SnowParam-class]{SnowParam}(2)}
+#' (any system, including Windows). The default,
+#' \code{\link[BiocParallel:SerialParam-class]{SerialParam}()}, fits the genes
+#' one after another. Create it with \code{progressbar = TRUE} for a progress
+#' bar. The results do not depend on the backend.
 #'
 #' @return An object of class \code{\link{ScMaSigPro}}, with updated `Profile`
 #' slot.
@@ -49,11 +52,10 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
                         epsilon = 1e-8,
                         verbose = TRUE,
                         offset = TRUE,
-                        parallel = FALSE,
-                        n_cores = availableCores() - 2,
                         log_offset = FALSE,
                         max_it = 100,
-                        link = "log") {
+                        link = "log",
+                        BPPARAM = SerialParam()) {
     # Check the type of the 'design' parameter and set the corresponding variables
     .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'"
@@ -114,81 +116,17 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         offsetData <- NULL
     }
 
-    if (parallel) {
-        os_name <- get_os()
-        if (os_name == "windows") {
-            numCores <- 1
-            warning("Currently, we only support sequential processing on windows based systems...")
-        } else {
-            n_cores <- as.integer(n_cores)
-            # Check Required Cores
-            .check(n_cores <= availableCores(),
-                msg = paste(
-                    "Number of cores requested is invalid. This session has",
-                    "access to", as.integer(availableCores()), "cores only."
-                )
-            )
-            numCores <- n_cores
-        }
-        if (verbose) {
-            message("Running with ", numCores, " cores...")
-        }
-    } else {
-        numCores <- 1
-        if (verbose) {
-            pb <- txtProgressBar(min = 0, max = g, style = 3)
-        }
+    if (verbose) {
+        message(
+            "Fitting the full model to ", g, " genes with ",
+            class(BPPARAM)[1L], " (workers: ", bpnworkers(BPPARAM), ")"
+        )
     }
 
-    p.vector.list <- mclapply(1:g, function(i, g_lapply = g, dat_lapply = dat,
-                                            dis_lapply = dis,
-                                            family_lapply = family,
-                                            epsilon_lapply = epsilon,
-                                            offsetdata_lapply = offsetData,
-                                            pb_lapply = pb,
-                                            verbose_lapply = verbose,
-                                            max_it_lapply = max_it) {
-        y <- as.numeric(dat_lapply[i, ])
-
-        # Print prog_lapplyress every 100 g_lapplyenes
-        div <- c(1:round(g_lapply / 100)) * 100
-
-        if (parallel == FALSE) {
-            if (is.element(i, div) && verbose_lapply) {
-                if (verbose) {
-                    setTxtProgressBar(pb_lapply, i)
-                }
-            }
-        }
-
-        # Set full Model
-        model.glm <- glm(y ~ .,
-            data = dis_lapply, family = family_lapply, epsilon = epsilon_lapply,
-            offset = offsetdata_lapply,
-            maxit = max_it_lapply
-        )
-        sc_p_val <- NA
-        if (model.glm$null.deviance == 0) {
-            sc_p_val <- 1
-        } else {
-            model.glm.0 <- glm(y ~ 1,
-                family = family_lapply, epsilon = epsilon_lapply,
-                offset = offsetdata_lapply,
-                maxit = max_it_lapply
-            )
-
-            # Perform ANOVA or Chi-square test based on the dis_lapplytribution
-            if (family_lapply$family == "gaussian") {
-                test <- anova(model.glm.0, model.glm, test = "F")
-                sc_p_val <- ifelse(is.na(test[6][2, 1]), 1, test[6][2, 1])
-            } else {
-                test <- anova(model.glm.0, model.glm, test = "Chisq")
-                sc_p_val <- ifelse(is.na(test[5][2, 1]), 1, test[5][2, 1])
-            }
-        }
-
-        return(sc_p_val)
-    }, mc.cores = numCores)
+    p.vector.list <- bplapply(seq_len(g), .pvector_gene,
+        dat = dat, dis = dis, family = family, epsilon = epsilon,
+        offset_data = offsetData, max_it = max_it, BPPARAM = BPPARAM
+    )
 
     names(p.vector.list) <- rownames(dat)
     sc.p.vector <- unlist(p.vector.list, recursive = TRUE, use.names = TRUE)
@@ -240,4 +178,40 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
 
         return(scmpObj)
     }
+}
+
+# Full-model p-value of gene i (row i of dat): glm(y ~ .) against glm(y ~ 1),
+# with an F test for the Gaussian family and a chi-squared test otherwise.
+# sc.p.vector() runs it through bplapply(), so it takes all its data as
+# arguments: SnowParam workers are new R sessions.
+.pvector_gene <- function(i, dat, dis, family, epsilon, offset_data, max_it) {
+    y <- as.numeric(dat[i, ])
+
+    # Set full Model
+    model.glm <- glm(y ~ .,
+        data = dis, family = family, epsilon = epsilon,
+        offset = offset_data,
+        maxit = max_it
+    )
+    sc_p_val <- NA
+    if (model.glm$null.deviance == 0) {
+        sc_p_val <- 1
+    } else {
+        model.glm.0 <- glm(y ~ 1,
+            family = family, epsilon = epsilon,
+            offset = offset_data,
+            maxit = max_it
+        )
+
+        # Perform ANOVA or Chi-square test based on the distribution
+        if (family$family == "gaussian") {
+            test <- anova(model.glm.0, model.glm, test = "F")
+            sc_p_val <- ifelse(is.na(test[6][2, 1]), 1, test[6][2, 1])
+        } else {
+            test <- anova(model.glm.0, model.glm, test = "Chisq")
+            sc_p_val <- ifelse(is.na(test[5][2, 1]), 1, test[5][2, 1])
+        }
+    }
+
+    return(sc_p_val)
 }

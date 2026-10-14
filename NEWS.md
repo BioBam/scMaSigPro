@@ -7,6 +7,12 @@
     * To analyse a Monocle3 trajectory now, extract the pseudotime and a path label for every cell and pass the counts and that cell table to `create_scmp()`. The "Common Root Cells" vignette shows the extraction steps.
     * `showCoeff()`, `showGroupCoeff()`, `showInflu()`, `showParams()`, `showSigProf()`, `showSol()` and `showTS()` no longer have `view` and `return` arguments: they always return their result and never open the data viewer. Delete `view =` and `return =` from calls; to browse a result, use `View(showCoeff(obj))`.
     * `.ScMaSigPro_show()`, the helper behind the `show()` method, is no longer exported. Printing an object is unchanged.
+    * `sc.p.vector()` and `sc.t.fit()` run their per-gene fits with BiocParallel. The `parallel` and `n_cores` arguments are replaced by `BPPARAM`, which defaults to `BiocParallel::SerialParam()` and fits one gene after another, as `parallel = FALSE` did. Replace `parallel = TRUE, n_cores = k` with `BPPARAM = BiocParallel::MulticoreParam(k)` on Linux and macOS, or with `BPPARAM = BiocParallel::SnowParam(k)` on any system. Windows, where `parallel = TRUE` fell back to one core with a warning, can now fit in parallel with `SnowParam()`. The results are identical with every backend.
+    * `sc.p.vector()` and `sc.t.fit()` no longer show a progress bar; with `verbose = TRUE` each reports the number of genes and the backend in one message. For a per-gene progress bar, pass a param created with `progressbar = TRUE`, such as `BPPARAM = BiocParallel::SerialParam(progressbar = TRUE)`.
+    * `plotTrendCluster()` loses its `parallel` argument, which had no effect; delete it from calls.
+
+* Bug Fixes
+    * `sc.t.fit()` with `selection_method = "forward"`, `"two.ways.backward"` or `"two.ways.forward"` failed on R >= 4.3 unless `parallel = TRUE` was set, with the error "'length = <n>' in coercion to 'logical(1)'" raised by its progress-bar code. The three methods now run with the default arguments and, like `"backward"`, reproduce `maSigPro::T.fit()` exactly on the package's Gaussian and negative binomial test data.
 
 * Dependency Changes
     * `shiny`, `plotly`, `igraph` and `scales` are no longer dependencies, so installing scMaSigPro pulls in 55 non-base packages instead of 98.
@@ -18,6 +24,7 @@
     * `mclust` moves from Imports to Suggests (it is still installed with `maSigPro`). `sc.cluster.trend(cluster_method = "Mclust")` and the plot of `plotIntersect()` check that `mclust` and `UpSetR` are installed and say how to install them; `plotIntersect(return = TRUE)` does not need `UpSetR`.
     * `ggpubr` is no longer suggested: the vignettes arrange plots with `patchwork`.
     * The ggplot2 functions in use are imported one by one instead of the whole package, and the `dgCMatrix` class is imported from `Matrix`. With these changes installing scMaSigPro pulls in 41 non-base packages instead of 52, and Imports lists 12 packages instead of 18.
+    * `parallel` and `parallelly` are replaced by `BiocParallel`, and `utils` is no longer imported. Installing scMaSigPro pulls in 48 non-base packages instead of 41.
 
 * Minor changes
     * Error and progress messages are corrected: misspellings ("doesn't exit", "Overwritting", "onservations", "selction", "select on of"), the class name (`ScMaSigPro`, not `scMaSigPro`), and pointers to functions that do not exist (`plotIntersect()` now points to `sc.filter()`, `showPoly()` to `sc.set.poly()`). `plotDiagnostics()` reports an invalid `model` instead of a missing gene, and messages no longer contain line breaks and indentation copied from the source code. Code that matches the old wording, such as the "Overwritting assay" warning of `eSparse<-` and `eDense<-`, must be updated.
@@ -25,6 +32,7 @@
 * Internal
     * Unused code is removed: debugging leftovers, commented-out code, the never-enabled `useWeights` branches of `sc.p.vector()` and `sc.t.fit()`, the unexported and broken `ScMaSigPro()` constructor, and 19 unused `importFrom` directives. Results are unchanged.
     * The size factors that `sc.p.vector()` and `sc.t.fit()` use as offsets are computed by a new internal function written from the published median-of-ratios method (Anders and Huber 2010, Genome Biology 11:R106) instead of by a copy of DESeq2's `estimateSizeFactorsForMatrix()`. The copy was LGPL (>= 3) code without credit in a GPL (>= 2) package. No DESeq2 code remains, so the licence stays GPL (>= 2) and no DESeq2 author needs to be added to Authors@R: the function implements the method as published and copies no code. Offsets and results are identical. When every gene has a missing count, `sc.p.vector()` now stops with "Cannot compute size factors" instead of an unrelated error from the model fit.
+    * `sc.t.fit()` uses one per-gene function for its four selection methods instead of four copies that differed only in the selection function, and the internal `get_os()`, used only to keep Windows sequential, is removed.
 
 ## scMaSigPro 0.0.5
 

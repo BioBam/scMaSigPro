@@ -536,7 +536,7 @@ pb_counts <- function(scmpObj,
     # Get the meta-information for pseudobulking
     meta.info <- pseudo_bulk_profile[, c(bin_mem_col, bin_col)]
 
-    # Run mclapply
+    # Pseudo-bulk the counts of each bin
     pb.counts <- lapply(seq_len(nrow(meta.info)), function(i) {
         # Get the bin.info
         bin <- meta.info[i, , drop = FALSE]
@@ -561,7 +561,7 @@ pb_counts <- function(scmpObj,
         return(pb.vector)
     })
 
-    # Convert the list output of mclapply to a matrix and set the row names
+    # Bind the per-bin columns into a matrix and set the row names
     pb.counts <- do.call(cbind, pb.counts)
     rownames(pb.counts) <- rownames(counts)
     colnames(pb.counts) <- bin_ids

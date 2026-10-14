@@ -5,7 +5,6 @@
 #' of equal width. It automatically calculates the optimal number of bins
 #' using one of the supported methods.
 #'
-#' @importFrom parallel mclapply
 #' @importFrom SummarizedExperiment assay colData<-
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.

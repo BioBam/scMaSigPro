@@ -50,6 +50,11 @@ exportMethods(eSparse)
 exportMethods(pathAssign)
 exportMethods(predictors)
 importClassesFrom(Matrix,dgCMatrix)
+importFrom(BiocParallel,
+  SerialParam,
+  bplapply,
+  bpnworkers
+)
 importFrom(MASS,negative.binomial)
 importFrom(S4Vectors,
   DataFrame,
@@ -103,8 +108,6 @@ importFrom(methods,
   slot,
   slotNames
 )
-importFrom(parallel,mclapply)
-importFrom(parallelly,availableCores)
 importFrom(stats,
   IQR,
   anova,
@@ -124,8 +127,4 @@ importFrom(stats,
   residuals,
   rstandard,
   sd
-)
-importFrom(utils,
-  setTxtProgressBar,
-  txtProgressBar
 )

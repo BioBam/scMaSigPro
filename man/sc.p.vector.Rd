@@ -13,11 +13,10 @@ sc.p.vector(
   epsilon = 1e-08,
   verbose = TRUE,
   offset = TRUE,
-  parallel = FALSE,
-  n_cores = availableCores() - 2,
   log_offset = FALSE,
   max_it = 100,
-  link = "log"
+  link = "log",
+  BPPARAM = SerialParam()
 )
 }
 \arguments{
@@ -40,18 +39,21 @@ model.}
 
 \item{offset}{logical value specifying whether to use offset during fitting.}
 
-\item{parallel}{Use forking process to run parallelly. (Default is FALSE)
-(Currently, Windows is not supported)}
-
-\item{n_cores}{Explicitly specify the number of cores to use for parallel model
-fitting. (Default is inferred from the system using availableCores()-2)}
-
 \item{log_offset}{A logical value specifying whether to take the logarithm of
 the offsets.}
 
 \item{max_it}{Maximum number of iterations to fit the model.}
 
 \item{link}{Type of link function to use in the model. Default is "log".}
+
+\item{BPPARAM}{A \code{BiocParallelParam} object that runs the per-gene
+fits, such as
+\code{\link[BiocParallel:MulticoreParam-class]{MulticoreParam}(2)} (Linux
+and macOS) or \code{\link[BiocParallel:SnowParam-class]{SnowParam}(2)}
+(any system, including Windows). The default,
+\code{\link[BiocParallel:SerialParam-class]{SerialParam}()}, fits the genes
+one after another. Create it with \code{progressbar = TRUE} for a progress
+bar. The results do not depend on the backend.}
 }
 \value{
 An object of class \code{\link{ScMaSigPro}}, with updated \code{Profile}
