@@ -105,7 +105,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     # Calculate  offset
     if (offset) {
         dat <- dat + 1
-        offsetData <- scmp_estimateSizeFactorsForMatrix(dat)
+        offsetData <- .size_factors(dat)
         if (log_offset) {
             offsetData <- log(offsetData)
         }
