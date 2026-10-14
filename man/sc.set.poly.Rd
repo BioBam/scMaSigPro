@@ -28,7 +28,9 @@ slot.
 }
 \description{
 Set up polynomial models and create Predictor Matrix that will contain the
-independent variables. It is a wrapper around \code{maSigPro::make.design.matrix}.
+independent variables: the design of the maSigPro model (Conesa et al.
+2006), with a dummy for every path but the first, the reference, and its
+products with each power of the binned pseudotime up to \code{poly_degree}.
 }
 \references{
 {Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.

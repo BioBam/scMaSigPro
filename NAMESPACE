@@ -97,10 +97,6 @@ importFrom(ggplot2,
   xlab,
   ylab
 )
-importFrom(maSigPro,
-  make.design.matrix,
-  reg.coeffs
-)
 importFrom(methods,
   as,
   is,

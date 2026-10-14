@@ -1,6 +1,9 @@
 suppressPackageStartupMessages(library(testthat))
 suppressPackageStartupMessages(library(scMaSigPro))
 
+# maSigPro is suggested: without it this oracle test is skipped
+skip_if_not_installed("maSigPro")
+
 test_that("Reproduce Results of MaSigPro", {
     # Step-1: Load Data
     utils::data("data.abiotic", package = "maSigPro", envir = environment())

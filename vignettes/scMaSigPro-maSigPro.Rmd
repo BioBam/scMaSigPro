@@ -20,6 +20,13 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(crop = NULL)
 library(scMaSigPro)
+# maSigPro is suggested, not required: without it the code is shown, not run
+has_masigpro <- requireNamespace("maSigPro", quietly = TRUE)
+knitr::opts_chunk$set(eval = has_masigpro)
+```
+
+```{r, "no-maSigPro", echo=FALSE, eval=!has_masigpro, results="asis"}
+cat("*`maSigPro` is not installed, so the code below is shown but not run.*\n")
 ```
 
 ## Introduction
@@ -82,7 +89,7 @@ First, we need to load both `scMaSigPro` and `maSigPro`. Additionally, we will l
 `testthat`, a user-friendly testing framework for R that integrates well with
 existing workflows. We will use testthat to verify if `scMaSigPro` produces 
 the same results as `maSigPro` when used in bulk mode.
-```{r, "set up", echo=TRUE, eval=TRUE}
+```{r, "set up", echo=TRUE}
 # load scMaSigPro
 library(scMaSigPro)
 
@@ -98,7 +105,7 @@ In this tutorial, we will use datasets from `maSigPro` and aim to replicate the
 same analysis pipeline using `scMaSigPro`. For more detailed information about
 the data analysis, refer to the original [`maSigPro` vignette-userguide](https://www.bioconductor.org/packages/release/bioc/vignettes/maSigPro/inst/doc/maSigProUsersGuide.pdf)
 
-```{r, "get-data", echo=TRUE, eval=TRUE}
+```{r, "get-data", echo=TRUE}
 # load counts
 data(data.abiotic)
 
@@ -111,7 +118,7 @@ metadata <- as.data.frame(edesign.abiotic)
 ```
 
 Let's briefly examine each dataset:
-```{r, "view-data", echo=TRUE, eval=TRUE}
+```{r, "view-data", echo=TRUE}
 # View a subset of count data
 print(data.abiotic[c(1:5), c(1:5)])
 
@@ -125,7 +132,7 @@ and includes temporal replicates.
 
 To simplify the analysis, we'll convert the binarized groups into a single column.
 `scMaSigPro` automatically binarizes groups internally, reducing the likelihood of errors.
-```{r, "non-binarize", echo=TRUE, eval=TRUE}
+```{r, "non-binarize", echo=TRUE}
 # Add group column
 metadata$Group <- apply(metadata[, c(3:6)], 1, FUN = function(x) {
     return(names(x[x == 1]))
@@ -152,7 +159,7 @@ As we are using `scMaSigPro` in bulk mode, we will set use_as_bin = TRUE. This
 directs the data to the dense slot of the scmpObject, allowing us to proceed with
 the analysis without using `sc.squeeze()`, which is specifically designed for scRNA-Seq
 pseudo-bulking.
-```{r, "create-scmpObject", echo=TRUE, eval=TRUE}
+```{r, "create-scmpObject", echo=TRUE}
 scmp_ob <- create_scmp(
     counts = count,
     cell_data = metadata,
