@@ -8,6 +8,11 @@
 \description{
 S4 class to store results of the polynomial term selection from full model.
 }
+\details{
+\code{validObject()} checks that \code{t_score_matrix} has the shape and rows of
+\code{coefficient_matrix}, that \code{path_coefficient_matrix} has its rows, and
+that every row of \code{significance_matrix} is a row of \code{coefficient_matrix}.
+}
 \section{Slots}{
 
 \describe{

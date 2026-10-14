@@ -9,6 +9,11 @@
 S4 Class to hold parameters used in the analysis. It is constantly updated
 as the analysis progresses.
 }
+\details{
+\code{validObject()} checks that every slot except \code{distribution} holds a
+single non-missing value and that \code{distribution} is a \code{\link[stats:family]{stats::family()}}
+object.
+}
 \section{Slots}{
 
 \describe{

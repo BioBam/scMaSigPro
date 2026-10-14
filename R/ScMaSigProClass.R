@@ -55,6 +55,11 @@
 #' clustering.
 #' @slot fill_na Method to fill the missing values.
 #'
+#' @details
+#' `validObject()` checks that every slot except `distribution` holds a
+#' single non-missing value and that `distribution` is a [stats::family()]
+#' object.
+#'
 #' @name ParameterConfig
 #' @aliases ParameterConfig-class
 #' @rdname ParameterConfig-class
@@ -90,51 +95,21 @@ setClass(
         fill_na = "character"
     ),
     validity = function(object) {
-        errors <- character(0)
-
-        # Check if any character slots are empty or not of type character
-        char_slots <- c(
-            "bin_ptime_col", "path_prefix", "root_label", "ptime_col", "bin_method",
-            "path_col", "bin_col", "bin_size_col", "bin_mem_col",
-            "mt_correction", "selection_method", "anno_col", "cluster_method",
-            "use_dim", "fill_na", "link"
-        )
-
-        for (slot_name in char_slots) {
-            slot_value <- slot(object, slot_name)
-            if (length(slot_value) == 0 || !is.character(slot_value)) {
-                errors <- c(errors, paste(
-                    slot_name,
-                    "must not be empty and should be of type character."
+        msg <- character()
+        # S4 already enforces each slot's type; the workflow also needs one
+        # value per slot.
+        for (s in setdiff(slotNames(object), "distribution")) {
+            value <- slot(object, s)
+            if (length(value) != 1L || is.na(value)) {
+                msg <- c(msg, paste0(
+                    "'", s, "' must be a single non-missing value"
                 ))
             }
         }
-
-        if (!is.integer(object@g)) {
-            stop("Slot 'g' must be an integer.")
+        if (!inherits(object@distribution, "family")) {
+            msg <- c(msg, "'distribution' must be a 'family' object")
         }
-
-        if (!is.numeric(object@epsilon)) {
-            stop("Slot 'epsilon' must be numeric.")
-        }
-
-        # Check for slot min.na
-        if (!is.numeric(object@min_na)) {
-            stop("Slot 'min_na' must be an integer.")
-        }
-
-        # Check if any of the character slots have multiple values
-        for (slot_name in char_slots) {
-            slot_value <- slot(object, slot_name)
-            if (length(slot_value) > 1) {
-                errors <- c(errors, paste(
-                    slot_name,
-                    "should not contain multiple values."
-                ))
-            }
-        }
-
-        if (length(errors) == 0) TRUE else errors
+        if (length(msg)) msg else TRUE
     },
     prototype = list(
         bin_ptime_col = "scmp_binned_pseudotime",
@@ -180,6 +155,11 @@ setClass(
 #' replicate.
 #' @slot offset A numeric vector containing the offset values.
 #'
+#' @details
+#' `validObject()` checks that `assignment_matrix` has the rows of
+#' `predictor_matrix` (one per bin), that `offset` has one value per row and
+#' that `groups.vector` has one value per column of `predictor_matrix`.
+#'
 #' @name MatrixDesign
 #' @aliases MatrixDesign-class
 #' @rdname MatrixDesign-class
@@ -200,19 +180,30 @@ setClass(
         offset = numeric()
     ),
     validity = function(object) {
-        if (!validObject(object@predictor_matrix)) {
-            stop("predictor_matrix slot is not a valid matrix.")
+        msg <- character()
+        pred <- object@predictor_matrix
+        alloc <- object@assignment_matrix
+        same_rows <- nrow(alloc) == nrow(pred) &&
+            identical(rownames(alloc), rownames(pred))
+        if (!same_rows) {
+            msg <- c(msg, paste(
+                "'assignment_matrix' must have the rows of",
+                "'predictor_matrix'"
+            ))
         }
-        if (!validObject(object@groups.vector)) {
-            stop("groups.vector slot is not a valid character vector.")
+        if (length(object@offset) != nrow(pred)) {
+            msg <- c(msg, paste(
+                "'offset' must have one value per row of",
+                "'predictor_matrix'"
+            ))
         }
-        if (!validObject(object@assignment_matrix)) {
-            stop("assignment_matrix slot is not a valid matrix.")
+        if (length(object@groups.vector) != ncol(pred)) {
+            msg <- c(msg, paste(
+                "'groups.vector' must have one value per column of",
+                "'predictor_matrix'"
+            ))
         }
-        if (!validObject(object@offset)) {
-            stop("offset slot is not a valid vector.")
-        }
-        TRUE
+        if (length(msg)) msg else TRUE
     }
 )
 ###############################################################################
@@ -227,6 +218,11 @@ setClass(
 #' @slot adj_p_values A numeric vector containing the computed adjusted
 #' p-values for non-flat profiles.
 #' @slot fdr False Discovery Rate (FDR) value for the given significance level.
+#'
+#' @details
+#' `validObject()` checks that `p_values` and `adj_p_values` have the same
+#' length and names, that `fdr` holds at most one value and that every gene
+#' in `non_flat` is named in `p_values`.
 #'
 #' @name VariableProfiles
 #' @aliases VariableProfiles-class
@@ -246,19 +242,25 @@ setClass("VariableProfiles",
         fdr = "numeric"
     ),
     validity = function(object) {
-        if (!is.character(object@non_flat)) {
-            stop("Slot 'non_flat' must be a character vector of gene names.")
+        msg <- character()
+        p <- object@p_values
+        adj <- object@adj_p_values
+        if (length(adj) != length(p) || !identical(names(adj), names(p))) {
+            msg <- c(msg, paste(
+                "'adj_p_values' must have the length and names of",
+                "'p_values'"
+            ))
         }
-        if (!is.numeric(object@p_values)) {
-            stop("Slot 'p_values' must be a numeric vector.")
+        if (length(object@fdr) > 1L) {
+            msg <- c(msg, "'fdr' must hold at most one value")
         }
-        if (!is.numeric(object@adj_p_values)) {
-            stop("Slot 'adj_p_values' must be a numeric vector.")
+        if (!all(object@non_flat %in% names(p))) {
+            msg <- c(msg, paste(
+                "every gene in 'non_flat' must be named in",
+                "'p_values'"
+            ))
         }
-        if (!is.numeric(object@fdr)) {
-            stop("Slot 'fdr' must be numeric.")
-        }
-        TRUE
+        if (length(msg)) msg else TRUE
     },
     prototype = list(
         non_flat = character(),
@@ -283,6 +285,11 @@ setClass("VariableProfiles",
 #' @slot path A character vector containing the branching path.
 #' @slot influential A matrix with genes containing influential data.
 #'
+#' @details
+#' `validObject()` checks that `t_score_matrix` has the shape and rows of
+#' `coefficient_matrix`, that `path_coefficient_matrix` has its rows, and
+#' that every row of `significance_matrix` is a row of `coefficient_matrix`.
+#'
 #' @name Estimates
 #' @aliases Estimates-class
 #' @rdname Estimates-class
@@ -299,24 +306,30 @@ setClass(
         influential = "matrix"
     ),
     validity = function(object) {
-        if (!is.matrix(object@significance_matrix)) {
-            stop("significance_matrix slot must be a matrix.")
+        msg <- character()
+        genes <- rownames(object@coefficient_matrix)
+        tscore <- object@t_score_matrix
+        same_shape <- identical(dim(tscore), dim(object@coefficient_matrix)) &&
+            identical(rownames(tscore), genes)
+        if (!same_shape) {
+            msg <- c(msg, paste(
+                "'t_score_matrix' must have the shape and rows of",
+                "'coefficient_matrix'"
+            ))
         }
-        if (!is.matrix(object@coefficient_matrix)) {
-            stop("coefficient_matrix slot must be a matrix.")
+        if (!identical(rownames(object@path_coefficient_matrix), genes)) {
+            msg <- c(msg, paste(
+                "'path_coefficient_matrix' must have the rows of",
+                "'coefficient_matrix'"
+            ))
         }
-        if (!is.matrix(object@path_coefficient_matrix)) {
-            stop("path_coefficient_matrix slot must be a matrix.")
+        if (!all(rownames(object@significance_matrix) %in% genes)) {
+            msg <- c(msg, paste(
+                "rows of 'significance_matrix' must be rows of",
+                "'coefficient_matrix'"
+            ))
         }
-        if (!is.matrix(object@t_score_matrix)) {
-            stop("t_score_matrix slot must be a matrix.")
-        }
-        if (!is.character(object@path)) {
-            stop("path slot must be a character.")
-        }
-        if (!is.matrix(object@influential)) {
-            stop("influential slot must be a matrix.")
-        }
+        if (length(msg)) msg else TRUE
     },
     prototype = list(
         significance_matrix = matrix(NA, nrow = 0, ncol = 0),
@@ -337,6 +350,11 @@ setClass(
 #' @slot clusters Named list of clusters selected based on user-specified
 #' thresholds.
 #'
+#' @details
+#' `validObject()` checks that every element of `genes` is a character
+#' vector of gene names and that `clusters` holds one value per gene, named
+#' by gene.
+#'
 #' @name Significant
 #' @aliases Significant-class
 #' @rdname Significant-class
@@ -349,12 +367,22 @@ setClass(
         clusters = "list"
     ),
     validity = function(object) {
-        if (!is.list(object@genes)) {
-            stop("genes slot must be a list")
+        msg <- character()
+        if (!all(vapply(object@genes, is.character, logical(1)))) {
+            msg <- c(msg, paste(
+                "every element of 'genes' must be a character vector of",
+                "gene names"
+            ))
         }
-        if (!is.list(object@clusters)) {
-            stop("clusters slot must be a list")
+        cl <- object@clusters
+        named <- !is.null(names(cl)) && all(nzchar(names(cl)))
+        if (length(cl) > 0L && (!named || any(lengths(cl) != 1L))) {
+            msg <- c(msg, paste(
+                "'clusters' must hold one value per gene, named",
+                "by gene"
+            ))
         }
+        if (length(msg)) msg else TRUE
     },
     prototype = list(
         genes = list(),
@@ -378,11 +406,16 @@ setClass(
 #' @slot Significant Object of Class \code{\link{Significant}}.
 #' @slot Parameters Object of Class \code{\link{ParameterConfig}}.
 #'
+#' @details
+#' `validObject()` checks every slot with the validity method of its class
+#' and reports each problem with the name of the slot. Objects are created
+#' with [create_scmp()] or [as_scmp()].
+#'
 #' @name ScMaSigPro
 #' @aliases ScMaSigPro-class
 #' @rdname ScMaSigPro-class
 #' @exportClass ScMaSigPro
-#' @importFrom methods is new as
+#' @importFrom methods is new as validObject
 #' @keywords classes
 
 setClass(
@@ -397,41 +430,20 @@ setClass(
         Parameters = "ParameterConfig"
     ),
     validity = function(object) {
-        # Check sparse slot
-        if (!validObject(object@Sparse)) {
-            stop("'Sparse' slot is not a valid 'SingleCellExperiment' class object.")
+        msg <- character()
+        # By default validObject() checks only the class of each slot.
+        for (s in slotNames(object)) {
+            problems <- validObject(slot(object, s), test = TRUE)
+            if (!isTRUE(problems)) {
+                msg <- c(msg, paste0("slot '", s, "': ", problems))
+            }
         }
-
-        # Check VariableProfiles slot
-        if (!validObject(object@Profile)) {
-            stop("'Profile' slot is not a valid 'VariableProfiles' class object.")
-        }
-
-        # Check Estimates slot
-        if (!validObject(object@Estimate)) {
-            stop("'Estimates' slot is not a valid 'Estimates' class object.")
-        }
-
-        # Check dense slot
-        if (!validObject(object@Dense)) {
-            stop("'Dense' slot is not a valid 'SingleCellExperiment' class object.")
-        }
-
-        # Check MatrixDesign slot
-        if (!validObject(object@Design)) {
-            stop("'Design' slot is not a valid 'MatrixDesign' class object.")
-        }
-
-        # Check ParameterConfig slot
-        if (!validObject(object@Parameters)) {
-            stop("'Parameters' slot is not a valid 'ParameterConfig' class object.")
-        }
-        # Check ParameterConfig slot
-        if (!validObject(object@Significant)) {
-            stop("'Significant' slot is not a valid 'Significant' object.")
-        }
+        if (length(msg)) msg else TRUE
     },
     prototype = list(
+        # new("SingleCellExperiment") is not a valid object; the constructor is.
+        Sparse = SingleCellExperiment(),
+        Dense = SingleCellExperiment(),
         Profile = new("VariableProfiles"),
         Estimate = new("Estimates"),
         Parameters = new("ParameterConfig"),

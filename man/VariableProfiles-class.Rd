@@ -8,6 +8,11 @@
 \description{
 S4 class to store results of the global model fitting for all the features.
 }
+\details{
+\code{validObject()} checks that \code{p_values} and \code{adj_p_values} have the same
+length and names, that \code{fdr} holds at most one value and that every gene
+in \code{non_flat} is named in \code{p_values}.
+}
 \section{Slots}{
 
 \describe{

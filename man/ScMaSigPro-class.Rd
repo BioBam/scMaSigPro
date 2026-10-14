@@ -9,6 +9,11 @@
 S4 class to store analysis of ScMaSigPro worflow. It stores results,
 parameters and associated data. Inherits slots from \code{SingleCellExperiment}.
 }
+\details{
+\code{validObject()} checks every slot with the validity method of its class
+and reports each problem with the name of the slot. Objects are created
+with \code{\link[=create_scmp]{create_scmp()}} or \code{\link[=as_scmp]{as_scmp()}}.
+}
 \section{Slots}{
 
 \describe{
