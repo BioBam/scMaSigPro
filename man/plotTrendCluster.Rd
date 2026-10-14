@@ -20,7 +20,6 @@ plotTrendCluster(
   curves = TRUE,
   lines = FALSE,
   points = TRUE,
-  parallel = FALSE,
   loess_span = 0.8
 )
 }
@@ -59,9 +58,6 @@ higher values will result in more linear trends. (Default is 0.01)}
 \item{lines}{Whether to plot the lines. (Default is FALSE)}
 
 \item{points}{Whether to plot the points. (Default is TRUE)}
-
-\item{parallel}{Use forking process to run parallelly. (Default is FALSE)
-(Currently, Windows is not supported)}
 
 \item{loess_span}{The fraction of the data used when estimating each y-value,
 when plotting curves. (Default is 0.75)}

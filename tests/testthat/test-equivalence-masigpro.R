@@ -17,23 +17,11 @@ group_column <- function(design, group_cols) {
 
 methods <- c("backward", "forward", "two.ways.backward", "two.ways.forward")
 
-# Known bug (ledger T1): with parallel = FALSE every method except "backward"
-# errors on R >= 4.3 (`is.element(y, div) && ...` on a vector, R/sc.t.fit.R).
-# parallel = TRUE with one core runs the same per-gene code in-process
-# (mclapply with mc.cores = 1 is lapply) and skips the broken block. Remove
-# this workaround in the PR that fixes T1.
+# Every method runs with the default BPPARAM (SerialParam()). Before
+# BiocParallel, the progress-bar code of the three non-backward methods
+# errored on R >= 4.3 (ledger T1).
 fit_sc <- function(ob, method) {
-    withCallingHandlers(
-        suppressMessages(sc.t.fit(ob,
-            selection_method = method, verbose = FALSE,
-            parallel = method != "backward", n_cores = 1L
-        )),
-        warning = function(w) {
-            if (grepl("sequential processing on windows", conditionMessage(w), fixed = TRUE)) {
-                invokeRestart("muffleWarning")
-            }
-        }
-    )
+    sc.t.fit(ob, selection_method = method, verbose = FALSE)
 }
 
 expect_tfit_matches <- function(sc, tstep, non_flat) {
@@ -76,7 +64,7 @@ abiotic_case <- function(degree) {
         ob <- sc.set.poly(ob, poly_degree = degree)
         ob <- sc.p.vector(ob,
             min_na = 20, verbose = FALSE, link = "identity", offset = FALSE,
-            parallel = FALSE, max_it = 25, epsilon = 0.00001, family = gaussian()
+            max_it = 25, epsilon = 0.00001, family = gaussian()
         )
         list(design = design, fit = fit, ob = ob)
     })
@@ -101,17 +89,6 @@ for (degree in 1:3) {
         })
     }
 }
-
-test_that("non-backward selection errors with parallel = FALSE (ledger T1, freeze)", {
-    ob <- abiotic_case(2)$ob
-    for (method in setdiff(methods, "backward")) {
-        expect_error(
-            sc.t.fit(ob, selection_method = method, verbose = FALSE),
-            "logical(1)",
-            fixed = TRUE
-        )
-    }
-})
 
 # ---- Negative binomial, NBdata (theta = 10, log link, no offset) ------------
 
@@ -154,3 +131,12 @@ for (method in methods) {
         expect_tfit_matches(fit_sc(case$ob, method), tstep, case$ob@Profile@non_flat)
     })
 }
+
+test_that("every selection method also runs with verbose = TRUE (ledger T1, q9)", {
+    ob <- nb_case()$ob
+    for (method in methods) {
+        msgs <- capture_messages(fit <- sc.t.fit(ob, selection_method = method))
+        expect_match(msgs[1], "with SerialParam (workers: 1)", fixed = TRUE)
+        expect_identical(fit@Estimate, fit_sc(ob, method)@Estimate)
+    }
+})

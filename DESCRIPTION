@@ -23,7 +23,6 @@ License: GPL (>= 2)
 Imports:
     methods,
     stats,
-    utils,
     Matrix,
     S4Vectors (>= 0.40.2),
     SummarizedExperiment,
@@ -31,8 +30,7 @@ Imports:
     maSigPro (>= 1.74.0),
     MASS,
     ggplot2,
-    parallel,
-    parallelly
+    BiocParallel
 Depends: R (>= 4.0)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -45,7 +43,8 @@ Suggests:
     UpSetR,
     patchwork,
     mclust,
-    rlang
+    rlang,
+    pkgload
 Config/testthat/edition: 3
 URL: https://github.com/BioBam/scMaSigPro/
 biocViews: Clustering, Regression, TimeCourse, DifferentialExpression,
