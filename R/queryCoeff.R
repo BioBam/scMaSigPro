@@ -69,7 +69,7 @@ queryCoeff <- function(scmpObj,
     coeff_matrix <- showCoeff(scmpObj = scmpObj)
 
     # Apply R2 filter
-    sol_df <- showSol(scmpObj = scmpObj)[, c(1, 2)] %>% as.data.frame()
+    sol_df <- as.data.frame(showSol(scmpObj = scmpObj)[, c(1, 2)])
 
     # Subset the sol
     sol_df <- sol_df[sol_df[["R-squared"]] >= rsq, , drop = FALSE]

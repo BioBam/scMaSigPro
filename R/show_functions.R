@@ -39,7 +39,7 @@ showCoeff <- function(scmpObj, includeInflu = TRUE) {
     )
 
     # Extract
-    coefficients <- scmpObj@Estimate@coefficient_matrix %>% as.data.frame()
+    coefficients <- as.data.frame(scmpObj@Estimate@coefficient_matrix)
 
     if (!includeInflu) {
         influ.gene <- colnames(showInflu(scmpObj))
@@ -144,7 +144,7 @@ showSol <- function(scmpObj, includeInflu = TRUE) {
     )
 
     # Extract
-    sol <- scmpObj@Estimate@significance_matrix %>% as.data.frame()
+    sol <- as.data.frame(scmpObj@Estimate@significance_matrix)
 
     if (!includeInflu) {
         influ.gene <- colnames(showInflu(scmpObj))
@@ -181,7 +181,7 @@ showSigProf <- function(scmpObj, includeInflu = FALSE) {
     )
 
     # Extract
-    sol <- showSol(scmpObj, includeInflu = includeInflu) %>% as.data.frame()
+    sol <- as.data.frame(showSol(scmpObj, includeInflu = includeInflu))
     # Extract rownames
     bulk.counts <- scmpObj@Dense@assays@data@listData$bulk.counts
     bulk.counts <- bulk.counts[rownames(bulk.counts) %in% rownames(sol), , drop = FALSE]
@@ -322,7 +322,7 @@ showGroupCoeff <- function(scmpObj, includeInflu = TRUE) {
     )
 
     # Extract
-    grpCoeff <- scmpObj@Estimate@path_coefficient_matrix %>% as.data.frame()
+    grpCoeff <- as.data.frame(scmpObj@Estimate@path_coefficient_matrix)
 
     if (!includeInflu) {
         influ.gene <- colnames(showInflu(scmpObj))

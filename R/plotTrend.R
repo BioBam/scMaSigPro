@@ -3,7 +3,9 @@
 #' @description
 #' Plot trend of the single gene across the binned pseudotime.
 #'
-#' @import ggplot2
+#' @importFrom ggplot2 aes element_blank element_line geom_line geom_point
+#'   ggplot ggtitle labs scale_color_manual scale_x_continuous theme
+#'   theme_classic xlab ylab
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param feature_id Name of the gene to be plotted.
@@ -64,7 +66,7 @@ plotTrend <- function(scmpObj,
     )
 
     # Extract edisgn
-    alloc.frame <- scmpObj@Design@assignment_matrix %>% as.data.frame()
+    alloc.frame <- as.data.frame(scmpObj@Design@assignment_matrix)
 
     # Extract the bulk counts
     bulk.counts <- scmpObj@Dense@assays@data@listData$bulk.counts
@@ -189,15 +191,15 @@ plotTrend <- function(scmpObj,
     # Generate line.df
     line.df <- points.df
 
-    # Apply Summary Operation
+    # Apply Summary Operation: one value per binned time and path
     if (summary_mode == "mean") {
-        line.df <- line.df %>%
-            dplyr::group_by(pooled.time, path) %>%
-            dplyr::summarize(pb.counts = mean(pb.counts), .groups = "drop")
+        line.df <- .summarise_by(
+            line.df, c("pooled.time", "path"), "pb.counts", mean
+        )
     } else if (summary_mode == "median") {
-        line.df <- line.df %>%
-            dplyr::group_by(pooled.time, path) %>%
-            dplyr::summarize(pb.counts = median(pb.counts), .groups = "drop")
+        line.df <- .summarise_by(
+            line.df, c("pooled.time", "path"), "pb.counts", median
+        )
     }
 
     if (sum(offset_vector) != 0) {

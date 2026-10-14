@@ -49,12 +49,8 @@ exportMethods(eDense)
 exportMethods(eSparse)
 exportMethods(pathAssign)
 exportMethods(predictors)
-import(ggplot2)
+importClassesFrom(Matrix,dgCMatrix)
 importFrom(MASS,negative.binomial)
-importFrom(MatrixGenerics,
-  rowMeans,
-  rowSums
-)
 importFrom(S4Vectors,
   DataFrame,
   isEmpty
@@ -67,23 +63,39 @@ importFrom(SummarizedExperiment,
   "colData<-",
   assay
 )
-importFrom(dplyr,
-  bind_rows,
-  filter,
-  group_by,
-  group_by_at,
-  summarise,
-  summarize,
-  ungroup
+importFrom(ggplot2,
+  .data,
+  aes,
+  element_blank,
+  element_line,
+  element_text,
+  facet_wrap,
+  geom_abline,
+  geom_hline,
+  geom_line,
+  geom_path,
+  geom_point,
+  geom_smooth,
+  geom_text,
+  geom_tile,
+  ggplot,
+  ggtitle,
+  labs,
+  scale_color_manual,
+  scale_fill_gradient,
+  scale_x_continuous,
+  stat_qq,
+  stat_qq_line,
+  theme,
+  theme_classic,
+  theme_minimal,
+  xlab,
+  ylab
 )
-importFrom(e1071,skewness)
-importFrom(entropy,discretize)
 importFrom(maSigPro,
   make.design.matrix,
   reg.coeffs
 )
-importFrom(magrittr,"%>%")
-importFrom(mclust,Mclust)
 importFrom(methods,
   as,
   is,
@@ -93,7 +105,6 @@ importFrom(methods,
 )
 importFrom(parallel,mclapply)
 importFrom(parallelly,availableCores)
-importFrom(rlang,":=")
 importFrom(stats,
   IQR,
   anova,

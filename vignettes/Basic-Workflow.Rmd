@@ -331,10 +331,8 @@ FigureA <- plotTrend(scmp_ob, "Gene9", logs = TRUE, logType = "log", lines = TRU
 FigureB <- plotTrend(scmp_ob, "Gene95", logs = TRUE, logType = "log", lines = TRUE)
 FigureC <- plotTrend(scmp_ob, "Gene10", logs = TRUE, logType = "log", lines = TRUE)
 FigureD <- plotTrend(scmp_ob, "Gene92", logs = TRUE, logType = "log", lines = TRUE)
-ggpubr::ggarrange(FigureA, FigureB, FigureC, FigureD,
-    ncol = 2, nrow = 2,
-    labels = c("A", "B", "C", "D")
-)
+patchwork::wrap_plots(FigureA, FigureB, FigureC, FigureD, ncol = 2) +
+    patchwork::plot_annotation(tag_levels = "A")
 ```
 
 These plots illustrate the gene expression trends for selected genes, providing

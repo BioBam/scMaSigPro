@@ -21,10 +21,18 @@ Description: Identifies genes whose expression changes along single-cell
     <doi:10.1093/bioinformatics/btae443>.
 License: GPL (>= 2)
 Imports:
-    e1071, dplyr, entropy, ggplot2, magrittr, maSigPro (>= 1.74.0),
-    MASS, MatrixGenerics (>= 1.14.0), methods, parallel, parallelly, rlang,
-    S4Vectors (>= 0.40.2), SingleCellExperiment (>= 1.24.0), stats, utils, mclust,
-    SummarizedExperiment
+    methods,
+    stats,
+    utils,
+    Matrix,
+    S4Vectors (>= 0.40.2),
+    SummarizedExperiment,
+    SingleCellExperiment (>= 1.24.0),
+    maSigPro (>= 1.74.0),
+    MASS,
+    ggplot2,
+    parallel,
+    parallelly
 Depends: R (>= 4.0)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -35,7 +43,9 @@ Suggests:
     rmarkdown,
     BiocStyle,
     UpSetR,
-    ggpubr
+    patchwork,
+    mclust,
+    rlang
 Config/testthat/edition: 3
 URL: https://github.com/BioBam/scMaSigPro/
 biocViews: Clustering, Regression, TimeCourse, DifferentialExpression,

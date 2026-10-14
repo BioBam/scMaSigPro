@@ -46,8 +46,7 @@ bins is shifted to follow them, and the pseudo-bulk counts are recomputed
 with \code{\link[=pb_counts]{pb_counts()}}.
 }
 \seealso{
-\code{\link{estBinSize}}, \code{\link[entropy]{discretize}},
-\code{\link{create_range}}
+\code{\link{estBinSize}}, \code{\link{create_range}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
