@@ -67,7 +67,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     alloc <- scmpObj@Design@assignment_matrix
 
     # Convert 'scmpObj' to matrix and select relevant columns based on 'design' rows
-    dat <- as.matrix(scmpObj@Dense@assays@data@listData$bulk.counts)
+    dat <- as.matrix(assay(scmpObj@Dense, "bulk.counts", withDimnames = FALSE))
     dat <- dat[, as.character(rownames(dis))]
     G <- nrow(dat)
 

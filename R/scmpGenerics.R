@@ -11,6 +11,8 @@
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
+#' @importFrom SummarizedExperiment assay assay<- assayNames colData<-
+#'
 #' @export
 setGeneric("cSparse", function(object, value = "missing") standardGeneric("cSparse"))
 
@@ -37,14 +39,17 @@ setGeneric("cSparse<-", function(object, value) standardGeneric("cSparse<-"))
 #'
 #' @return `colData` when getting, modified `ScMaSigPro` object when setting.
 #'
+#' @details
+#' When `value` is given, it is checked as by \code{\link{cSparse<-}}.
+#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
 setMethod("cSparse", "ScMaSigPro", function(object, value) {
     if (identical(value, "missing")) {
-        return(as.data.frame(object@Sparse@colData)) # Getter
+        return(as.data.frame(colData(object@Sparse))) # Getter
     } else {
-        object@Sparse@colData <- DataFrame(value) # Setter
+        object@Sparse <- .set_csparse(object@Sparse, value) # Setter
         return(invisible(object))
     }
 })
@@ -56,11 +61,18 @@ setMethod("cSparse", "ScMaSigPro", function(object, value) {
 #'
 #' @return Modified `ScMaSigPro` object.
 #'
+#' @details
+#' `value` must have one row per cell, named after the cells of the `Sparse`
+#' slot and in their order, as [cSparse()] returns it; a table without
+#' rownames is taken in the order of the cells. Anything else is an error:
+#' the cells are the columns of the count matrix, and [sc.squeeze()] finds
+#' them by name.
+#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
 setReplaceMethod("cSparse", "ScMaSigPro", function(object, value) {
-    object@Sparse@colData <- DataFrame(value)
+    object@Sparse <- .set_csparse(object@Sparse, value)
     return(object)
 })
 ###############################################################################
@@ -103,14 +115,17 @@ setGeneric("cDense<-", function(object, value) standardGeneric("cDense<-"))
 #'
 #' @return `colData` when getting, modified `ScMaSigPro` object when setting.
 #'
+#' @details
+#' When `value` is given, it is set as by \code{\link{cDense<-}}.
+#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
 setMethod("cDense", "ScMaSigPro", function(object, value) {
     if (identical(value, "missing")) {
-        return(as.data.frame(object@Dense@colData))
+        return(as.data.frame(colData(object@Dense)))
     } else {
-        object@Dense@colData <- DataFrame(value)
+        object@Dense <- .set_cdense(object@Dense, value)
         return(invisible(object))
     }
 })
@@ -122,11 +137,19 @@ setMethod("cDense", "ScMaSigPro", function(object, value) {
 #'
 #' @return Modified `ScMaSigPro` object.
 #'
+#' @details
+#' The bins are the columns of the pseudo-bulk counts. A table with one row
+#' per bin replaces the bin metadata; rows may be renamed, and [pb_counts()]
+#' then recomputes the counts for the new bins. A table with another number
+#' of rows, such as bins rebuilt by hand, cannot keep the old counts: the
+#' `Dense` slot then holds the new bin metadata without counts, a message
+#' says so, and [pb_counts()] must be run before the next step.
+#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
 setReplaceMethod("cDense", "ScMaSigPro", function(object, value) {
-    object@Dense@colData <- DataFrame(value)
+    object@Dense <- .set_cdense(object@Dense, value)
     return(object)
 })
 ###############################################################################
@@ -187,18 +210,17 @@ setGeneric("eSparse<-", function(object, i = "counts", value) standardGeneric("e
 #' @export
 setMethod("eSparse", signature(object = "ScMaSigPro"), function(object, i = "counts", ...) {
     if (i == "counts") {
-        assayNames <- names(object@Sparse@assays@data@listData)
-        if (length(assayNames) > 0) {
-            return(as.matrix(object@Sparse@assays@data@listData[[assayNames[1]]]))
+        if (length(assayNames(object@Sparse)) > 0) {
+            return(as.matrix(assay(object@Sparse, 1L, withDimnames = FALSE)))
         } else {
             stop("No assays found in the object.")
         }
     } else {
         # Return the specific assay's data matrix
-        if (!i %in% names(object@Sparse@assays@data@listData)) {
+        if (!i %in% assayNames(object@Sparse)) {
             stop("Assay '", i, "' not found in the object.")
         }
-        return(as.matrix(object@Sparse@assays@data@listData[[i]]))
+        return(as.matrix(assay(object@Sparse, i, withDimnames = FALSE)))
     }
 })
 
@@ -216,24 +238,25 @@ setMethod("eSparse", signature(object = "ScMaSigPro"), function(object, i = "cou
 #' @return The modified \code{\link{ScMaSigPro}} object with the updated or new expression data
 #' in the Sparse slot.
 #'
+#' @details
+#' `value` must have one row per gene and one column per cell of the
+#' `Sparse` slot. Its row and column names, when present, must be the gene
+#' and cell names of the slot in the same order; missing names are taken
+#' from the slot. It is stored as a `dgCMatrix`.
+#'
 #' @seealso \code{\link{eSparse}} for retrieving expression counts from the Sparse slot.
 #'
 #' @export
 setMethod("eSparse<-", signature(object = "ScMaSigPro", i = "character", value = "matrix"), function(object, i, value) {
-    if (!inherits(value, "dgCMatrix")) {
-        value <- as(value, "dgCMatrix")
-    }
+    value <- .check_assay(object@Sparse, value, "Sparse", "cell")
 
     # Check if the specified assay exists; if not, create a new entry
-    if (!i %in% names(object@Sparse@assays@data@listData)) {
+    if (!i %in% assayNames(object@Sparse)) {
         message("Creating a new assay as '", i, "'.")
-        # Update the assay data
-        object@Sparse@assays@data@listData[[i]] <- value
-    } else if (i %in% names(object@Sparse@assays@data@listData)) {
+    } else {
         warning("Overwriting assay '", i, "'.")
-        # Update the assay data
-        object@Sparse@assays@data@listData[[i]] <- value
     }
+    assay(object@Sparse, i, withDimnames = FALSE) <- value
 
     # Return the modified object
     return(object)
@@ -297,18 +320,17 @@ setGeneric("eDense<-", function(object, i = "bulk.counts", value) standardGeneri
 #' @export
 setMethod("eDense", signature(object = "ScMaSigPro"), function(object, i = "bulk.counts", ...) {
     if (i == "bulk.counts") {
-        assayNames <- names(object@Dense@assays@data@listData)
-        if (length(assayNames) > 0) {
-            return(as.matrix(object@Dense@assays@data@listData[[assayNames[1]]]))
+        if (length(assayNames(object@Dense)) > 0) {
+            return(as.matrix(assay(object@Dense, 1L, withDimnames = FALSE)))
         } else {
             stop("No assays found in the object.")
         }
     } else {
         # Return the specific assay's data matrix
-        if (!i %in% names(object@Dense@assays@data@listData)) {
+        if (!i %in% assayNames(object@Dense)) {
             stop("Assay '", i, "' not found in the object.")
         }
-        return(as.matrix(object@Dense@assays@data@listData[[i]]))
+        return(as.matrix(assay(object@Dense, i, withDimnames = FALSE)))
     }
 })
 
@@ -325,26 +347,27 @@ setMethod("eDense", signature(object = "ScMaSigPro"), function(object, i = "bulk
 #' @return The modified \code{\link{ScMaSigPro}} object with the updated or new expression data
 #' in the Dense slot.
 #'
+#' @details
+#' `value` must have one row per gene and one column per bin of the `Dense`
+#' slot. Its row and column names, when present, must be the gene and bin
+#' names of the slot in the same order; missing names are taken from the
+#' slot. It is stored as a `dgCMatrix`.
+#'
 #' @seealso \code{\link{eDense}} for retrieving expression data from the Dense slot.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
 setMethod("eDense<-", signature(object = "ScMaSigPro", i = "character", value = "matrix"), function(object, i, value) {
-    if (!inherits(value, "dgCMatrix")) {
-        value <- as(value, "dgCMatrix")
-    }
+    value <- .check_assay(object@Dense, value, "Dense", "bin")
 
     # Check if the specified assay exists; if not, create a new entry
-    if (!i %in% names(object@Dense@assays@data@listData)) {
+    if (!i %in% assayNames(object@Dense)) {
         message("Creating a new assay as '", i, "'.")
-        # Update the assay data
-        object@Dense@assays@data@listData[[i]] <- value
-    } else if (i %in% names(object@Dense@assays@data@listData)) {
+    } else {
         warning("Overwriting assay '", i, "'.")
-        # Update the assay data
-        object@Dense@assays@data@listData[[i]] <- value
     }
+    assay(object@Dense, i, withDimnames = FALSE) <- value
 
     # Return the modified object
     return(object)
@@ -474,3 +497,100 @@ setMethod(
         .ScMaSigPro_show(object)
     }
 )
+##############################################################################
+#' Checks behind the setters of the Sparse and Dense slots
+#'
+#' `.set_csparse()` replaces the cell metadata of the `Sparse` slot. The
+#' cells are the columns of the counts, so `value` needs one row per cell,
+#' named after the cells in their order; a table without rownames is taken
+#' in the order of the cells and keeps their names.
+#'
+#' `.set_cdense()` replaces the bin metadata of the `Dense` slot. Bins may be
+#' renamed, or lose their rownames, before [pb_counts()] recomputes the
+#' counts. A table with another number of bins cannot keep the old counts:
+#' the slot then holds the bin metadata only, as [sc.squeeze()] builds it
+#' before calling [pb_counts()].
+#'
+#' `.check_assay()` returns `value` ready to be stored as an assay of `sce`:
+#' it must have the dimensions of `sce`, and its row and column names, when
+#' present, must be those of `sce` in the same order. Missing names are
+#' filled in, and the result is a `dgCMatrix`.
+#'
+#' @param sce The `Sparse` or `Dense` slot.
+#' @param value The new table or matrix.
+#' @param slot_name `"Sparse"` or `"Dense"`, for the messages.
+#' @param unit What a column of `sce` is, `"cell"` or `"bin"`.
+#'
+#' @return `.set_csparse()` and `.set_cdense()`: the updated
+#'   `SingleCellExperiment`. `.check_assay()`: a `dgCMatrix`.
+#'
+#' @name set_slot
+#' @noRd
+NULL
+
+.set_csparse <- function(sce, value) {
+    value <- DataFrame(value)
+    .check(nrow(value) == ncol(sce),
+        msg = paste0(
+            "'value' must have one row per cell of the 'Sparse' slot: ",
+            nrow(value), " rows for ", ncol(sce), " cells."
+        )
+    )
+    if (is.null(rownames(value))) {
+        rownames(value) <- colnames(sce)
+    }
+    .check(identical(rownames(value), colnames(sce)),
+        msg = paste(
+            "The rownames of 'value' must be the cell names of the 'Sparse'",
+            "slot, in the same order."
+        )
+    )
+    colData(sce) <- value
+    sce
+}
+
+.set_cdense <- function(sce, value) {
+    value <- DataFrame(value)
+    if (nrow(value) == ncol(sce)) {
+        colData(sce) <- value
+        return(sce)
+    }
+    message(
+        "'value' has ", nrow(value), " bins instead of ", ncol(sce),
+        ": the pseudo-bulk counts of the 'Dense' slot are removed; run ",
+        "pb_counts() to compute them for the new bins."
+    )
+    SingleCellExperiment(colData = value)
+}
+
+.check_assay <- function(sce, value, slot_name, unit) {
+    .check(identical(dim(value), dim(sce)),
+        msg = paste0(
+            "'value' must have one row per gene and one column per ", unit,
+            " of the '", slot_name, "' slot: ", nrow(value), " x ",
+            ncol(value), " given, ", nrow(sce), " x ", ncol(sce), " needed."
+        )
+    )
+    if (is.null(rownames(value))) {
+        rownames(value) <- rownames(sce)
+    }
+    if (is.null(colnames(value))) {
+        colnames(value) <- colnames(sce)
+    }
+    .check(identical(rownames(value), rownames(sce)),
+        msg = paste0(
+            "The rownames of 'value' must be the gene names of the '",
+            slot_name, "' slot, in the same order."
+        )
+    )
+    .check(identical(colnames(value), colnames(sce)),
+        msg = paste0(
+            "The colnames of 'value' must be the ", unit, " names of the '",
+            slot_name, "' slot, in the same order."
+        )
+    )
+    if (!inherits(value, "dgCMatrix")) {
+        value <- as(value, "dgCMatrix")
+    }
+    value
+}

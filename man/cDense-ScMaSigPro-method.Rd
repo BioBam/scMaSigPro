@@ -17,6 +17,9 @@
 \description{
 Set or get the Dense Column Data of an ScMaSigPro Object
 }
+\details{
+When \code{value} is given, it is set as by \code{\link{cDense<-}}.
+}
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

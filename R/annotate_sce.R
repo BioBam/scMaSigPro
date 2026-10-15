@@ -78,7 +78,7 @@ annotate_sce <- function(sce,
         names(cell.meta)[names(cell.meta) == exist_path_col] <- path_col
 
         # Update cell dataset with the updated cell metadata
-        sce@colData <- DataFrame(cell.meta)
+        colData(sce) <- DataFrame(cell.meta)
 
         # Return
         return(sce)

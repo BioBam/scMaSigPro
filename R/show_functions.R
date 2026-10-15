@@ -183,7 +183,7 @@ showSigProf <- function(scmpObj, includeInflu = FALSE) {
     # Extract
     sol <- as.data.frame(showSol(scmpObj, includeInflu = includeInflu))
     # Extract rownames
-    bulk.counts <- scmpObj@Dense@assays@data@listData$bulk.counts
+    bulk.counts <- assay(scmpObj@Dense, "bulk.counts", withDimnames = FALSE)
     bulk.counts <- bulk.counts[rownames(bulk.counts) %in% rownames(sol), , drop = FALSE]
 
     if (!includeInflu) {

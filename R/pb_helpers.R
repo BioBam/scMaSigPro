@@ -498,13 +498,13 @@ pb_counts <- function(scmpObj,
     # Count slot
     .check(
         all(
-            assay_name %in% names(scmpObj@Sparse@assays@data@listData)
+            assay_name %in% assayNames(scmpObj@Sparse)
         ),
         msg = paste0("'", assay_name, "' ", "doesn't exist in scmpObj.")
     )
 
     # Get assay
-    counts <- scmpObj@Sparse@assays@data@listData[[assay_name]]
+    counts <- assay(scmpObj@Sparse, assay_name, withDimnames = FALSE)
 
     # Get Pseudobulk Profile
     bin_data <- colData(scmpObj@Dense)

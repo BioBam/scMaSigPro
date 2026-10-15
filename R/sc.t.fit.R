@@ -79,7 +79,7 @@ sc.t.fit <- function(scmpObj,
     alloc <- scmpObj@Design@assignment_matrix
     G <- scmpObj@Parameters@g
 
-    dat.all <- scmpObj@Dense@assays@data@listData$bulk.counts
+    dat.all <- assay(scmpObj@Dense, "bulk.counts", withDimnames = FALSE)
     dat <- dat.all[scmpObj@Profile@non_flat, , drop = FALSE]
     dat <- rbind(c(rep(1, ncol(dat))), dat)
     dat <- dat[, as.character(rownames(dis))]

@@ -65,8 +65,10 @@ importFrom(SingleCellExperiment,
   colData
 )
 importFrom(SummarizedExperiment,
+  "assay<-",
   "colData<-",
-  assay
+  assay,
+  assayNames
 )
 importFrom(ggplot2,
   .data,
