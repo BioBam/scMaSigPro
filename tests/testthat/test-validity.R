@@ -178,3 +178,78 @@ test_that("validObject() names the slot of each problem in an ScMaSigPro", {
     )
     expect_error(validObject(ob), "slot 'Parameters'", fixed = TRUE)
 })
+
+test_that("the steps refuse to return an invalid object", {
+    # Each step ends with validObject(), directly or through pb_counts(), so
+    # a problem in any slot is reported where the object is returned.
+    broken <- function(ob) {
+        ob@Parameters@anno_col <- character()
+        ob
+    }
+    msg <- "slot 'Parameters': 'anno_col' must be a single non-missing value"
+    expect_error(sc.squeeze(broken(splat_scmp())), msg, fixed = TRUE)
+    expect_error(pb_counts(broken(splat_binned())), msg, fixed = TRUE)
+    expect_error(
+        sc.restruct(broken(multi_binned()),
+            end_node_list = list("Y_15", "Y_18", "Y_52"),
+            root_node = "Root", link_node_list = list("Y_18_links_Y_15"),
+            verbose = FALSE
+        ),
+        msg,
+        fixed = TRUE
+    )
+    expect_error(sc.set.poly(broken(splat_binned())), msg, fixed = TRUE)
+    ob <- broken(splat_design(2))
+    expect_error(sc.p.vector(ob, verbose = FALSE), msg, fixed = TRUE)
+    # No gene selected: the early return is checked too
+    expect_error(
+        suppressMessages(sc.p.vector(ob, p_value = 0, verbose = FALSE)),
+        msg,
+        fixed = TRUE
+    )
+    ob <- broken(splat_fitted("default"))
+    expect_error(sc.t.fit(ob, verbose = FALSE), msg, fixed = TRUE)
+    expect_error(sc.filter(ob, vars = "groups"), msg, fixed = TRUE)
+    expect_error(
+        sc.cluster.trend(broken(splat_filtered()), geneSet = "union", k = 4),
+        msg,
+        fixed = TRUE
+    )
+})
+
+test_that("arguments that would be stored as invalid parameters are errors", {
+    expect_error(
+        as_scmp(load_dataset("splat.sim"),
+            root_label = NA_character_, verbose = FALSE,
+            additional_params = list(
+                labels_exist = TRUE, exist_ptime_col = "Step",
+                exist_path_col = "Group"
+            )
+        ),
+        "slot 'Parameters': 'root_label' must be a single non-missing value",
+        fixed = TRUE
+    )
+    expect_error(
+        sc.p.vector(splat_design(2), p_value = c(0.05, 0.1), verbose = FALSE),
+        "slot 'Parameters': 'p_value' must be a single non-missing value",
+        fixed = TRUE
+    )
+    expect_error(
+        sc.p.vector(splat_design(2),
+            offset = FALSE, log_offset = NA, verbose = FALSE
+        ),
+        "slot 'Parameters': 'log_offset' must be a single non-missing value",
+        fixed = TRUE
+    )
+})
+
+test_that("bins without counts pass the check of sc.set.poly()", {
+    # cDense<- with another number of bins leaves the Dense slot without
+    # counts until pb_counts(); that object is valid, so sc.set.poly() takes
+    # it.
+    ob <- splat_binned()
+    suppressMessages(cDense(ob) <- cDense(ob)[-1, ])
+    ob <- sc.set.poly(ob, poly_degree = 2)
+    expect_valid_scmp(ob)
+    expect_identical(nrow(predictors(ob)), 15L)
+})

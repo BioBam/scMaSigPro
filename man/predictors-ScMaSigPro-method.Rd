@@ -17,6 +17,9 @@ Modified \code{ScMaSigPro} object with new Predictor Matrix.
 \description{
 Set or get the Predictor Matrix.
 }
+\details{
+When \code{value} is given, it is checked as by \code{\link{predictors<-}}.
+}
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

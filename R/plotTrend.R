@@ -69,7 +69,7 @@ plotTrend <- function(scmpObj,
     alloc.frame <- as.data.frame(scmpObj@Design@assignment_matrix)
 
     # Extract the bulk counts
-    bulk.counts <- scmpObj@Dense@assays@data@listData$bulk.counts
+    bulk.counts <- assay(scmpObj@Dense, "bulk.counts", withDimnames = FALSE)
 
     # Check
     .check(all(feature_id %in% rownames(bulk.counts)),
@@ -110,7 +110,9 @@ plotTrend <- function(scmpObj,
     colnames(line.df) <- c("x", "y", scmpObj@Parameters@path_col)
     colnames(line.df) <- c("x", "y", scmpObj@Parameters@path_col)
     curve_data <- NULL
-    path.names <- unique(scmpObj@Dense@colData[[scmpObj@Parameters@path_col]])
+    path.names <- unique(
+        colData(scmpObj@Dense)[[scmpObj@Parameters@path_col]]
+    )
 
     # Get x and y
     x <- y <- rep(0, nrow(alloc.frame))
@@ -119,7 +121,7 @@ plotTrend <- function(scmpObj,
     points.df <- data.frame(
         pooled.time = alloc.frame[, scmpObj@Parameters@bin_ptime_col],
         pb.counts = as.vector(t(as.matrix(yy))),
-        path = scmpObj@Dense@colData[[scmpObj@Parameters@path_col]]
+        path = colData(scmpObj@Dense)[[scmpObj@Parameters@path_col]]
     )
     for (i in path.names) {
         # Extract Coeff

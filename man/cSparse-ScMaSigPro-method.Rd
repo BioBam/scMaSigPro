@@ -17,6 +17,9 @@
 \description{
 Set or get the Sparse Column Data of an ScMaSigPro Object
 }
+\details{
+When \code{value} is given, it is checked as by \code{\link{cSparse<-}}.
+}
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

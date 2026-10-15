@@ -132,6 +132,7 @@ as_scmp <- function(object, from = "sce",
     scmpObj@Parameters@root_label <- root_label
     scmpObj@Parameters@path_prefix <- path_prefix
     scmpObj@Parameters@path_col <- path_col
+    validObject(scmpObj)
 
     # Return Object
     return(scmpObj)
