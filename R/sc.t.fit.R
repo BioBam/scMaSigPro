@@ -263,6 +263,7 @@ sc.t.fit <- function(scmpObj,
     scmpObj@Parameters@selection_method <- selection_method
     scmpObj@Parameters@distribution <- family
     scmpObj@Parameters@link <- link
+    validObject(scmpObj)
 
     return(scmpObj)
 }

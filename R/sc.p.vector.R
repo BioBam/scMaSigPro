@@ -148,6 +148,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
 
     if (nrow(SELEC) == 0) {
         message("No significant genes detected. Try changing parameters.")
+        validObject(scmpObj)
         return(scmpObj)
     } else {
         # Prepare 'sc.p.vector' for output
@@ -175,6 +176,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         scmpObj@Parameters@epsilon <- epsilon
         scmpObj@Parameters@distribution <- family
         scmpObj@Parameters@link <- link
+        validObject(scmpObj)
 
         return(scmpObj)
     }

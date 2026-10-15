@@ -106,7 +106,7 @@ create_scmp <- function(counts,
     # Update the slots
     scmpObj@Parameters@ptime_col <- ptime_col
     scmpObj@Parameters@path_col <- path_col
-
+    validObject(scmpObj)
 
     return(scmpObj)
 }

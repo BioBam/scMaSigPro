@@ -50,6 +50,7 @@ setMethod("cSparse", "ScMaSigPro", function(object, value) {
         return(as.data.frame(colData(object@Sparse))) # Getter
     } else {
         object@Sparse <- .set_csparse(object@Sparse, value) # Setter
+        validObject(object)
         return(invisible(object))
     }
 })
@@ -73,6 +74,7 @@ setMethod("cSparse", "ScMaSigPro", function(object, value) {
 #' @export
 setReplaceMethod("cSparse", "ScMaSigPro", function(object, value) {
     object@Sparse <- .set_csparse(object@Sparse, value)
+    validObject(object)
     return(object)
 })
 ###############################################################################
@@ -126,6 +128,7 @@ setMethod("cDense", "ScMaSigPro", function(object, value) {
         return(as.data.frame(colData(object@Dense)))
     } else {
         object@Dense <- .set_cdense(object@Dense, value)
+        validObject(object)
         return(invisible(object))
     }
 })
@@ -150,6 +153,7 @@ setMethod("cDense", "ScMaSigPro", function(object, value) {
 #' @export
 setReplaceMethod("cDense", "ScMaSigPro", function(object, value) {
     object@Dense <- .set_cdense(object@Dense, value)
+    validObject(object)
     return(object)
 })
 ###############################################################################
@@ -257,6 +261,7 @@ setMethod("eSparse<-", signature(object = "ScMaSigPro", i = "character", value =
         warning("Overwriting assay '", i, "'.")
     }
     assay(object@Sparse, i, withDimnames = FALSE) <- value
+    validObject(object)
 
     # Return the modified object
     return(object)
@@ -368,6 +373,7 @@ setMethod("eDense<-", signature(object = "ScMaSigPro", i = "character", value = 
         warning("Overwriting assay '", i, "'.")
     }
     assay(object@Dense, i, withDimnames = FALSE) <- value
+    validObject(object)
 
     # Return the modified object
     return(object)
@@ -405,6 +411,9 @@ setGeneric("pathAssign<-", function(object, value) standardGeneric("pathAssign<-
 #'
 #' @return Modified `ScMaSigPro` object with new Assignment Matrix.
 #'
+#' @details
+#' When `value` is given, it is checked as by \code{\link{pathAssign<-}}.
+#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
@@ -413,6 +422,7 @@ setMethod("pathAssign", "ScMaSigPro", function(object, value) {
         return(object@Design@assignment_matrix) # Getter
     } else {
         object@Design@assignment_matrix <- as.matrix(value) # Setter
+        validObject(object)
         return(invisible(object))
     }
 })
@@ -424,11 +434,17 @@ setMethod("pathAssign", "ScMaSigPro", function(object, value) {
 #'
 #' @return Modified `ScMaSigPro` object.
 #'
+#' @details
+#' The new object is checked with `validObject()`: `value` must have the
+#' rows of the predictor matrix, one per bin and with the same names (see
+#' [MatrixDesign]). Anything else is an error.
+#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
 setReplaceMethod("pathAssign", "ScMaSigPro", function(object, value) {
     object@Design@assignment_matrix <- as.matrix(value)
+    validObject(object)
     return(object)
 })
 ##############################################################################
@@ -463,6 +479,9 @@ setGeneric("predictors<-", function(object, value) standardGeneric("predictors<-
 #'
 #' @return Modified `ScMaSigPro` object with new Predictor Matrix.
 #'
+#' @details
+#' When `value` is given, it is checked as by \code{\link{predictors<-}}.
+#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
@@ -471,6 +490,7 @@ setMethod("predictors", "ScMaSigPro", function(object, value) {
         return(object@Design@predictor_matrix) # Getter
     } else {
         object@Design@predictor_matrix <- as.matrix(value) # Setter
+        validObject(object)
         return(invisible(object))
     }
 })
@@ -482,11 +502,18 @@ setMethod("predictors", "ScMaSigPro", function(object, value) {
 #'
 #' @return Modified `ScMaSigPro` object.
 #'
+#' @details
+#' The new object is checked with `validObject()`: `value` must have the
+#' rows of the assignment matrix, one per bin and with the same names, and
+#' one column per term of the design (see [MatrixDesign]). Anything else is
+#' an error.
+#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
 setReplaceMethod("predictors", "ScMaSigPro", function(object, value) {
     object@Design@predictor_matrix <- as.matrix(value)
+    validObject(object)
     return(object)
 })
 ##############################################################################
