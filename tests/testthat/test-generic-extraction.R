@@ -185,3 +185,51 @@ test_that("cDense<- with another number of bins drops the counts", {
     ob <- pb_counts(ob)
     expect_identical(eDense(ob), eDense(splat_binned())[, rownames(bins)])
 })
+
+test_that("pathAssign<- and predictors<- reject a mismatched matrix", {
+    ob <- splat_design(2)
+    p <- predictors(ob)
+    pa <- pathAssign(ob)
+    rows <- paste(
+        "slot 'Design': 'assignment_matrix' must have the rows of",
+        "'predictor_matrix'"
+    )
+    expect_error(predictors(ob) <- p[-1, ], rows, fixed = TRUE)
+    expect_error(predictors(ob) <- unname(p), rows, fixed = TRUE)
+    expect_error(predictors(ob, p[-1, ]), rows, fixed = TRUE)
+    expect_error(pathAssign(ob) <- pa[-1, ], rows, fixed = TRUE)
+    expect_error(pathAssign(ob, pa[-1, ]), rows, fixed = TRUE)
+    expect_error(
+        predictors(ob) <- p[, -1],
+        paste(
+            "slot 'Design': 'groups.vector' must have one value per column",
+            "of 'predictor_matrix'"
+        ),
+        fixed = TRUE
+    )
+    expect_identical(ob, splat_design(2))
+})
+
+test_that("every setter refuses to return an invalid object", {
+    # The setters check the whole object, so a problem in another slot is
+    # reported too.
+    ob <- splat_design(2)
+    ob@Parameters@anno_col <- character()
+    msg <- "slot 'Parameters': 'anno_col' must be a single non-missing value"
+    expect_error(cSparse(ob) <- cSparse(ob), msg, fixed = TRUE)
+    expect_error(cSparse(ob, cSparse(ob)), msg, fixed = TRUE)
+    expect_error(cDense(ob) <- cDense(ob), msg, fixed = TRUE)
+    expect_error(cDense(ob, cDense(ob)), msg, fixed = TRUE)
+    expect_error(
+        suppressMessages(eSparse(ob, "x") <- eSparse(ob)), msg,
+        fixed = TRUE
+    )
+    expect_error(
+        suppressMessages(eDense(ob, "x") <- eDense(ob)), msg,
+        fixed = TRUE
+    )
+    expect_error(pathAssign(ob) <- pathAssign(ob), msg, fixed = TRUE)
+    expect_error(pathAssign(ob, pathAssign(ob)), msg, fixed = TRUE)
+    expect_error(predictors(ob) <- predictors(ob), msg, fixed = TRUE)
+    expect_error(predictors(ob, predictors(ob)), msg, fixed = TRUE)
+})

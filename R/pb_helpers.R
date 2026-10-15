@@ -569,7 +569,7 @@ pb_counts <- function(scmpObj,
         assays = list(bulk.counts = as(pb.counts, "dgCMatrix")),
         colData = bin_data
     )
-    methods::validObject(scmpObj)
+    validObject(scmpObj)
 
     # return
     return(scmpObj)

@@ -198,6 +198,7 @@ sc.cluster.trend <- function(scmpObj,
     scmpObj@Parameters@cluster_method <- cluster_method
     scmpObj@Parameters@use_dim <- use_dim
     scmpObj@Parameters@fill_na <- fill_na
+    validObject(scmpObj)
 
     return(scmpObj)
 }

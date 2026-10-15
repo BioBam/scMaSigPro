@@ -101,6 +101,7 @@ sc.set.poly <- function(scmpObj,
 
     # Update poly degree
     scmpObj@Parameters@poly_degree <- as.integer(poly_degree)
+    validObject(scmpObj)
 
     return(scmpObj)
 }
