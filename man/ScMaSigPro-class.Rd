@@ -12,7 +12,10 @@ parameters and associated data. Inherits slots from \code{SingleCellExperiment}.
 \details{
 \code{validObject()} checks every slot with the validity method of its class
 and reports each problem with the name of the slot. Objects are created
-with \code{\link[=create_scmp]{create_scmp()}} or \code{\link[=as_scmp]{as_scmp()}}.
+with \code{\link[=create_scmp]{create_scmp()}} or \code{\link[=as_scmp]{as_scmp()}}. These constructors, the steps of the
+workflow, \code{\link[=pb_counts]{pb_counts()}} and the setters check the object they return with
+\code{validObject()}, so a step or setter that would return an invalid object
+stops with these problems instead.
 }
 \section{Slots}{
 

@@ -36,7 +36,7 @@ sc.set.poly <- function(scmpObj,
     )
 
     # Extract cell metadata
-    comp.cell.metadata <- as.data.frame(scmpObj@Dense@colData)
+    comp.cell.metadata <- as.data.frame(colData(scmpObj@Dense))
 
     # pseudotime_colname
     .check((bin_ptime_col %in% colnames(comp.cell.metadata)),
@@ -101,6 +101,7 @@ sc.set.poly <- function(scmpObj,
 
     # Update poly degree
     scmpObj@Parameters@poly_degree <- as.integer(poly_degree)
+    validObject(scmpObj)
 
     return(scmpObj)
 }

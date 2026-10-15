@@ -17,6 +17,14 @@ Modified \code{ScMaSigPro} object.
 \description{
 Replacement method for cDense
 }
+\details{
+The bins are the columns of the pseudo-bulk counts. A table with one row
+per bin replaces the bin metadata; rows may be renamed, and \code{\link[=pb_counts]{pb_counts()}}
+then recomputes the counts for the new bins. A table with another number
+of rows, such as bins rebuilt by hand, cannot keep the old counts: the
+\code{Dense} slot then holds the new bin metadata without counts, a message
+says so, and \code{\link[=pb_counts]{pb_counts()}} must be run before the next step.
+}
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }

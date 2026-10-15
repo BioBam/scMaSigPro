@@ -94,7 +94,7 @@ sc.squeeze <- function(scmpObj,
     # Count slot
     .check(
         all(
-            assay_name %in% names(scmpObj@Sparse@assays@data@listData)
+            assay_name %in% assayNames(scmpObj@Sparse)
         ),
         msg = paste0("'", assay_name, "' ", "doesn't exist in scmpObj.")
     )
@@ -518,6 +518,6 @@ sc.squeeze <- function(scmpObj,
     scmpObj@Parameters@bin_col <- bin_col
     scmpObj@Parameters@bin_mem_col <- bin_mem_col
     scmpObj@Parameters@bin_size_col <- bin_size_col
-    methods::validObject(scmpObj)
+    validObject(scmpObj)
     return(scmpObj)
 }

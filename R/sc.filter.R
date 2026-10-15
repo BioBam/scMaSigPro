@@ -144,6 +144,7 @@ sc.filter <- function(scmpObj,
 
     # Update the slot
     scmpObj@Significant <- siggenes.object
+    validObject(scmpObj)
 
     # Return
     return(scmpObj)

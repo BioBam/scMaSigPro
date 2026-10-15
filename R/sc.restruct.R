@@ -47,7 +47,7 @@ sc.restruct <- function(scmpObj,
     # Count slot
     .check(
         all(
-            assay_name %in% names(scmpObj@Sparse@assays@data@listData)
+            assay_name %in% assayNames(scmpObj@Sparse)
         ),
         msg = paste0("'", assay_name, "' ", "doesn't exist in scmpObj.")
     )

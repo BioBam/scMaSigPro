@@ -48,7 +48,9 @@ plotDiagnostics <- function(scmpObj,
     )
 
     # Get the counts for the genes
-    y_mat <- as.matrix(scmpObj@Dense@assays@data$bulk.counts)
+    y_mat <- as.matrix(
+        assay(scmpObj@Dense, "bulk.counts", withDimnames = FALSE)
+    )
 
     # Extract gene counts
     y_df <- as.data.frame(y_mat[feature_id, , drop = TRUE])
