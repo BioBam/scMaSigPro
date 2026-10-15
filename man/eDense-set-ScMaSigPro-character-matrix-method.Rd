@@ -21,6 +21,12 @@ in the Dense slot.
 \verb{eDense<-} updates or sets new expression data within the Dense slot of an
 \code{\link{ScMaSigPro}} object.
 }
+\details{
+\code{value} must have one row per gene and one column per bin of the \code{Dense}
+slot. Its row and column names, when present, must be the gene and bin
+names of the slot in the same order; missing names are taken from the
+slot. It is stored as a \code{dgCMatrix}.
+}
 \seealso{
 \code{\link{eDense}} for retrieving expression data from the Dense slot.
 }

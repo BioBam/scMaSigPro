@@ -22,6 +22,12 @@ in the Sparse slot.
 Sets or updates expression counts in the Sparse slot of an
 \code{\link{ScMaSigPro}} object.
 }
+\details{
+\code{value} must have one row per gene and one column per cell of the
+\code{Sparse} slot. Its row and column names, when present, must be the gene
+and cell names of the slot in the same order; missing names are taken
+from the slot. It is stored as a \code{dgCMatrix}.
+}
 \seealso{
 \code{\link{eSparse}} for retrieving expression counts from the Sparse slot.
 }

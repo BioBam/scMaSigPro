@@ -72,3 +72,116 @@ test_that("predictors()/pathAssign() expose the design after sc.set.poly()", {
     predictors(ob) <- p * 1
     expect_equal(predictors(ob), p)
 })
+
+test_that("cSparse<- rejects a cell table that does not match the cells", {
+    ob <- splat_binned()
+    cells <- cSparse(ob)
+    expect_error(
+        cSparse(ob) <- cells[-1, ],
+        paste(
+            "'value' must have one row per cell of the 'Sparse' slot:",
+            "199 rows for 200 cells."
+        ),
+        fixed = TRUE
+    )
+    expect_error(cSparse(ob, cells[-1, ]), "one row per cell", fixed = TRUE)
+    msg <- paste(
+        "The rownames of 'value' must be the cell names of the 'Sparse'",
+        "slot, in the same order."
+    )
+    expect_error(cSparse(ob) <- cells[rev(rownames(cells)), ], msg,
+        fixed = TRUE
+    )
+    rownames(cells) <- paste0("x", rownames(cells))
+    expect_error(cSparse(ob) <- cells, msg, fixed = TRUE)
+    expect_identical(ob, splat_binned())
+})
+
+test_that("cSparse<- takes a table without rownames in cell order", {
+    ob <- splat_binned()
+    cells <- cSparse(ob)
+    unnamed <- cells
+    rownames(unnamed) <- NULL
+    cSparse(ob) <- unnamed
+    expect_identical(cSparse(ob), cells)
+    expect_sparse_aligned(ob)
+})
+
+test_that("eSparse<- and eDense<- reject a matrix that does not fit the slot", {
+    ob <- splat_binned()
+    m <- eSparse(ob)
+    expect_error(
+        eSparse(ob, "x") <- m[, -1],
+        paste(
+            "'value' must have one row per gene and one column per cell of",
+            "the 'Sparse' slot: 100 x 199 given, 100 x 200 needed."
+        ),
+        fixed = TRUE
+    )
+    expect_error(eSparse(ob, "x") <- t(m), "one column per cell", fixed = TRUE)
+    expect_error(
+        eSparse(ob, "x") <- m[rev(rownames(m)), ],
+        paste(
+            "The rownames of 'value' must be the gene names of the 'Sparse'",
+            "slot, in the same order."
+        ),
+        fixed = TRUE
+    )
+    expect_error(
+        eSparse(ob, "counts") <- m[, rev(colnames(m))],
+        paste(
+            "The colnames of 'value' must be the cell names of the 'Sparse'",
+            "slot, in the same order."
+        ),
+        fixed = TRUE
+    )
+    d <- eDense(ob)
+    expect_error(
+        eDense(ob, "x") <- d[-1, ],
+        paste(
+            "'value' must have one row per gene and one column per bin of",
+            "the 'Dense' slot: 99 x 16 given, 100 x 16 needed."
+        ),
+        fixed = TRUE
+    )
+    expect_error(
+        eDense(ob, "bulk.counts") <- d[, rev(colnames(d))],
+        paste(
+            "The colnames of 'value' must be the bin names of the 'Dense'",
+            "slot, in the same order."
+        ),
+        fixed = TRUE
+    )
+    expect_identical(ob, splat_binned())
+})
+
+test_that("eSparse<- and eDense<- fill in missing dimnames", {
+    ob <- splat_binned()
+    m <- log1p(eSparse(ob))
+    expect_message(eSparse(ob, "logcounts") <- unname(m), "Creating")
+    expect_identical(eSparse(ob, "logcounts"), m)
+    d <- eDense(ob) * 2
+    expect_message(eDense(ob, "scaled") <- unname(d), "Creating")
+    expect_identical(eDense(ob, "scaled"), d)
+})
+
+test_that("cDense<- with another number of bins drops the counts", {
+    # As when bins are rebuilt by hand (Common Root Cells vignette): the
+    # object stays valid and pb_counts() computes the counts of the new bins.
+    ob <- splat_binned()
+    bins <- cDense(ob)[-1, ]
+    expect_message(
+        cDense(ob) <- bins,
+        paste(
+            "'value' has 15 bins instead of 16: the pseudo-bulk counts of the",
+            "'Dense' slot are removed; run pb_counts() to compute them for",
+            "the new bins."
+        ),
+        fixed = TRUE
+    )
+    expect_valid_scmp(ob)
+    expect_identical(cDense(ob), bins)
+    expect_error(eDense(ob), "No assays found in the object.", fixed = TRUE)
+    ob <- pb_counts(ob)
+    expect_identical(eDense(ob), eDense(splat_binned())[, rownames(bins)])
+})
