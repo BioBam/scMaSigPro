@@ -390,6 +390,12 @@ setClass(
     )
 )
 ###############################################################################
+# The version of scMaSigPro that is running, as a string such as "0.0.5".
+# getNamespaceVersion() is base R (utils is not imported) and reads the
+# loaded namespace, so it is the version of the code that runs.
+.scmp_version <- function() unname(getNamespaceVersion("scMaSigPro"))
+
+###############################################################################
 #' @title ScMaSigPro
 #'
 #' @description
@@ -405,6 +411,9 @@ setClass(
 #' @slot Estimate Object of Class \code{\link{Estimates}}.
 #' @slot Significant Object of Class \code{\link{Significant}}.
 #' @slot Parameters Object of Class \code{\link{ParameterConfig}}.
+#' @slot version A character string, the version of \pkg{scMaSigPro} that
+#' created the object or last changed its structure in
+#' \code{\link[=updateObject,ScMaSigPro-method]{updateObject()}}.
 #'
 #' @details
 #' `validObject()` checks every slot with the validity method of its class
@@ -430,16 +439,23 @@ setClass(
         Profile = "VariableProfiles",
         Estimate = "Estimates",
         Significant = "Significant",
-        Parameters = "ParameterConfig"
+        Parameters = "ParameterConfig",
+        version = "character"
     ),
     validity = function(object) {
         msg <- character()
         # By default validObject() checks only the class of each slot.
-        for (s in slotNames(object)) {
+        for (s in setdiff(slotNames(object), "version")) {
             problems <- validObject(slot(object, s), test = TRUE)
             if (!isTRUE(problems)) {
                 msg <- c(msg, paste0("slot '", s, "': ", problems))
             }
+        }
+        v <- object@version
+        one_version <- length(v) == 1L && !is.na(v) &&
+            !is.na(package_version(v, strict = FALSE))
+        if (!one_version) {
+            msg <- c(msg, "'version' must be a single version number")
         }
         if (length(msg)) msg else TRUE
     },
@@ -450,6 +466,9 @@ setClass(
         Profile = new("VariableProfiles"),
         Estimate = new("Estimates"),
         Parameters = new("ParameterConfig"),
-        Significant = new("Significant")
+        Significant = new("Significant"),
+        # Set when the package is installed or loaded, so every new object
+        # carries the version of the code that creates it.
+        version = .scmp_version()
     )
 )

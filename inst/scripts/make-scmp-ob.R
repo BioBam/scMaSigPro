@@ -5,6 +5,12 @@
 # object in data/scmp.ob.RData was produced so it can be regenerated.
 # Requires only scMaSigPro. Reproduces the Quick Start vignette workflow.
 # Run from the package root: Rscript inst/scripts/make-scmp-ob.R
+# library() loads the installed scMaSigPro, which must be the version being
+# released. To use the source tree instead, run
+#   Rscript -e 'pkgload::load_all(); source("inst/scripts/make-scmp-ob.R")'
+# (library() is then a no-op). The object records that version in its
+# `version` slot (printed at the end); regenerate it whenever the class
+# changes, so that updateObject(scmp.ob) has nothing to do.
 
 library(scMaSigPro)
 
@@ -42,3 +48,4 @@ scmp.ob <- sc.cluster.trend(scmp.ob, geneSet = "union", k = 4)
 # Save and compress
 save(scmp.ob, file = "data/scmp.ob.RData")
 tools::resaveRdaFiles("data/scmp.ob.RData")
+cat("scmp.ob saved by scMaSigPro", scmp.ob@version, "\n")
