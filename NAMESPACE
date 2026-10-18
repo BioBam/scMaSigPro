@@ -49,6 +49,7 @@ exportMethods(eDense)
 exportMethods(eSparse)
 exportMethods(pathAssign)
 exportMethods(predictors)
+exportMethods(updateObject)
 importClassesFrom(Matrix,dgCMatrix)
 importFrom(BiocParallel,
   SerialParam,
@@ -58,7 +59,8 @@ importFrom(BiocParallel,
 importFrom(MASS,negative.binomial)
 importFrom(S4Vectors,
   DataFrame,
-  isEmpty
+  isEmpty,
+  updateObject
 )
 importFrom(SingleCellExperiment,
   SingleCellExperiment,
@@ -100,6 +102,7 @@ importFrom(ggplot2,
   ylab
 )
 importFrom(methods,
+  .hasSlot,
   as,
   is,
   new,
