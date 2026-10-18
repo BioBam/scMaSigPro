@@ -35,6 +35,10 @@ See \pkg{SingleCellExperiment} for more details.}
 \item{\code{Significant}}{Object of Class \code{\link{Significant}}.}
 
 \item{\code{Parameters}}{Object of Class \code{\link{ParameterConfig}}.}
+
+\item{\code{version}}{A character string, the version of \pkg{scMaSigPro} that
+created the object or last changed its structure in
+\code{\link[=updateObject,ScMaSigPro-method]{updateObject()}}.}
 }}
 
 \keyword{classes}

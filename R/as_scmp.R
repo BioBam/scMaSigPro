@@ -78,6 +78,10 @@ as_scmp <- function(object, from = "sce",
             "matrix and a table of cell metadata, use create_scmp()."
         )
     )
+    # An object saved by an older SingleCellExperiment is updated here, as
+    # colData<- does with labels_exist = TRUE, so both routes store the same
+    # object.
+    object <- updateObject(object)
 
     # Check and validate additional parameters
     if (!is.null(additional_params)) {
