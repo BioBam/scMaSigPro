@@ -54,9 +54,6 @@ plotTrendCluster <- function(scmpObj,
     # Check Object Validity
     .check_scmp(scmpObj)
 
-    # Offset
-    offset_vector <- scmpObj@Design@offset
-
     # Check
     .check(!isEmpty(scmpObj@Significant@clusters),
         msg = "Please run 'sc.cluster.trend', before plotting cluster trends"
@@ -73,6 +70,18 @@ plotTrendCluster <- function(scmpObj,
             paste(c("coeff", "counts"), collapse = ", ")
         )
     )
+    summary_mode <- .check_choice(summary_mode, c("median", "mean"),
+        msg = paste(
+            paste0("'", summary_mode, "'"),
+            "is not a valid option. Please use one of",
+            paste(c("median", "mean"), collapse = ", ")
+        )
+    )
+    if (logs) {
+        logType <- .check_choice(logType, c("log", "log2", "log10"),
+            msg = "'logType' should be one of 'log2', 'log10', 'log'"
+        )
+    }
 
     # Extract Gene_Set
     gene_set_vector <- names(scmpObj@Significant@clusters)
@@ -98,101 +107,61 @@ plotTrendCluster <- function(scmpObj,
         message("Computing trends for each gene, hang tight this can take a few minutes...")
     }
 
-    all.plt.list <- lapply(c(gene.cluster.df[["feature_id"]], "got"), function(gene_i,
-                                                                               scmp_obj = scmpObj,
-                                                                               smooth = smoothness,
-                                                                               log = logs, log_type = logType,
-                                                                               pCount = pseudoCount,
-                                                                               sig = significant,
-                                                                               summary = summary_mode,
-                                                                               c = curves,
-                                                                               l = lines,
-                                                                               p = points) {
-        # Run per genes
-        plt <- tryCatch(
-            {
-                # Your original plotTrend call
-                plt <- plotTrend(
-                    scmpObj = scmp_obj,
-                    feature_id = gene_i,
-                    smoothness = smooth,
-                    logs = log, logType = log_type,
-                    pseudoCount = pCount,
-                    significant = sig,
-                    summary_mode = summary,
-                    curves = c,
-                    lines = l,
-                    points = p
-                )
-                return(plt)
-            },
-            error = function(e) {
-                # In case of an error, return NULL
-                return(NULL)
-            }
+    # The layers of plotTrend() for each gene, with the columns renamed by
+    # name: x_axis, y_axis and group (the path)
+    axes <- function(df, x, y) {
+        names(df)[match(c(x, y, "path"), names(df))] <- c(
+            "x_axis", "y_axis", "group"
         )
-
-        # Return Plots
-        return(plt)
+        df
+    }
+    genes <- gene.cluster.df[[feature_id]]
+    data.list <- lapply(genes, function(gene_i) {
+        trend <- tryCatch(
+            .trendData(scmpObj, gene_i,
+                smoothness = smoothness, logs = logs, logType = logType,
+                pseudoCount = pseudoCount, significant = significant,
+                summary_mode = summary_mode
+            ),
+            error = function(e) NULL
+        )
+        if (is.null(trend)) {
+            return(NULL)
+        }
+        list(
+            points = if (points) axes(trend$points, "pooled.time", "pb.counts"),
+            line = if (lines) axes(trend$lines, "pooled.time", "pb.counts"),
+            curve = if (curves) axes(trend$curves, "x", "y")
+        )
     })
+    names(data.list) <- genes
 
     if (verbose) {
         message("Computed trends for each gene, collapsing trends...")
     }
 
-    # Set names
-    names(all.plt.list) <- c(gene.cluster.df[["feature_id"]], "got")
+    # Genes without a trend, such as genes that are not significant with
+    # significant = TRUE, are left out with a warning
+    failed <- genes[vapply(data.list, is.null, logical(1))]
+    if (length(failed) > 0) {
+        warning(
+            "No trend for ", length(failed), " gene(s), left out of the ",
+            "plot: ", paste(failed, collapse = ", ")
+        )
+    }
+    data.list <- Filter(Negate(is.null), data.list)
 
-    # Remove Any possible NULL
-    plt.list <- Filter(Negate(is.null), all.plt.list)
-
-    # Start Traversing
-    data.list <- lapply(plt.list, function(gene_i.plot,
-                                           c = curves,
-                                           l = lines,
-                                           p = points) {
-        point.data <- NULL
-        line.data <- NULL
-        curve.data <- NULL
-
-        # Extract layers
-        if (c) {
-            curve.data <- gene_i.plot$layers[["curves"]][["data"]]
-            colnames(curve.data) <- c("x_axis", "y_axis", "group")
-        }
-        if (l) {
-            line.data <- gene_i.plot$layers[["lines"]][["data"]]
-            colnames(line.data) <- c("x_axis", "y_axis", "group")
-        }
-        if (p) {
-            point.data <- gene_i.plot$layers[["points"]][["data"]]
-            colnames(point.data) <- c("x_axis", "y_axis", "group")
-        }
-
-        return(list(
-            points = point.data,
-            line = line.data,
-            curve = curve.data
-        ))
-    })
-
-    # Create List as per the clusters
-    cluster.data.list <- lapply(unique(gene.cluster.df[[scmp_clusters]]), function(clus,
-                                                                                   gene_cluster_df = gene.cluster.df,
-                                                                                   cluster = scmp_clusters,
-                                                                                   feature = feature_id,
-                                                                                   data_list = data.list) {
+    # Create List as per the clusters, keyed by cluster
+    cluster_ids <- unique(gene.cluster.df[[scmp_clusters]])
+    cluster.data.list <- lapply(cluster_ids, function(clus) {
         # Get gene names with same cluster
-        gene_set <- gene_cluster_df[gene_cluster_df[[cluster]] == clus, , drop = FALSE][[feature]]
+        in_cluster <- gene.cluster.df[[scmp_clusters]] == clus
+        gene_set <- gene.cluster.df[in_cluster, , drop = FALSE][[feature_id]]
 
         # Subset the datalist
-        return(data_list[gene_set])
+        data.list[gene_set]
     })
-
-    # Reset names
-    names(cluster.data.list) <- paste("cluster", seq_len(length.out = length(cluster.data.list)),
-        sep = "_"
-    )
+    names(cluster.data.list) <- cluster_ids
 
     # Df list
     collapsed.df <- lapply(cluster.data.list, function(clus_i.list,
@@ -268,7 +237,7 @@ plotTrendCluster <- function(scmpObj,
 
     # Loop over the list of clusters
     for (i in seq_along(collapsed.df)) {
-        cluster_name <- paste0("cluster_", i)
+        cluster_name <- names(collapsed.df)[i]
 
         # Extract 'line', 'curve', and 'points' data frames and add the 'cluster' column
         if (lines) {
@@ -330,12 +299,6 @@ plotTrendCluster <- function(scmpObj,
 
     if (verbose) {
         message("Calculating 'loess', hang tight this can take a while depending on the smoothness...")
-    }
-
-    if (sum(offset_vector) != 0) {
-        if (lines) {
-            lines_combined <- points_combined
-        }
     }
 
     # Initiate plotting

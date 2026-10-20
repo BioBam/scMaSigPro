@@ -274,6 +274,10 @@ sc.squeeze <- function(scmpObj,
                 )
             }
 
+            # optimize_bin_max() is deterministic: a bin table seen before
+            # means that the loop would never end
+            seen <- list(bin_table)
+
             # Adjust maximum Size
             while (new_max > max.allowed) {
                 if (verbose) {
@@ -296,6 +300,20 @@ sc.squeeze <- function(scmpObj,
 
                 # Update new_max and new_min after the optimization step
                 new_max <- as.numeric(max(bin_table[[bin.size]]))
+                if (new_max > max.allowed) {
+                    repeated <- vapply(seen, identical, logical(1), bin_table)
+                    .check(!any(repeated),
+                        msg = paste0(
+                            "Splitting the bins of '", path, "' with ",
+                            "bin_method = '", method.bin, "' makes no ",
+                            "progress: the largest bin keeps ", new_max,
+                            " cells, more than the ", max.allowed,
+                            " allowed. Use split_bins = FALSE or another ",
+                            "bin_method."
+                        )
+                    )
+                    seen <- c(seen, list(bin_table))
+                }
 
                 # Increment the iteration counter
                 it <- it + 1

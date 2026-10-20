@@ -30,7 +30,10 @@ used. (Default = "counts").}
 \item{aggregate}{A character string specifying the method to aggregate counts
 within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").}
 
-\item{link_sep}{A character string to separate the link nodes. (Default = "\emph{links}")}
+\item{link_sep}{A character string that separates the two nodes in the
+label of a link node. It is matched as fixed text when the label contains
+it, and as a regular expression otherwise, so \code{"|"} and \code{"\\\\|"} both work.
+(Default = \code{"_links_"})}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }

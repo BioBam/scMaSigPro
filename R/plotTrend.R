@@ -47,12 +47,11 @@ plotTrend <- function(scmpObj,
     pb.counts <- "pb.counts"
     pooled.time <- "pooled.time"
     path <- "path"
+    x <- "x"
+    y <- "y"
 
     # Check Object Validity
     .check_scmp(scmpObj)
-
-    # Offset
-    offset_vector <- scmpObj@Design@offset
 
     # Check summary_mode
     summary_mode <- .check_choice(summary_mode, c("median", "mean"),
@@ -73,147 +72,30 @@ plotTrend <- function(scmpObj,
         )
     }
 
-    # Extract edisgn
-    alloc.frame <- as.data.frame(scmpObj@Design@assignment_matrix)
-
-    # Extract the bulk counts
-    .check_dense_counts(scmpObj)
-    bulk.counts <- assay(scmpObj@Dense, "bulk.counts", withDimnames = FALSE)
-
-    # Check
-    .check(all(feature_id %in% rownames(bulk.counts)),
-        msg = paste0(
-            "'", feature_id, "' doesn't exist please select another one."
-        )
+    # The data of the layers
+    trend <- .trendData(scmpObj, feature_id,
+        smoothness = smoothness, logs = logs, logType = logType,
+        pseudoCount = pseudoCount, significant = significant,
+        summary_mode = summary_mode
     )
-
-    if (significant) {
-        .check(
-            any(feature_id %in% unique(unlist(scmpObj@Significant@genes))),
-            msg = paste(
-                "Feature Id didn't pass the R2 threshold, please re-run",
-                "sc.filter() with a lower 'rsq' value or set 'significant' to",
-                "'FALSE'"
-            )
-        )
+    points.df <- trend$points
+    line.df <- trend$lines
+    curve.df <- trend$curves
+    if (logs) {
+        ylab <- paste0(logType, "(", ylab, ")")
     }
-
-    # gene_i
-    yy <- bulk.counts[rownames(bulk.counts) %in% feature_id, , drop = FALSE]
-
-    # group Vector
-    groups.vector <- scmpObj@Design@groups.vector
-
-    # Prepare for Tfit
-    rm <- matrix(yy, nrow = 1, ncol = length(yy))
-    rownames(rm) <- c("ratio medio")
-    colnames(rm) <- rownames(scmpObj@Design@predictor_matrix)
-
-    # Extract the beta
-    betas.table <- showCoeff(scmpObj)
-    betas <- betas.table[rownames(betas.table) %in% feature_id, , drop = FALSE]
-
-    # Set Data
-    curve.df <- data.frame(x = 0, y = 0, path = scmpObj@Parameters@path_prefix)
-    line.df <- data.frame(x = 0, y = 0, path = scmpObj@Parameters@path_prefix)
-    colnames(line.df) <- c("x", "y", scmpObj@Parameters@path_col)
-    colnames(line.df) <- c("x", "y", scmpObj@Parameters@path_col)
-    curve_data <- NULL
-    path.names <- unique(
-        colData(scmpObj@Dense)[[scmpObj@Parameters@path_col]]
-    )
-
-    # Get x and y
-    x <- y <- rep(0, nrow(alloc.frame))
-
-    # Create Point df
-    points.df <- data.frame(
-        pooled.time = alloc.frame[, scmpObj@Parameters@bin_ptime_col],
-        pb.counts = as.vector(t(as.matrix(yy))),
-        path = colData(scmpObj@Dense)[[scmpObj@Parameters@path_col]]
-    )
-    for (i in path.names) {
-        # Extract Coeff
-        a <- .path_coeffs(
-            coefficients = betas,
-            groups.vector = groups.vector,
-            group = i
-        )
-        a <- c(a, rep(0, (7 - length(a))))
-        a[is.na(a)] <- 0
-
-        # Extract the time
-        time <- alloc.frame[alloc.frame[[i]] == 1, scmpObj@Parameters@bin_ptime_col]
-
-        # Create a data frame with time values
-        x <- seq(from = min(time), to = max(time), by = smoothness)
-
-        # Compute the curve values
-        y <- a[1] + a[2] * x + a[3] * (x^2) + a[4] * (x^3) +
-            a[5] * (x^4) + a[6] * (x^5) + a[7] * (x^5)
-
-        # Create tmpvector
-        curve_df_tmp <- data.frame(
-            x = x, y = y,
-            path = i
-        )
-        curve.df <- rbind(curve.df, curve_df_tmp)
-    }
-
-    curve.df <- curve.df[-1, ]
 
     # Calc limits
     xlim <- c(min(points.df[[pooled.time]], na.rm = TRUE), max(points.df[[pooled.time]], na.rm = TRUE) * 1.3)
 
     xlim[2] <- max(points.df[[pooled.time]])
 
-    scmp_pal <- scmp_colors(n = length(path.names))
+    scmp_pal <- scmp_colors(n = length(trend$path.names))
     names(scmp_pal) <- unique(points.df[[path]])
 
     # Extract sol
     data.sol <- showSol(scmpObj)
     data.sol <- data.sol[feature_id, , drop = FALSE]
-
-    # Correct by offset
-    if (sum(offset_vector) != 0) {
-        points.df["pb.counts"] <- points.df["pb.counts"] / exp(offset_vector)
-    }
-
-    # if log is requestion
-    suppressWarnings(
-        expr = {
-            if (logs) {
-                if (logType == "log2") {
-                    points.df$pb.counts <- log2(points.df$pb.counts + pseudoCount)
-                    ylab <- paste0("log2(", ylab, ")")
-                } else if (logType == "log") {
-                    points.df$pb.counts <- log(points.df$pb.counts + pseudoCount)
-                    ylab <- paste0("log(", ylab, ")")
-                } else if (logType == "log10") {
-                    points.df$pb.counts <- log10(points.df$pb.counts + pseudoCount)
-                    ylab <- paste0("log10(", ylab, ")")
-                }
-            }
-        }
-    )
-
-    # Generate line.df
-    line.df <- points.df
-
-    # Apply Summary Operation: one value per binned time and path
-    if (summary_mode == "mean") {
-        line.df <- .summarise_by(
-            line.df, c("pooled.time", "path"), "pb.counts", mean
-        )
-    } else if (summary_mode == "median") {
-        line.df <- .summarise_by(
-            line.df, c("pooled.time", "path"), "pb.counts", median
-        )
-    }
-
-    if (sum(offset_vector) != 0) {
-        line.df <- points.df
-    }
 
     # Plot
     layer_names <- c(NULL)
@@ -254,4 +136,138 @@ plotTrend <- function(scmpObj,
         # coord_cartesian(xlim = xlim, ylim = ylim) +
         scale_color_manual(values = scmp_pal)
     return(p)
+}
+
+# The data of the layers of plotTrend() for one gene: the points
+# (pooled.time, pb.counts, path), the lines (the points summarised per
+# binned time and path, or the points themselves with an offset) and the
+# curve of the fitted polynomial of each path (x, y, path), with the path
+# names. plotTrendCluster() collects the same frames for the genes of each
+# cluster.
+.trendData <- function(scmpObj, feature_id, smoothness, logs, logType,
+                       pseudoCount, significant, summary_mode) {
+    # Offset
+    offset_vector <- scmpObj@Design@offset
+
+    # Extract edisgn
+    alloc.frame <- as.data.frame(scmpObj@Design@assignment_matrix)
+
+    # Extract the bulk counts
+    .check_dense_counts(scmpObj)
+    bulk.counts <- assay(scmpObj@Dense, "bulk.counts", withDimnames = FALSE)
+
+    # Check
+    .check(all(feature_id %in% rownames(bulk.counts)),
+        msg = paste0(
+            "'", feature_id, "' doesn't exist please select another one."
+        )
+    )
+
+    if (significant) {
+        .check(
+            any(feature_id %in% unique(unlist(scmpObj@Significant@genes))),
+            msg = paste(
+                "Feature Id didn't pass the R2 threshold, please re-run",
+                "sc.filter() with a lower 'rsq' value or set 'significant' to",
+                "'FALSE'"
+            )
+        )
+    }
+
+    # gene_i
+    yy <- bulk.counts[rownames(bulk.counts) %in% feature_id, , drop = FALSE]
+
+    # group Vector
+    groups.vector <- scmpObj@Design@groups.vector
+
+    # Extract the beta
+    betas.table <- showCoeff(scmpObj)
+    betas <- betas.table[rownames(betas.table) %in% feature_id, , drop = FALSE]
+
+    # Set Data
+    curve.df <- data.frame(x = 0, y = 0, path = scmpObj@Parameters@path_prefix)
+    path.names <- unique(
+        colData(scmpObj@Dense)[[scmpObj@Parameters@path_col]]
+    )
+
+    # Create Point df
+    points.df <- data.frame(
+        pooled.time = alloc.frame[, scmpObj@Parameters@bin_ptime_col],
+        pb.counts = as.vector(t(as.matrix(yy))),
+        path = colData(scmpObj@Dense)[[scmpObj@Parameters@path_col]]
+    )
+    for (i in path.names) {
+        # Extract Coeff
+        a <- .path_coeffs(
+            coefficients = betas,
+            groups.vector = groups.vector,
+            group = i
+        )
+        a[is.na(a)] <- 0
+
+        # Extract the time
+        time <- alloc.frame[alloc.frame[[i]] == 1, scmpObj@Parameters@bin_ptime_col]
+
+        # Create a data frame with time values
+        x <- seq(from = min(time), to = max(time), by = smoothness)
+
+        # The polynomial of the path, one power of x per coefficient, added
+        # in order: a[1] + a[2] * x + a[3] * x^2 + ...
+        y <- a[1] + a[2] * x
+        for (k in seq_along(a)[-c(1L, 2L)]) {
+            y <- y + a[k] * (x^(k - 1))
+        }
+
+        # Create tmpvector
+        curve_df_tmp <- data.frame(
+            x = x, y = y,
+            path = i
+        )
+        curve.df <- rbind(curve.df, curve_df_tmp)
+    }
+
+    curve.df <- curve.df[-1, ]
+
+    # Correct by offset
+    if (sum(offset_vector) != 0) {
+        points.df["pb.counts"] <- points.df["pb.counts"] / exp(offset_vector)
+    }
+
+    # if log is requestion
+    suppressWarnings(
+        expr = {
+            if (logs) {
+                if (logType == "log2") {
+                    points.df$pb.counts <- log2(points.df$pb.counts + pseudoCount)
+                } else if (logType == "log") {
+                    points.df$pb.counts <- log(points.df$pb.counts + pseudoCount)
+                } else if (logType == "log10") {
+                    points.df$pb.counts <- log10(points.df$pb.counts + pseudoCount)
+                }
+            }
+        }
+    )
+
+    # Generate line.df
+    line.df <- points.df
+
+    # Apply Summary Operation: one value per binned time and path
+    if (summary_mode == "mean") {
+        line.df <- .summarise_by(
+            line.df, c("pooled.time", "path"), "pb.counts", mean
+        )
+    } else if (summary_mode == "median") {
+        line.df <- .summarise_by(
+            line.df, c("pooled.time", "path"), "pb.counts", median
+        )
+    }
+
+    if (sum(offset_vector) != 0) {
+        line.df <- points.df
+    }
+
+    list(
+        points = points.df, lines = line.df, curves = curve.df,
+        path.names = path.names
+    )
 }

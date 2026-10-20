@@ -65,9 +65,9 @@ showInflu <- function(scmpObj) {
     # Check Object Validity
     .check_scmp(scmpObj)
 
-    # Check if the sol exist
-    .check(!all(dim(scmpObj@Estimate@influential) == c(0, 0)),
-        msg = "tscore is not computed yet"
+    # After sc.t.fit(), a fit without influential genes has a 0 x 0 matrix
+    .check(!all(dim(scmpObj@Estimate@significance_matrix) == c(0, 0)),
+        msg = "'influential' is not computed yet"
     )
 
     # Extract
@@ -336,10 +336,15 @@ showGroupCoeff <- function(scmpObj, includeInflu = TRUE) {
     cat("Pseudotime Range:", paste(round(
         range(SingleCellExperiment::colData(object@Sparse)[[object@Parameters@ptime_col]]), 3
     )))
-    cat(paste("\nBranching Paths:", paste(
-        unique(SingleCellExperiment::colData(object@Sparse)[[object@Parameters@path_col]]),
-        collapse = ", "
-    )))
+    # Once binned, the paths of the bins (sc.restruct() folds the root and
+    # link paths into the end paths), in the order of the cells
+    path_col <- object@Parameters@path_col
+    paths <- unique(SingleCellExperiment::colData(object@Sparse)[[path_col]])
+    bin_paths <- unique(cDense(object)[[path_col]])
+    if (length(bin_paths) > 0) {
+        paths <- c(intersect(paths, bin_paths), setdiff(bin_paths, paths))
+    }
+    cat(paste("\nBranching Paths:", paste(paths, collapse = ", ")))
 
     # Calculate the Compression
     compressed.cell.metadata <- cDense(object)

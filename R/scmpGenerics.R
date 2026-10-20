@@ -201,31 +201,29 @@ setGeneric("eSparse<-", function(object, i = "counts", value) standardGeneric("e
 #' \code{\link{ScMaSigPro}} object.
 #'
 #' @param object An \code{\link{ScMaSigPro}} object from which to retrieve expression data.
-#' @param i The name of the assay to retrieve expression counts for.
-#' The default value "counts" is a placeholder that results in the method returning
-#' the first assay's data found in the Sparse slot.
+#' @param i The name of the assay to retrieve expression counts for. The
+#' default, "counts", returns the counts, or the first assay when the Sparse
+#' slot has no assay called "counts".
 #' @param ... Additional arguments (not used currently).
 #'
-#' @return An expression matrix for the specified (or first, by default) assay
-#' from the Sparse slot.
+#' @return An expression matrix for the specified assay from the Sparse slot.
 #'
 #' @seealso \code{\link{eSparse<-}} for setting expression counts in the Sparse slot.
 #'
 #' @export
 setMethod("eSparse", signature(object = "ScMaSigPro"), function(object, i = "counts", ...) {
-    if (i == "counts") {
-        if (length(assayNames(object@Sparse)) > 0) {
-            return(as.matrix(assay(object@Sparse, 1L, withDimnames = FALSE)))
-        } else {
-            stop("No assays found in the object.")
-        }
-    } else {
-        # Return the specific assay's data matrix
-        if (!i %in% assayNames(object@Sparse)) {
-            stop("Assay '", i, "' not found in the object.")
-        }
+    assays <- assayNames(object@Sparse)
+    if (i %in% assays) {
         return(as.matrix(assay(object@Sparse, i, withDimnames = FALSE)))
     }
+    if (i == "counts") {
+        # Without a "counts" assay the default returns the first assay
+        if (length(assays) > 0) {
+            return(as.matrix(assay(object@Sparse, 1L, withDimnames = FALSE)))
+        }
+        stop("No assays found in the object.")
+    }
+    stop("Assay '", i, "' not found in the object.")
 })
 
 #' @title Set Expression Counts in Sparse Slot
@@ -236,7 +234,7 @@ setMethod("eSparse", signature(object = "ScMaSigPro"), function(object, i = "cou
 #'
 #' @param object An \code{\link{ScMaSigPro}} object to be modified.
 #' @param i The name of the assay for which to set or update expression counts.
-#' Must be provided as a character string.
+#' Without it, the "counts" assay is set.
 #' @param value The new expression data to set for the specified assay.
 #'
 #' @return The modified \code{\link{ScMaSigPro}} object with the updated or new expression data
@@ -246,12 +244,14 @@ setMethod("eSparse", signature(object = "ScMaSigPro"), function(object, i = "cou
 #' `value` must have one row per gene and one column per cell of the
 #' `Sparse` slot. Its row and column names, when present, must be the gene
 #' and cell names of the slot in the same order; missing names are taken
-#' from the slot. It is stored as a `dgCMatrix`.
+#' from the slot. It can be a matrix, a `dgCMatrix` or a data frame of
+#' numbers, and is stored as a `dgCMatrix`. Without `i`, the "counts" assay
+#' is set.
 #'
 #' @seealso \code{\link{eSparse}} for retrieving expression counts from the Sparse slot.
 #'
 #' @export
-setMethod("eSparse<-", signature(object = "ScMaSigPro", i = "character", value = "matrix"), function(object, i, value) {
+setMethod("eSparse<-", signature(object = "ScMaSigPro", i = "character", value = "ANY"), function(object, i, value) {
     value <- .check_assay(object@Sparse, value, "Sparse", "cell")
 
     # Check if the specified assay exists; if not, create a new entry
@@ -266,6 +266,17 @@ setMethod("eSparse<-", signature(object = "ScMaSigPro", i = "character", value =
     # Return the modified object
     return(object)
 })
+
+#' @rdname eSparse-set-ScMaSigPro-character-method
+#' @export
+setMethod(
+    "eSparse<-",
+    signature(object = "ScMaSigPro", i = "missing", value = "ANY"),
+    function(object, i, value) {
+        eSparse(object, "counts") <- value
+        object
+    }
+)
 
 ##############################################################################
 #' @title Retrieve Expression Counts from Dense Slot
@@ -313,7 +324,9 @@ setGeneric("eDense<-", function(object, i = "bulk.counts", value) standardGeneri
 #'
 #' @param object An \code{\link{ScMaSigPro}} object from which to retrieve
 #' the expression data.
-#' @param i The name of the dataset to retrieve. The default value is "bulk.counts".
+#' @param i The name of the dataset to retrieve. The default,
+#' "bulk.counts", returns the pseudo-bulk counts, or the first assay when the
+#' Dense slot has no assay called "bulk.counts".
 #' @param ... Additional arguments (not used currently).
 #'
 #' @return Returns an expression matrix for the specified dataset from the Dense slot.
@@ -324,19 +337,18 @@ setGeneric("eDense<-", function(object, i = "bulk.counts", value) standardGeneri
 #'
 #' @export
 setMethod("eDense", signature(object = "ScMaSigPro"), function(object, i = "bulk.counts", ...) {
-    if (i == "bulk.counts") {
-        if (length(assayNames(object@Dense)) > 0) {
-            return(as.matrix(assay(object@Dense, 1L, withDimnames = FALSE)))
-        } else {
-            stop("No assays found in the object.")
-        }
-    } else {
-        # Return the specific assay's data matrix
-        if (!i %in% assayNames(object@Dense)) {
-            stop("Assay '", i, "' not found in the object.")
-        }
+    assays <- assayNames(object@Dense)
+    if (i %in% assays) {
         return(as.matrix(assay(object@Dense, i, withDimnames = FALSE)))
     }
+    if (i == "bulk.counts") {
+        # Without a "bulk.counts" assay the default returns the first assay
+        if (length(assays) > 0) {
+            return(as.matrix(assay(object@Dense, 1L, withDimnames = FALSE)))
+        }
+        stop("No assays found in the object.")
+    }
+    stop("Assay '", i, "' not found in the object.")
 })
 
 #' @title Set or Update Expression Data in Dense Slot
@@ -347,6 +359,7 @@ setMethod("eDense", signature(object = "ScMaSigPro"), function(object, i = "bulk
 #'
 #' @param object An \code{\link{ScMaSigPro}} object to be modified.
 #' @param i The name of the dataset within the Dense slot to set or update.
+#' Without it, the "bulk.counts" assay is set.
 #' @param value The expression data to set for the specified dataset.
 #'
 #' @return The modified \code{\link{ScMaSigPro}} object with the updated or new expression data
@@ -356,14 +369,15 @@ setMethod("eDense", signature(object = "ScMaSigPro"), function(object, i = "bulk
 #' `value` must have one row per gene and one column per bin of the `Dense`
 #' slot. Its row and column names, when present, must be the gene and bin
 #' names of the slot in the same order; missing names are taken from the
-#' slot. It is stored as a `dgCMatrix`.
+#' slot. It can be a matrix, a `dgCMatrix` or a data frame of numbers, and
+#' is stored as a `dgCMatrix`. Without `i`, the "bulk.counts" assay is set.
 #'
 #' @seealso \code{\link{eDense}} for retrieving expression data from the Dense slot.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @export
-setMethod("eDense<-", signature(object = "ScMaSigPro", i = "character", value = "matrix"), function(object, i, value) {
+setMethod("eDense<-", signature(object = "ScMaSigPro", i = "character", value = "ANY"), function(object, i, value) {
     value <- .check_assay(object@Dense, value, "Dense", "bin")
 
     # Check if the specified assay exists; if not, create a new entry
@@ -378,6 +392,17 @@ setMethod("eDense<-", signature(object = "ScMaSigPro", i = "character", value = 
     # Return the modified object
     return(object)
 })
+
+#' @rdname eDense-set-ScMaSigPro-character-method
+#' @export
+setMethod(
+    "eDense<-",
+    signature(object = "ScMaSigPro", i = "missing", value = "ANY"),
+    function(object, i, value) {
+        eDense(object, "bulk.counts") <- value
+        object
+    }
+)
 
 ##############################################################################
 #' @title Get or set the Branch Assignment Matrix
@@ -591,6 +616,9 @@ NULL
 }
 
 .check_assay <- function(sce, value, slot_name, unit) {
+    if (is.data.frame(value)) {
+        value <- as.matrix(value)
+    }
     .check(identical(dim(value), dim(sce)),
         msg = paste0(
             "'value' must have one row per gene and one column per ", unit,

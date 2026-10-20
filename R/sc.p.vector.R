@@ -68,7 +68,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     )
 
     # Extract from s4
-    dis <- as.data.frame(scmpObj@Design@predictor_matrix)
+    dis <- .fit_frame(scmpObj@Design@predictor_matrix)
     groups.vector <- scmpObj@Design@groups.vector
     alloc <- scmpObj@Design@assignment_matrix
 
@@ -95,13 +95,13 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
 
     # Removing rows with many missings:
     count.na <- function(x) (length(x) - length(x[is.na(x)]))
-    dat <- dat[apply(dat, 1, count.na) >= min_na, ]
+    dat <- dat[apply(dat, 1, count.na) >= min_na, , drop = FALSE]
 
     # Removing rows with all zeros:
     sumatot <- apply(dat, 1, sum)
     counts0 <- which(sumatot == 0)
     if (length(counts0) > 0) {
-        dat <- dat[-counts0, ]
+        dat <- dat[-counts0, , drop = FALSE]
     }
 
     # Get dimensions for the input
@@ -136,6 +136,10 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
 
     names(p.vector.list) <- rownames(dat)
     sc.p.vector <- unlist(p.vector.list, recursive = TRUE, use.names = TRUE)
+    if (is.null(sc.p.vector)) {
+        # No gene is left after the filters above
+        sc.p.vector <- numeric(0)
+    }
     #----------------------------------------------------------------------
     # Correct p-values using FDR correction and select significant genes
     p.adjusted <- unlist(
@@ -152,40 +156,50 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     # Subset the expression values of significant genes
     SELEC <- dat[rownames(dat) %in% genes.selected, , drop = FALSE]
 
+    # Prepare 'sc.p.vector' for output
+    names(sc.p.vector) <- rownames(dat)
+
+    # Add Data to the class. With no significant gene the profile has no
+    # non-flat gene, and the profile and parameters are written all the same
+    profile.obj <- new("VariableProfiles",
+        non_flat = as.character(rownames(SELEC)),
+        p_values = sc.p.vector,
+        adj_p_values = p.adjusted,
+        fdr = FDR
+    )
+
+    # Update Slot
+    scmpObj@Profile <- profile.obj
+
+    # Update Parameter Slot
+    scmpObj@Parameters@log_offset <- log_offset
+    scmpObj@Parameters@max_it <- as.integer(max_it)
+    scmpObj@Parameters@offset <- offset
+    scmpObj@Parameters@p_value <- p_value
+    scmpObj@Parameters@min_na <- min_na
+    scmpObj@Parameters@g <- g
+    scmpObj@Parameters@mt_correction <- mt_correction
+    scmpObj@Parameters@epsilon <- epsilon
+    scmpObj@Parameters@distribution <- family
+    scmpObj@Parameters@link <- link
+
     if (nrow(SELEC) == 0) {
         message("No significant genes detected. Try changing parameters.")
-        validObject(scmpObj)
-        return(scmpObj)
-    } else {
-        # Prepare 'sc.p.vector' for output
-        names(sc.p.vector) <- rownames(dat)
-
-        # Add Data to the class
-        profile.obj <- new("VariableProfiles",
-            non_flat = rownames(SELEC),
-            p_values = sc.p.vector,
-            adj_p_values = p.adjusted,
-            fdr = FDR
-        )
-
-        # Update Slot
-        scmpObj@Profile <- profile.obj
-
-        # Update Parameter Slot
-        scmpObj@Parameters@log_offset <- log_offset
-        scmpObj@Parameters@max_it <- as.integer(max_it)
-        scmpObj@Parameters@offset <- offset
-        scmpObj@Parameters@p_value <- p_value
-        scmpObj@Parameters@min_na <- min_na
-        scmpObj@Parameters@g <- g
-        scmpObj@Parameters@mt_correction <- mt_correction
-        scmpObj@Parameters@epsilon <- epsilon
-        scmpObj@Parameters@distribution <- family
-        scmpObj@Parameters@link <- link
-        validObject(scmpObj)
-
-        return(scmpObj)
     }
+    validObject(scmpObj)
+
+    return(scmpObj)
+}
+
+# The design as a data frame whose columns are named by position: x1, x2, ...
+# The per-gene fits of sc.p.vector() and sc.t.fit() use these names in their
+# formulas (y ~ .), so any design names work, including names with spaces or
+# `|`, repeated names and "y"; extract_fitting() then matches the terms of a
+# fit to the columns of the design by position.
+.fit_frame <- function(dis) {
+    dis <- as.data.frame(dis)
+    names(dis) <- paste0("x", seq_len(ncol(dis)))
+    dis
 }
 
 # Full-model p-value of gene i (row i of dat): glm(y ~ .) against glm(y ~ 1),
