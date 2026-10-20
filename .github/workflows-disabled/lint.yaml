@@ -6,7 +6,7 @@
 # (roadmap Phase 2) so new lints block merges.
 on:
   push:
-    branches: [main, devel]
+    branches: [main]
   # pull_request:
 
 name: lint.yaml
