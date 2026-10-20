@@ -213,7 +213,7 @@ scmp_ob <- sc.set.poly(scmp_ob, poly_degree = 2)
 expect_equal(pathAssign(scmp_ob), expected = edesign.abiotic)
 
 # Comparing regression matrices
-expect_identical(scmp_ob@Design@predictor_matrix, expected = design$dis)
+expect_identical(predictors(scmp_ob), expected = design$dis)
 ```
 
 No errors were thrown, so we can proceed with the analysis.
@@ -247,17 +247,21 @@ Now, we'll compare the S3 object `fit from `maSigPro::p.vector()` with the
 results from `sc.p.vector()`:
 
 ```{r, "testthat pvector"}
+# scmpResults() has one row per gene, with NA p-values for the genes left
+# out for having fewer than min_na values: compare the fitted genes
+expect_identical(
+    rownames(scmpResults(scmp_ob))[!is.na(scmpResults(scmp_ob)$p_value)],
+    expected = rownames(fit$p.vector)
+)
+
 # Compare p-values
 expect_identical(
-    matrix(scmp_ob@Profile@p_values,
-        dimnames = list(names(scmp_ob@Profile@p_values), "p.value")
-    ),
-    expected = as.matrix(fit$p.vector[, 1, drop = FALSE])
+    scmpResults(scmp_ob)[rownames(fit$p.vector), "p_value"],
+    expected = unname(fit$p.vector[, 1])
 )
 
 # Compare adjusted p-values
-pad <- scmp_ob@Profile@adj_p_values
-names(pad) <- NULL
+pad <- scmpResults(scmp_ob)[rownames(fit$p.vector), "adj_p_value"]
 expect_identical(pad, expected = fit$p.adjusted)
 ```
 
@@ -308,23 +312,28 @@ scmp_ob <- sc.filter(scmp_ob, rsq = 0.6, vars = "groups")
 We'll compare the s3 object (sigs) from `maSigPro::get.siggenes()' with the results from sc.filter()':
 
 ```{r}
+# The genes of each list are TRUE in its sig_ column of scmpResults()
 # Compare Cold vs Control
-expect_identical(scmp_ob@Significant@genes$ColdvsControl,
+expect_identical(
+    rownames(scmpResults(scmp_ob))[scmpResults(scmp_ob)$sig_ColdvsControl],
     expected = sigs$summary$ColdvsControl
 )
 
 # Compare Heat vs Control
-expect_identical(scmp_ob@Significant@genes$HeatvsControl,
+expect_identical(
+    rownames(scmpResults(scmp_ob))[scmpResults(scmp_ob)$sig_HeatvsControl],
     expected = sigs$summary$HeatvsControl[sigs$summary$HeatvsControl != " "]
 )
 
 # Compare Salt vs Control
-expect_identical(scmp_ob@Significant@genes$SaltvsControl,
+expect_identical(
+    rownames(scmpResults(scmp_ob))[scmpResults(scmp_ob)$sig_SaltvsControl],
     expected = sigs$summary$SaltvsControl[sigs$summary$SaltvsControl != " "]
 )
 
 # Compare Control
-expect_identical(scmp_ob@Significant@genes$Control,
+expect_identical(
+    rownames(scmpResults(scmp_ob))[scmpResults(scmp_ob)$sig_Control],
     expected = sigs$summary$Control[sigs$summary$Control != " "]
 )
 ```

@@ -7,6 +7,8 @@
 #' cell metadata, for example with pseudotime and path labels extracted from a
 #' trajectory tool such as Monocle3 or slingshot, use [create_scmp()]; the
 #' "Common Root Cells" vignette shows the steps for a Monocle3 `cell_data_set`.
+#' [assign_paths()] and [paths_from_graph()] build the two columns from
+#' lineage weights or from a trajectory graph.
 #'
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #'

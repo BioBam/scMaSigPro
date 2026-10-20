@@ -6,8 +6,9 @@
 \alias{ScMaSigPro-class}
 \title{ScMaSigPro}
 \description{
-S4 class to store analysis of ScMaSigPro worflow. It stores results,
-parameters and associated data. Inherits slots from \code{SingleCellExperiment}.
+S4 class to store an analysis of the scMaSigPro workflow: the data at the
+level of cells and of pseudotime bins, as two \code{SingleCellExperiment}
+objects, and the results and parameters of every step.
 }
 \details{
 \code{validObject()} checks every slot with the validity method of its class
@@ -45,5 +46,26 @@ See \pkg{SingleCellExperiment} for more details.}
 created the object or last changed its structure in
 \code{\link[=updateObject,ScMaSigPro-method]{updateObject()}}.}
 }}
+
+\section{Why a class of its own}{
+
+\code{ScMaSigPro} holds two \code{SingleCellExperiment} objects because the analysis
+works at two resolutions whose columns differ. \code{Sparse} holds the cells,
+with their pseudotime and path labels. \code{Dense} holds the pseudotime bins
+(the pseudo-bulk) to which the polynomial GLMs are fitted. One
+\code{SingleCellExperiment} cannot hold both: \code{altExp()} needs the columns of
+the main experiment, and bins stored in \code{metadata()} would lose the
+validity checks and accessors of an experiment. The other slots hold
+results that have no place in the SummarizedExperiment model: the design
+matrices (\code{MatrixDesign}), the per-gene fits of the full model
+(\code{VariableProfiles}), the coefficients and significance of the selected
+models (\code{Estimates}), the gene lists and clusters (\code{Significant}) and a
+record of every parameter used (\code{ParameterConfig}), for reproducibility.
+Both experiments are built and changed through the SummarizedExperiment
+accessors only, and \code{validObject()} runs after every step of the
+workflow. To use the results with other tools, \code{\link[=scmpResults]{scmpResults()}} returns
+them as a \code{DataFrame} with one row per gene, and \code{\link[=scmpToRowData]{scmpToRowData()}} writes
+them into the \code{rowData()} of a \code{SingleCellExperiment}.
+}
 
 \keyword{classes}

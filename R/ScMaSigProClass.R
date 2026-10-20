@@ -399,8 +399,9 @@ setClass(
 #' @title ScMaSigPro
 #'
 #' @description
-#' S4 class to store analysis of ScMaSigPro worflow. It stores results,
-#' parameters and associated data. Inherits slots from \code{SingleCellExperiment}.
+#' S4 class to store an analysis of the scMaSigPro workflow: the data at the
+#' level of cells and of pseudotime bins, as two \code{SingleCellExperiment}
+#' objects, and the results and parameters of every step.
 #'
 #' @slot Sparse Object of class \code{\link[SingleCellExperiment]{SingleCellExperiment}}.
 #' See \pkg{SingleCellExperiment} for more details.
@@ -427,6 +428,25 @@ setClass(
 #' Objects saved by an earlier version of the package, for example with
 #' `saveRDS()`, are brought up to date with
 #' \code{\link[=updateObject,ScMaSigPro-method]{updateObject()}}.
+#'
+#' @section Why a class of its own:
+#' `ScMaSigPro` holds two `SingleCellExperiment` objects because the analysis
+#' works at two resolutions whose columns differ. `Sparse` holds the cells,
+#' with their pseudotime and path labels. `Dense` holds the pseudotime bins
+#' (the pseudo-bulk) to which the polynomial GLMs are fitted. One
+#' `SingleCellExperiment` cannot hold both: `altExp()` needs the columns of
+#' the main experiment, and bins stored in `metadata()` would lose the
+#' validity checks and accessors of an experiment. The other slots hold
+#' results that have no place in the SummarizedExperiment model: the design
+#' matrices (`MatrixDesign`), the per-gene fits of the full model
+#' (`VariableProfiles`), the coefficients and significance of the selected
+#' models (`Estimates`), the gene lists and clusters (`Significant`) and a
+#' record of every parameter used (`ParameterConfig`), for reproducibility.
+#' Both experiments are built and changed through the SummarizedExperiment
+#' accessors only, and `validObject()` runs after every step of the
+#' workflow. To use the results with other tools, [scmpResults()] returns
+#' them as a `DataFrame` with one row per gene, and [scmpToRowData()] writes
+#' them into the `rowData()` of a `SingleCellExperiment`.
 #'
 #' @name ScMaSigPro
 #' @aliases ScMaSigPro-class

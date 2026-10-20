@@ -7,12 +7,14 @@ export("eSparse<-")
 export("pathAssign<-")
 export("predictors<-")
 export(as_scmp)
+export(assign_paths)
 export(cDense)
 export(cSparse)
 export(create_scmp)
 export(eDense)
 export(eSparse)
 export(pathAssign)
+export(paths_from_graph)
 export(pb_counts)
 export(plotBinTile)
 export(plotDiagnostics)
@@ -28,6 +30,8 @@ export(sc.restruct)
 export(sc.set.poly)
 export(sc.squeeze)
 export(sc.t.fit)
+export(scmpResults)
+export(scmpToRowData)
 export(showCoeff)
 export(showGroupCoeff)
 export(showInflu)
@@ -69,8 +73,10 @@ importFrom(SingleCellExperiment,
 importFrom(SummarizedExperiment,
   "assay<-",
   "colData<-",
+  "rowData<-",
   assay,
-  assayNames
+  assayNames,
+  rowData
 )
 importFrom(ggplot2,
   .data,

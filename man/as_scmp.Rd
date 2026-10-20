@@ -49,6 +49,8 @@ An object of class \code{\link{ScMaSigPro}}.
 cell metadata, for example with pseudotime and path labels extracted from a
 trajectory tool such as Monocle3 or slingshot, use \code{\link[=create_scmp]{create_scmp()}}; the
 "Common Root Cells" vignette shows the steps for a Monocle3 \code{cell_data_set}.
+\code{\link[=assign_paths]{assign_paths()}} and \code{\link[=paths_from_graph]{paths_from_graph()}} build the two columns from
+lineage weights or from a trajectory graph.
 }
 \examples{
 # Load Library
