@@ -417,11 +417,16 @@ setClass(
 #'
 #' @details
 #' `validObject()` checks every slot with the validity method of its class
-#' and reports each problem with the name of the slot. Objects are created
-#' with [create_scmp()] or [as_scmp()]. These constructors, the steps of the
-#' workflow, [pb_counts()] and the setters check the object they return with
-#' `validObject()`, so a step or setter that would return an invalid object
-#' stops with these problems instead.
+#' and reports each problem with the name of the slot; `version` must be a
+#' single version number. Objects are created with [create_scmp()] or
+#' [as_scmp()], which stamp them with the version of the package. These
+#' constructors, the steps of the workflow, [pb_counts()] and the setters
+#' check the object they return with `validObject()`, so a step or setter
+#' that would return an invalid object stops with these problems instead.
+#'
+#' Objects saved by an earlier version of the package, for example with
+#' `saveRDS()`, are brought up to date with
+#' \code{\link[=updateObject,ScMaSigPro-method]{updateObject()}}.
 #'
 #' @name ScMaSigPro
 #' @aliases ScMaSigPro-class
