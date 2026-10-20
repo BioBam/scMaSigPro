@@ -93,8 +93,11 @@ sc.filter <- function(scmpObj,
         # Subset
         sol.sub <- sol[, !(colnames(sol) %in% c("p-value", "R-squared")), drop = FALSE]
 
-        # Get the genes
-        sig.list <- apply(sol.sub, 2, function(column) row.names(sol.sub)[which(column <= term_p_value)])
+        # Get the genes of each term: lapply(), because apply() returns a
+        # matrix when every term selects the same number of genes
+        sig.list <- lapply(sol.sub, function(column) {
+            row.names(sol.sub)[which(column <= term_p_value)]
+        })
         names(sig.list) <- sub("p.valor_", "", names(sig.list), fixed = TRUE)
     } else if (vars == "groups") {
         # Subset

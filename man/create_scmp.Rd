@@ -7,7 +7,7 @@
 create_scmp(
   counts,
   cell_data,
-  feature_data,
+  feature_data = NULL,
   bin_counts = NULL,
   bin_cell_data = NULL,
   ptime_col,
@@ -20,13 +20,20 @@ create_scmp(
 
 \item{cell_data}{A data frame containing the cell level metadata.}
 
-\item{feature_data}{A data frame containing the feature level metadata.}
+\item{feature_data}{Optional data frame of gene metadata, one row per gene
+of \code{counts} (named like them, or with automatic row names). It becomes the
+\code{rowData()} of the \code{Sparse} slot, and of the \code{Dense} slot when this
+function builds it.}
 
-\item{bin_counts}{A matrix containing the binned counts. (Only if
-use_as_bin == TRUE)}
+\item{bin_counts}{Optional pseudo-bulk counts of bins made outside
+scMaSigPro: a matrix with the genes of \code{counts} as rows, in the same
+order, and one column per bin. Requires \code{bin_cell_data}; not with
+\code{use_as_bin = TRUE}.}
 
-\item{bin_cell_data}{A data frame containing the binned cell level metadata.
-(Only if use_as_bin == TRUE)}
+\item{bin_cell_data}{A data frame with one row per bin, named like the
+columns of \code{bin_counts}, holding the binned pseudotime in \code{ptime_col} and
+the path in \code{path_col}. A \code{scmp_bin_size} column gives the number of cells
+of each bin; without it the sizes are \code{NA}.}
 
 \item{ptime_col}{A character string representing the column name
 for inferred Pseudotime values. (Default is "Pseudotime")}
@@ -43,6 +50,13 @@ An object of class \code{\link{ScMaSigPro}}, with aligned pseudotime.
 \description{
 \code{create_scmp()} initializes a ScMaSigPro object with the given counts,
 cell level metadata, and other optional parameters.
+}
+\details{
+The \code{Dense} slot holds the bins. By default it is empty and
+\code{\link[=sc.squeeze]{sc.squeeze()}} bins the cells. With \code{use_as_bin = TRUE} every cell is a
+bin. With \code{bin_counts} and \code{bin_cell_data} it holds bins made outside
+scMaSigPro, and the workflow continues with \code{\link[=sc.set.poly]{sc.set.poly()}}; such bins
+have no member cells, so \code{\link[=pb_counts]{pb_counts()}} and \code{\link[=sc.restruct]{sc.restruct()}} do not apply.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

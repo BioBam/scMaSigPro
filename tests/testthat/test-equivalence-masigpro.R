@@ -33,10 +33,9 @@ expect_tfit_matches <- function(sc, tstep, non_flat) {
     expect_identical(showCoeff(sc)[keep, , drop = FALSE], tstep$coefficients)
     expect_identical(as.data.frame(showGroupCoeff(sc))[keep, , drop = FALSE], tstep$group.coeffs)
     expect_identical(as.data.frame(showTS(sc))[keep, , drop = FALSE], tstep$t.score)
-    # Known divergence (ledger T2): scMaSigPro keeps coefficient and t-score
-    # rows for genes whose selected model has no significant term; maSigPro
-    # drops them from every output.
-    expect_identical(setdiff(rownames(showCoeff(sc)), keep), setdiff(non_flat, keep))
+    # Genes whose selected model has no significant term have no row in any
+    # output, as in maSigPro (ledger T2)
+    expect_identical(rownames(showCoeff(sc)), keep)
     infl_sc <- sc@Estimate@influential
     infl_ma <- tstep$influ.info
     # maSigPro drops influ.info to a named vector when exactly one gene is

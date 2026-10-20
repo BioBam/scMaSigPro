@@ -188,7 +188,9 @@ sc.cluster.trend <- function(scmpObj,
             clust <- hclust(dcorrel, method = hclust.agglo.method)
         } else {
             # Compute distance based on the specified method for rows
-            clust <- hclust(dist(t(cluster_data), method = hclust.distance), method = hclust.agglo.method)
+            clust <- hclust(dist(cluster_data, method = hclust.distance),
+                method = hclust.agglo.method
+            )
         }
         # Cut the dendrogram to get cluster assignments
         cluster_results <- cutree(clust, k = k)
@@ -202,14 +204,29 @@ sc.cluster.trend <- function(scmpObj,
                 "install it with install.packages('mclust')."
             )
         )
+        # Mclust() evaluates mclustBIC() in the frame it is called from, so
+        # call it from a frame enclosed by the mclust namespace: then it
+        # works without library(mclust)
+        mclust_frame <- new.env(parent = asNamespace("mclust"))
+        mclust_frame$cluster_data <- cluster_data
+        mclust_frame$k <- k
         if (mclust.k) {
-            mclust_res <- mclust::Mclust(cluster_data, verbose = FALSE)
+            mclust_res <- eval(
+                quote(Mclust(cluster_data, verbose = FALSE)), mclust_frame
+            )
             k <- mclust_res$G
         } else {
-            mclust_res <- mclust::Mclust(cluster_data, G = k, verbose = FALSE)
+            mclust_res <- eval(
+                quote(Mclust(cluster_data, G = k, verbose = FALSE)),
+                mclust_frame
+            )
         }
         cluster_results <- mclust_res$classification
     }
+
+    # One cluster per gene, named after it: with one component, Mclust()
+    # returns its classification without names
+    names(cluster_results) <- rownames(cluster_data)
 
     # Convert to df
     clusters_df <- as.data.frame(cluster_results)

@@ -13,7 +13,10 @@
 #' @param link_node_list A list of links between two nodes.
 #' @param assay_name Name of the Assay in sparse data from which the counts are
 #' used. (Default = "counts").
-#' @param link_sep A character string to separate the link nodes. (Default = "_links_")
+#' @param link_sep A character string that separates the two nodes in the
+#' label of a link node. It is matched as fixed text when the label contains
+#' it, and as a regular expression otherwise, so `"|"` and `"\\|"` both work.
+#' (Default = `"_links_"`)
 #' @param aggregate A character string specifying the method to aggregate counts
 #' within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").
 #' @param verbose  Print detailed output in the console. (Default is TRUE)
@@ -71,8 +74,10 @@ sc.restruct <- function(scmpObj,
         link_value <- link_node_list[[i]]
         names(link_value) <- link_value
 
-        # Split; link_sep is a regular expression
-        link_vec <- unlist(strsplit(link_value, link_sep))
+        # Split on link_sep as fixed text when the label contains it, so
+        # that "|" works, else as a regular expression, as "\\|" needs
+        fixed_sep <- isTRUE(grepl(link_sep[1L], link_value, fixed = TRUE))
+        link_vec <- unlist(strsplit(link_value, link_sep, fixed = fixed_sep))
 
         # Traverse for each of the link
         for (j in link_vec) {
@@ -129,7 +134,9 @@ sc.restruct <- function(scmpObj,
     root_offset <- max(root_node_info[[scmpObj@Parameters@bin_ptime_col]])
 
     # Get rows
-    binfo_tmp <- bin_info[!(bin_info[[scmpObj@Parameters@path_col]] %in% bin_link_tmp$group), ]
+    linked <- bin_info[[scmpObj@Parameters@path_col]] %in%
+        bin_link_tmp[[scmpObj@Parameters@path_col]]
+    binfo_tmp <- bin_info[!linked, ]
     binfo_tmp[["scmp_restruct"]] <- "NA"
     bin_link_tmp <- rbind(bin_link_tmp, binfo_tmp)
 

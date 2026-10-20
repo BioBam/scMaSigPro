@@ -14,7 +14,8 @@
 #' @param model Type of model to be used for plotting. Can be either 'optimized',
 #' 'intercept'and 'full'. Default is 'optimized'.
 #'
-#' @return ggplot2 plot object.
+#' @return A patchwork object with four ggplot2 panels. 'patchwork' must be
+#' installed.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
@@ -36,6 +37,14 @@ plotDiagnostics <- function(scmpObj,
         msg = paste(
             "Invalid 'model', please select one of 'optimized', 'full' or",
             "'intercept'"
+        )
+    )
+
+    # The four panels are arranged with the operators of patchwork
+    .check(requireNamespace("patchwork", quietly = TRUE),
+        msg = paste(
+            "plotDiagnostics() needs the 'patchwork' package to arrange its",
+            "panels; install it with install.packages('patchwork')."
         )
     )
 

@@ -14,24 +14,23 @@ test_that("plotIntersect() draws an UpSetR plot", {
     expect_s3_class(plotIntersect(splat_filtered()), "upset")
 })
 
-test_that("Mclust clustering needs mclust attached (ledger M1)", {
+test_that("Mclust clustering works without attaching mclust (ledger M1)", {
     skip_if_not_installed("mclust")
     ob <- splat_filtered()
     run <- function() {
         sc.cluster.trend(ob,
             geneSet = "union", k = 4, cluster_method = "Mclust"
-        )
+        )@Significant@clusters
     }
-    # Mclust() evaluates mclustBIC() in its caller's frame, where it is not
-    # visible unless mclust is attached; frozen as it is until it is fixed
+    # Mclust() evaluates mclustBIC() in the frame it is called from; the
+    # clusters must not depend on whether mclust is attached
     if (!"package:mclust" %in% search()) {
-        expect_error(
-            run(), "could not find function \"mclustBIC\"", fixed = TRUE
-        )
+        clusters <- run()
         suppressPackageStartupMessages(attachNamespace("mclust"))
         on.exit(detach("package:mclust"), add = TRUE)
+        expect_identical(run(), clusters)
     }
-    clusters <- run()@Significant@clusters
+    clusters <- run()
     expect_setequal(names(clusters), Reduce(union, ob@Significant@genes))
     expect_true(all(unlist(clusters) %in% 1:4))
 })
