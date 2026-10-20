@@ -5,7 +5,7 @@
 # (pull requests from the same repository also use it; forks upload tokenless).
 on:
   push:
-    branches: [main, devel]
+    branches: [main]
   # pull_request:
 
 name: test-coverage.yaml

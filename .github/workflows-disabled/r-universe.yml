@@ -8,7 +8,7 @@ name: Test R-universe
 
 on:
   push:
-    branches: [main, devel]
+    branches: [main]
   # pull_request:
   workflow_dispatch:
 

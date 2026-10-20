@@ -2,12 +2,12 @@
 # Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
 #
 # Builds the pkgdown site on every PR (no deploy) and deploys it to the
-# gh-pages branch on pushes to devel, on published releases, and on demand.
+# gh-pages branch on pushes to main, on published releases, and on demand.
 # GitHub Pages must be enabled for the repository (Settings > Pages,
 # source: gh-pages branch).
 on:
   push:
-    branches: [devel]
+    branches: [main]
   pull_request:
   release:
     types: [published]
