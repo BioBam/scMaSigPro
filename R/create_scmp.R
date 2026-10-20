@@ -2,7 +2,9 @@
 #'
 #' @description
 #' `create_scmp()` initializes a ScMaSigPro object with the given counts,
-#' cell level metadata, and other optional parameters.
+#' cell level metadata, and other optional parameters. [assign_paths()]
+#' builds the pseudotime and path columns of the cell metadata from the
+#' lineage weights of a trajectory tool.
 #'
 #' @param counts A matrix containing the raw expression counts.
 #' @param cell_data A data frame containing the cell level metadata.

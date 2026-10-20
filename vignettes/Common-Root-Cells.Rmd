@@ -129,7 +129,7 @@ y_to_cells <- as.data.frame(
 y_to_cells$cells <- rownames(y_to_cells)
 y_to_cells$Y <- y_to_cells$V1
 
-root <- cds@principal_graph_aux$UMAP$root_pr_nodes
+root <- principal_graph_aux(cds)$UMAP$root_pr_nodes
 mst <- principal_graph(cds)$UMAP
 endpoints <- names(which(igraph::degree(mst) == 1))
 endpoints <- endpoints[!endpoints %in% root]

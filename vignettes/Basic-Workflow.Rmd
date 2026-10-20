@@ -68,8 +68,8 @@ suppressPackageStartupMessages(require(SingleCellExperiment))
 
 # Extract PCA
 df <- as.data.frame(reducedDim(splat.sim)[, c(1:2)])
-df$Step <- splat.sim@colData$Step
-df$Group <- splat.sim@colData$Group
+df$Step <- colData(splat.sim)$Step
+df$Group <- colData(splat.sim)$Group
 
 # Plot the data
 ggplot(
@@ -112,10 +112,10 @@ In our case, we already have pseudotime and path information stored in the
 simulated steps of each path, which we can treat as a pseudotime variable, and
 the _Group_ column has information regarding branching path, i.e., to which
 branching path each of the cell belongs. We can view this information by executing 
-`View(as.data.frame(splat.sim@colData)).`
+`View(as.data.frame(colData(splat.sim)))`.
 
-```{r, "View(as.data.frame(splat.sim@colData))", eval=TRUE, echo = FALSE}
-print(head(as.data.frame(splat.sim@colData), 5))
+```{r, "View(as.data.frame(colData(splat.sim)))", eval=TRUE, echo = FALSE}
+print(head(as.data.frame(colData(splat.sim)), 5))
 ```
 
 We will use `as_scmp()` from `scMaSigPro` and direct it to use the columns present in
@@ -340,7 +340,7 @@ insights into their behavior in different paths. Fortunately, since we are using
 simulated data, we can validate these trends by extracting gene-level metadata
 from our simulated object:
 ```{r, "ground truth",eval=TRUE, echo=TRUE, fig.width=7, fig.height=7}
-groundTruth <- as.data.frame(splat.sim@rowRanges@elementMetadata)
+groundTruth <- data.frame(rowData(splat.sim), row.names = NULL)
 print(groundTruth[groundTruth$Gene %in% c("Gene9", "Gene95", "Gene10", "Gene92"), c(1, 2, 6, 8)])
 ```
 

@@ -49,7 +49,9 @@ An object of class \code{\link{ScMaSigPro}}, with aligned pseudotime.
 }
 \description{
 \code{create_scmp()} initializes a ScMaSigPro object with the given counts,
-cell level metadata, and other optional parameters.
+cell level metadata, and other optional parameters. \code{\link[=assign_paths]{assign_paths()}}
+builds the pseudotime and path columns of the cell metadata from the
+lineage weights of a trajectory tool.
 }
 \details{
 The \code{Dense} slot holds the bins. By default it is empty and

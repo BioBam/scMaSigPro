@@ -44,7 +44,9 @@ Suggests:
     mclust,
     rlang,
     pkgload,
-    maSigPro (>= 1.74.0)
+    maSigPro (>= 1.74.0),
+    igraph,
+    slingshot
 Config/testthat/edition: 3
 URL: https://github.com/BioBam/scMaSigPro/
 biocViews: Clustering, Regression, TimeCourse, DifferentialExpression,
