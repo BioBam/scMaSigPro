@@ -56,11 +56,17 @@ sc.cluster.trend <- function(scmpObj,
     # Global vars
     scmp_clusters <- "scmp_clusters"
 
+    # Check Object Validity
+    .check_scmp(scmpObj)
+
+    # The gene sets come from sc.filter()
+    .check(!isEmpty(scmpObj@Significant@genes),
+        msg = "'Significant' slot is empty, please run 'sc.filter()' first."
+    )
+
     # Check if the gene set exists
-    .check(
-        any(geneSet %in% c(
-            names(scmpObj@Significant@genes), "intersect", "union"
-        )),
+    geneSet <- .check_choice(geneSet,
+        c(names(scmpObj@Significant@genes), "intersect", "union"),
         msg = paste(
             paste0("'", geneSet, "'"), "does not exist. Please use one of",
             paste(
@@ -69,28 +75,29 @@ sc.cluster.trend <- function(scmpObj,
             )
         )
     )
-    .check(any(cluster_by %in% c("coeff", "counts")),
+    cluster_by <- .check_choice(cluster_by, c("coeff", "counts"),
         msg = paste(
             paste0("'", cluster_by, "'"),
             "is not a valid option. Please use one of",
             paste(c("coeff", "counts"), collapse = ", ")
         )
     )
-    .check(any(use_dim %in% c("row", "col")),
+    use_dim <- .check_choice(use_dim, c("row", "col"),
         msg = paste(
             paste0("'", use_dim, "'"),
             "is not a valid option. Please use one of",
             paste(c("row", "col"), collapse = ", ")
         )
     )
-    .check(any(fill_na %in% c("mean", "median", "zero")),
+    fill_na <- .check_choice(fill_na, c("mean", "median", "zero"),
         msg = paste(
             paste0("'", fill_na, "'"),
             "is not a valid option. Please use one of",
             paste(c("mean", "median", "zero"), collapse = ", ")
         )
     )
-    .check(any(cluster_method %in% c("hclust", "kmeans", "Mclust")),
+    cluster_method <- .check_choice(cluster_method,
+        c("hclust", "kmeans", "Mclust"),
         msg = paste(
             paste0("'", cluster_method, "'"),
             "is not a valid method. Please use one of",
@@ -117,6 +124,25 @@ sc.cluster.trend <- function(scmpObj,
         cluster_matrix_input <- as.matrix(showCoeff(scmpObj, includeInflu = includeInflu))
         cluster_matrix_input <- cluster_matrix_input[rownames(cluster_matrix_input) %in% gene_set_vector, , drop = FALSE]
     }
+
+    # Enough genes for the clusters: hclust() needs two genes and at most one
+    # cluster per gene, kmeans() and Mclust() more genes than clusters (with
+    # one gene, the NA filling below would return a vector)
+    n_genes <- nrow(cluster_matrix_input)
+    uses_k <- cluster_method != "Mclust" || !mclust.k
+    whole_k <- is.numeric(k) && length(k) == 1L && !is.na(k) && k == round(k)
+    min_genes <- 2
+    if (uses_k && whole_k) {
+        min_genes <- max(2, if (cluster_method == "hclust") k else k + 1)
+    }
+    .check(n_genes >= min_genes,
+        msg = paste0(
+            "The '", geneSet, "' gene set has ", n_genes, " gene(s), too few ",
+            "for cluster_method = '", cluster_method, "'",
+            if (uses_k) paste0(" with k = ", k), ": it needs at least ",
+            min_genes, "."
+        )
+    )
 
     # Check fill by
     if (use_dim == "row") {

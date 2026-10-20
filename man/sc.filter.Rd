@@ -21,7 +21,8 @@ sc.filter(
 
 \item{p_value}{Overall model significance.}
 
-\item{vars}{Variables for which to extract significant genes. See details.}
+\item{vars}{Variables for which to extract significant genes: "all" (the
+default), "each" or "groups". See details.}
 
 \item{intercept}{Specify the branching path treated as reference. See details.
 (When \code{vars} equals "groups").}

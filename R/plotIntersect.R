@@ -30,10 +30,7 @@ plotIntersect <- function(scmpObj,
                           show_sets_size = FALSE,
                           return = FALSE) {
     # Check the data
-    .check(
-        is(scmpObj, "ScMaSigPro"),
-        msg = "Please supply an object of the class 'ScMaSigPro'"
-    )
+    .check_scmp(scmpObj)
 
     # Check if siggenes results exist for groups
     .check(!isEmpty(scmpObj@Significant@genes),
