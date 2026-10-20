@@ -56,9 +56,15 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
                         max_it = 100,
                         link = "log",
                         BPPARAM = SerialParam()) {
-    # Check the type of the 'design' parameter and set the corresponding variables
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'"
+    # Check Object Validity
+    .check_scmp(scmpObj)
+
+    # The design comes from sc.set.poly() and the counts from pb_counts()
+    .check(ncol(scmpObj@Design@predictor_matrix) > 0,
+        msg = "No polynomial design found. Please run 'sc.set.poly()', first."
+    )
+    .check_dense_counts(scmpObj,
+        bins = rownames(scmpObj@Design@predictor_matrix)
     )
 
     # Extract from s4

@@ -35,8 +35,10 @@ sc.restruct <- function(scmpObj,
                         link_sep = "_links_",
                         verbose = TRUE) {
     # Check Object Validity
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'."
+    .check_scmp(scmpObj)
+    .check_strings(assay_name = assay_name)
+    aggregate <- .check_choice(aggregate, c("sum", "mean"),
+        msg = "Invalid 'aggregate' value. Please choose either 'mean' or 'sum'."
     )
 
     # Check if values are binned

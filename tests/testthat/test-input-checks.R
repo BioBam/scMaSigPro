@@ -1,0 +1,311 @@
+# Checks at the start of the exported functions (roadmap #18a): the object
+# they are given, then their arguments. Exact messages, no snapshot.
+
+# Every exported function that takes an ScMaSigPro object, called on `ob`
+calls_on <- function(ob, gene) {
+    list(
+        sc.squeeze = function() sc.squeeze(ob),
+        sc.restruct = function() {
+            sc.restruct(ob,
+                end_node_list = list("Path1"), root_node = "Path2",
+                link_node_list = list(), verbose = FALSE
+            )
+        },
+        pb_counts = function() pb_counts(ob),
+        sc.set.poly = function() sc.set.poly(ob),
+        sc.p.vector = function() sc.p.vector(ob, verbose = FALSE),
+        sc.t.fit = function() sc.t.fit(ob, verbose = FALSE),
+        sc.filter = function() sc.filter(ob, vars = "groups"),
+        sc.cluster.trend = function() sc.cluster.trend(ob),
+        showCoeff = function() showCoeff(ob),
+        showInflu = function() showInflu(ob),
+        showTS = function() showTS(ob),
+        showSol = function() showSol(ob),
+        showSigProf = function() showSigProf(ob),
+        showPoly = function() showPoly(ob),
+        showParams = function() showParams(ob),
+        showGroupCoeff = function() showGroupCoeff(ob),
+        queryCoeff = function() queryCoeff(ob, verbose = FALSE),
+        plotBinTile = function() plotBinTile(ob),
+        plotIntersect = function() plotIntersect(ob, return = TRUE),
+        plotTrend = function() plotTrend(ob, feature_id = gene),
+        plotTrendCluster = function() plotTrendCluster(ob, verbose = FALSE),
+        plotDiagnostics = function() plotDiagnostics(ob, feature_id = gene)
+    )
+}
+
+test_that("an object of another class is refused by every function", {
+    for (f in calls_on(42, "Gene1")) {
+        expect_error(f(), "Please provide object of class 'ScMaSigPro'",
+            fixed = TRUE
+        )
+    }
+})
+
+test_that("an object saved before the version slot stops before any work", {
+    old <- splat_clustered()
+    attr(old, "version") <- NULL
+    for (f in calls_on(old, splat_sig_gene())) {
+        expect_error(f(), "update it with updateObject() first.",
+            fixed = TRUE
+        )
+    }
+})
+
+test_that("a Dense slot without counts asks for pb_counts()", {
+    msg <- paste(
+        "The 'Dense' slot has no 'bulk.counts' assay: run pb_counts()",
+        "after changing the bins with cDense<-."
+    )
+    ob <- splat_design(2)
+    suppressMessages(cDense(ob) <- cDense(ob)[-1, ])
+    expect_error(sc.p.vector(ob, verbose = FALSE), msg, fixed = TRUE)
+    ob <- splat_clustered()
+    suppressMessages(cDense(ob) <- cDense(ob)[-1, ])
+    gene <- splat_sig_gene()
+    expect_error(sc.t.fit(ob, verbose = FALSE), msg, fixed = TRUE)
+    expect_error(plotTrend(ob, feature_id = gene), msg, fixed = TRUE)
+    expect_error(showSigProf(ob, includeInflu = TRUE), msg, fixed = TRUE)
+    expect_error(plotDiagnostics(ob, feature_id = gene), msg, fixed = TRUE)
+})
+
+test_that("the fits need counts for the bins of the design", {
+    msg <- "The 'bulk.counts' assay has no counts for some bins of the design"
+    # Bins renamed with cDense<- before sc.set.poly(), without pb_counts()
+    ob <- splat_binned()
+    bins <- cDense(ob)
+    rownames(bins) <- paste0("bin", seq_len(nrow(bins)))
+    cDense(ob) <- bins
+    ob <- sc.set.poly(ob, poly_degree = 2)
+    expect_error(sc.p.vector(ob, verbose = FALSE), msg, fixed = TRUE)
+    # pb_counts() gives the counts the new names
+    expect_identical(
+        sc.p.vector(pb_counts(ob), verbose = FALSE)@Profile,
+        splat_fitted("default")@Profile
+    )
+    # Renamed after sc.set.poly(): the design and the counts still agree
+    ob <- splat_design(2)
+    cDense(ob) <- bins
+    expect_identical(
+        sc.p.vector(ob, verbose = FALSE)@Profile,
+        splat_fitted("default")@Profile
+    )
+})
+
+test_that("the steps say which earlier step is missing", {
+    expect_error(sc.p.vector(splat_binned(), verbose = FALSE),
+        "No polynomial design found. Please run 'sc.set.poly()', first.",
+        fixed = TRUE
+    )
+    msg <- "No gene with a non-flat profile found. Please run 'sc.p.vector()'"
+    expect_error(sc.t.fit(splat_design(2), verbose = FALSE), msg,
+        fixed = TRUE
+    )
+    # sc.p.vector() that selected no gene (ledger Z1)
+    none <- suppressMessages(
+        sc.p.vector(splat_design(2), p_value = 1e-300, verbose = FALSE)
+    )
+    expect_error(sc.t.fit(none, verbose = FALSE), msg, fixed = TRUE)
+    expect_error(sc.cluster.trend(splat_fitted("default")),
+        "'Significant' slot is empty, please run 'sc.filter()' first.",
+        fixed = TRUE
+    )
+})
+
+test_that("a choice argument takes one of its values, once (ledger V4)", {
+    two <- function(x) c(x, x)
+    ob <- splat_clustered()
+    gene <- splat_sig_gene()
+    bins <- "Available binning methods are 'Freedman.Diaconis', 'Sqrt',"
+    expect_error(sc.squeeze(splat_scmp(), bin_method = two("Sturges")), bins,
+        fixed = TRUE
+    )
+    agg <- "Invalid 'aggregate' value. Please choose either 'mean' or 'sum'."
+    expect_error(sc.squeeze(splat_scmp(), aggregate = "max"), agg,
+        fixed = TRUE
+    )
+    expect_error(pb_counts(splat_binned(), cluster_count_by = two("sum")),
+        agg,
+        fixed = TRUE
+    )
+    expect_error(
+        sc.restruct(multi_binned(),
+            end_node_list = list("Y_15", "Y_18", "Y_52"), root_node = "Root",
+            link_node_list = list("Y_18_links_Y_15"), aggregate = "max",
+            verbose = FALSE
+        ),
+        agg,
+        fixed = TRUE
+    )
+    expect_error(
+        sc.t.fit(splat_fitted("default"),
+            selection_method = c("backward", "forward"), verbose = FALSE
+        ),
+        "stepwise method must be one of backward, forward,",
+        fixed = TRUE
+    )
+    fitted <- splat_fitted("default")
+    expect_error(sc.filter(fitted, vars = c("all", "each")),
+        "Invalid selection for 'vars'",
+        fixed = TRUE
+    )
+    expect_error(sc.filter(fitted, vars = "groups", intercept = "some"),
+        "Invalid selection for 'intercept'",
+        fixed = TRUE
+    )
+    # intercept is used with vars = "groups" only
+    expect_identical(
+        sc.filter(fitted, vars = "all", intercept = "some"),
+        sc.filter(fitted, vars = "all")
+    )
+    filtered <- splat_filtered()
+    expect_error(
+        sc.cluster.trend(filtered, geneSet = c("intersect", "union")),
+        "does not exist. Please use one of",
+        fixed = TRUE
+    )
+    for (arg in list(
+        list(cluster_by = two("coeff")), list(use_dim = two("col")),
+        list(fill_na = two("zero"))
+    )) {
+        expect_error(
+            do.call(sc.cluster.trend, c(list(filtered), arg)),
+            "is not a valid option. Please use one of",
+            fixed = TRUE
+        )
+    }
+    expect_error(
+        sc.cluster.trend(filtered, cluster_method = c("hclust", "kmeans")),
+        "is not a valid method. Please use one of hclust, kmeans, Mclust",
+        fixed = TRUE
+    )
+    expect_error(
+        plotTrend(ob, feature_id = gene, summary_mode = two("mean")),
+        "is not a valid option. Please use one of median, mean",
+        fixed = TRUE
+    )
+    expect_error(plotTrend(ob, feature_id = gene, logType = "ln"),
+        "'logType' should be one of 'log2', 'log10', 'log'",
+        fixed = TRUE
+    )
+    # logType is used with logs = TRUE only
+    expect_s3_class(
+        plotTrend(ob, feature_id = gene, logs = FALSE, logType = "ln"),
+        "ggplot"
+    )
+    expect_error(plotDiagnostics(ob, feature_id = gene, model = two("full")),
+        "Invalid 'model', please select one of",
+        fixed = TRUE
+    )
+    expect_error(queryCoeff(ob, query = two("path"), verbose = FALSE),
+        "Invalid query, please select one of",
+        fixed = TRUE
+    )
+    expect_error(
+        queryCoeff(ob, change = c("increasing", "decreasing"), verbose = FALSE),
+        "Invalid change, please select one of",
+        fixed = TRUE
+    )
+})
+
+test_that("sc.filter() uses 'all' by default (ledger V1)", {
+    fitted <- splat_fitted("default")
+    expect_identical(sc.filter(fitted), sc.filter(fitted, vars = "all"))
+    expect_named(sc.filter(fitted)@Significant@genes, "all")
+})
+
+test_that("column names and labels are single strings (ledger V5)", {
+    sce <- load_dataset("splat.sim")
+    for (arg in c("path_prefix", "root_label", "ptime_col", "path_col")) {
+        for (bad in list(NA_character_, c("a", "b"), 1, character())) {
+            args <- stats::setNames(
+                list(sce, FALSE, bad), c("object", "verbose", arg)
+            )
+            expect_error(do.call(as_scmp, args),
+                paste0("'", arg, "' must be a single character string."),
+                fixed = TRUE
+            )
+        }
+    }
+    x <- multi_cell_data()
+    expect_error(
+        create_scmp(
+            counts = x$counts, cell_data = x$cell_data,
+            ptime_col = c("Monocle3_Pseudotime", "group"), path_col = "group"
+        ),
+        "'ptime_col' must be a single character string.",
+        fixed = TRUE
+    )
+    expect_error(sc.squeeze(splat_scmp(), bin_col = c("a", "b")),
+        "'bin_col' must be a single character string.",
+        fixed = TRUE
+    )
+    expect_error(sc.squeeze(splat_scmp(), assay_name = c("counts", "counts")),
+        "'assay_name' must be a single character string.",
+        fixed = TRUE
+    )
+    expect_error(sc.set.poly(splat_binned(), path_col = NA_character_),
+        "'path_col' must be a single character string.",
+        fixed = TRUE
+    )
+    expect_error(pb_counts(splat_binned(), bin_mem_col = 1),
+        "'bin_mem_col' must be a single character string.",
+        fixed = TRUE
+    )
+})
+
+test_that("additional_params can be NULL (ledger n1)", {
+    ob <- splat_scmp()
+    expect_identical(sc.squeeze(ob, additional_params = NULL), splat_binned())
+    expect_identical(sc.squeeze(ob, additional_params = list()), splat_binned())
+    expect_error(sc.squeeze(ob, additional_params = list(TRUE)),
+        "Allowed additional parameters are 'use_unique_time_points'.",
+        fixed = TRUE
+    )
+    sce <- load_dataset("splat.sim")
+    expect_identical(
+        as_scmp(sce, verbose = FALSE, additional_params = NULL),
+        as_scmp(sce, verbose = FALSE)
+    )
+    expect_identical(
+        as_scmp(sce, verbose = FALSE, additional_params = list()),
+        as_scmp(sce, verbose = FALSE)
+    )
+})
+
+test_that("sc.cluster.trend() needs enough genes for k (ledger V6)", {
+    ob <- splat_filtered()
+    set <- function(n) {
+        genes <- sort(unique(unlist(ob@Significant@genes)))[seq_len(n)]
+        ob@Significant <- new("Significant", genes = list(set = genes))
+        ob
+    }
+    msg <- function(n, method, k, need) {
+        paste0(
+            "The 'set' gene set has ", n, " gene(s), too few for ",
+            "cluster_method = '", method, "' with k = ", k,
+            ": it needs at least ", need, "."
+        )
+    }
+    expect_error(sc.cluster.trend(set(1), geneSet = "set", k = 1),
+        msg(1, "hclust", 1, 2),
+        fixed = TRUE
+    )
+    expect_error(sc.cluster.trend(set(3), geneSet = "set", k = 4),
+        msg(3, "hclust", 4, 4),
+        fixed = TRUE
+    )
+    expect_error(
+        sc.cluster.trend(set(3),
+            geneSet = "set", k = 3,
+            cluster_method = "kmeans"
+        ),
+        msg(3, "kmeans", 3, 4),
+        fixed = TRUE
+    )
+    # Enough genes: as before
+    expect_named(
+        sc.cluster.trend(set(3), geneSet = "set", k = 3)@Significant@clusters,
+        sort(unique(unlist(ob@Significant@genes)))[1:3]
+    )
+})
