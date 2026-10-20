@@ -1,7 +1,8 @@
 # Golden tests: the outputs of the whole workflow on the bundled datasets,
-# frozen at version 0.0.4. Any difference means a change in results; if the
-# change is intended, regenerate the fixture with fixtures/make-golden.R and
-# document it in NEWS.
+# frozen at version 0.0.4 except the leaves listed in meta$regenerated. Any
+# difference means a change in results; if the change is intended, regenerate
+# the fixture with fixtures/make-golden.R, list the leaves that moved in
+# meta$regenerated (helper-fixtures.R) and document it in NEWS.
 
 golden <- readRDS(test_path("fixtures", "golden-v0.0.4.rds"))
 current <- build_golden()

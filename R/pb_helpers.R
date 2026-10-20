@@ -92,36 +92,60 @@ create_range <- function(x, bin_size_colname = "scmp_bin_size",
 #' @title estBinSize
 #'
 #' @description
-#' `estBinSize()` calculates the optimal bin size for discretizing a continuous variable.
-#' It uses various bin_methods for bin size estimation such as "Freedman.Diaconis",
-#' "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal".
+#' `estBinSize()` estimates the number of bins for discretizing a continuous
+#' variable with one of the rules "Freedman.Diaconis", "Sqrt", "Sturges",
+#' "Rice", "Doane" and "Scott.Normal".
 #'
-#' @param time_vector A numeric vector. The time series data points that need to be binned.
+#' @param time_vector A numeric vector. The time series data points that
+#' need to be binned.
 #' @param nPoints An integer. The total number of data points in time_vector.
-#' @param drop_fac A numeric. A factor to adjust the calculated bin size. The
-#' estimated bin size is multiplied by this value. It helps in refining the bin
-#' size when the original bin size calculation results in too many empty bins.
-#' @param bin_method A character string. The bin_method to estimate the bin size.
-#' Possible values include "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane",
-#' and "Scott.Normal". See details.
+#' @param drop_fac A numeric. A factor to adjust the estimated number of bins:
+#' the number of bins given by the rule is multiplied by this value. Values
+#' below 1 give fewer, wider bins, which helps when the rule gives too many
+#' empty bins.
+#' @param bin_method A character string. The rule that estimates the number of
+#' bins. Possible values include "Freedman.Diaconis", "Sqrt", "Sturges",
+#' "Rice", "Doane", and "Scott.Normal". See details.
 #'
 #' @return
-#' A numeric value representing the estimated bin size, adjusted by the drop_fac.
+#' A number: the number of bins given by the rule, multiplied by `drop_fac`.
+#' It is not rounded; [sc.squeeze()] rounds it up with `ceiling()`.
 #'
 #' @details
-#' The function contains various rules for calculating the bin size:
+#' With n the number of points (`nPoints`), the rules give:
 #' \describe{
-#'   \item{"Freedman.Diaconis"}{bin size is proportional to the interquartile range
-#'   (IQR) and inversely proportional to the cube root of the number of data points.}
-#'   \item{"Sqrt"}{bin size is proportional to the square root of the number of data points.}
-#'   \item{"Sturges"}{bin size is proportional to the log (base 2) of the number of data points.}
-#'   \item{"Rice"}{bin size is proportional to twice the cube root of the number of data points.}
-#'   \item{"Doane"}{bin size accounts for data skewness in the calculation.}
-#'   \item{"Scott.Normal"}{bin size is proportional to the standard deviation and
-#'   inversely proportional to the cube root of the number of data points, assuming
-#'   the data is nearly normal in distribution.}
+#'   \item{"Freedman.Diaconis"}{bins of width 2 IQR / n^(1/3), with IQR the
+#'   interquartile range of the points (Freedman and Diaconis, 1981).}
+#'   \item{"Sqrt"}{sqrt(n) bins.}
+#'   \item{"Sturges"}{log2(n) + 1 bins (Sturges, 1926).}
+#'   \item{"Rice"}{2 n^(1/3) bins.}
+#'   \item{"Doane"}{1 + log2(n) + log2(1 + |g| / s) bins, with g the sample
+#'   skewness of the points and s = sqrt(6 (n - 2) / ((n + 1) (n + 3)))
+#'   (Doane, 1976).}
+#'   \item{"Scott.Normal"}{bins of width 3.49 sd / n^(1/3), with sd the
+#'   standard deviation of the points, for nearly normal data (Scott, 1979).}
 #' }
-#' After estimating the bin size, it is scaled down by a factor specified by 'drop_fac'.
+#' Freedman-Diaconis and Scott give a bin width, which is turned into a
+#' number of bins by dividing the range of the points by it. Their width is 0
+#' when the interquartile range or the standard deviation is 0 (when the
+#' points are all equal, or for Freedman-Diaconis when their first and third
+#' quartiles are equal) and undefined for Scott with a single point; the rule
+#' then gives one bin, with a message. The number of bins of every rule is
+#' multiplied by `drop_fac`.
+#'
+#' @references
+#' Doane, D. P. (1976). Aesthetic frequency classifications. The American
+#' Statistician, 30, 181-183.
+#'
+#' Freedman, D. and Diaconis, P. (1981). On the histogram as a density
+#' estimator: L2 theory. Zeitschrift für Wahrscheinlichkeitstheorie und
+#' verwandte Gebiete, 57, 453-476.
+#'
+#' Scott, D. W. (1979). On optimal and data-based histograms. Biometrika, 66,
+#' 605-610.
+#'
+#' Sturges, H. A. (1926). The choice of a class interval. Journal of the
+#' American Statistical Association, 21, 65-66.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
@@ -131,32 +155,34 @@ create_range <- function(x, bin_size_colname = "scmp_bin_size",
 estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
     estBins <- switch(bin_method,
         "Freedman.Diaconis" = {
-            # Freedman-Diaconis rule: bin size is proportional to the interquartile range (IQR)
-            # and inversely proportional to the cube root of the number of data points.
-            2 * IQR(time_vector) / nPoints^(1 / 3)
+            # Freedman-Diaconis rule: bins of width twice the interquartile
+            # range over the cube root of the number of points
+            width <- 2 * IQR(time_vector) / nPoints^(1 / 3)
+            .width_to_count(time_vector, width, bin_method)
         },
         "Sqrt" = {
-            # Square root rule: bin size is proportional to the square root of the number of data points.
+            # Square root rule: the square root of the number of points
             nPoints^(1 / 2)
         },
         "Sturges" = {
-            # Sturges' rule: bin size is proportional to the log (base 2) of the number of data points.
+            # Sturges' rule: the log (base 2) of the number of points, plus 1
             log2(nPoints) + 1
         },
         "Rice" = {
-            # Rice Rule: bin size is proportional to twice the cube root of the number of data points.
+            # Rice rule: twice the cube root of the number of points
             2 * nPoints^(1 / 3)
         },
         "Doane" = {
-            # Doane's formula: accounts for data skewness in the calculation of bin size.
+            # Doane's formula: Sturges' rule corrected for the skewness
             sigma <- ((6 * (nPoints - 2)) / ((nPoints + 1) * (nPoints + 3)))^(1 / 2)
             sk <- .skewness(time_vector)
             1 + log2(nPoints) + log2(1 + (abs(sk) / sigma))
         },
         "Scott.Normal" = {
-            # Scott's normal reference rule: assumes the data is nearly normal in distribution.
-            # Bin size is proportional to the standard deviation and inversely proportional to the cube root of the number of data points.
-            3.49 * abs(sd(time_vector)) / nPoints^(1 / 3)
+            # Scott's normal reference rule: bins of width 3.49 standard
+            # deviations over the cube root of the number of points
+            width <- 3.49 * sd(time_vector) / nPoints^(1 / 3)
+            .width_to_count(time_vector, width, bin_method)
         },
         stop(
             "Invalid bin_method: ", bin_method, ". Please choose one of the ",
@@ -166,10 +192,48 @@ estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
     )
 
 
-    # Scale the estimated bin size by the drop factor.
+    # Scale the estimated number of bins by the drop factor.
     estBins <- drop_fac * estBins
 
     return(estBins)
+}
+###############################################################################
+#' @title Number of Bins of a Given Width
+#'
+#' @description
+#' `.width_to_count()` turns the bin width of the Freedman-Diaconis or the
+#' Scott rule into a number of bins: the range of `x` divided by the width.
+#' A width of 0 (an interquartile range or a standard deviation of 0) or an
+#' undefined width (a single point) gives one bin, with a message.
+#'
+#' @param x A numeric vector: the points to bin.
+#' @param width The bin width given by the rule.
+#' @param bin_method The rule, "Freedman.Diaconis" or "Scott.Normal".
+#'
+#' @return A number, not rounded; `NA` when `x` has missing or infinite
+#' values, which `sc.squeeze()` cannot bin with any rule.
+#'
+#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
+#' @noRd
+.width_to_count <- function(x, width, bin_method) {
+    if (!all(is.finite(x))) {
+        return(NA_real_)
+    }
+    if (isTRUE(width > 0)) {
+        return(diff(range(x)) / width)
+    }
+    spread <- if (bin_method == "Freedman.Diaconis") {
+        "interquartile range"
+    } else {
+        "standard deviation"
+    }
+    message(
+        "The ", spread, " of the ", length(x), " pseudotime value(s) is ",
+        if (is.na(width)) "undefined" else "0", ", so bin_method = '",
+        bin_method, "' gives no bin width; they are counted as one bin."
+    )
+    1
 }
 ###############################################################################
 #' @title Sample Skewness

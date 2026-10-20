@@ -223,11 +223,16 @@ build_golden <- function() {
             r_version = R.version.string,
             # Frozen as they are today, known to be wrong; these move in Phase 5.
             known_wrong = c(
-                "squeeze/by_method/Freedman.Diaconis" = "ledger g: bin width used as count",
-                "squeeze/by_method/Scott.Normal" = "ledger g: bin width used as count",
                 "fits/default" = "ledger h: raw size factors as log-link offset",
                 "fits/vignette" = "ledger h: offsets recomputed in sc.t.fit",
                 "squeeze" = "ledger S3: breaks parsed from rounded cut() labels"
+            ),
+            # Changed on purpose after 0.0.4; every other leaf is still 0.0.4.
+            regenerated = c(
+                "squeeze/by_method/Freedman.Diaconis" =
+                    "0.0.5.9000, ledger g: number of bins = range / width",
+                "squeeze/by_method/Scott.Normal" =
+                    "0.0.5.9000, ledger g: number of bins = range / width"
             )
         ),
         sparse_cells = sorted_df(cSparse(binned)),
