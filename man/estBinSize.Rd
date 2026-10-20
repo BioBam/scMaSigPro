@@ -7,40 +7,64 @@
 estBinSize(time_vector, nPoints, drop_fac, bin_method)
 }
 \arguments{
-\item{time_vector}{A numeric vector. The time series data points that need to be binned.}
+\item{time_vector}{A numeric vector. The time series data points that
+need to be binned.}
 
 \item{nPoints}{An integer. The total number of data points in time_vector.}
 
-\item{drop_fac}{A numeric. A factor to adjust the calculated bin size. The
-estimated bin size is multiplied by this value. It helps in refining the bin
-size when the original bin size calculation results in too many empty bins.}
+\item{drop_fac}{A numeric. A factor to adjust the estimated number of bins:
+the number of bins given by the rule is multiplied by this value. Values
+below 1 give fewer, wider bins, which helps when the rule gives too many
+empty bins.}
 
-\item{bin_method}{A character string. The bin_method to estimate the bin size.
-Possible values include "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane",
-and "Scott.Normal". See details.}
+\item{bin_method}{A character string. The rule that estimates the number of
+bins. Possible values include "Freedman.Diaconis", "Sqrt", "Sturges",
+"Rice", "Doane", and "Scott.Normal". See details.}
 }
 \value{
-A numeric value representing the estimated bin size, adjusted by the drop_fac.
+A number: the number of bins given by the rule, multiplied by \code{drop_fac}.
+It is not rounded; \code{\link[=sc.squeeze]{sc.squeeze()}} rounds it up with \code{ceiling()}.
 }
 \description{
-\code{estBinSize()} calculates the optimal bin size for discretizing a continuous variable.
-It uses various bin_methods for bin size estimation such as "Freedman.Diaconis",
-"Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal".
+\code{estBinSize()} estimates the number of bins for discretizing a continuous
+variable with one of the rules "Freedman.Diaconis", "Sqrt", "Sturges",
+"Rice", "Doane" and "Scott.Normal".
 }
 \details{
-The function contains various rules for calculating the bin size:
+With n the number of points (\code{nPoints}), the rules give:
 \describe{
-\item{"Freedman.Diaconis"}{bin size is proportional to the interquartile range
-(IQR) and inversely proportional to the cube root of the number of data points.}
-\item{"Sqrt"}{bin size is proportional to the square root of the number of data points.}
-\item{"Sturges"}{bin size is proportional to the log (base 2) of the number of data points.}
-\item{"Rice"}{bin size is proportional to twice the cube root of the number of data points.}
-\item{"Doane"}{bin size accounts for data skewness in the calculation.}
-\item{"Scott.Normal"}{bin size is proportional to the standard deviation and
-inversely proportional to the cube root of the number of data points, assuming
-the data is nearly normal in distribution.}
+\item{"Freedman.Diaconis"}{bins of width 2 IQR / n^(1/3), with IQR the
+interquartile range of the points (Freedman and Diaconis, 1981).}
+\item{"Sqrt"}{sqrt(n) bins.}
+\item{"Sturges"}{log2(n) + 1 bins (Sturges, 1926).}
+\item{"Rice"}{2 n^(1/3) bins.}
+\item{"Doane"}{1 + log2(n) + log2(1 + |g| / s) bins, with g the sample
+skewness of the points and s = sqrt(6 (n - 2) / ((n + 1) (n + 3)))
+(Doane, 1976).}
+\item{"Scott.Normal"}{bins of width 3.49 sd / n^(1/3), with sd the
+standard deviation of the points, for nearly normal data (Scott, 1979).}
 }
-After estimating the bin size, it is scaled down by a factor specified by 'drop_fac'.
+Freedman-Diaconis and Scott give a bin width, which is turned into a
+number of bins by dividing the range of the points by it. Their width is 0
+when the interquartile range or the standard deviation is 0 (when the
+points are all equal, or for Freedman-Diaconis when their first and third
+quartiles are equal) and undefined for Scott with a single point; the rule
+then gives one bin, with a message. The number of bins of every rule is
+multiplied by \code{drop_fac}.
+}
+\references{
+Doane, D. P. (1976). Aesthetic frequency classifications. The American
+Statistician, 30, 181-183.
+
+Freedman, D. and Diaconis, P. (1981). On the histogram as a density
+estimator: L2 theory. Zeitschrift für Wahrscheinlichkeitstheorie und
+verwandte Gebiete, 57, 453-476.
+
+Scott, D. W. (1979). On optimal and data-based histograms. Biometrika, 66,
+605-610.
+
+Sturges, H. A. (1926). The choice of a class interval. Journal of the
+American Statistical Association, 21, 65-66.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

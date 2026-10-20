@@ -158,17 +158,46 @@ test_that("hclust with another distance clusters the genes (ledger S4)", {
 })
 
 test_that("split_bins stops when splitting makes no progress (ledger Q2)", {
-    # Freedman-Diaconis and Scott split each large bin of splat.sim into one
-    # bin, so the loop never ended: the time limit guards a regression
+    # Path1 has 20 of its 60 cells at 0.3: the bin that holds them is too
+    # large, and its cells have an interquartile range of 0, so
+    # Freedman-Diaconis counts them as one bin and the split gives the same
+    # bin back. The loop never ended: the time limit guards a regression
+    cd <- data.frame(
+        Pseudotime = c(
+            seq(0, 1, length.out = 40), rep(0.3, 20), seq(0, 1, length.out = 60)
+        ),
+        Path = rep(c("Path1", "Path2"), each = 60),
+        row.names = paste0("cell", 1:120)
+    )
+    counts <- matrix(1, 2, 120, dimnames = list(c("g1", "g2"), rownames(cd)))
+    ob <- create_scmp(
+        counts = counts, cell_data = cd, ptime_col = "Pseudotime",
+        path_col = "Path"
+    )
     on.exit(setTimeLimit(elapsed = Inf), add = TRUE)
+    setTimeLimit(elapsed = 30, transient = TRUE)
+    expect_error(
+        suppressMessages(sc.squeeze(ob,
+            bin_method = "Freedman.Diaconis", split_bins = TRUE
+        )),
+        paste(
+            "Splitting the bins of 'Path1' with bin_method =",
+            "'Freedman.Diaconis' makes no progress"
+        ),
+        fixed = TRUE
+    )
+    setTimeLimit(elapsed = Inf)
+    # Freedman-Diaconis and Scott once split each large bin of splat.sim into
+    # one bin (ledger g); they now make progress
     for (method in c("Freedman.Diaconis", "Scott.Normal")) {
-        setTimeLimit(elapsed = 30, transient = TRUE)
-        expect_error(
-            sc.squeeze(splat_scmp(), bin_method = method, split_bins = TRUE),
-            paste0("with bin_method = '", method, "' makes no progress"),
-            fixed = TRUE
+        split <- sc.squeeze(splat_scmp(),
+            bin_method = method, split_bins = TRUE
         )
-        setTimeLimit(elapsed = Inf)
+        expect_identical(
+            as.vector(table(cDense(split)[[split@Parameters@path_col]])),
+            c(7L, 8L),
+            info = method
+        )
     }
     # Control: a rule whose splits make progress
     split <- sc.squeeze(splat_scmp(), bin_method = "Sturges", split_bins = TRUE)
