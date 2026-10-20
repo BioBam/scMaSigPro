@@ -28,7 +28,7 @@
       eval(cases[[nm]])
     Condition
       Error:
-      ! Please provide object of class 'ScMaSigPro'.
+      ! Please provide object of class 'ScMaSigPro'
 
 # sc.squeeze rejects an unknown pseudotime column
 
@@ -91,7 +91,7 @@
     Code
       eval(cases[[nm]])
     Condition
-      Error in `sc.t.fit()`:
+      Error:
       ! stepwise method must be one of backward, forward, two.ways.backward, two.ways.forward
 
 # sc.filter rejects an unknown vars

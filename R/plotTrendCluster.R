@@ -51,6 +51,9 @@ plotTrendCluster <- function(scmpObj,
     # Global vars
     scmp_clusters <- "scmp_clusters"
     feature_id <- "feature_id"
+    # Check Object Validity
+    .check_scmp(scmpObj)
+
     # Offset
     offset_vector <- scmpObj@Design@offset
 

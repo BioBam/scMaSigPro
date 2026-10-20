@@ -56,13 +56,30 @@ sc.t.fit <- function(scmpObj,
                      max_it = scmpObj@Parameters@max_it,
                      link = scmpObj@Parameters@link,
                      BPPARAM = SerialParam()) {
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'"
+    # Check Object Validity
+    .check_scmp(scmpObj)
+
+    # The genes come from sc.p.vector() and the counts from pb_counts()
+    .check(length(scmpObj@Profile@non_flat) > 0,
+        msg = paste(
+            "No gene with a non-flat profile found. Please run 'sc.p.vector()'",
+            "first; if it found none, try changing its parameters."
+        )
+    )
+    .check_dense_counts(scmpObj,
+        bins = rownames(scmpObj@Design@predictor_matrix)
     )
 
     # Check for the log function
     .check(link %in% c("log", "identity"),
         msg = "link function should be either 'log' or 'identity'"
+    )
+    selection_method <- .check_choice(selection_method,
+        c("backward", "forward", "two.ways.backward", "two.ways.forward"),
+        msg = paste(
+            "stepwise method must be one of backward, forward,",
+            "two.ways.backward, two.ways.forward"
+        )
     )
 
     # Update the family
@@ -121,8 +138,6 @@ sc.t.fit <- function(scmpObj,
         step_fun <- sc.two.ways.stepback
     } else if (selection_method == "two.ways.forward") {
         step_fun <- sc.two.ways.stepfor
-    } else {
-        stop("stepwise method must be one of backward, forward, two.ways.backward, two.ways.forward")
     }
 
     if (verbose) {

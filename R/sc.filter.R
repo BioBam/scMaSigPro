@@ -9,7 +9,8 @@
 #' @param includeInflu Whether to include genes with influential observations.
 #' @param p_value Overall model significance.
 #' @param term_p_value Term wise significance.
-#' @param vars Variables for which to extract significant genes. See details.
+#' @param vars Variables for which to extract significant genes: "all" (the
+#' default), "each" or "groups". See details.
 #' @param intercept Specify the branching path treated as reference. See details.
 #' (When `vars` equals "groups").
 #'
@@ -54,16 +55,20 @@ sc.filter <- function(scmpObj,
                       term_p_value = 0.05,
                       includeInflu = TRUE) {
     # Check Validity of the object
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'"
-    )
+    .check_scmp(scmpObj)
 
-    .check(
-        all(
-            vars %in% c("all", "each", "groups")
-        ),
+    # The default lists the choices and means the first, as in match.arg()
+    if (missing(vars)) {
+        vars <- "all"
+    }
+    vars <- .check_choice(vars, c("all", "each", "groups"),
         msg = "Invalid selection for 'vars'"
     )
+    if (vars == "groups") {
+        intercept <- .check_choice(intercept, c("dummy", "none", "all"),
+            msg = "Invalid selection for 'intercept'"
+        )
+    }
 
     # Initiate empty list
     sig.list <- list()

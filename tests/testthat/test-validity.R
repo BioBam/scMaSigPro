@@ -226,7 +226,7 @@ test_that("arguments that would be stored as invalid parameters are errors", {
                 exist_path_col = "Group"
             )
         ),
-        "slot 'Parameters': 'root_label' must be a single non-missing value",
+        "'root_label' must be a single character string.",
         fixed = TRUE
     )
     expect_error(
