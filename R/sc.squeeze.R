@@ -74,8 +74,11 @@ sc.squeeze <- function(scmpObj,
     cell <- "cell"
 
     # Check Object Validity
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'."
+    .check_scmp(scmpObj)
+    .check_strings(
+        ptime_col = ptime_col, path_col = path_col, bin_mem_col = bin_mem_col,
+        bin_col = bin_col, bin_size_col = bin_size_col,
+        bin_ptime_col = bin_ptime_col, assay_name = assay_name
     )
 
     # Extract cell metadata
@@ -115,29 +118,37 @@ sc.squeeze <- function(scmpObj,
     .check(drop_fac >= 0.3,
         msg = "Invalid value for 'drop_fac'. It should be between 0.3 and 1."
     )
-    .check(
-        all(
-            bin_method %in% c(
-                "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane",
-                "Scott.Normal"
-            )
+    bin_method <- .check_choice(bin_method,
+        c(
+            "Freedman.Diaconis", "Sqrt", "Sturges", "Rice", "Doane",
+            "Scott.Normal"
         ),
         msg = paste(
             "Available binning methods are 'Freedman.Diaconis', 'Sqrt',",
             "'Sturges', 'Rice', 'Doane', and 'Scott.Normal'"
         )
     )
-    if (!is.null(additional_params)) {
-        .check(is.list(additional_params),
-            msg = paste(
-                "Please provide 'additional_params' as a named list.",
-                "See details for more information"
-            )
+    aggregate <- .check_choice(aggregate, c("sum", "mean"),
+        msg = "Invalid 'aggregate' value. Please choose either 'mean' or 'sum'."
+    )
+    # NULL or an empty list keep the default
+    if (is.null(additional_params)) {
+        additional_params <- list()
+    }
+    .check(is.list(additional_params),
+        msg = paste(
+            "Please provide 'additional_params' as a named list.",
+            "See details for more information"
         )
-
-        .check(names(additional_params) %in% c("use_unique_time_points"),
-            msg = "Allowed additional parameters are 'use_unique_time_points'."
-        )
+    )
+    .check(
+        length(additional_params) == 0L ||
+            identical(names(additional_params), "use_unique_time_points"),
+        msg = "Allowed additional parameters are 'use_unique_time_points'."
+    )
+    use_unique <- additional_params[["use_unique_time_points"]]
+    if (is.null(use_unique)) {
+        use_unique <- FALSE
     }
 
     # Add a column
@@ -182,7 +193,7 @@ sc.squeeze <- function(scmpObj,
                                                   split = split_bins,
                                                   bin.members.colname = bin_mem_col,
                                                   v = verbose,
-                                                  use.unique.time.points = additional_params$use_unique_time_points,
+                                                  use.unique.time.points = use_unique,
                                                   lbound = scmp_bin_lower_bound,
                                                   ubound = scmp_bin_upper_bound) {
         # Get the cells belonging to path

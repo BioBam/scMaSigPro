@@ -78,6 +78,11 @@ as_scmp <- function(object, from = "sce",
             "matrix and a table of cell metadata, use create_scmp()."
         )
     )
+    # Names and labels, stored in the Parameters slot
+    .check_strings(
+        path_prefix = path_prefix, root_label = root_label,
+        ptime_col = ptime_col, path_col = path_col
+    )
     # An object saved by an older SingleCellExperiment is updated here, as
     # colData<- does with labels_exist = TRUE, so both routes store the same
     # object.
@@ -109,6 +114,12 @@ as_scmp <- function(object, from = "sce",
         )
     }
 
+    # Without labels_exist, the columns keep their names
+    labels_exist <- additional_params[["labels_exist"]]
+    if (is.null(labels_exist)) {
+        labels_exist <- FALSE
+    }
+
     if (verbose) {
         message("Supplied object: SingleCellExperiment object")
     }
@@ -121,7 +132,7 @@ as_scmp <- function(object, from = "sce",
         path_col = path_col,
         exist_ptime_col = additional_params[["exist_ptime_col"]],
         exist_path_col = additional_params[["exist_path_col"]],
-        labels_exist = additional_params[["labels_exist"]],
+        labels_exist = labels_exist,
         verbose = verbose
     )
 

@@ -61,6 +61,8 @@ create_scmp <- function(counts,
         )
     }
 
+    .check_strings(path_col = path_col, ptime_col = ptime_col)
+
     # Validate if path_col is present in cell_data
     .check(path_col %in% colnames(cell_data),
         msg = paste0("Column name '", path_col, "' not found in cell_data.")

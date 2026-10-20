@@ -27,9 +27,7 @@ plotBinTile <- function(scmpObj,
                         bin_size_col = scmpObj@Parameters@bin_size_col,
                         bin_ptime_col = scmpObj@Parameters@bin_ptime_col) {
     # Check Object Validity
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'."
-    )
+    .check_scmp(scmpObj)
 
     # Check whether the compression data exist or not
     compression.info <- as.data.frame(colData(scmpObj@Dense))

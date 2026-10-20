@@ -491,8 +491,12 @@ pb_counts <- function(scmpObj,
                       assay_name = "counts",
                       cluster_count_by = "sum") {
     # Check Object Validity
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'."
+    .check_scmp(scmpObj)
+    .check_strings(
+        bin_mem_col = bin_mem_col, bin_col = bin_col, assay_name = assay_name
+    )
+    cluster_count_by <- .check_choice(cluster_count_by, c("sum", "mean"),
+        msg = "Invalid 'aggregate' value. Please choose either 'mean' or 'sum'."
     )
 
     # Count slot

@@ -29,9 +29,7 @@
 #' @export
 showCoeff <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'"
-    )
+    .check_scmp(scmpObj)
 
     # Check if the sol exist
     .check(!all(dim(scmpObj@Estimate@coefficient_matrix) == c(0, 0)),
@@ -65,9 +63,7 @@ showCoeff <- function(scmpObj, includeInflu = TRUE) {
 #' @export
 showInflu <- function(scmpObj) {
     # Check Object Validity
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'"
-    )
+    .check_scmp(scmpObj)
 
     # Check if the sol exist
     .check(!all(dim(scmpObj@Estimate@influential) == c(0, 0)),
@@ -97,9 +93,7 @@ showInflu <- function(scmpObj) {
 #' @export
 showTS <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'"
-    )
+    .check_scmp(scmpObj)
 
     # Check if the sol exist
     .check(!all(dim(scmpObj@Estimate@t_score_matrix) == c(0, 0)),
@@ -134,9 +128,7 @@ showTS <- function(scmpObj, includeInflu = TRUE) {
 #' @export
 showSol <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'"
-    )
+    .check_scmp(scmpObj)
 
     # Check if the sol exist
     .check(!all(dim(scmpObj@Estimate@significance_matrix) == c(0, 0)),
@@ -171,9 +163,7 @@ showSol <- function(scmpObj, includeInflu = TRUE) {
 #' @export
 showSigProf <- function(scmpObj, includeInflu = FALSE) {
     # Check Object Validity
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'"
-    )
+    .check_scmp(scmpObj)
 
     # Check if the sol exist
     .check(!all(dim(scmpObj@Estimate@significance_matrix) == c(0, 0)),
@@ -183,6 +173,7 @@ showSigProf <- function(scmpObj, includeInflu = FALSE) {
     # Extract
     sol <- as.data.frame(showSol(scmpObj, includeInflu = includeInflu))
     # Extract rownames
+    .check_dense_counts(scmpObj)
     bulk.counts <- assay(scmpObj@Dense, "bulk.counts", withDimnames = FALSE)
     bulk.counts <- bulk.counts[rownames(bulk.counts) %in% rownames(sol), , drop = FALSE]
 
@@ -209,9 +200,7 @@ showSigProf <- function(scmpObj, includeInflu = FALSE) {
 #' @export
 showPoly <- function(scmpObj) {
     # Check Object Validity
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'"
-    )
+    .check_scmp(scmpObj)
 
     # Check if the sol exist
     .check(
@@ -257,9 +246,7 @@ showPoly <- function(scmpObj) {
 #' @export
 showParams <- function(scmpObj) {
     # Check Object Validity
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'"
-    )
+    .check_scmp(scmpObj)
 
     # Get slot names, assuming 'param' is a slot within 'scmpObj'
     all_slots <- slotNames(scmpObj)
@@ -312,9 +299,7 @@ showParams <- function(scmpObj) {
 #' @export
 showGroupCoeff <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
-    .check(is(scmpObj, "ScMaSigPro"),
-        msg = "Please provide object of class 'ScMaSigPro'"
-    )
+    .check_scmp(scmpObj)
 
     # Check if the sol exist
     .check(!all(dim(scmpObj@Estimate@path_coefficient_matrix) == c(0, 0)),
