@@ -9,7 +9,7 @@ sc.p.vector(
   p_value = 0.05,
   mt_correction = "BH",
   min_na = 6,
-  family = negative.binomial(theta = 10),
+  family = negative.binomial(theta = 10, link = link),
   epsilon = 1e-08,
   verbose = TRUE,
   offset = TRUE,
@@ -31,20 +31,31 @@ method.}
 \item{min_na}{Minimum values needed per gene across cells to estimate the
 model.}
 
-\item{family}{Distribution of the error term.}
+\item{family}{Distribution of the error term, a \code{\link[stats]{family}}
+object. The default is the negative binomial family with \code{theta = 10}
+and the link given by \code{link}. A family given here is used with its
+own link.}
 
 \item{epsilon}{Model convergence tolerance.}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{offset}{logical value specifying whether to use offset during fitting.}
+\item{offset}{logical value specifying whether to use offset during fitting.
+The offset, the size factor of each bin (or its logarithm, see
+\code{log_offset}), is added to the linear predictor, where it scales the
+fitted mean under the log link only: with any other link the fits stop
+with an error unless \code{offset = FALSE}.}
 
 \item{log_offset}{A logical value specifying whether to take the logarithm of
 the offsets.}
 
 \item{max_it}{Maximum number of iterations to fit the model.}
 
-\item{link}{Type of link function to use in the model. Default is "log".}
+\item{link}{Link function of the default family: "log" (the default, the
+model of the paper) or "identity". When \code{family} is also given,
+\code{link} must be the link of that family. The identity link needs
+\code{offset = FALSE}; under it the fitted mean of a gene can become
+negative, and \code{glm()} then warns.}
 
 \item{BPPARAM}{A \code{BiocParallelParam} object that runs the per-gene
 fits, such as

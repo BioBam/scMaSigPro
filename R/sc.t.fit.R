@@ -13,10 +13,15 @@
 #' @param p_value Significance level used for variable selection in the stepwise
 #' regression.
 #' @param nvar_correction Argument for correcting significance level. See details.
-#' @param family Distribution of the error term.
-#' @param link Type of link function to use in the model. Default is "log".
+#' @param family Distribution of the error term, a \code{\link[stats]{family}}
+#' object. The default is the family that \code{sc.p.vector()} used, with its
+#' link.
+#' @param link The link of \code{family}. The default is the link that
+#' \code{sc.p.vector()} used; when given, it must be the link of
+#' \code{family}. Choose the link in \code{sc.p.vector()}.
 #' @param epsilon Model convergence tolerance.
 #' @param offset A logical value specifying whether to use offset during fitting.
+#' As in \code{sc.p.vector()}, \code{offset = TRUE} needs the log link.
 #' @param log_offset A logical value specifying whether to take the logarithm of
 #' the offsets.
 #' @param max_it Maximum number of iterations to fit the model.
@@ -70,10 +75,13 @@ sc.t.fit <- function(scmpObj,
         bins = rownames(scmpObj@Design@predictor_matrix)
     )
 
-    # Check for the log function
-    .check(link %in% c("log", "identity"),
-        msg = "link function should be either 'log' or 'identity'"
-    )
+    # Check the link when it is given (its default is the stored link)
+    link_given <- !missing(link)
+    if (link_given) {
+        .check_choice(link, c("log", "identity"),
+            msg = "link function should be either 'log' or 'identity'"
+        )
+    }
     selection_method <- .check_choice(selection_method,
         c("backward", "forward", "two.ways.backward", "two.ways.forward"),
         msg = paste(
@@ -82,8 +90,9 @@ sc.t.fit <- function(scmpObj,
         )
     )
 
-    # Update the family
-    family[["link"]] <- link
+    # The family keeps its own link (see .fit_family())
+    family <- .fit_family(family, link, link_given, offset)
+    link <- family$link
 
     # Transfer Data
     dis <- scmpObj@Design@predictor_matrix

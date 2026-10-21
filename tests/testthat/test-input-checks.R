@@ -208,6 +208,88 @@ test_that("a choice argument takes one of its values, once (ledger V4)", {
     )
 })
 
+test_that("the family, link and offset of the fits agree (ledger S6)", {
+    design <- splat_design(2)
+    fitted <- splat_fitted("default")
+    # glm() warns for genes whose identity-link mean becomes negative
+    identity <- suppressWarnings(sc.p.vector(design,
+        link = "identity", offset = FALSE, verbose = FALSE
+    ))
+    # The size-factor offset needs the log link
+    offset_msg <- function(link) {
+        paste0(
+            "The size-factor offset applies to the log link only: with the '",
+            link, "' link, pass offset = FALSE."
+        )
+    }
+    expect_error(sc.p.vector(design, link = "identity", verbose = FALSE),
+        offset_msg("identity"),
+        fixed = TRUE
+    )
+    expect_error(sc.p.vector(design, family = gaussian(), verbose = FALSE),
+        offset_msg("identity"),
+        fixed = TRUE
+    )
+    expect_error(
+        sc.p.vector(design, family = poisson(link = "sqrt"), verbose = FALSE),
+        offset_msg("sqrt"),
+        fixed = TRUE
+    )
+    expect_error(sc.t.fit(fitted, family = gaussian(), verbose = FALSE),
+        offset_msg("identity"),
+        fixed = TRUE
+    )
+    expect_error(sc.t.fit(identity, offset = TRUE, verbose = FALSE),
+        offset_msg("identity"),
+        fixed = TRUE
+    )
+    # A given link must be the link of the family
+    expect_error(
+        sc.p.vector(design,
+            family = MASS::negative.binomial(theta = 10), link = "identity",
+            offset = FALSE, verbose = FALSE
+        ),
+        "'family' has the 'log' link, not link = 'identity'.",
+        fixed = TRUE
+    )
+    expect_error(
+        sc.p.vector(design,
+            family = gaussian(), link = "log", offset = FALSE, verbose = FALSE
+        ),
+        "'family' has the 'identity' link, not link = 'log'.",
+        fixed = TRUE
+    )
+    expect_error(sc.t.fit(fitted, link = "identity", verbose = FALSE),
+        "'family' has the 'log' link, not link = 'identity'.",
+        fixed = TRUE
+    )
+    expect_error(sc.t.fit(identity, link = "log", verbose = FALSE),
+        "'family' has the 'identity' link, not link = 'log'.",
+        fixed = TRUE
+    )
+    # The link is one of two values, given once, and the family an object
+    for (bad in list("probit", c("log", "identity"))) {
+        msg <- "link function should be either 'log' or 'identity'"
+        expect_error(sc.p.vector(design, link = bad, verbose = FALSE), msg,
+            fixed = TRUE
+        )
+        expect_error(sc.t.fit(fitted, link = bad, verbose = FALSE), msg,
+            fixed = TRUE
+        )
+    }
+    for (bad in list("gaussian", gaussian)) {
+        expect_error(sc.p.vector(design, family = bad, verbose = FALSE),
+            "'family' must be a family object",
+            fixed = TRUE
+        )
+    }
+    # Control: the stored link given again
+    expect_identical(
+        sc.t.fit(fitted, link = "log", verbose = FALSE)@Estimate,
+        fitted@Estimate
+    )
+})
+
 test_that("sc.filter() uses 'all' by default (ledger V1)", {
     fitted <- splat_fitted("default")
     expect_identical(sc.filter(fitted), sc.filter(fitted, vars = "all"))

@@ -24,6 +24,17 @@ cases <- list(
         quote(sc.set.poly(list())),
     "sc.p.vector rejects an unknown link" =
         quote(sc.p.vector(splat_design(2), link = "probit", verbose = FALSE)),
+    "sc.p.vector refuses the offset with the identity link" =
+        quote(sc.p.vector(splat_design(2), link = "identity", verbose = FALSE)),
+    "sc.p.vector rejects a link that is not the link of family" =
+        quote(sc.p.vector(splat_design(2),
+            family = MASS::negative.binomial(theta = 10), link = "identity",
+            verbose = FALSE
+        )),
+    "sc.p.vector rejects a family that is not a family object" =
+        quote(sc.p.vector(splat_design(2),
+            family = "gaussian", verbose = FALSE
+        )),
     "sc.p.vector rejects min_na larger than the number of bins" =
         quote(sc.p.vector(splat_design(2), min_na = 1000, verbose = FALSE)),
     "sc.t.fit rejects an unknown selection method" =

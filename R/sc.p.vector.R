@@ -15,10 +15,21 @@
 #' method.
 #' @param min_na Minimum values needed per gene across cells to estimate the
 #' model.
-#' @param family  Distribution of the error term.
-#' @param link Type of link function to use in the model. Default is "log".
+#' @param family Distribution of the error term, a \code{\link[stats]{family}}
+#' object. The default is the negative binomial family with \code{theta = 10}
+#' and the link given by \code{link}. A family given here is used with its
+#' own link.
+#' @param link Link function of the default family: "log" (the default, the
+#' model of the paper) or "identity". When \code{family} is also given,
+#' \code{link} must be the link of that family. The identity link needs
+#' \code{offset = FALSE}; under it the fitted mean of a gene can become
+#' negative, and \code{glm()} then warns.
 #' @param epsilon Model convergence tolerance.
 #' @param offset logical value specifying whether to use offset during fitting.
+#' The offset, the size factor of each bin (or its logarithm, see
+#' \code{log_offset}), is added to the linear predictor, where it scales the
+#' fitted mean under the log link only: with any other link the fits stop
+#' with an error unless \code{offset = FALSE}.
 #' @param log_offset A logical value specifying whether to take the logarithm of
 #' the offsets.
 #' @param max_it Maximum number of iterations to fit the model.
@@ -48,7 +59,7 @@
 #' @export
 sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
                         min_na = 6,
-                        family = negative.binomial(theta = 10),
+                        family = negative.binomial(theta = 10, link = link),
                         epsilon = 1e-8,
                         verbose = TRUE,
                         offset = TRUE,
@@ -77,13 +88,15 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     dat <- dat[, as.character(rownames(dis))]
     G <- nrow(dat)
 
-    # Check for the log function
-    .check(link %in% c("log", "identity"),
+    # The link of the default family, checked before the family is built
+    link_given <- !missing(link)
+    .check_choice(link, c("log", "identity"),
         msg = "link function should be either 'log' or 'identity'"
     )
 
-    # Update the family
-    family[["link"]] <- link
+    # The fits use the link functions of the family (ledger S6)
+    family <- .fit_family(family, link, link_given, offset)
+    link <- family$link
 
     # Add check
     .check(min_na <= ncol(dat),
@@ -189,6 +202,36 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     validObject(scmpObj)
 
     return(scmpObj)
+}
+
+# The family of the fits of sc.p.vector() and sc.t.fit(). glm() uses the
+# link functions of a family (linkfun, linkinv, mu.eta), so a family is used
+# with its own link, and renaming its `link` entry would only relabel it
+# (ledger S6). `link`, when given, must be that link. The size-factor offset
+# is added to the linear predictor, where it scales the mean under the log
+# link only, so offset = TRUE needs the log link.
+.fit_family <- function(family, link, link_given, offset) {
+    .check(inherits(family, "family"),
+        msg = paste(
+            "'family' must be a family object, such as",
+            "MASS::negative.binomial(theta = 10)."
+        )
+    )
+    .check(!link_given || identical(family$link, link),
+        msg = paste0(
+            "'family' has the '", family$link, "' link, not link = '", link,
+            "'. To fit with the '", link, "' link, give a family built ",
+            "with it, such as MASS::negative.binomial(theta = 10, link = '",
+            link, "'), or leave 'family' out of sc.p.vector()."
+        )
+    )
+    .check(!isTRUE(offset) || identical(family$link, "log"),
+        msg = paste0(
+            "The size-factor offset applies to the log link only: with the '",
+            family$link, "' link, pass offset = FALSE."
+        )
+    )
+    family
 }
 
 # The design as a data frame whose columns are named by position: x1, x2, ...
