@@ -29,11 +29,14 @@ regression.}
 
 \item{nvar_correction}{Argument for correcting significance level. See details.}
 
-\item{family}{Distribution of the error term.}
+\item{family}{Distribution of the error term, a \code{\link[stats]{family}}
+object. The default is the family that \code{sc.p.vector()} used, with its
+link.}
 
 \item{epsilon}{Model convergence tolerance.}
 
-\item{offset}{A logical value specifying whether to use offset during fitting.}
+\item{offset}{A logical value specifying whether to use offset during fitting.
+As in \code{sc.p.vector()}, \code{offset = TRUE} needs the log link.}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
@@ -42,7 +45,9 @@ the offsets.}
 
 \item{max_it}{Maximum number of iterations to fit the model.}
 
-\item{link}{Type of link function to use in the model. Default is "log".}
+\item{link}{The link of \code{family}. The default is the link that
+\code{sc.p.vector()} used; when given, it must be the link of
+\code{family}. Choose the link in \code{sc.p.vector()}.}
 
 \item{BPPARAM}{A \code{BiocParallelParam} object that runs the per-gene
 fits, such as

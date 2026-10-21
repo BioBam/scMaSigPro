@@ -248,3 +248,69 @@ test_that("sc.t.fit() keeps the coefficients of the genes of sol (ledger T2)", {
     expect_identical(rownames(showTS(tf)), genes)
     expect_identical(rownames(showGroupCoeff(tf)), genes)
 })
+
+test_that("sc.p.vector() and sc.t.fit() fit with the link (ledger S6)", {
+    design <- splat_design(2)
+    log_fit <- sc.p.vector(design, offset = FALSE, verbose = FALSE)
+    # glm() warns for genes whose identity-link mean becomes negative
+    id_fit <- suppressWarnings(sc.p.vector(design,
+        link = "identity", offset = FALSE, verbose = FALSE
+    ))
+    family <- id_fit@Parameters@distribution
+    expect_identical(id_fit@Parameters@link, "identity")
+    expect_identical(family$link, "identity")
+    expect_identical(family$family, "Negative Binomial(10)")
+    expect_identical(family$linkfun(c(0.5, 2)), c(0.5, 2))
+    expect_false(identical(id_fit@Profile@p_values, log_fit@Profile@p_values))
+    # The same fits as with the family built by hand
+    by_hand <- suppressWarnings(sc.p.vector(design,
+        family = MASS::negative.binomial(theta = 10, link = "identity"),
+        offset = FALSE, verbose = FALSE
+    ))
+    expect_identical(by_hand@Profile, id_fit@Profile)
+    expect_identical(by_hand@Parameters@link, "identity")
+    # sc.t.fit() fits with the family and the link of sc.p.vector()
+    id_tf <- suppressWarnings(sc.t.fit(id_fit, verbose = FALSE))
+    log_tf <- sc.t.fit(log_fit, verbose = FALSE)
+    expect_identical(id_tf@Parameters@link, "identity")
+    expect_identical(id_tf@Parameters@distribution$linkfun(2), 2)
+    expect_false(identical(showCoeff(id_tf), showCoeff(log_tf)))
+    # Control: the default fits have the log link
+    default <- splat_fitted("default")
+    expect_identical(default@Parameters@link, "log")
+    expect_identical(default@Parameters@distribution$linkfun(2), log(2))
+    expect_identical(
+        sc.p.vector(design, link = "log", verbose = FALSE)@Profile,
+        default@Profile
+    )
+})
+
+test_that("a family given to the fits keeps its own link (ledger S6)", {
+    design <- splat_design(2)
+    # Recorded as "log", gaussian() needed positive counts to start; no gene
+    # is non-flat with it on these counts
+    gauss <- suppressMessages(sc.p.vector(design,
+        family = gaussian(), offset = FALSE, verbose = FALSE
+    ))
+    expect_identical(gauss@Parameters@link, "identity")
+    expect_identical(gauss@Parameters@distribution$link, "identity")
+    expect_identical(
+        suppressMessages(sc.p.vector(design,
+            family = gaussian(), link = "identity", offset = FALSE,
+            verbose = FALSE
+        ))@Profile,
+        gauss@Profile
+    )
+    # A family with the log link gives the default fits
+    nb <- sc.p.vector(design,
+        family = MASS::negative.binomial(theta = 10), link = "log",
+        verbose = FALSE
+    )
+    expect_identical(nb@Profile, splat_fitted("default")@Profile)
+    # sc.t.fit() takes another family with its own link
+    tf <- sc.t.fit(splat_fitted("default"),
+        family = gaussian(), offset = FALSE, verbose = FALSE
+    )
+    expect_identical(tf@Parameters@link, "identity")
+    expect_identical(tf@Parameters@distribution$family, "gaussian")
+})

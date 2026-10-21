@@ -78,6 +78,30 @@
       Error:
       ! link function should be either 'log' or 'identity'
 
+# sc.p.vector refuses the offset with the identity link
+
+    Code
+      eval(cases[[nm]])
+    Condition
+      Error:
+      ! The size-factor offset applies to the log link only: with the 'identity' link, pass offset = FALSE.
+
+# sc.p.vector rejects a link that is not the link of family
+
+    Code
+      eval(cases[[nm]])
+    Condition
+      Error:
+      ! 'family' has the 'log' link, not link = 'identity'. To fit with the 'identity' link, give a family built with it, such as MASS::negative.binomial(theta = 10, link = 'identity'), or leave 'family' out of sc.p.vector().
+
+# sc.p.vector rejects a family that is not a family object
+
+    Code
+      eval(cases[[nm]])
+    Condition
+      Error:
+      ! 'family' must be a family object, such as MASS::negative.binomial(theta = 10).
+
 # sc.p.vector rejects min_na larger than the number of bins
 
     Code
