@@ -1,7 +1,7 @@
 Package: scMaSigPro
 Type: Package
 Title: Differential Expression Analysis Along Single-Cell Trajectories
-Version: 0.0.5.9000
+Version: 0.6.0
 Authors@R: c(
     person("Ana", "Conesa", role = "aut", email = "ana.conesa@csic.es",
            comment = c(ORCID = "0000-0001-9597-311X")),
