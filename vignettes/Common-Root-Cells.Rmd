@@ -168,16 +168,17 @@ cell_data <- data.frame(
 We take the cell metadata from the bundled object and shorten the branch
 labels: the `path_` prefix is dropped, the shared segment is written as
 `Y_18_links_Y_15` (the separator that `sc.restruct()` expects by default), and
-the root is capitalised so that it sorts first and therefore becomes the
-reference path of the model.
+the root is capitalised so that it comes first in the C-locale order of the
+labels, which `sc.squeeze()` uses in every locale, and therefore becomes the
+reference path of the model (`sc.set.poly(reference = )` can also name it).
 
 ```{r, "cell-metadata"}
 cellData <- as.data.frame(colData(multi.lin.sce))
 cellData$group <- gsub("path_", "", cellData$group, fixed = TRUE)
 cellData$group <- gsub("|", "_links_", cellData$group, fixed = TRUE)
-# The alphabetically first label becomes the reference path. Capitalising
-# "Root" keeps it first in every locale (uppercase sorts before lowercase in
-# the C locale that R CMD build uses, and alphabetically elsewhere).
+# The first label in C-locale (byte) order becomes the reference path, in
+# every locale. Uppercase comes before lowercase in that order, so "Root"
+# comes before "Y_15"; "root" would come after "Y_52".
 cellData$group[cellData$group == "root"] <- "Root"
 table(cellData$group)
 ```

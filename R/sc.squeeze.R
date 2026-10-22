@@ -5,6 +5,13 @@
 #' of equal width. It automatically calculates the optimal number of bins
 #' using one of the supported methods.
 #'
+#' The paths are binned, and their bins stored, in the order of the levels of
+#' the path column when it is a factor, and otherwise in the C-locale order of
+#' the path labels (byte order: digits before uppercase letters, uppercase
+#' before lowercase), whatever the collation of the R session. [sc.set.poly()]
+#' takes the first path as the reference unless its `reference` argument names
+#' another one.
+#'
 #' @importFrom SummarizedExperiment assay colData<-
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
@@ -174,8 +181,16 @@ sc.squeeze <- function(scmpObj,
         message("Drop factor: ", drop_fac)
     }
 
-    # Order
-    avail.paths <- avail.paths[order(avail.paths)]
+    # Order the paths: by the levels of a factor, as model formulas do, and
+    # otherwise by the bytes of the labels (the C locale) in every locale:
+    # order() alone follows the session's collation, which put "root" first
+    # in en_US and after "Y_15" in C (ledger L1)
+    path_values <- raw_cell_metadata[[path_col]]
+    if (is.factor(path_values)) {
+        avail.paths <- intersect(levels(path_values), avail.paths)
+    } else {
+        avail.paths <- avail.paths[order(avail.paths, method = "radix")]
+    }
     if (verbose) {
         message("Setting ", avail.paths[1], " as reference.")
     }

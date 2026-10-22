@@ -15,7 +15,8 @@
 #' @param nvar_correction Argument for correcting significance level. See details.
 #' @param family Distribution of the error term, a \code{\link[stats]{family}}
 #' object. The default is the family that \code{sc.p.vector()} used, with its
-#' link.
+#' link. When \code{sc.p.vector()} estimated one theta per gene
+#' (\code{theta_estimate = "gene"}), each gene is fitted with its own theta.
 #' @param link The link of \code{family}. The default is the link that
 #' \code{sc.p.vector()} used; when given, it must be the link of
 #' \code{family}. Choose the link in \code{sc.p.vector()}.
@@ -158,11 +159,15 @@ sc.t.fit <- function(scmpObj,
     # The fits name the terms by their position (see .fit_frame()); vars.in
     # keeps the design names for the columns of the results
     fit_dis <- .fit_frame(dis)
+    theta_gene <- NULL
+    if (identical(family$theta_estimate, "gene")) {
+        theta_gene <- family$theta_gene[names(y_input)]
+    }
     result_list <- bplapply(names(y_input), .tfit_gene,
         y_input = y_input, step_fun = step_fun, dis = fit_dis,
         family = family, epsilon = epsilon, offset_data = offsetData,
         vars_in = names(fit_dis), alfa = p_value, influ_info = influ.info,
-        max_it = max_it, BPPARAM = BPPARAM
+        max_it = max_it, theta = theta_gene, BPPARAM = BPPARAM
     )
 
     #--------------------------------------------
@@ -309,11 +314,16 @@ sc.t.fit <- function(scmpObj,
 
 # Stepwise term selection for one gene with step_fun (one of the four maSigPro
 # selection functions), the full and intercept-only fits, and the summaries
-# of extract_fitting(). sc.t.fit() runs it through bplapply(), so it takes all
+# of extract_fitting(). With `theta` (one per gene) the gene's fits use
+# theta[[gene_name]]. sc.t.fit() runs it through bplapply(), so it takes all
 # its data as arguments: SnowParam workers are new R sessions.
 .tfit_gene <- function(gene_name, y_input, step_fun, dis, family, epsilon,
-                       offset_data, vars_in, alfa, influ_info, max_it) {
+                       offset_data, vars_in, alfa, influ_info, max_it,
+                       theta = NULL) {
     y <- y_input[[gene_name]]
+    if (!is.null(theta)) {
+        family <- .nb_with_theta(family, theta[[gene_name]])
+    }
 
     reg <- step_fun(
         y = y, d = as.data.frame(dis),

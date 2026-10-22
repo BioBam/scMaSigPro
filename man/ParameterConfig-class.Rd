@@ -11,8 +11,8 @@ as the analysis progresses.
 }
 \details{
 \code{validObject()} checks that every slot except \code{distribution} holds a
-single non-missing value and that \code{distribution} is a \code{\link[stats:family]{stats::family()}}
-object.
+single non-missing value, that \code{min_counts} and \code{min_bins_expressed} are
+at least 0 and that \code{distribution} is a \code{\link[stats:family]{stats::family()}} object.
 }
 \section{Slots}{
 
@@ -52,13 +52,14 @@ which cells per bin are stored.}
 metadata containing cell level annotations. (Default is "cell_type").}
 
 \item{\code{g}}{An integer, the number of features that \code{\link[=sc.p.vector]{sc.p.vector()}} fitted:
-those left after removing features with fewer than \code{min_na} values or with
-zero counts in every bin.}
+those left after removing features with fewer than \code{min_na} values, with
+zero counts in every bin, or below \code{min_counts} or \code{min_bins_expressed}.}
 
 \item{\code{p_value}}{Significance Level.}
 
-\item{\code{min_na}}{Minimum values needed per gene across cells to estimate the
-model.}
+\item{\code{min_na}}{The minimum number of bins with a value (not \code{NA}) that
+\code{\link[=sc.p.vector]{sc.p.vector()}} required; it only removes features from counts with
+missing values.}
 
 \item{\code{mt_correction}}{A character string specifying the p-value correction
 method.}
@@ -87,6 +88,12 @@ the offsets.}
 clustering.}
 
 \item{\code{fill_na}}{Method to fill the missing values.}
+
+\item{\code{min_counts}}{The minimum total count over the bins that
+\code{\link[=sc.p.vector]{sc.p.vector()}} required of a feature (0: no minimum).}
+
+\item{\code{min_bins_expressed}}{The minimum number of bins with a count above 0
+that \code{\link[=sc.p.vector]{sc.p.vector()}} required of a feature (0: no minimum).}
 }}
 
 \keyword{classes}

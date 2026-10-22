@@ -391,3 +391,123 @@ test_that("sc.cluster.trend() needs enough genes for k (ledger V6)", {
         sort(unique(unlist(ob@Significant@genes)))[1:3]
     )
 })
+
+test_that("sc.set.poly() takes one of the paths as reference (ledger L1)", {
+    binned <- splat_binned()
+    expect_error(sc.set.poly(binned, reference = "Path3"),
+        "'reference' must be one of the paths: Path1, Path2.",
+        fixed = TRUE
+    )
+    for (bad in list(c("Path1", "Path2"), NA_character_, 1, character())) {
+        expect_error(sc.set.poly(binned, reference = bad),
+            "'reference' must be a single character string.",
+            fixed = TRUE
+        )
+    }
+    # Control: the first path given as reference is the default
+    expect_identical(
+        sc.set.poly(binned, reference = "Path1")@Design,
+        splat_design(2)@Design
+    )
+})
+
+test_that("sc.p.vector() checks the count filter (decision D17)", {
+    design <- splat_design(2)
+    nbins <- nrow(predictors(design))
+    msg <- paste0(
+        "'min_bins_expressed' must be a single number from 0 to ", nbins,
+        ", the number of bins of the design."
+    )
+    for (bad in list(nbins + 1, -1, NA, c(1, 2), "1")) {
+        expect_error(
+            sc.p.vector(design, min_bins_expressed = bad, verbose = FALSE),
+            msg,
+            fixed = TRUE
+        )
+    }
+    for (bad in list(-1, NA_real_, c(1, 2), "1", TRUE)) {
+        expect_error(sc.p.vector(design, min_counts = bad, verbose = FALSE),
+            "'min_counts' must be a single number of at least 0.",
+            fixed = TRUE
+        )
+    }
+    # Control: the largest threshold is the number of bins
+    expect_s4_class(
+        sc.p.vector(design, min_bins_expressed = nbins, verbose = FALSE),
+        "ScMaSigPro"
+    )
+})
+
+test_that("an object saved before the count filter stops before any work", {
+    old <- splat_clustered()
+    params <- old@Parameters
+    attr(params, "min_counts") <- NULL
+    attr(params, "min_bins_expressed") <- NULL
+    old@Parameters <- params
+    for (f in calls_on(old, splat_sig_gene())) {
+        expect_error(f(), "update it with updateObject() first.",
+            fixed = TRUE
+        )
+    }
+    expect_output(print(old), "update it with updateObject()", fixed = TRUE)
+})
+
+test_that("theta_estimate is one of three values (decision D16)", {
+    design <- splat_design(2)
+    for (bad in list("each", c("gene", "global"), NA_character_, 1)) {
+        expect_error(
+            sc.p.vector(design, theta_estimate = bad, verbose = FALSE),
+            "'theta_estimate' must be one of 'none', 'gene' or 'global'",
+            fixed = TRUE
+        )
+    }
+    expect_error(
+        sc.p.vector(design,
+            theta_estimate = "gene", family = gaussian(), offset = FALSE,
+            verbose = FALSE
+        ),
+        "'theta_estimate' needs a negative binomial family",
+        fixed = TRUE
+    )
+})
+
+test_that("a relabelled family is refused (ledger LK-4)", {
+    design <- splat_design(2)
+    msg <- "'family' is labelled with the 'identity' link but has the link"
+    nb <- MASS::negative.binomial(10)
+    nb$link <- "identity"
+    expect_error(
+        sc.p.vector(design, family = nb, offset = FALSE, verbose = FALSE),
+        msg,
+        fixed = TRUE
+    )
+    expect_error(sc.t.fit(splat_relabelled(), verbose = FALSE), msg,
+        fixed = TRUE
+    )
+    expect_error(
+        sc.t.fit(splat_fitted("no_offset"), family = nb, verbose = FALSE),
+        msg,
+        fixed = TRUE
+    )
+    # The other direction: identity functions under the log label
+    gauss <- gaussian()
+    gauss$link <- "log"
+    expect_error(
+        sc.p.vector(design, family = gauss, offset = FALSE, verbose = FALSE),
+        "'family' is labelled with the 'log' link but has the link functions",
+        fixed = TRUE
+    )
+    # Controls: families with their own link, and a link make.link() does
+    # not know, which is not checked
+    expect_identical(
+        .true_link(MASS::negative.binomial(10, link = "sqrt")), "sqrt"
+    )
+    expect_identical(.true_link(poisson(link = power(1 / 3))), NA_character_)
+    expect_s4_class(
+        sc.p.vector(design,
+            family = poisson(link = power(1 / 3)), offset = FALSE,
+            verbose = FALSE
+        ),
+        "ScMaSigPro"
+    )
+})

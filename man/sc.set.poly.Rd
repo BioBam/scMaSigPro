@@ -8,7 +8,8 @@ sc.set.poly(
   scmpObj,
   poly_degree = 2,
   bin_ptime_col = scmpObj@Parameters@bin_ptime_col,
-  path_col = scmpObj@Parameters@path_col
+  path_col = scmpObj@Parameters@path_col,
+  reference = NULL
 )
 }
 \arguments{
@@ -21,6 +22,10 @@ for binned Pseudotime values in 'Dense' data.}
 
 \item{path_col}{A character string representing the column name for branching
 path assignment in 'Sparse' or 'Dense' slot.}
+
+\item{reference}{The reference path, one of the path labels of the \code{Dense}
+slot, or \code{NULL} (default) for the first path of the \code{Dense} slot. See
+Description.}
 }
 \value{
 An object of class \code{\link{ScMaSigPro}}, with updated \code{Design}
@@ -31,6 +36,14 @@ Set up polynomial models and create Predictor Matrix that will contain the
 independent variables: the design of the maSigPro model (Conesa et al.
 2006), with a dummy for every path but the first, the reference, and its
 products with each power of the binned pseudotime up to \code{poly_degree}.
+
+The reference is \code{reference} when it is given. Otherwise it is the first
+path of the \code{Dense} slot: after \code{\link[=sc.squeeze]{sc.squeeze()}}, the first level of the path
+column when it is a factor and else the first path label in C-locale
+(byte) order, whatever the locale of the session; after \code{\link[=sc.restruct]{sc.restruct()}},
+the first path of \code{end_node_list}; with bins given to \code{\link[=create_scmp]{create_scmp()}} or
+\code{\link{cDense<-}}, the path of the first bin. The other paths keep the
+order of the \code{Dense} slot.
 }
 \references{
 {Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.

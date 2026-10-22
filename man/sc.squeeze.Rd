@@ -85,6 +85,13 @@ slot.
 \code{sc.squeeze()} discretizes a continuous time series column into bins
 of equal width. It automatically calculates the optimal number of bins
 using one of the supported methods.
+
+The paths are binned, and their bins stored, in the order of the levels of
+the path column when it is a factor, and otherwise in the C-locale order of
+the path labels (byte order: digits before uppercase letters, uppercase
+before lowercase), whatever the collation of the R session. \code{\link[=sc.set.poly]{sc.set.poly()}}
+takes the first path as the reference unless its \code{reference} argument names
+another one.
 }
 \seealso{
 \code{\link{estBinSize}}, \code{\link{create_range}}

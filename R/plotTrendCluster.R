@@ -9,11 +9,14 @@
 #'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param xlab X-axis label. (Default is "Pooled Pseudotime")
-#' @param ylab Y-axis label. (Default is "Pseudobulk Expression")
+#' @param ylab Y-axis label. The default, \code{NULL}, is
+#' "log(Pseudobulk Expression)" for log-link fits and when the points are
+#' logged, and "Pseudobulk Expression" otherwise.
 #' @param plot Whether to plot 'coeff' or 'counts'. (Default is 'counts')
 #' @param smoothness How smooth the trend should be. Setting to
 #' higher values will result in more linear trends. (Default is 0.01)
-#' @param logs Whether to log transform counts. (Default is TRUE)
+#' @param logs Whether to log the points, as in [plotTrend()]. The default,
+#' \code{NULL}, logs them when the fits used the log link.
 #' @param logType How to log transform the values. Available options 'log',
 #' 'log2', 'log10'. (Default is 'log')
 #' @param includeInflu Include gene only if it has influential data.
@@ -35,10 +38,10 @@
 #' @export
 plotTrendCluster <- function(scmpObj,
                              xlab = "Pooled Pseudotime",
-                             ylab = "log(Pseudobulk Expression)",
+                             ylab = NULL,
                              plot = "counts",
                              summary_mode = "median",
-                             logs = TRUE, logType = "log",
+                             logs = NULL, logType = "log",
                              smoothness = 1,
                              includeInflu = TRUE,
                              verbose = TRUE,
@@ -53,6 +56,14 @@ plotTrendCluster <- function(scmpObj,
     feature_id <- "feature_id"
     # Check Object Validity
     .check_scmp(scmpObj)
+    logs <- .trend_logs(scmpObj, logs)
+    if (is.null(ylab)) {
+        ylab <- if (logs || .log_link_fits(scmpObj)) {
+            "log(Pseudobulk Expression)"
+        } else {
+            "Pseudobulk Expression"
+        }
+    }
 
     # Check
     .check(!isEmpty(scmpObj@Significant@clusters),
