@@ -89,3 +89,46 @@ test_that("as_scmp() stores an up-to-date SingleCellExperiment", {
     expect_identical(ob@Sparse, updateObject(sce))
     expect_identical(updateObject(ob), ob)
 })
+
+test_that("updateObject() adds the count filter parameters (decision D17)", {
+    ob <- load_dataset("scmp.ob")
+    old <- ob
+    params <- old@Parameters
+    attr(params, "min_counts") <- NULL
+    attr(params, "min_bins_expressed") <- NULL
+    old@Parameters <- params
+    old@version <- "0.6.0"
+    expect_error(validObject(old), "but not in object", fixed = TRUE)
+    msgs <- capture_messages(up <- updateObject(old, verbose = TRUE))
+    expect_match(msgs,
+        "Adding the parameters min_counts and min_bins_expressed (0).",
+        fixed = TRUE, all = FALSE
+    )
+    expect_valid_scmp(up)
+    expect_identical(up@Parameters@min_counts, 0)
+    expect_identical(up@Parameters@min_bins_expressed, 0)
+    expect_identical(up@version, current_version())
+    expect_identical(up, ob)
+    # An object saved before the version slot gets both
+    older <- without_version(old)
+    expect_identical(updateObject(older), ob)
+})
+
+test_that("updateObject() warns about a relabelled family (ledger LK-4)", {
+    old <- splat_relabelled()
+    msg <- paste(
+        "'family' is labelled with the 'identity' link but has the link",
+        "functions of the 'log' link."
+    )
+    expect_warning(up <- updateObject(old), msg, fixed = TRUE)
+    expect_identical(up, old)
+    expect_warning(updateObject(without_version(old)), "run sc.p.vector()",
+        fixed = TRUE
+    )
+    # sc.p.vector() again gives a family with the identity link
+    refit <- suppressWarnings(sc.p.vector(old,
+        link = "identity", offset = FALSE, verbose = FALSE
+    ))
+    expect_no_warning(updateObject(refit))
+    expect_no_warning(updateObject(splat_clustered()))
+})

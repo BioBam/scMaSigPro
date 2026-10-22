@@ -10,6 +10,21 @@ expect_serial_fit <- function(bpparam) {
     expect_identical(tf@Design, ref@Design)
 }
 
+# One estimated theta per gene, which the workers get as an argument
+# (decision D16); `ref` is the serial fit, splat_theta_gene()
+expect_serial_theta <- function(bpparam, ref) {
+    pv <- sc.p.vector(splat_design(2),
+        verbose = FALSE, theta_estimate = "gene", BPPARAM = bpparam
+    )
+    expect_identical(pv@Profile, ref@Profile)
+    expect_identical(
+        pv@Parameters@distribution$theta_gene,
+        ref@Parameters@distribution$theta_gene
+    )
+    tf <- sc.t.fit(pv, verbose = FALSE, BPPARAM = bpparam)
+    expect_identical(tf@Estimate, ref@Estimate)
+}
+
 # SnowParam workers are new R sessions that look the package namespace up by
 # name when they unserialise the per-gene function. Under R CMD check they find
 # the installed package being checked; under load_all() (devtools::test()) they
@@ -64,6 +79,7 @@ test_that("SerialParam() is the default and is reported when verbose", {
         fixed = TRUE
     )
     expect_serial_fit(BiocParallel::SerialParam())
+    expect_serial_theta(BiocParallel::SerialParam(), splat_theta_gene())
 })
 
 test_that("MulticoreParam(2) reproduces the serial fit", {
@@ -73,6 +89,7 @@ test_that("MulticoreParam(2) reproduces the serial fit", {
     })
     on.exit(BiocParallel::bpstop(p), add = TRUE)
     expect_serial_fit(p)
+    expect_serial_theta(p, splat_theta_gene())
 })
 
 test_that("SnowParam(2) reproduces the serial fit", {
@@ -88,4 +105,5 @@ test_that("SnowParam(2) reproduces the serial fit", {
     path <- normalizePath(getNamespaceInfo("scMaSigPro", "path"))
     expect_identical(snow_namespace_paths(p), c(path, path))
     expect_serial_fit(p)
+    expect_serial_theta(p, splat_theta_gene())
 })

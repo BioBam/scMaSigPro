@@ -70,6 +70,14 @@
       Error:
       ! Please provide object of class 'ScMaSigPro'
 
+# sc.set.poly rejects a reference that is not a path
+
+    Code
+      eval(cases[[nm]])
+    Condition
+      Error:
+      ! 'reference' must be one of the paths: Path1, Path2.
+
 # sc.p.vector rejects an unknown link
 
     Code
@@ -102,6 +110,14 @@
       Error:
       ! 'family' must be a family object, such as MASS::negative.binomial(theta = 10).
 
+# sc.p.vector rejects an unknown theta_estimate
+
+    Code
+      eval(cases[[nm]])
+    Condition
+      Error:
+      ! 'theta_estimate' must be one of 'none', 'gene' or 'global'
+
 # sc.p.vector rejects min_na larger than the number of bins
 
     Code
@@ -109,6 +125,14 @@
     Condition
       Error:
       ! 1000 for 'min_na' is too high. Try lowering the threshold.
+
+# sc.t.fit refuses a family relabelled by an earlier version
+
+    Code
+      eval(cases[[nm]])
+    Condition
+      Error:
+      ! 'family' is labelled with the 'identity' link but has the link functions of the 'log' link. scMaSigPro 0.0.5 and earlier renamed the link of the family without changing its functions, so an object fitted by them with link = "identity" holds fits made with the 'log' link: run sc.p.vector() on it again.
 
 # sc.t.fit rejects an unknown selection method
 

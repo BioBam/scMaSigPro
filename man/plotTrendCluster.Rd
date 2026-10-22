@@ -7,10 +7,10 @@
 plotTrendCluster(
   scmpObj,
   xlab = "Pooled Pseudotime",
-  ylab = "log(Pseudobulk Expression)",
+  ylab = NULL,
   plot = "counts",
   summary_mode = "median",
-  logs = TRUE,
+  logs = NULL,
   logType = "log",
   smoothness = 1,
   includeInflu = TRUE,
@@ -28,14 +28,17 @@ plotTrendCluster(
 
 \item{xlab}{X-axis label. (Default is "Pooled Pseudotime")}
 
-\item{ylab}{Y-axis label. (Default is "Pseudobulk Expression")}
+\item{ylab}{Y-axis label. The default, \code{NULL}, is
+"log(Pseudobulk Expression)" for log-link fits and when the points are
+logged, and "Pseudobulk Expression" otherwise.}
 
 \item{plot}{Whether to plot 'coeff' or 'counts'. (Default is 'counts')}
 
 \item{summary_mode}{Compress the expression values per replicate (if present)
 per binned pseudotime point. Default is 'median'. Other option 'mean'}
 
-\item{logs}{Whether to log transform counts. (Default is TRUE)}
+\item{logs}{Whether to log the points, as in \code{\link[=plotTrend]{plotTrend()}}. The default,
+\code{NULL}, logs them when the fits used the log link.}
 
 \item{logType}{How to log transform the values. Available options 'log',
 'log2', 'log10'. (Default is 'log')}

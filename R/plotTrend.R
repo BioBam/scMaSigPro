@@ -13,7 +13,13 @@
 #' @param ylab Y-axis label. (Default is "Pseudobulk Expression")
 #' @param smoothness How smooth the trend should be. Setting to
 #' higher values will result in more linear trends. (Default is 0.01)
-#' @param logs Whether to log transform counts. (Default is TRUE)
+#' @param logs Whether to log the points: the counts of the bins, divided,
+#' for log-link fits, by the size factors stored in the design. The fitted
+#' curve is the polynomial of the selected model on the scale of the link:
+#' the log of the mean under the log link, the mean itself under the
+#' identity link. The default, \code{NULL}, logs the points when the fits
+#' used the log link and draws them as they are otherwise, so that points
+#' and curve are on the same scale.
 #' @param logType How to log transform the values. Available options 'log',
 #' 'log2', 'log10'. (Default is 'log')
 #' @param pseudoCount Add a pseudo-count before taking the log. (Default is 1)
@@ -35,7 +41,7 @@ plotTrend <- function(scmpObj,
                       xlab = "Pooled Pseudotime",
                       ylab = "Pseudobulk Expression",
                       smoothness = 0.01,
-                      logs = TRUE,
+                      logs = NULL,
                       logType = "log",
                       pseudoCount = 1,
                       significant = TRUE,
@@ -52,6 +58,7 @@ plotTrend <- function(scmpObj,
 
     # Check Object Validity
     .check_scmp(scmpObj)
+    logs <- .trend_logs(scmpObj, logs)
 
     # Check summary_mode
     summary_mode <- .check_choice(summary_mode, c("median", "mean"),
@@ -136,6 +143,23 @@ plotTrend <- function(scmpObj,
         # coord_cartesian(xlim = xlim, ylim = ylim) +
         scale_color_manual(values = scmp_pal)
     return(p)
+}
+
+# The default of `logs` in plotTrend() and plotTrendCluster() (ledger LK-1):
+# the curve is the polynomial on the scale of the link, so the points are
+# logged when the fits used the log link and left as they are otherwise.
+# The link is that of the functions of the family, so an object fitted by an
+# earlier version under a renamed link is drawn on the scale of its fits.
+.trend_logs <- function(scmpObj, logs) {
+    if (is.null(logs)) {
+        logs <- .log_link_fits(scmpObj)
+    }
+    logs
+}
+
+# TRUE when the family of the fits has the functions of the log link
+.log_link_fits <- function(scmpObj) {
+    identical(.true_link(scmpObj@Parameters@distribution), "log")
 }
 
 # The data of the layers of plotTrend() for one gene: the points
@@ -228,8 +252,10 @@ plotTrend <- function(scmpObj,
 
     curve.df <- curve.df[-1, ]
 
-    # Correct by offset
-    if (sum(offset_vector) != 0) {
+    # Correct by offset. Only log-link fits have one (ledger S6): with
+    # another link, a size factor left by an earlier fit is not used
+    use_offset <- sum(offset_vector) != 0 && .log_link_fits(scmpObj)
+    if (use_offset) {
         points.df["pb.counts"] <- points.df["pb.counts"] / exp(offset_vector)
     }
 
@@ -262,7 +288,7 @@ plotTrend <- function(scmpObj,
         )
     }
 
-    if (sum(offset_vector) != 0) {
+    if (use_offset) {
         line.df <- points.df
     }
 

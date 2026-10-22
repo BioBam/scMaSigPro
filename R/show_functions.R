@@ -268,9 +268,14 @@ showParams <- function(scmpObj) {
     )
 
     # Add family
+    distribution <- scmpObj@Parameters@distribution
     distribution.f <- data.frame(
         parameters = "distribution",
-        value = paste0(scmpObj@Parameters@distribution[["family"]])
+        value = if (identical(distribution$theta_estimate, "gene")) {
+            "Negative Binomial(theta per gene)"
+        } else {
+            paste0(distribution[["family"]])
+        }
     )
 
 
@@ -409,8 +414,8 @@ showGroupCoeff <- function(scmpObj, includeInflu = TRUE) {
         cat(paste("\nNo. of Influential Features:", ncol(object@Estimate@influential)))
     }
 
-    # Saved before the version slot existed
-    if (!.hasSlot(object, "version")) {
+    # Saved before the version slot or the count filter parameters existed
+    if (!.scmp_current(object)) {
         cat(paste(
             "\nSaved by an earlier version of scMaSigPro: update it with",
             "updateObject()."

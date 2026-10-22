@@ -31,7 +31,8 @@ regression.}
 
 \item{family}{Distribution of the error term, a \code{\link[stats]{family}}
 object. The default is the family that \code{sc.p.vector()} used, with its
-link.}
+link. When \code{sc.p.vector()} estimated one theta per gene
+(\code{theta_estimate = "gene"}), each gene is fitted with its own theta.}
 
 \item{epsilon}{Model convergence tolerance.}
 

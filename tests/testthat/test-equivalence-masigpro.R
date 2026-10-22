@@ -27,7 +27,7 @@ fit_sc <- function(ob, method) {
     sc.t.fit(ob, selection_method = method, verbose = FALSE)
 }
 
-expect_tfit_matches <- function(sc, tstep, non_flat) {
+expect_tfit_matches <- function(sc, tstep, non_flat, method = "backward") {
     keep <- rownames(tstep$sol)
     expect_identical(showSol(sc), tstep$sol)
     expect_identical(showCoeff(sc)[keep, , drop = FALSE], tstep$coefficients)
@@ -44,7 +44,13 @@ expect_tfit_matches <- function(sc, tstep, non_flat) {
         infl_ma <- matrix(infl_ma, ncol = 1, dimnames = list(names(infl_ma), colnames(infl_sc)))
     }
     expect_identical(ncol(infl_sc), ncol(infl_ma))
-    if (ncol(infl_ma) > 0) {
+    if (ncol(infl_ma) > 0 && method %in% c("forward", "two.ways.forward")) {
+        # maSigPro numbers the rows of forward fits, so its influ.info lists
+        # the influential genes with every entry NA; scMaSigPro names the
+        # bins and fills them in (ledger N2). Same genes and bins.
+        expect_identical(dimnames(infl_sc), dimnames(infl_ma))
+        expect_true(all(is.na(infl_ma)))
+    } else if (ncol(infl_ma) > 0) {
         expect_identical(infl_sc, infl_ma)
     }
 }
@@ -87,7 +93,10 @@ for (degree in 1:3) {
         test_that(paste0("Gaussian degree ", degree, ", ", method, ": T.fit matches maSigPro"), {
             case <- abiotic_case(degree)
             tstep <- quiet(maSigPro::T.fit(case$fit, step.method = method, alfa = 0.05))
-            expect_tfit_matches(fit_sc(case$ob, method), tstep, case$ob@Profile@non_flat)
+            expect_tfit_matches(
+                fit_sc(case$ob, method), tstep,
+                case$ob@Profile@non_flat, method
+            )
         })
     }
 }
@@ -130,7 +139,10 @@ for (method in methods) {
             step.method = method, alfa = 0.05,
             family = MASS::negative.binomial(theta = 10), epsilon = 1e-5
         ))
-        expect_tfit_matches(fit_sc(case$ob, method), tstep, case$ob@Profile@non_flat)
+        expect_tfit_matches(
+            fit_sc(case$ob, method), tstep,
+            case$ob@Profile@non_flat, method
+        )
     })
 }
 

@@ -33,11 +33,12 @@
 #' @slot anno_col A character string representing the column name for cell level
 #' metadata containing cell level annotations. (Default is "cell_type").
 #' @slot g An integer, the number of features that [sc.p.vector()] fitted:
-#' those left after removing features with fewer than `min_na` values or with
-#' zero counts in every bin.
+#' those left after removing features with fewer than `min_na` values, with
+#' zero counts in every bin, or below `min_counts` or `min_bins_expressed`.
 #' @slot p_value Significance Level.
-#' @slot min_na Minimum values needed per gene across cells to estimate the
-#' model.
+#' @slot min_na The minimum number of bins with a value (not `NA`) that
+#' [sc.p.vector()] required; it only removes features from counts with
+#' missing values.
 #' @slot mt_correction A character string specifying the p-value correction
 #' method.
 #' @slot link Type of link function to use in the model. Default is "log".
@@ -54,11 +55,15 @@
 #' @slot use_dim Dimension to use for filling the missing values before
 #' clustering.
 #' @slot fill_na Method to fill the missing values.
+#' @slot min_counts The minimum total count over the bins that
+#' [sc.p.vector()] required of a feature (0: no minimum).
+#' @slot min_bins_expressed The minimum number of bins with a count above 0
+#' that [sc.p.vector()] required of a feature (0: no minimum).
 #'
 #' @details
 #' `validObject()` checks that every slot except `distribution` holds a
-#' single non-missing value and that `distribution` is a [stats::family()]
-#' object.
+#' single non-missing value, that `min_counts` and `min_bins_expressed` are
+#' at least 0 and that `distribution` is a [stats::family()] object.
 #'
 #' @name ParameterConfig
 #' @aliases ParameterConfig-class
@@ -92,7 +97,9 @@ setClass(
         distribution = "ANY",
         cluster_method = "character",
         use_dim = "character",
-        fill_na = "character"
+        fill_na = "character",
+        min_counts = "numeric",
+        min_bins_expressed = "numeric"
     ),
     validity = function(object) {
         msg <- character()
@@ -104,6 +111,12 @@ setClass(
                 msg <- c(msg, paste0(
                     "'", s, "' must be a single non-missing value"
                 ))
+            }
+        }
+        for (s in c("min_counts", "min_bins_expressed")) {
+            value <- slot(object, s)
+            if (length(value) == 1L && !is.na(value) && value < 0) {
+                msg <- c(msg, paste0("'", s, "' must be at least 0"))
             }
         }
         if (!inherits(object@distribution, "family")) {
@@ -136,7 +149,9 @@ setClass(
         distribution = MASS::negative.binomial(10),
         cluster_method = "hclust",
         use_dim = "col",
-        fill_na = "zero"
+        fill_na = "zero",
+        min_counts = 0,
+        min_bins_expressed = 0
     )
 )
 

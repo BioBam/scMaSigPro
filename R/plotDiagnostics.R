@@ -119,10 +119,13 @@ plotDiagnostics <- function(scmpObj,
         offset_data <- NULL
     }
 
+    # The gene's own theta when sc.p.vector() estimated one per gene
+    family <- .gene_family(scmpObj@Parameters@distribution, feature_id)
+
     if (model == "intercept") {
         glm_s3 <- glm(y ~ 1,
             data = as.data.frame(model_df),
-            family = scmpObj@Parameters@distribution,
+            family = family,
             epsilon = scmpObj@Parameters@epsilon,
             offset = offset_data,
             weights = NULL,
@@ -132,7 +135,7 @@ plotDiagnostics <- function(scmpObj,
         # Fit Model
         glm_s3 <- glm(y ~ .,
             data = as.data.frame(model_df),
-            family = scmpObj@Parameters@distribution,
+            family = family,
             epsilon = scmpObj@Parameters@epsilon,
             offset = offset_data,
             weights = NULL,

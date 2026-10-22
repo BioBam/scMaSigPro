@@ -253,3 +253,20 @@ test_that("bins without counts pass the check of sc.set.poly()", {
     expect_valid_scmp(ob)
     expect_identical(nrow(predictors(ob)), 15L)
 })
+
+test_that("the count filter parameters are at least 0 (decision D17)", {
+    params <- new("ParameterConfig")
+    expect_identical(params@min_counts, 0)
+    expect_identical(params@min_bins_expressed, 0)
+    params@min_counts <- -1
+    params@min_bins_expressed <- c(1, 2)
+    expect_identical(validObject(params, test = TRUE), c(
+        "'min_bins_expressed' must be a single non-missing value",
+        "'min_counts' must be at least 0"
+    ))
+    params@min_bins_expressed <- -0.5
+    expect_identical(validObject(params, test = TRUE), c(
+        "'min_counts' must be at least 0",
+        "'min_bins_expressed' must be at least 0"
+    ))
+})

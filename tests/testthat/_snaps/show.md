@@ -112,30 +112,32 @@
     Code
       params
     Output
-               parameters                  value
-      1     bin_ptime_col scmp_binned_pseudotime
-      2       path_prefix                   Path
-      3        root_label                   root
-      4         ptime_col             Pseudotime
-      5  selection_method               backward
-      6        bin_method                Sturges
-      7          path_col                   Path
-      8           bin_col               scmp_bin
-      9      bin_size_col          scmp_bin_size
-      10      bin_mem_col       scmp_bin_members
-      11         anno_col              cell_type
-      12                g                    100
-      13          p_value                   0.05
-      14           min_na                      6
-      15    mt_correction                     BH
-      16             link                    log
-      17          epsilon                  1e-08
-      18           offset                   TRUE
-      19       log_offset                  FALSE
-      20           max_it                    100
-      21      poly_degree                      2
-      22   cluster_method                 hclust
-      23          use_dim                    col
-      24          fill_na                   zero
-      25     distribution  Negative Binomial(10)
+                 parameters                  value
+      1       bin_ptime_col scmp_binned_pseudotime
+      2         path_prefix                   Path
+      3          root_label                   root
+      4           ptime_col             Pseudotime
+      5    selection_method               backward
+      6          bin_method                Sturges
+      7            path_col                   Path
+      8             bin_col               scmp_bin
+      9        bin_size_col          scmp_bin_size
+      10        bin_mem_col       scmp_bin_members
+      11           anno_col              cell_type
+      12                  g                    100
+      13            p_value                   0.05
+      14             min_na                      6
+      15      mt_correction                     BH
+      16               link                    log
+      17            epsilon                  1e-08
+      18             offset                   TRUE
+      19         log_offset                  FALSE
+      20             max_it                    100
+      21        poly_degree                      2
+      22     cluster_method                 hclust
+      23            use_dim                    col
+      24            fill_na                   zero
+      25         min_counts                      0
+      26 min_bins_expressed                      0
+      27       distribution  Negative Binomial(10)
 

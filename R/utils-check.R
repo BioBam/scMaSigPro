@@ -28,7 +28,9 @@
 #' `.check_scmp()` opens every exported function that takes an
 #' `ScMaSigPro` object, before any work is done: the object must be of that
 #' class and have the `version` slot, which objects saved by scMaSigPro
-#' 0.0.5 and earlier lack until [updateObject()] adds it.
+#' 0.0.5 and earlier lack until [updateObject()] adds it, and the
+#' `min_counts` and `min_bins_expressed` parameters, which [updateObject()]
+#' adds to objects saved before them.
 #' `.check_dense_counts()` opens the functions that read the pseudo-bulk
 #' counts: the `Dense` slot must hold a `bulk.counts` assay, which it lacks
 #' after [cDense<-] changed the number of bins and before [pb_counts()] was
@@ -46,12 +48,20 @@
     .check(is(scmpObj, "ScMaSigPro"),
         msg = "Please provide object of class 'ScMaSigPro'"
     )
-    .check(.hasSlot(scmpObj, "version"),
+    .check(.scmp_current(scmpObj),
         msg = paste(
             "This ScMaSigPro object was saved by an earlier version of",
             "scMaSigPro: update it with updateObject() first."
         )
     )
+}
+
+# TRUE when the object has every slot of the current class definition that
+# updateObject() adds to objects saved by earlier versions
+.scmp_current <- function(object) {
+    .hasSlot(object, "version") &&
+        .hasSlot(object@Parameters, "min_counts") &&
+        .hasSlot(object@Parameters, "min_bins_expressed")
 }
 
 .check_dense_counts <- function(scmpObj, bins = NULL) {
