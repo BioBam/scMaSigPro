@@ -60,7 +60,7 @@
       eval(cases[[nm]])
     Condition
       Error:
-      ! Invalid value for 'drop_fac'. It should be between 0.3 and 1.
+      ! Invalid value for 'drop_fac'. It should be at least 0.3.
 
 # sc.set.poly rejects a non-ScMaSigPro input
 

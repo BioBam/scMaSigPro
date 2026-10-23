@@ -511,3 +511,22 @@ test_that("a relabelled family is refused (ledger LK-4)", {
         "ScMaSigPro"
     )
 })
+
+test_that("sc.squeeze() takes any drop_fac of at least 0.3", {
+    # Srivastava et al. (2024), Section 2.1: the drop factor is at least
+    # 0.3, with no upper bound; the message said "between 0.3 and 1"
+    expect_error(sc.squeeze(splat_scmp(), drop_fac = 0.29),
+        "Invalid value for 'drop_fac'. It should be at least 0.3.",
+        fixed = TRUE
+    )
+    # Sturges gives the 97 and 103 cells of the two paths 7.6 and 7.7 bins
+    for (k in c(0.3, 1.5)) {
+        ob <- sc.squeeze(splat_scmp(), drop_fac = k)
+        expect_valid_scmp(ob)
+        expect_identical(
+            as.vector(table(cDense(ob)[[ob@Parameters@path_col]])),
+            if (k == 0.3) c(3L, 3L) else c(12L, 12L),
+            info = k
+        )
+    }
+})

@@ -19,7 +19,8 @@ optimize_bin_max(
 \arguments{
 \item{bin_table}{A dataframe containing the bin data.}
 
-\item{max_allowed}{The maximum allowed size for a bin.}
+\item{max_allowed}{The maximum allowed size for a bin: a bin with more
+points is split.}
 
 \item{verbose}{Logical; if TRUE, prints detailed output.}
 
@@ -47,5 +48,14 @@ points. The points of the bin get the number of bins that \code{method} and
 of equal width over their range; the first new bin starts at the lower
 bound of the bin and the last ends at its upper bound, so that the new
 bins cover the bin without gaps. The other bins are kept.
+}
+\details{
+\code{\link[=sc.squeeze]{sc.squeeze()}} passes as \code{max_allowed} the maximum of Srivastava et al.
+(2024), Section 2.2: the mean plus the standard deviation of the sizes of
+all bins of the path, set once from the bins of the rule. "Bins larger
+than the maximum size are divided", and "The process is repeated until all
+bins conform to the established size criteria": \code{\link[=sc.squeeze]{sc.squeeze()}} calls
+\code{optimize_bin_max()} again, with the same \code{max_allowed}, until no bin is
+larger.
 }
 \keyword{internal}
