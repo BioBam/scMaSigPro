@@ -42,16 +42,17 @@ calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
 #' need to be binned.
 #' @param nPoints An integer. The total number of data points in time_vector.
 #' @param drop_fac A numeric. A factor to adjust the estimated number of bins:
-#' the number of bins given by the rule is multiplied by this value. Values
-#' below 1 give fewer, wider bins, which helps when the rule gives too many
-#' empty bins.
+#' the number of bins given by the rule (for "Sturges", rounded up to a whole
+#' number) is multiplied by this value. Values below 1 give fewer, wider
+#' bins, which helps when the rule gives too many empty bins.
 #' @param bin_method A character string. The rule that estimates the number of
 #' bins. Possible values include "Freedman.Diaconis", "Sqrt", "Sturges",
 #' "Rice", "Doane", and "Scott.Normal". See details.
 #'
 #' @return
 #' A number: the number of bins given by the rule, multiplied by `drop_fac`.
-#' It is not rounded; [sc.squeeze()] rounds it up with `ceiling()`.
+#' Only the Sturges number of bins is rounded up before; the product is not
+#' rounded, and [sc.squeeze()] rounds it up with `ceiling()`.
 #'
 #' @details
 #' With n the number of points (`nPoints`), the rules give:
@@ -59,7 +60,10 @@ calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
 #'   \item{"Freedman.Diaconis"}{bins of width 2 IQR / n^(1/3), with IQR the
 #'   interquartile range of the points (Freedman and Diaconis, 1981).}
 #'   \item{"Sqrt"}{sqrt(n) bins.}
-#'   \item{"Sturges"}{log2(n) + 1 bins (Sturges, 1926).}
+#'   \item{"Sturges"}{log2(n) + 1 bins (Sturges, 1926), rounded up to a whole
+#'   number, as in Srivastava et al. (2024), Section 2.1, where the number of
+#'   bins is \eqn{[\log_2(N)+1] \times k}{[log2(N)+1] x k}, "where k ... is a
+#'   drop-factor, and \[log2(N)+1\] is the 'Sturges' formula".}
 #'   \item{"Rice"}{2 n^(1/3) bins.}
 #'   \item{"Doane"}{1 + log2(n) + log2(1 + |g| / s) bins, with g the sample
 #'   skewness of the points and s = sqrt(6 (n - 2) / ((n + 1) (n + 3)))
@@ -107,8 +111,10 @@ estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
             nPoints^(1 / 2)
         },
         "Sturges" = {
-            # Sturges' rule: the log (base 2) of the number of points, plus 1
-            log2(nPoints) + 1
+            # Sturges' rule: the log (base 2) of the number of points, plus 1,
+            # rounded up to a whole number of bins before the drop factor
+            # scales it (Section 2.1: [log2(N)+1] x k)
+            ceiling(log2(nPoints) + 1)
         },
         "Rice" = {
             # Rice rule: twice the cube root of the number of points
@@ -398,8 +404,18 @@ extract_interval <- function(time.vector, nBins = 1, bin.size, lbound,
 #' bound of the bin and the last ends at its upper bound, so that the new
 #' bins cover the bin without gaps. The other bins are kept.
 #'
+#' @details
+#' [sc.squeeze()] passes as `max_allowed` the maximum of Srivastava et al.
+#' (2024), Section 2.2: the mean plus the standard deviation of the sizes of
+#' all bins of the path, set once from the bins of the rule. "Bins larger
+#' than the maximum size are divided", and "The process is repeated until all
+#' bins conform to the established size criteria": [sc.squeeze()] calls
+#' `optimize_bin_max()` again, with the same `max_allowed`, until no bin is
+#' larger.
+#'
 #' @param bin_table A dataframe containing the bin data.
-#' @param max_allowed The maximum allowed size for a bin.
+#' @param max_allowed The maximum allowed size for a bin: a bin with more
+#' points is split.
 #' @param verbose Logical; if TRUE, prints detailed output.
 #' @param time_vector A vector representing time or a sequence that bins refer to.
 #' @param lbound The name of the lower bound column in `bin_table`.

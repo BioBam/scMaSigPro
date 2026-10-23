@@ -201,7 +201,7 @@ test_that("split_bins stops when splitting makes no progress (ledger Q2)", {
     }
     # Control: a rule whose splits make progress
     split <- sc.squeeze(splat_scmp(), bin_method = "Sturges", split_bins = TRUE)
-    expect_identical(ncol(split@Dense), 25L)
+    expect_identical(ncol(split@Dense), 29L)
 })
 
 restruct_multi <- function(ob, link, sep) {
@@ -677,7 +677,7 @@ test_that("sc.squeeze() bins the cells by the numeric breaks (ledger S3)", {
 
 test_that("split_bins keeps every cell (ledger Q1)", {
     # 13 points, Sturges: 5 bins of width 2. The bin from 2 to 4 holds 10
-    # cells, more than the 7 allowed, and is split over the range of its
+    # cells, more than the 6.82 allowed, and is split over the range of its
     # cells; the first new bin read "[2.24,2.58]" from its cut() label, so
     # the cell at 2.2366 was in no bin and was removed from the object
     p <- c(0, 0.5, 2.2366, 2.5, 2.7, 2.9, 3.1, 3.3, 3.5, 3.7, 3.9, 3.95, 10)
@@ -754,4 +754,89 @@ test_that("split_bins keeps a path with a single bin (ledger D-1)", {
     nosplit <- suppressMessages(sc.squeeze(ob, bin_method = method))
     expect_identical(cDense(split), cDense(nosplit))
     expect_identical(ncol(split@Sparse), 80L)
+})
+
+test_that("split_bins divides the bins above the mean + sd of their path", {
+    # Srivastava et al. (2024), Section 2.2: the mean and the standard
+    # deviation "of the sizes of all bins per path" establish the maximum,
+    # mean + sd, and "Bins larger than the maximum size are divided".
+    # splat.sim, Sturges: the bins of Path2 hold 20, 9, 14, 12, 10, 11, 17
+    # and 10 cells, mean 12.875 and sd 3.87, so the maximum is 16.75 and the
+    # bins of 20 and 17 cells are divided. The mean and the sd were rounded
+    # to 13 and 4 before they were added, which allowed 17 cells
+    ob <- splat_binned()
+    p <- ob@Parameters
+    bins <- cDense(ob)
+    path2 <- bins[bins[[p@path_col]] == "Path2", ]
+    sizes <- path2[[p@bin_size_col]]
+    expect_identical(sizes, c(20, 9, 14, 12, 10, 11, 17, 10))
+    expect_equal(mean(sizes) + sd(sizes), 16.74568, tolerance = 1e-6)
+    expect_identical(path2$scmp_l_bound[7], 75.25)
+    expect_identical(path2$scmp_u_bound[7], 87.625)
+    split <- sc.squeeze(splat_scmp(), split_bins = TRUE)
+    bins <- cDense(split)
+    split2 <- bins[bins[[p@path_col]] == "Path2", ]
+    expect_identical(
+        split2[[p@bin_size_col]],
+        c(3, 7, 2, 2, 6, 9, 14, 12, 10, 11, 2, 6, 2, 3, 4, 10)
+    )
+    # The bin of 17 cells, from 75.25 to 87.625, is now five bins
+    in_bin7 <- split2$scmp_l_bound >= 75.25 & split2$scmp_u_bound <= 87.625
+    expect_identical(split2[in_bin7, p@bin_size_col], c(2, 6, 2, 3, 4))
+    expect_true(all(split2[[p@bin_size_col]] < 16.75))
+})
+
+test_that("prune_bins removes the bins below the mean - sd of their path", {
+    # Srivastava et al. (2024), Section 2.2: the mean and the standard
+    # deviation "of the sizes of all bins per path" establish the minimum,
+    # mean - sd, and the bins "smaller than the minimum size can be
+    # optionally removed". splat.sim, Sturges: the bins of Path1 hold 14, 15,
+    # 7, 17, 13, 11, 9 and 11 cells, minimum 12.125 - 3.27 = 8.85, so the bin
+    # of 7 cells goes and the bin of 9 stays; Path2 (minimum 9.004) loses its
+    # bin of 9. The minimum was taken over the bins of both paths, 12.5 -
+    # 3.48 = 9.02, which also removed the bin of 9 cells of Path1
+    ob <- sc.squeeze(splat_scmp(), prune_bins = TRUE)
+    p <- ob@Parameters
+    bins <- cDense(ob)
+    expect_identical(
+        split(bins[[p@bin_size_col]], bins[[p@path_col]]),
+        list(
+            Path1 = c(14, 15, 17, 13, 11, 9, 11),
+            Path2 = c(20, 14, 12, 10, 11, 17, 10)
+        )
+    )
+    expect_identical(
+        rownames(bins)[bins[[p@path_col]] == "Path1"],
+        paste0("Path1_bin_", c(1, 2, 4, 5, 6, 7, 8))
+    )
+    expect_valid_scmp(ob)
+    # multi.lin.sce, Sturges: the bins of Root hold 184, 75, 17, 46, 49, 32,
+    # 29, 0, 7 and 14 cells, mean 45.3 and sd 53.6, so the minimum is
+    # negative and no bin is removed, and no bin of the other paths is below
+    # the minimum of its path. The absolute value of the minimum over all
+    # paths, 10.66, removed 11 of the 44 bins
+    expect_identical(
+        sc.squeeze(multi_scmp(), prune_bins = TRUE), multi_binned()
+    )
+})
+
+test_that("split_bins and prune_bins set their limits from the first bins", {
+    # The limits are set once per path, from the bins of the rule, before
+    # any bin is divided. 9 points, Sturges: 5 bins of width 1.26 with 1, 4,
+    # 2, 0 and 2 cells, mean 1.8 and sd 1.48, so the maximum is 3.28 and the
+    # minimum 0.32. The bin of 4 cells is divided into bins of 2, 0 and 2
+    # cells, and the bin of 1 cell is kept: the bins after the division, of
+    # 1, 2, 2, 2 and 2 cells, would give a minimum of 1.35 and remove it, as
+    # the minimum over the bins of both paths did
+    p <- c(0.7, 2.2, 2.3, 2.9, 3.1, 3.4, 3.6, 6.7, 7)
+    divided <- list(0.7, c(2.2, 2.3), c(2.9, 3.1), c(3.4, 3.6), c(6.7, 7))
+    expect_identical(toy_bins(p, split_bins = TRUE)$members, divided)
+    expect_identical(
+        toy_bins(p, split_bins = TRUE, prune_bins = TRUE)$members, divided
+    )
+    # Without the division, the same minimum keeps every bin
+    expect_identical(
+        toy_bins(p, prune_bins = TRUE)$members,
+        list(0.7, c(2.2, 2.3, 2.9, 3.1), c(3.4, 3.6), c(6.7, 7))
+    )
 })
