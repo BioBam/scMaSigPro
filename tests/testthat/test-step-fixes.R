@@ -27,7 +27,7 @@ test_that("sc.filter(vars = 'each') gives one list per term (ledger F1)", {
     # Control: terms that select different numbers of genes
     some <- sc.filter(ob, vars = "each")@Significant@genes
     expect_identical(
-        lengths(some), setNames(c(31L, 9L, 14L, 23L, 8L, 13L), terms)
+        lengths(some), setNames(c(32L, 10L, 16L, 24L, 8L, 14L), terms)
     )
 })
 
@@ -618,4 +618,140 @@ test_that("plotTrendCluster() resolves logs as plotTrend() (ledger LK-1)", {
         plotTrendCluster(id, logs = TRUE, verbose = FALSE)$labels$y,
         "log(Pseudobulk Expression)"
     )
+})
+
+# sc.squeeze() on two paths with the same pseudotime values p: the bins of
+# Path1 in order, with their stored bounds and the pseudotime of their cells
+toy_bins <- function(p, ...) {
+    cd <- data.frame(
+        Pseudotime = c(p, p), Path = rep(c("Path1", "Path2"), each = length(p)),
+        row.names = paste0("cell", seq_along(c(p, p)))
+    )
+    counts <- matrix(1, 2, nrow(cd),
+        dimnames = list(c("g1", "g2"), rownames(cd))
+    )
+    ob <- create_scmp(
+        counts = counts, cell_data = cd, ptime_col = "Pseudotime",
+        path_col = "Path"
+    )
+    ob <- suppressMessages(sc.squeeze(ob, ...))
+    bins <- cDense(ob)
+    bins <- bins[bins[[ob@Parameters@path_col]] == "Path1", ]
+    members <- strsplit(bins[[ob@Parameters@bin_mem_col]], "|", fixed = TRUE)
+    list(
+        ob = ob, lower = bins$scmp_l_bound, upper = bins$scmp_u_bound,
+        members = lapply(members, function(m) cd[m, "Pseudotime"])
+    )
+}
+
+test_that("sc.squeeze() bins the cells by the numeric breaks (ledger S3)", {
+    # 4 points, Sturges: 3 bins, breaks 0, 1/3, 2/3 and 1. The bounds were
+    # read back from the cut() labels "[0,0.333]", "(0.333,0.667]" and
+    # "(0.667,1]", which put 0.3332 and 0.6668 in the middle bin
+    bins <- toy_bins(c(0, 0.3332, 0.6668, 1))
+    expect_identical(bins$members, list(c(0, 0.3332), c(0.6668, 1)))
+    expect_equal(bins$lower, c(0, 2 / 3))
+    expect_equal(bins$upper, c(1 / 3, 1))
+    # multi.lin.sce, Sturges: five cells of Y_52 lie between the label 30.5
+    # and the break 30.53546 between its bins 4 and 5
+    ob <- multi_binned()
+    bins <- cDense(ob)
+    members <- strsplit(bins[[ob@Parameters@bin_mem_col]], "|", fixed = TRUE)
+    bin_of <- setNames(rep(rownames(bins), lengths(members)), unlist(members))
+    cells <- c("C520", "C910", "C966", "C1500", "C1723")
+    expect_identical(unname(bin_of[cells]), rep("Y_52_bin_4", 5))
+    expect_equal(bins["Y_52_bin_4", "scmp_u_bound"], 30.53546, tolerance = 1e-6)
+    # The bins do not depend on the origin of the pseudotime: shifted by
+    # 1000, 50 of the 200 cells of splat.sim were in another bin
+    shifted <- splat_scmp()
+    ptime_col <- shifted@Parameters@ptime_col
+    cd <- cSparse(shifted)
+    cd[[ptime_col]] <- cd[[ptime_col]] + 1000
+    cSparse(shifted) <- cd
+    mem_col <- shifted@Parameters@bin_mem_col
+    expect_identical(
+        cDense(sc.squeeze(shifted))[[mem_col]],
+        cDense(splat_binned())[[mem_col]]
+    )
+})
+
+test_that("split_bins keeps every cell (ledger Q1)", {
+    # 13 points, Sturges: 5 bins of width 2. The bin from 2 to 4 holds 10
+    # cells, more than the 7 allowed, and is split over the range of its
+    # cells; the first new bin read "[2.24,2.58]" from its cut() label, so
+    # the cell at 2.2366 was in no bin and was removed from the object
+    p <- c(0, 0.5, 2.2366, 2.5, 2.7, 2.9, 3.1, 3.3, 3.5, 3.7, 3.9, 3.95, 10)
+    expect_no_warning(bins <- toy_bins(p, split_bins = TRUE))
+    expect_identical(ncol(bins$ob@Sparse), 26L)
+    expect_identical(bins$members, list(
+        c(0, 0.5), c(2.2366, 2.5), c(2.7, 2.9), 3.1, c(3.3, 3.5),
+        c(3.7, 3.9, 3.95), 10
+    ))
+    # The 5 new bins have equal width over 2.2366 to 3.95, the range of the
+    # cells, but the first starts at 2 and the last ends at 4: they cover
+    # the bin from 2 to 4 without gaps
+    expect_identical(bins$lower[c(1, 2, 7)], c(0, 2, 8))
+    expect_identical(bins$upper[c(1, 6, 7)], c(2, 4, 10))
+    expect_identical(bins$lower[3:6], bins$upper[2:5])
+    expect_equal(bins$upper[2:5], seq(2.2366, 3.95, length.out = 6)[2:5])
+})
+
+test_that("the bins are closed on the left and open on the right (ledger n2)", {
+    # Srivastava et al. (2024), Section 2.1: "bins are structured as
+    # left-closed and right-open intervals, except for the last bin, which is
+    # closed on both ends". A test meant to apply this rule compared a
+    # logical vector with max(), so every bin was closed on both ends and a
+    # cell on the bound of two bins went to the earlier one.
+    # 0 to 10, Sturges: 5 bins, breaks 0, 2, 4, 6, 8 and 10
+    bins <- toy_bins(0:10)
+    expect_identical(bins$members, list(0:1, 2:3, 4:5, 6:7, 8:10))
+    expect_identical(bins$lower, c(0, 2, 4, 6, 8))
+    # 7 points, 4 bins, breaks 0, 2.5, 5, 7.5 and 10: 5 is in the third bin
+    bins <- toy_bins(c(0, 2, 4, 5, 6, 8, 10))
+    expect_identical(bins$members, list(c(0, 2), 4, c(5, 6), c(8, 10)))
+    # splat.sim, Sturges: Cell169, at the break 50 of Path1, opens bin 5
+    ob <- splat_binned()
+    bins <- cDense(ob)
+    members <- strsplit(bins[[ob@Parameters@bin_mem_col]], "|", fixed = TRUE)
+    names(members) <- rownames(bins)
+    expect_true("Cell169" %in% members[["Path1_bin_5"]])
+    expect_identical(bins["Path1_bin_5", "scmp_l_bound"], 50)
+    # The bins of a split follow the rule too: every cell of splat.sim, whose
+    # pseudotime takes whole values, lies in [lower, upper) of its bin or at
+    # the end of the last bin of its path
+    ob <- sc.squeeze(splat_scmp(), split_bins = TRUE)
+    p <- ob@Parameters
+    bins <- cDense(ob)
+    members <- strsplit(bins[[p@bin_mem_col]], "|", fixed = TRUE)
+    bin_of <- rep(seq_len(nrow(bins)), lengths(members))
+    ptime <- cSparse(ob)[unlist(members), p@ptime_col]
+    lower <- bins$scmp_l_bound[bin_of]
+    upper <- bins$scmp_u_bound[bin_of]
+    path_end <- ave(bins$scmp_u_bound, bins[[p@path_col]], FUN = max)
+    at_end <- ptime == upper & upper == path_end[bin_of]
+    expect_true(all(ptime >= lower & (ptime < upper | at_end)))
+})
+
+test_that("split_bins keeps a path with a single bin (ledger D-1)", {
+    # Path1 has 30 of its 40 cells at 0.5, an interquartile range of 0, so
+    # Freedman-Diaconis gives it one bin. The sizes of one bin have no
+    # standard deviation, and the split failed with "missing value where
+    # TRUE/FALSE needed"; Path2 has 4 bins of 10 cells
+    cd <- data.frame(
+        Pseudotime = c(rep(0.5, 30), seq(0, 1, length.out = 10), (0:39) / 39),
+        Path = rep(c("Path1", "Path2"), each = 40),
+        row.names = paste0("cell", 1:80)
+    )
+    counts <- matrix(1, 2, 80, dimnames = list(c("g1", "g2"), rownames(cd)))
+    ob <- create_scmp(
+        counts = counts, cell_data = cd, ptime_col = "Pseudotime",
+        path_col = "Path"
+    )
+    method <- "Freedman.Diaconis"
+    split <- suppressMessages(sc.squeeze(ob,
+        bin_method = method, split_bins = TRUE
+    ))
+    nosplit <- suppressMessages(sc.squeeze(ob, bin_method = method))
+    expect_identical(cDense(split), cDense(nosplit))
+    expect_identical(ncol(split@Sparse), 80L)
 })

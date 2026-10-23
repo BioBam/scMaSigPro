@@ -26,7 +26,7 @@
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @seealso \code{\link{estBinSize}}, \code{\link{create_range}}
+#' @seealso \code{\link{estBinSize}}
 #'
 #' @export
 sc.restruct <- function(scmpObj,
