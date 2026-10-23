@@ -86,6 +86,15 @@ slot.
 of equal width. It automatically calculates the optimal number of bins
 using one of the supported methods.
 
+The bins of a path divide the range of its pseudotime into intervals of
+equal width (\code{split_bins} divides large ones further), and each cell goes
+to the bin whose interval holds its pseudotime. As in Srivastava et al.
+(2024), Section 2.1, "bins are structured as left-closed and right-open
+intervals, except for the last bin, which is closed on both ends": a cell
+whose pseudotime is the bound of two bins goes to the later one. The
+bounds of the intervals are stored in the \code{scmp_l_bound} and
+\code{scmp_u_bound} columns of the bin metadata (see \code{\link[=cDense]{cDense()}}).
+
 The paths are binned, and their bins stored, in the order of the levels of
 the path column when it is a factor, and otherwise in the C-locale order of
 the path labels (byte order: digits before uppercase letters, uppercase
@@ -94,7 +103,7 @@ takes the first path as the reference unless its \code{reference} argument names
 another one.
 }
 \seealso{
-\code{\link{estBinSize}}, \code{\link{create_range}}
+\code{\link{estBinSize}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

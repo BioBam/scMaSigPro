@@ -85,17 +85,15 @@ test_that("pb_counts() rejects duplicated bin names", {
     expect_error(pb_counts(ob), "must be unique")
 })
 
-test_that("sc.squeeze() removes cells that fall outside every bin, with a warning", {
-    # split_bins leaves gaps between the split bins on multi.lin.sce (3 cells
-    # with Sturges); 0.0.4 dropped them from the metadata only, leaving an
-    # invalid object.
-    expect_warning(
-        ob <- sc.squeeze(multi_scmp(), split_bins = TRUE),
-        "could not be assigned to a bin"
-    )
+test_that("sc.squeeze(split_bins = TRUE) keeps every cell of multi.lin.sce", {
+    # The split bins were built from bounds rounded to 3 significant digits,
+    # which left 3 cells outside every bin with Sturges (ledger Q1); 0.0.4
+    # dropped them from the metadata only, leaving an invalid object, and
+    # 0.0.5 removed them from the object with a warning.
+    expect_no_warning(ob <- sc.squeeze(multi_scmp(), split_bins = TRUE))
     expect_valid_scmp(ob)
     expect_sparse_aligned(ob)
-    expect_identical(ncol(ob@Sparse), 1974L)
+    expect_identical(ncol(ob@Sparse), ncol(multi_scmp()@Sparse))
 })
 
 test_that("the prototype of every slot class is a valid object", {

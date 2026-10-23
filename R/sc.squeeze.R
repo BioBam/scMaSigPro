@@ -5,6 +5,15 @@
 #' of equal width. It automatically calculates the optimal number of bins
 #' using one of the supported methods.
 #'
+#' The bins of a path divide the range of its pseudotime into intervals of
+#' equal width (`split_bins` divides large ones further), and each cell goes
+#' to the bin whose interval holds its pseudotime. As in Srivastava et al.
+#' (2024), Section 2.1, "bins are structured as left-closed and right-open
+#' intervals, except for the last bin, which is closed on both ends": a cell
+#' whose pseudotime is the bound of two bins goes to the later one. The
+#' bounds of the intervals are stored in the `scmp_l_bound` and
+#' `scmp_u_bound` columns of the bin metadata (see [cDense()]).
+#'
 #' The paths are binned, and their bins stored, in the order of the levels of
 #' the path column when it is a factor, and otherwise in the C-locale order of
 #' the path labels (byte order: digits before uppercase letters, uppercase
@@ -55,7 +64,7 @@
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @seealso \code{\link{estBinSize}}, \code{\link{create_range}}
+#' @seealso \code{\link{estBinSize}}
 #'
 #' @export
 sc.squeeze <- function(scmpObj,
@@ -257,8 +266,7 @@ sc.squeeze <- function(scmpObj,
         bin_table <- extract_interval(
             time.vector = time_vector,
             nBins = estBins,
-            bin = bin, bin.size = bin.size, lbound = lbound,
-            ubound = ubound
+            bin.size = bin.size, lbound = lbound, ubound = ubound
         )
 
         # Client-Verbose
@@ -280,8 +288,9 @@ sc.squeeze <- function(scmpObj,
         new_max <- max.allowed + 1
         it <- 1
 
-        # Split bins
-        if (split) {
+        # Split bins; the sizes of a path with a single bin have no standard
+        # deviation, and its bin is kept
+        if (split && nrow(bin_table) > 1) {
             if (verbose) {
                 message(
                     "Optimizing bin sizes, with maximum allowed bin size as ",
@@ -307,7 +316,6 @@ sc.squeeze <- function(scmpObj,
                     time_vector = time_vector,
                     lbound = lbound,
                     ubound = ubound,
-                    bin = bin,
                     drop = drop_factor,
                     bin.size = bin.size,
                     method = method.bin
@@ -345,50 +353,12 @@ sc.squeeze <- function(scmpObj,
         rownames(bin_table) <- NULL
         bin_table[[bin_ptime_col]] <- as.numeric(rownames(bin_table))
 
-        # Loop over each row of raw_cell_metadata
-        for (i in seq_len(nrow(path.frame))) {
-            # Get row from the Path frame
-            raw_i <- path.frame[i, , drop = FALSE]
-            pseudotime_i <- raw_i[[ptime_col]]
-
-            # Check limits
-            in_range <- pseudotime_i >= min(bin_table[, lbound]) &&
-                pseudotime_i <= max(bin_table[, ubound])
-            if (in_range) {
-                # Check if the last elemenst (Last interval close both)
-                if (max(path.frame[[ptime_col]] == pseudotime_i)) {
-                    matching_bins <- bin_table[
-                        (
-                            pseudotime_i >= bin_table[, lbound] &
-                                pseudotime_i <= bin_table[, ubound]
-                        ), ,
-                        drop = FALSE
-                    ]
-                } else {
-                    # Filter bin_table based on pseudotime_value (right open left close)
-                    matching_bins <- bin_table[
-                        (
-                            pseudotime_i >= bin_table[, lbound] &
-                                pseudotime_i < bin_table[, ubound]
-                        ), ,
-                        drop = FALSE
-                    ]
-                }
-            } else if (pseudotime_i > max(bin_table[, ubound])) {
-                matching_bins <- bin_table[bin_table[, ubound] == max(bin_table[, ubound]), , drop = FALSE]
-            } else if (pseudotime_i < min(bin_table[, lbound])) {
-                matching_bins <- bin_table[bin_table[, lbound] == min(bin_table[, lbound]), , drop = FALSE]
-            }
-
-            if (nrow(matching_bins) > 0) {
-                # If two match present take the first one
-                if (nrow(matching_bins) == 2) {
-                    path.frame[i, bin_ptime_col] <- as.numeric(matching_bins[[bin_ptime_col]][1])
-                } else {
-                    path.frame[i, bin_ptime_col] <- as.numeric(matching_bins[[bin_ptime_col]])
-                }
-            }
-        }
+        # The bin of every cell, by the numeric bounds; a cell that no bin
+        # holds keeps NA and is removed below
+        cell_bin <- .assign_bins(
+            path.frame[[ptime_col]], bin_table[[lbound]], bin_table[[ubound]]
+        )
+        path.frame[[bin_ptime_col]] <- bin_table[[bin_ptime_col]][cell_bin]
 
         # Convert result to a data frame
         processed.path.frame <- as.data.frame(path.frame)

@@ -1,25 +1,49 @@
 # Internal binning helpers. extract_interval() counts points in equal-width
-# bins and parses the bounds back from the cut() labels, so the bounds are
-# rounded to 3 significant digits (ledger S3, kept until Phase 5).
+# bins whose bounds are the numeric breaks (ledger S3), and .assign_bins()
+# puts points in bins with the same intervals.
 # estBinSize() gives the number of bins of each rule; Freedman-Diaconis and
 # Scott give a bin width, turned into a number of bins by the range (ledger g).
 
 test_that("extract_interval() counts equal-width bins over the range", {
     x <- c(0, 0.1, 0.25, 0.5, 0.75, 1)
     bins <- extract_interval(x,
-        nBins = 3, bin = "bin", bin.size = "size", lbound = "lo", ubound = "hi"
+        nBins = 3, bin.size = "size", lbound = "lo", ubound = "hi"
     )
     expect_identical(colnames(bins), c("lo", "hi", "size"))
     expect_identical(bins$size, c(3, 1, 2))
-    # breaks 0, 1/3, 2/3, 1, read back from "[0,0.333]", "(0.333,0.667]", ...
-    expect_identical(bins$lo, c(0, 0.333, 0.667))
-    expect_identical(bins$hi, c(0.333, 0.667, 1))
-    # the first bin is closed on both sides, the others on the right only
+    # the bounds are the breaks 0, 1/3, 2/3 and 1, not the 0.333 and 0.667 of
+    # their cut() labels
+    breaks <- seq(0, 1, length.out = 4)
+    expect_identical(bins$lo, breaks[-4])
+    expect_identical(bins$hi, breaks[-1])
     two <- extract_interval(c(2, 4, 4, 9),
-        nBins = 2, bin = "bin", bin.size = "size", lbound = "lo", ubound = "hi"
+        nBins = 2, bin.size = "size", lbound = "lo", ubound = "hi"
     )
     expect_identical(two$size, c(3, 1))
     expect_identical(two$lo, c(2, 5.5))
+    # the last bin is closed on both sides, the others on the left only: the
+    # point on the break 2 is counted in the second bin
+    on_break <- extract_interval(0:4,
+        nBins = 2, bin.size = "size", lbound = "lo", ubound = "hi"
+    )
+    expect_identical(on_break$size, c(2, 3))
+})
+
+test_that(".assign_bins() puts each point in its bin", {
+    # [0, 2), [2, 4) and [4, 6], the last closed: a point on the bound of two
+    # bins goes to the upper one, as with cut(right = FALSE,
+    # include.lowest = TRUE)
+    x <- 0:6
+    bin <- .assign_bins(x, c(0, 2, 4), c(2, 4, 6))
+    expect_identical(bin, c(1L, 1L, 2L, 2L, 3L, 3L, 3L))
+    expect_identical(bin, cut(x, c(0, 2, 4, 6),
+        right = FALSE, include.lowest = TRUE, labels = FALSE
+    ))
+    # bins with a gap between them, and points outside every bin
+    expect_identical(
+        .assign_bins(c(-1, 1, 2.5, 3, 7), c(0, 3), c(2, 6)),
+        c(NA, 1L, NA, 2L, NA)
+    )
 })
 
 test_that(".skewness() is the type-3 sample skewness", {
