@@ -18,6 +18,7 @@ sc.p.vector(
   max_it = 100,
   link = "log",
   theta_estimate = "none",
+  test = "chisq",
   BPPARAM = SerialParam()
 )
 }
@@ -78,6 +79,21 @@ gene with the median of these estimates. The estimates are kept in the
 \code{distribution} parameter, for \code{\link[=sc.t.fit]{sc.t.fit()}} and \code{\link[=plotDiagnostics]{plotDiagnostics()}}:
 \code{theta_gene} holds one per gene and \code{theta_estimate} the choice.}
 
+\item{test}{The test of each gene's full model against its intercept-only
+model: \code{"chisq"} (the default) or \code{"F"}. Both divide the
+difference in deviance between the two models by the dispersion of the
+full model, which, for the negative binomial and Gaussian families, is
+estimated as its Pearson statistic divided by its residual degrees of
+freedom. \code{"chisq"} compares the result with the chi-squared
+distribution, as maSigPro does. \code{"F"} also divides it by the
+difference in degrees of freedom and compares it with the F distribution
+on the residual degrees of freedom of the full model: the F test of
+\code{\link[stats:anova.glm]{stats::anova.glm()}}. With the Gaussian family both values give the F
+test, the test of maSigPro for that family. \code{"F"} needs a family
+whose dispersion is estimated, so not \code{\link[stats:binomial]{stats::binomial()}} or
+\code{\link[stats:poisson]{stats::poisson()}}. The value is kept in the \code{test} parameter. See
+Details.}
+
 \item{BPPARAM}{A \code{BiocParallelParam} object that runs the per-gene
 fits, such as
 \code{\link[BiocParallel:MulticoreParam-class]{MulticoreParam}(2)} (Linux
@@ -121,6 +137,20 @@ factors of the offset are computed before \code{min_counts} and
 \code{min_bins_expressed} are applied, on every gene left by the first two
 rules, so these two filters change the results of the genes they keep
 only through the multiple-testing correction.
+
+The test of the full model is the first step of the method of Srivastava
+et al. (2024), Section 2.4: "scMaSigPro implements a two-step strategy
+similar to the maSigPro method", in which the full model of each gene is
+"evaluated against a simpler intercept-only model via hypothesis testing
+based on the log-likelihood ratio statistic". The default,
+\code{test = "chisq"}, is that test, as maSigPro computes it for families
+other than the Gaussian: the statistic is divided by the estimated
+dispersion and compared with the chi-squared distribution, as if the
+dispersion were known. With few bins, and so few residual degrees of
+freedom, the estimate varies from gene to gene and the test calls more
+genes significant than its level. \code{test = "F"}, the quasi-likelihood F
+test, accounts for the estimation of the dispersion through the residual
+degrees of freedom of the F distribution.
 }
 \references{
 Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
