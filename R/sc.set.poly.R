@@ -107,16 +107,11 @@ sc.set.poly <- function(scmpObj,
     # Build the design: time in column 1, the paths from column 3
     designList <- .poly_design(com.cell.meta, degree = poly_degree)
 
-    # Create offset
-    offset_vector <- numeric(rep(nrow(designList$edesign)))
-    names(offset_vector) <- rownames(designList$edesign)
-
-    # Create Object
+    # Create Object, without offset until a fit computes one
     designObj <- new("MatrixDesign",
         predictor_matrix = as.matrix(designList$dis),
         groups.vector = designList$groups.vector,
-        assignment_matrix = as.matrix(designList$edesign),
-        offset = offset_vector
+        assignment_matrix = as.matrix(designList$edesign)
     )
 
     # Update Slot

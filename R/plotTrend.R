@@ -252,9 +252,10 @@ plotTrend <- function(scmpObj,
 
     curve.df <- curve.df[-1, ]
 
-    # Correct by offset. Only log-link fits have one (ledger S6): with
-    # another link, a size factor left by an earlier fit is not used
-    use_offset <- sum(offset_vector) != 0 && .log_link_fits(scmpObj)
+    # Divide the points by the size factors when the fits used the offset,
+    # which only log-link fits can
+    use_offset <- isTRUE(scmpObj@Parameters@offset) &&
+        length(offset_vector) > 0L && .log_link_fits(scmpObj)
     if (use_offset) {
         points.df["pb.counts"] <- points.df["pb.counts"] / exp(offset_vector)
     }

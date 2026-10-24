@@ -38,6 +38,16 @@ parameters existed get both set to 0, the values that keep every gene
 (\code{\link[=sc.p.vector]{sc.p.vector()}} had no such filter then), and the version of the
 package that is running.
 
+Objects saved with the \code{log_offset} parameter lose it. The fits of an
+object saved with \code{log_offset = FALSE}, the default, used the size factor
+of each bin as the offset: \code{updateObject()} stores the logarithm of the
+size factors instead, the offset of \code{\link[=sc.p.vector]{sc.p.vector()}} and \code{\link[=sc.t.fit]{sc.t.fit()}}, and
+warns that the fits in the \code{Profile} and \code{Estimate} slots were made with
+the size factors, until \code{\link[=sc.p.vector]{sc.p.vector()}} is run again. The offsets of an
+object saved with \code{log_offset = TRUE} are kept. An object whose fits used
+no offset, or that was not fitted, keeps no offset: the offsets that an
+earlier fit left in it, or the zeros of \code{\link[=sc.set.poly]{sc.set.poly()}}, are removed.
+
 Objects fitted with \code{link = "identity"} by scMaSigPro 0.0.5 or earlier
 hold a family labelled with the identity link but with the link functions
 of the log link, with which their fits were made: \code{updateObject()} warns,

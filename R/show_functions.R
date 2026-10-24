@@ -414,7 +414,8 @@ showGroupCoeff <- function(scmpObj, includeInflu = TRUE) {
         cat(paste("\nNo. of Influential Features:", ncol(object@Estimate@influential)))
     }
 
-    # Saved before the version slot or the count filter parameters existed
+    # Saved before the version slot or the count filter parameters existed,
+    # or with the log_offset parameter
     if (!.scmp_current(object)) {
         cat(paste(
             "\nSaved by an earlier version of scMaSigPro: update it with",

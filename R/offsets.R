@@ -22,7 +22,7 @@
 #'
 #' The input is converted with [as.matrix()] first, so a base matrix, a data
 #' frame or a `Matrix` object (such as the `dgeMatrix` that `dgCMatrix + 1`
-#' returns in `sc.t.fit()`) gives the same result.
+#' returns) gives the same result.
 #'
 #' @param counts A matrix-like object of non-negative counts, genes in rows
 #'   and samples in columns.
@@ -44,8 +44,7 @@
 #' @noRd
 .size_factors <- function(counts, type = c("ratio", "poscounts")) {
     type <- match.arg(type)
-    # A plain vector (what sc.t.fit() passes when no gene is non-flat) stops
-    # with the error base rowMeans() gave; sc.t.fit() should check first.
+    # A plain vector stops with the error base rowMeans() gave
     .check(length(dim(counts)) == 2L,
         msg = "'x' must be an array of at least two dimensions"
     )
@@ -81,4 +80,25 @@
     }, numeric(1))
     names(sf) <- colnames(counts)
     sf
+}
+
+# The offset of sc.p.vector() and sc.t.fit() (Srivastava et al. (2024),
+# Section 2.3 and Supplementary Section S1.3): the logarithm of the size
+# factor of each bin, from the raw counts of the genes that sc.p.vector()
+# fits. Only the genes with a count above 0 in every bin have a geometric
+# mean above 0, so at least one is needed.
+.bin_offset <- function(counts) {
+    counts <- as.matrix(counts)
+    .check(isTRUE(any(rowSums(!(counts > 0)) == 0)),
+        msg = paste(
+            "Cannot compute the size factors of the offset: every gene has a",
+            "zero or missing count in at least one bin of the design. Fewer",
+            "and larger bins (for example sc.squeeze() with a smaller",
+            "'drop_fac') can leave genes without a zero count; otherwise fit",
+            "without the offset, with offset = FALSE. 'min_counts' and",
+            "'min_bins_expressed' do not help: the size factors are computed",
+            "before them."
+        )
+    )
+    log(.size_factors(counts))
 }

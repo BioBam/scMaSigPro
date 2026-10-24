@@ -45,12 +45,10 @@
 #' `theta_gene` holds one per gene and `theta_estimate` the choice.
 #' @param epsilon Model convergence tolerance.
 #' @param offset logical value specifying whether to use offset during fitting.
-#' The offset, the size factor of each bin (or its logarithm, see
-#' \code{log_offset}), is added to the linear predictor, where it scales the
-#' fitted mean under the log link only: with any other link the fits stop
-#' with an error unless \code{offset = FALSE}.
-#' @param log_offset A logical value specifying whether to take the logarithm of
-#' the offsets.
+#' The offset of each bin, the logarithm of its size factor (see Details), is
+#' added to the linear predictor, where it scales the fitted mean under the
+#' log link only: with any other link the fits stop with an error unless
+#' \code{offset = FALSE}.
 #' @param max_it Maximum number of iterations to fit the model.
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #' @param BPPARAM A \code{BiocParallelParam} object that runs the per-gene
@@ -63,6 +61,23 @@
 #' bar. The results do not depend on the backend.
 #'
 #' @details
+#' With `offset = TRUE`, the fits include an offset as Srivastava et al.
+#' (2024), Section 2.3 and Supplementary Section S1.3, describe it:
+#' "scMaSigPro incorporates an offset value to the Poly-GLM model to adjust
+#' for disparities in total read counts per bin. This offset is calculated
+#' as the logarithm of size factors for each bin". The size factors are those
+#' of the median-of-ratios method of Love, Huber and Anders (2014), on the
+#' raw counts: "The size factor for each bin is the median of the ratios of
+#' its counts to the geometric means for each gene". Only the genes with a
+#' count above 0 in every bin have a geometric mean above 0 and enter the
+#' medians. The genes are fitted on their raw counts, without a pseudo-count:
+#' "scMaSigPro can directly process raw counts". When every gene has a zero
+#' count in some bin, the size factors cannot be computed and the fit stops
+#' with an error: fewer and larger bins (see [sc.squeeze()]) can leave genes
+#' without a zero count, and `offset = FALSE` fits without the offset. The
+#' offsets are stored in the `Design` slot, where [sc.t.fit()] finds them;
+#' with `offset = FALSE` no offset is stored.
+#'
 #' Genes are left out of the fit when they have fewer than `min_na` values,
 #' when all their counts are zero, and when they are below `min_counts` or
 #' `min_bins_expressed`. Genes left out have no p-value and do not count in
@@ -81,6 +96,10 @@
 #' maSigPro: a Method to Identify Significant Differential Expression Profiles
 #' in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102
 #'
+#' Love, M.I., Huber, W. and Anders, S. (2014). Moderated estimation of fold
+#' change and dispersion for RNA-seq data with DESeq2. Genome Biology 15, 550.
+#' \doi{10.1186/s13059-014-0550-8}
+#'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}, Ana Conesa and
 #' Maria Jose Nueda, \email{mj.nueda@@ua.es}
 #'
@@ -94,7 +113,6 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
                         epsilon = 1e-8,
                         verbose = TRUE,
                         offset = TRUE,
-                        log_offset = FALSE,
                         max_it = 100,
                         link = "log",
                         theta_estimate = "none",
@@ -162,16 +180,8 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         )
     )
 
-    # Removing rows with many missings (only counts with NA values have any):
-    count.na <- function(x) (length(x) - length(x[is.na(x)]))
-    dat <- dat[apply(dat, 1, count.na) >= min_na, , drop = FALSE]
-
-    # Removing rows with all zeros:
-    sumatot <- apply(dat, 1, sum)
-    counts0 <- which(sumatot == 0)
-    if (length(counts0) > 0) {
-        dat <- dat[-counts0, , drop = FALSE]
-    }
+    # Removing rows with many missings and rows with all zeros
+    dat <- .fit_genes(dat, min_na)
 
     # The count filter (decision D17). It is applied after the size factors
     # below, so it changes the results of the genes it keeps only through
@@ -184,16 +194,14 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         keep <- keep & rowSums(dat > 0, na.rm = TRUE) >= min_bins_expressed
     }
 
-    # Calculate  offset
+    # The offset of each bin: the logarithm of its size factor (Srivastava
+    # et al. (2024), Section 2.3), computed once here for sc.t.fit() too
     if (offset) {
-        dat <- dat + 1
-        offsetData <- .size_factors(dat)
-        if (log_offset) {
-            offsetData <- log(offsetData)
-        }
+        offsetData <- .bin_offset(dat)
         scmpObj@Design@offset <- offsetData
     } else {
         offsetData <- NULL
+        scmpObj@Design@offset <- numeric(0)
     }
 
     # The genes below min_counts or min_bins_expressed are not fitted
@@ -297,7 +305,6 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     scmpObj@Profile <- profile.obj
 
     # Update Parameter Slot
-    scmpObj@Parameters@log_offset <- log_offset
     scmpObj@Parameters@max_it <- as.integer(max_it)
     scmpObj@Parameters@offset <- offset
     scmpObj@Parameters@p_value <- p_value
@@ -400,6 +407,21 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         family$link, "\" holds fits made with the '", .true_link(family),
         "' link: run sc.p.vector() on it again."
     )
+}
+
+# The genes that sc.p.vector() fits, before its count filter: the rows of
+# dat with at least min_na values (only counts with NA values have fewer)
+# and a count above 0. sc.t.fit() computes the offset from the same genes
+# when sc.p.vector() stored none.
+.fit_genes <- function(dat, min_na) {
+    count.na <- function(x) (length(x) - length(x[is.na(x)]))
+    dat <- dat[apply(dat, 1, count.na) >= min_na, , drop = FALSE]
+    sumatot <- apply(dat, 1, sum)
+    counts0 <- which(sumatot == 0)
+    if (length(counts0) > 0) {
+        dat <- dat[-counts0, , drop = FALSE]
+    }
+    dat
 }
 
 # The design as a data frame whose columns are named by position: x1, x2, ...

@@ -81,3 +81,19 @@ test_that("it stops when no gene can be used; missing counts are skipped", {
     expect_true(is.na(sf[["s4"]]))
     expect_true(all(is.finite(sf[c("s1", "s2", "s3")])))
 })
+
+test_that(".size_factors() gives the example of Supplementary Section S1.3", {
+    # Srivastava et al. (2024), Supplementary Section S1.3: three genes in
+    # three bins. Geometric means: 144.22, 246.62 and 407.16; the size factor
+    # of a bin is the median of the ratios of its counts to them, here the
+    # ratio of Gene 3 in every bin
+    k <- matrix(c(100, 150, 200, 200, 300, 250, 300, 450, 500),
+        nrow = 3, byrow = TRUE,
+        dimnames = list(paste("Gene", 1:3), paste("Bin", 1:3))
+    )
+    expect_equal(
+        .size_factors(k), k["Gene 3", ] / (300 * 450 * 500)^(1 / 3),
+        tolerance = 1e-12
+    )
+    expect_equal(unname(round(.size_factors(k), 4)), c(0.7368, 1.1052, 1.2280))
+})

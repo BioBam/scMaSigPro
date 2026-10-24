@@ -15,7 +15,6 @@ sc.p.vector(
   epsilon = 1e-08,
   verbose = TRUE,
   offset = TRUE,
-  log_offset = FALSE,
   max_it = 100,
   link = "log",
   theta_estimate = "none",
@@ -58,13 +57,10 @@ own link.}
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
 \item{offset}{logical value specifying whether to use offset during fitting.
-The offset, the size factor of each bin (or its logarithm, see
-\code{log_offset}), is added to the linear predictor, where it scales the
-fitted mean under the log link only: with any other link the fits stop
-with an error unless \code{offset = FALSE}.}
-
-\item{log_offset}{A logical value specifying whether to take the logarithm of
-the offsets.}
+The offset of each bin, the logarithm of its size factor (see Details), is
+added to the linear predictor, where it scales the fitted mean under the
+log link only: with any other link the fits stop with an error unless
+\code{offset = FALSE}.}
 
 \item{max_it}{Maximum number of iterations to fit the model.}
 
@@ -100,6 +96,23 @@ Performs a regression fit for each gene taking all variables present in the
 model.
 }
 \details{
+With \code{offset = TRUE}, the fits include an offset as Srivastava et al.
+(2024), Section 2.3 and Supplementary Section S1.3, describe it:
+"scMaSigPro incorporates an offset value to the Poly-GLM model to adjust
+for disparities in total read counts per bin. This offset is calculated
+as the logarithm of size factors for each bin". The size factors are those
+of the median-of-ratios method of Love, Huber and Anders (2014), on the
+raw counts: "The size factor for each bin is the median of the ratios of
+its counts to the geometric means for each gene". Only the genes with a
+count above 0 in every bin have a geometric mean above 0 and enter the
+medians. The genes are fitted on their raw counts, without a pseudo-count:
+"scMaSigPro can directly process raw counts". When every gene has a zero
+count in some bin, the size factors cannot be computed and the fit stops
+with an error: fewer and larger bins (see \code{\link[=sc.squeeze]{sc.squeeze()}}) can leave genes
+without a zero count, and \code{offset = FALSE} fits without the offset. The
+offsets are stored in the \code{Design} slot, where \code{\link[=sc.t.fit]{sc.t.fit()}} finds them;
+with \code{offset = FALSE} no offset is stored.
+
 Genes are left out of the fit when they have fewer than \code{min_na} values,
 when all their counts are zero, and when they are below \code{min_counts} or
 \code{min_bins_expressed}. Genes left out have no p-value and do not count in
@@ -113,6 +126,10 @@ only through the multiple-testing correction.
 Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
 maSigPro: a Method to Identify Significant Differential Expression Profiles
 in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102
+
+Love, M.I., Huber, W. and Anders, S. (2014). Moderated estimation of fold
+change and dispersion for RNA-seq data with DESeq2. Genome Biology 15, 550.
+\doi{10.1186/s13059-014-0550-8}
 }
 \seealso{
 \code{\link{VariableProfiles}}

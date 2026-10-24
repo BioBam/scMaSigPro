@@ -71,10 +71,8 @@ method.}
 \item{\code{selection_method}}{A character string specifying the method for stepwise
 regression.}
 
-\item{\code{offset}}{A logical value specifying whether to use offset during fitting.}
-
-\item{\code{log_offset}}{A logical value specifying whether to take the logarithm of
-the offsets.}
+\item{\code{offset}}{A logical value, whether the fits used the offset of each bin,
+the logarithm of its size factor (see \code{\link[=sc.p.vector]{sc.p.vector()}}).}
 
 \item{\code{max_it}}{Maximum number of iterations to fit the model.}
 

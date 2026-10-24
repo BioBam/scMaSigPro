@@ -126,7 +126,8 @@ test_that("plotTrendCluster() draws lines with or without offset (ledger L2)", {
     )
     expect_identical(lines_only$layers[[1]]$data, p$layers[[1]]$data)
     # Without an offset the lines summarise the counts of each path
-    ob@Design@offset[] <- 0
+    ob@Parameters@offset <- FALSE
+    ob@Design@offset <- numeric(0)
     p <- plotTrendCluster(ob, lines = TRUE, verbose = FALSE)
     lines <- p$layers[[2]]$data
     expect_type(lines$y_axis, "double")
