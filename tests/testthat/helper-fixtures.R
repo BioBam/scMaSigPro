@@ -50,17 +50,15 @@ splat_design <- function(degree = 2) {
     })
 }
 
-# Three fitting variants frozen by the goldens (roadmap bug ledger, item h):
-#   default   offset = TRUE, log_offset = FALSE  (the package default)
-#   vignette  offset = TRUE, log_offset = TRUE   (what the Quick Start uses)
+# Two fitting variants frozen by the goldens:
+#   default   offset = TRUE (the package default, as the Quick Start fits)
 #   no_offset offset = FALSE
-splat_fitted <- function(variant = c("default", "vignette", "no_offset")) {
+splat_fitted <- function(variant = c("default", "no_offset")) {
     variant <- match.arg(variant)
     fixture(paste0("splat_fitted_", variant), function() {
         ob <- splat_design(2)
         ob <- switch(variant,
             default = sc.p.vector(ob, verbose = FALSE),
-            vignette = sc.p.vector(ob, verbose = FALSE, offset = TRUE, log_offset = TRUE),
             no_offset = sc.p.vector(ob, verbose = FALSE, offset = FALSE)
         )
         sc.t.fit(ob, verbose = FALSE)
@@ -168,6 +166,10 @@ build_golden <- function() {
     cells_note <- "0.6.0, ledger S3: cells binned by the numeric breaks"
     n2_note <- "0.6.0, ledger n2: bins [a, b), the last [a, b]"
     prune_note <- "0.6.0, Section 2.2: prune below mean - sd of each path"
+    log_note <- "0.6.0, Section 2.3: the offset is the log of the size factors"
+    gone_note <- "0.6.0, Section 2.3: removed, the same fit as fits/default"
+    once_note <- "0.6.0, Section 2.3: sc.t.fit() reuses the offset"
+    raw_note <- "0.6.0, Section S1.3: raw counts and their size factors"
 
     methods <- c("Sturges", "Sqrt", "Rice", "Doane", "Freedman.Diaconis", "Scott.Normal")
     by_method <- lapply(methods, function(m) {
@@ -197,7 +199,6 @@ build_golden <- function() {
 
     fits <- list(
         default = fit_snapshot(splat_fitted("default")),
-        vignette = fit_snapshot(splat_fitted("vignette")),
         no_offset = fit_snapshot(splat_fitted("no_offset"))
     )
 
@@ -225,11 +226,6 @@ build_golden <- function() {
             frozen_version = "0.0.4",
             generated = format(Sys.time(), "%Y-%m-%d"),
             r_version = R.version.string,
-            # Frozen as they are today, known to be wrong; these move in Phase 5.
-            known_wrong = c(
-                "fits/default" = "ledger h: raw size factors as log-link offset",
-                "fits/vignette" = "ledger h: offsets recomputed in sc.t.fit"
-            ),
             # Changed on purpose after 0.0.4; every other leaf is still 0.0.4.
             regenerated = c(
                 "squeeze/by_method/Freedman.Diaconis" =
@@ -270,7 +266,21 @@ build_golden <- function() {
                 "squeeze/options/split_bins" =
                     "0.6.0, Section 2.2: split above mean + sd, not rounded",
                 "squeeze/options/prune_bins" = prune_note,
-                "squeeze/options/fill_gaps" = prune_note
+                "squeeze/options/fill_gaps" = prune_note,
+                "fits/default" = log_note,
+                "fits/vignette" = gone_note,
+                "filters" = log_note,
+                "clusters" = log_note,
+                "plots" = log_note,
+                "fits/no_offset/offset" = "0.6.0: offset = FALSE stores none",
+                "fits/default" = once_note,
+                "filters" = once_note,
+                "clusters" = once_note,
+                "plots" = once_note,
+                "fits/default" = raw_note,
+                "filters" = raw_note,
+                "clusters" = raw_note,
+                "plots" = raw_note
             )
         ),
         sparse_cells = sorted_df(cSparse(binned)),

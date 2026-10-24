@@ -32,8 +32,7 @@ scmp.ob <- as_scmp(
 scmp.ob <- sc.squeeze(scmp.ob)
 scmp.ob <- sc.set.poly(scmp.ob, poly_degree = 1)
 scmp.ob <- sc.p.vector(scmp.ob,
-  offset = TRUE, p_value = 0.05, verbose = FALSE,
-  log_offset = TRUE
+  offset = TRUE, p_value = 0.05, verbose = FALSE
 )
 scmp.ob <- sc.t.fit(scmp.ob, verbose = FALSE)
 scmp.ob <- sc.filter(

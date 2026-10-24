@@ -132,3 +132,76 @@ test_that("updateObject() warns about a relabelled family (ledger LK-4)", {
     expect_no_warning(updateObject(refit))
     expect_no_warning(updateObject(splat_clustered()))
 })
+
+# An object as an earlier version saved it after sc.p.vector() and
+# sc.t.fit(), with the log_offset parameter. With log_offset = FALSE the
+# offsets of its fits were the size factors themselves
+with_log_offset <- function(ob, log_offset) {
+    params <- ob@Parameters
+    attr(params, "log_offset") <- log_offset
+    ob@Parameters <- params
+    if (!log_offset && ob@Parameters@offset) {
+        ob@Design@offset <- exp(ob@Design@offset)
+    }
+    ob
+}
+
+test_that("updateObject() removes the log_offset parameter", {
+    ob <- splat_fitted("default")
+    old <- with_log_offset(ob, TRUE)
+    expect_true(validObject(old, test = TRUE))
+    expect_error(sc.t.fit(old, verbose = FALSE),
+        "update it with updateObject() first",
+        fixed = TRUE
+    )
+    expect_output(print(old), "update it with updateObject()", fixed = TRUE)
+    msgs <- capture_messages(up <- updateObject(old, verbose = TRUE))
+    expect_match(msgs, "Removing the parameter log_offset.",
+        fixed = TRUE, all = FALSE
+    )
+    # Offsets saved on the log scale are kept
+    expect_identical(up, ob)
+    # A fit without offset: nothing else to update
+    no_offset <- splat_fitted("no_offset")
+    expect_no_warning(up <- updateObject(with_log_offset(no_offset, FALSE)))
+    expect_identical(up, no_offset)
+})
+
+test_that("updateObject() stores the log of size factors saved as offsets", {
+    ob <- splat_fitted("default")
+    old <- with_log_offset(ob, FALSE)
+    expect_warning(up <- updateObject(old),
+        "run sc.p.vector() and the later steps on the object again.",
+        fixed = TRUE
+    )
+    expect_valid_scmp(up)
+    expect_false(methods::.hasSlot(up@Parameters, "log_offset"))
+    expect_identical(up@Design@offset, log(old@Design@offset))
+    expect_equal(up@Design@offset, ob@Design@offset, tolerance = 1e-12)
+    # The fits are kept as they are
+    expect_identical(up@Profile, old@Profile)
+    expect_identical(up@Estimate, old@Estimate)
+    # An object saved before the version slot is updated the same way
+    expect_warning(older <- updateObject(without_version(old)),
+        "used the size factors of the bins as the offset",
+        fixed = TRUE
+    )
+    expect_identical(older, up)
+})
+
+test_that("updateObject() removes the offsets of fits without offset", {
+    # Earlier versions stored zeros in sc.set.poly() and kept the offsets of
+    # an earlier fit after a fit without offset
+    design <- splat_design(2)
+    old <- with_log_offset(design, FALSE)
+    old@Design@offset <- stats::setNames(
+        numeric(nrow(predictors(design))), rownames(predictors(design))
+    )
+    expect_no_warning(up <- updateObject(old))
+    expect_identical(up, design)
+    fitted <- splat_fitted("no_offset")
+    stale <- with_log_offset(fitted, FALSE)
+    stale@Design@offset <- exp(splat_fitted("default")@Design@offset)
+    expect_no_warning(up <- updateObject(stale))
+    expect_identical(up, fitted)
+})

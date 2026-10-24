@@ -26,6 +26,16 @@
 #' ([sc.p.vector()] had no such filter then), and the version of the
 #' package that is running.
 #'
+#' Objects saved with the `log_offset` parameter lose it. The fits of an
+#' object saved with `log_offset = FALSE`, the default, used the size factor
+#' of each bin as the offset: `updateObject()` stores the logarithm of the
+#' size factors instead, the offset of [sc.p.vector()] and [sc.t.fit()], and
+#' warns that the fits in the `Profile` and `Estimate` slots were made with
+#' the size factors, until [sc.p.vector()] is run again. The offsets of an
+#' object saved with `log_offset = TRUE` are kept. An object whose fits used
+#' no offset, or that was not fitted, keeps no offset: the offsets that an
+#' earlier fit left in it, or the zeros of [sc.set.poly()], are removed.
+#'
 #' Objects fitted with `link = "identity"` by scMaSigPro 0.0.5 or earlier
 #' hold a family labelled with the identity link but with the link functions
 #' of the log link, with which their fits were made: `updateObject()` warns,
@@ -88,6 +98,26 @@ setMethod("updateObject", "ScMaSigPro", function(object, ...,
         object@Parameters <- params
         object@version <- .scmp_version()
     }
+    # Saved with the log_offset parameter, which chose the scale of the
+    # offset: with log_offset = FALSE the fits used the size factors
+    params <- object@Parameters
+    if (.hasSlot(params, "log_offset")) {
+        if (verbose) {
+            message("[updateObject] Removing the parameter log_offset.")
+        }
+        fitted <- isTRUE(params@offset) &&
+            isTRUE(any(object@Design@offset != 0))
+        raw <- fitted && !isTRUE(attr(params, "log_offset"))
+        attr(params, "log_offset") <- NULL
+        object@Parameters <- params
+        if (!fitted) {
+            object@Design@offset <- numeric(0)
+        } else if (raw) {
+            object@Design@offset <- log(object@Design@offset)
+            warning(.raw_offset_message(), call. = FALSE)
+        }
+        object@version <- .scmp_version()
+    }
     # Fitted with a relabelled family (ledger LK-4)
     if (.relabelled(object@Parameters@distribution)) {
         warning(.relabelled_message(object@Parameters@distribution),
@@ -111,5 +141,17 @@ setMethod("updateObject", "ScMaSigPro", function(object, ...,
         "new_ob <- sc.squeeze(as_scmp(old_ob@Sparse, ptime_col = \"",
         object@Parameters@ptime_col, "\", path_col = \"",
         object@Parameters@path_col, "\"))"
+    )
+}
+
+# The warning of updateObject() for an object whose fits used the size
+# factors as the offset (log_offset = FALSE)
+.raw_offset_message <- function() {
+    paste(
+        "The fits of this object used the size factors of the bins as the",
+        "offset (log_offset = FALSE). updateObject() stores their logarithm,",
+        "the offset of sc.p.vector() and sc.t.fit(), but the 'Profile' and",
+        "'Estimate' slots hold the fits made with the size factors: run",
+        "sc.p.vector() and the later steps on the object again."
     )
 }

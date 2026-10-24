@@ -52,8 +52,8 @@
       Number of bins-> Path1: 8 Path2: 8
       Average bin Size-> Path1: 12 Path2: 13
       Polynomial Order: 2
-      No. of Significant Profiles: 49
-      No. of Influential Features: 4
+      No. of Significant Profiles: 52
+      No. of Influential Features: 10
 
 ---
 
@@ -69,8 +69,8 @@
       Number of bins-> Path1: 8 Path2: 8
       Average bin Size-> Path1: 12 Path2: 13
       Polynomial Order: 2
-      No. of Significant Profiles: 49
-      No. of Influential Features: 4
+      No. of Significant Profiles: 52
+      No. of Influential Features: 10
 
 ---
 
@@ -131,13 +131,12 @@
       16               link                    log
       17            epsilon                  1e-08
       18             offset                   TRUE
-      19         log_offset                  FALSE
-      20             max_it                    100
-      21        poly_degree                      2
-      22     cluster_method                 hclust
-      23            use_dim                    col
-      24            fill_na                   zero
-      25         min_counts                      0
-      26 min_bins_expressed                      0
-      27       distribution  Negative Binomial(10)
+      19             max_it                    100
+      20        poly_degree                      2
+      21     cluster_method                 hclust
+      22            use_dim                    col
+      23            fill_na                   zero
+      24         min_counts                      0
+      25 min_bins_expressed                      0
+      26       distribution  Negative Binomial(10)
 

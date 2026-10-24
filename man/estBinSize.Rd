@@ -13,9 +13,9 @@ need to be binned.}
 \item{nPoints}{An integer. The total number of data points in time_vector.}
 
 \item{drop_fac}{A numeric. A factor to adjust the estimated number of bins:
-the number of bins given by the rule (for "Sturges", rounded up to a whole
-number) is multiplied by this value. Values below 1 give fewer, wider
-bins, which helps when the rule gives too many empty bins.}
+the number of bins given by the rule is multiplied by this value. Values
+below 1 give fewer, wider bins, which helps when the rule gives too many
+empty bins.}
 
 \item{bin_method}{A character string. The rule that estimates the number of
 bins. Possible values include "Freedman.Diaconis", "Sqrt", "Sturges",
@@ -23,8 +23,7 @@ bins. Possible values include "Freedman.Diaconis", "Sqrt", "Sturges",
 }
 \value{
 A number: the number of bins given by the rule, multiplied by \code{drop_fac}.
-Only the Sturges number of bins is rounded up before; the product is not
-rounded, and \code{\link[=sc.squeeze]{sc.squeeze()}} rounds it up with \code{ceiling()}.
+It is not rounded; \code{\link[=sc.squeeze]{sc.squeeze()}} rounds it up with \code{ceiling()}.
 }
 \description{
 \code{estBinSize()} estimates the number of bins for discretizing a continuous
@@ -37,10 +36,12 @@ With n the number of points (\code{nPoints}), the rules give:
 \item{"Freedman.Diaconis"}{bins of width 2 IQR / n^(1/3), with IQR the
 interquartile range of the points (Freedman and Diaconis, 1981).}
 \item{"Sqrt"}{sqrt(n) bins.}
-\item{"Sturges"}{log2(n) + 1 bins (Sturges, 1926), rounded up to a whole
-number, as in Srivastava et al. (2024), Section 2.1, where the number of
-bins is \eqn{[\log_2(N)+1] \times k}{[log2(N)+1] x k}, "where k ... is a
-drop-factor, and [log2(N)+1] is the 'Sturges' formula".}
+\item{"Sturges"}{log2(n) + 1 bins (Sturges, 1926). Srivastava et al.
+(2024), Supplementary Section S1.1, writes the number of bins as
+\eqn{B = [(\log_2(N)+1) \times k]}{B = [(log2(N)+1) * k]}, with k the
+drop factor of their Section 2.1, and every other rule the same way,
+with the brackets around the whole product: the rule times \code{drop_fac}
+is rounded up.}
 \item{"Rice"}{2 n^(1/3) bins.}
 \item{"Doane"}{1 + log2(n) + log2(1 + |g| / s) bins, with g the sample
 skewness of the points and s = sqrt(6 (n - 2) / ((n + 1) (n + 3)))

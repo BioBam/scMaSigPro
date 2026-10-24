@@ -30,7 +30,8 @@
 #' class and have the `version` slot, which objects saved by scMaSigPro
 #' 0.0.5 and earlier lack until [updateObject()] adds it, and the
 #' `min_counts` and `min_bins_expressed` parameters, which [updateObject()]
-#' adds to objects saved before them.
+#' adds to objects saved before them, but not the `log_offset` parameter,
+#' which [updateObject()] removes.
 #' `.check_dense_counts()` opens the functions that read the pseudo-bulk
 #' counts: the `Dense` slot must hold a `bulk.counts` assay, which it lacks
 #' after [cDense<-] changed the number of bins and before [pb_counts()] was
@@ -57,11 +58,13 @@
 }
 
 # TRUE when the object has every slot of the current class definition that
-# updateObject() adds to objects saved by earlier versions
+# updateObject() adds to objects saved by earlier versions, and none of the
+# slots it removes
 .scmp_current <- function(object) {
     .hasSlot(object, "version") &&
         .hasSlot(object@Parameters, "min_counts") &&
-        .hasSlot(object@Parameters, "min_bins_expressed")
+        .hasSlot(object@Parameters, "min_bins_expressed") &&
+        !.hasSlot(object@Parameters, "log_offset")
 }
 
 .check_dense_counts <- function(scmpObj, bins = NULL) {

@@ -174,25 +174,27 @@ test_that("sc.squeeze() bins by the Freedman-Diaconis and Scott counts", {
     expect_identical(bins_per_path(ob), c(1L, 4L))
 })
 
-test_that("estBinSize() rounds the Sturges bins up before drop_fac", {
-    # Srivastava et al. (2024), Section 2.1: the number of bins is the
-    # Sturges formula, [log2(N)+1], times the drop factor k. 200 points:
-    # log2(200) + 1 = 8.64 is rounded up to 9 bins, and drop_fac 1.5 gives
-    # 13.5, which sc.squeeze() rounds up to 14; it rounded 1.5 x 8.64 =
-    # 12.97 up to 13
+test_that("estBinSize() rounds the Sturges bins up after drop_fac", {
+    # Srivastava et al. (2024), Supplementary Section S1.1: the number of
+    # bins is B = [(log2(N) + 1) * k], the Sturges formula times the drop
+    # factor k, rounded up as a whole, as for every rule. 200 points:
+    # 1.5 x (log2(200) + 1) = 12.97 bins, which sc.squeeze() rounds up to
+    # 13 (not ceiling(8.64) x 1.5 = 13.5, which gave 14)
     x <- seq_len(200)
-    expect_identical(estBinSize(x, 200, 1, "Sturges"), 9)
-    expect_identical(estBinSize(x, 200, 1.5, "Sturges"), 13.5)
-    # The other rules are not rounded before drop_fac
+    expect_identical(estBinSize(x, 200, 1, "Sturges"), log2(200) + 1)
+    sturges <- estBinSize(x, 200, 1.5, "Sturges")
+    expect_identical(sturges, (log2(200) + 1) * 1.5)
+    expect_identical(ceiling(sturges), 13)
+    # The other rules are not rounded before drop_fac either
     expect_identical(estBinSize(x, 200, 1.5, "Sqrt"), 1.5 * sqrt(200))
     expect_identical(estBinSize(x, 200, 1.5, "Rice"), 1.5 * 2 * 200^(1 / 3))
     # multi.lin.sce, Sturges, drop_fac 1.5: the 676 cells of Y_18 give
-    # log2(676) + 1 = 10.40 bins, rounded up to 11, times 1.5: 16.5, so 17
-    # bins of equal width (16 before)
+    # 1.5 x (log2(676) + 1) = 15.6 bins, so 16 bins of equal width (17 when
+    # log2(676) + 1 was rounded up to 11 first)
     ob <- sc.squeeze(multi_scmp(), drop_fac = 1.5)
     bins <- cDense(ob)
     y18 <- bins[bins[[ob@Parameters@path_col]] == "Y_18", ]
-    width <- (max(y18$scmp_u_bound) - min(y18$scmp_l_bound)) / 17
+    width <- (max(y18$scmp_u_bound) - min(y18$scmp_l_bound)) / 16
     expect_equal(
         y18$scmp_u_bound - y18$scmp_l_bound, rep(width, nrow(y18))
     )

@@ -45,9 +45,8 @@
 #' @slot epsilon Model convergence tolerance.
 #' @slot selection_method A character string specifying the method for stepwise
 #' regression.
-#' @slot offset A logical value specifying whether to use offset during fitting.
-#' @slot log_offset A logical value specifying whether to take the logarithm of
-#' the offsets.
+#' @slot offset A logical value, whether the fits used the offset of each bin,
+#' the logarithm of its size factor (see [sc.p.vector()]).
 #' @slot max_it Maximum number of iterations to fit the model.
 #' @slot poly_degree Order of the polynomial linear model.
 #' @slot distribution Distribution of the error term.
@@ -91,7 +90,6 @@ setClass(
         link = "character",
         epsilon = "numeric",
         offset = "logical",
-        log_offset = "logical",
         max_it = "integer",
         poly_degree = "integer",
         distribution = "ANY",
@@ -142,7 +140,6 @@ setClass(
         link = "log",
         epsilon = 1e-8,
         offset = TRUE,
-        log_offset = FALSE,
         max_it = 100L,
         anno_col = "cell_type",
         poly_degree = 2L,
@@ -168,12 +165,15 @@ setClass(
 #' @slot assignment_matrix A matrix containing binary assignment to branching paths
 #' Additionally has two columns for assignment of binned Pseudotime and
 #' replicate.
-#' @slot offset A numeric vector containing the offset values.
+#' @slot offset The offset of each bin, the logarithm of its size factor (see
+#' [sc.p.vector()]), or an empty vector when the fits used no offset or no
+#' fit was made yet.
 #'
 #' @details
 #' `validObject()` checks that `assignment_matrix` has the rows of
-#' `predictor_matrix` (one per bin), that `offset` has one value per row and
-#' that `groups.vector` has one value per column of `predictor_matrix`.
+#' `predictor_matrix` (one per bin), that `offset` is empty or has one value
+#' per row and that `groups.vector` has one value per column of
+#' `predictor_matrix`.
 #'
 #' @name MatrixDesign
 #' @aliases MatrixDesign-class
@@ -206,9 +206,10 @@ setClass(
                 "'predictor_matrix'"
             ))
         }
-        if (length(object@offset) != nrow(pred)) {
+        n_offset <- length(object@offset)
+        if (n_offset != 0L && n_offset != nrow(pred)) {
             msg <- c(msg, paste(
-                "'offset' must have one value per row of",
+                "'offset' must be empty or have one value per row of",
                 "'predictor_matrix'"
             ))
         }

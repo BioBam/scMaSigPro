@@ -21,7 +21,11 @@ test_that("showParams() lists every parameter used so far", {
     params <- showParams(splat_fitted("default"))
     expect_s3_class(params, "data.frame")
     expect_identical(names(params), c("parameters", "value"))
-    expect_true(all(c("poly_degree", "p_value", "offset", "log_offset", "link", "distribution") %in% params$parameters))
+    expect_true(all(
+        c("poly_degree", "p_value", "offset", "link", "distribution") %in%
+            params$parameters
+    ))
+    expect_false("log_offset" %in% params$parameters)
     expect_snapshot(params)
 })
 
