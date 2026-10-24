@@ -2,7 +2,7 @@
 % Please edit documentation in R/as_scmp.R
 \name{as_scmp}
 \alias{as_scmp}
-\title{Convert a 'SingleCellExperiment' object to a ScMaSigPro object.}
+\title{Create a ScMaSigPro object from a SingleCellExperiment}
 \usage{
 as_scmp(
   object,
@@ -16,63 +16,55 @@ as_scmp(
 )
 }
 \arguments{
-\item{object}{An S4 object of class \code{SingleCellExperiment}.}
+\item{object}{A \code{SingleCellExperiment} with the counts of the cells.}
 
-\item{from}{Character string specifying the class of 'object'. Only "sce"
-(\code{SingleCellExperiment}) is supported; Monocle3 \code{cell_data_set} objects
-("cds") are no longer converted. (Default is "sce").}
+\item{from}{The class of \code{object}; only \code{"sce"} is supported.}
 
-\item{path_prefix}{Prefix used to annotate the paths. (Default is "Path").}
+\item{path_prefix}{The default of \code{path_col}, kept in the parameters.}
 
-\item{root_label}{Label used to annotate root cells. (Default is "root").}
+\item{root_label}{The label of the root cells, kept in the parameters.}
 
-\item{ptime_col}{A character string representing the column name
-for inferred Pseudotime values. (Default is "Pseudotime")}
+\item{ptime_col}{The name of the column of the cell metadata that holds
+the pseudotime of each cell.}
 
-\item{path_col}{A character string representing the column name for branching
-path assignment. (Default is \code{path_prefix})}
+\item{path_col}{The name of the column of the cell or bin metadata that
+holds the path label of each cell or bin.}
 
-\item{verbose}{Print detailed output in the console. (Default is TRUE)}
+\item{verbose}{Whether to print progress messages.}
 
-\item{additional_params}{A named list of additional parameters:
-\code{labels_exist}, \code{exist_ptime_col} and \code{exist_path_col}. With
-\code{labels_exist = TRUE}, the existing \code{colData} columns \code{exist_ptime_col} and
-\code{exist_path_col} are renamed to \code{ptime_col} and \code{path_col}. See examples.}
+\item{additional_params}{A list: with \code{labels_exist = TRUE}, the columns
+\code{exist_ptime_col} and \code{exist_path_col} of the cell metadata are renamed
+to \code{ptime_col} and \code{path_col}.}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}.
+A \link[=ScMaSigPro-class]{ScMaSigPro} object with the cells in the \code{Sparse} slot.
 }
 \description{
-\code{as_scmp()} converts a \code{SingleCellExperiment} object, whose cell metadata
-(\code{colData}) holds a pseudotime column and a branching-path column, to a
-\code{\link{ScMaSigPro}} object. To start from a count matrix and a table of
-cell metadata, for example with pseudotime and path labels extracted from a
-trajectory tool such as Monocle3 or slingshot, use \code{\link[=create_scmp]{create_scmp()}}; the
-"Common Root Cells" vignette shows the steps for a Monocle3 \code{cell_data_set}.
-\code{\link[=assign_paths]{assign_paths()}} and \code{\link[=paths_from_graph]{paths_from_graph()}} build the two columns from
-lineage weights or from a trajectory graph.
+\code{as_scmp()} creates a \link[=ScMaSigPro-class]{ScMaSigPro} object from a
+\code{SingleCellExperiment} whose cell metadata (\code{colData}) holds a pseudotime
+column and a path column. To start from a count matrix and a cell table,
+use \code{\link[=create_scmp]{create_scmp()}}; \code{\link[=assign_paths]{assign_paths()}} and \code{\link[=paths_from_graph]{paths_from_graph()}} build the
+two columns from the output of a trajectory tool.
 }
 \examples{
-# Load Library
-# library(scMaSigPro)
-# Step-1: Load a dataset for testing
-# This dataset is available as part of the package
-# It is simulated with splatter
 data("splat.sim", package = "scMaSigPro")
-
-# Step-2: Convert to ScMaSigPro Object
-# Here, we convert the sce object to an scMaSigPro object
-scmp.sce <- as_scmp(
-    object = splat.sim, from = "sce",
-    verbose = FALSE,
+scmp <- as_scmp(splat.sim,
     additional_params = list(
-        labels_exist = TRUE,
-        exist_ptime_col = "Step",
+        labels_exist = TRUE, exist_ptime_col = "Step",
         exist_path_col = "Group"
-    )
+    ),
+    verbose = FALSE
 )
+scmp
 
+}
+\seealso{
+Other input helpers:
+\code{\link[=assign_paths]{assign_paths()}},
+\code{\link[=create_scmp]{create_scmp()}},
+\code{\link[=paths_from_graph]{paths_from_graph()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{input helpers}

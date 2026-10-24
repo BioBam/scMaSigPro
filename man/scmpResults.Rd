@@ -10,7 +10,7 @@ scmpResults(scmpObj)
 scmpToRowData(sce, scmpObj)
 }
 \arguments{
-\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
+\item{scmpObj}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
 \item{sce}{A \code{SingleCellExperiment}, or another \code{SummarizedExperiment},
 whose row names are gene names.}
@@ -21,16 +21,16 @@ whose row names are gene names.}
 \code{sce} with the new \code{rowData()} columns.
 }
 \description{
-\code{scmpResults()} collects the per-gene results stored in an
-\code{\link{ScMaSigPro}} object in one table with a row per gene.
+\code{scmpResults()} collects the per-gene results stored in a
+\link[=ScMaSigPro-class]{ScMaSigPro} object in one table with a row per gene.
 \code{scmpToRowData()} writes that table into the \code{rowData()} of a
 \code{SingleCellExperiment}, such as the one the analysis started from, so that
 the results travel with the data.
 }
 \details{
 \code{scmpResults()} has one row per gene of the object (the rows of the
-\code{Sparse} slot), named by gene, and the columns of the steps that have
-been run:
+\code{Sparse} slot), named by gene, and the columns of the steps that have been
+run:
 \itemize{
 \item \code{\link[=sc.p.vector]{sc.p.vector()}}: \code{p_value} and \code{adj_p_value}, the p-value of the full
 model and its adjusted value, \code{NA} for the genes that were not fitted
@@ -43,8 +43,8 @@ without a row there; \code{influential}, \code{TRUE} for the genes with
 influential observations (the columns of \code{\link[=showInflu]{showInflu()}}).
 \item \code{\link[=sc.filter]{sc.filter()}}: one column per gene list, named \code{sig_} followed by the
 name of the list, \code{TRUE} for the genes of the list.
-\item \code{\link[=sc.cluster.trend]{sc.cluster.trend()}}: \code{cluster}, the cluster of each clustered gene,
-\code{NA} for the other genes.
+\item \code{\link[=sc.cluster.trend]{sc.cluster.trend()}}: \code{cluster}, the cluster of each clustered gene, \code{NA}
+for the other genes.
 }
 
 The logical columns are \code{FALSE}, never \code{NA}, for the genes outside a set.
@@ -70,6 +70,13 @@ sce <- scmpToRowData(splat.sim, scmp.ob)
 head(SummarizedExperiment::rowData(sce)[, c("Gene", "scmp_p_value")])
 
 }
+\seealso{
+Other results:
+\code{\link[=queryCoeff]{queryCoeff()}},
+\code{\link[=showCoeff]{showCoeff()}},
+\code{\link[=showPoly]{showPoly()}}
+}
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{results}

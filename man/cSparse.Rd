@@ -2,22 +2,56 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{cSparse}
 \alias{cSparse}
-\title{Get the data for Sparse Slot.}
+\alias{cSparse<-}
+\alias{cSparse,ScMaSigPro-method}
+\alias{cSparse<-,ScMaSigPro-method}
+\title{Cell metadata of the Sparse slot}
 \usage{
 cSparse(object, value = "missing")
+
+cSparse(object) <- value
+
+\S4method{cSparse}{ScMaSigPro}(object, value = "missing")
+
+\S4method{cSparse}{ScMaSigPro}(object) <- value
 }
 \arguments{
-\item{object}{An object of class \code{\link{ScMaSigPro}}.}
+\item{object}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{value}{The new value for the \code{colData} slot of Sparse. (When Setting)}
+\item{value}{A data frame with one row per cell, named after the cells of
+the \code{Sparse} slot and in their order, as \code{cSparse()} returns it. Without
+row names, the rows are taken in the order of the cells.}
 }
 \value{
-\code{colData} for the \code{Sparse} Slot.
+\code{cSparse(object)}: a data frame with one row per cell.
+\verb{cSparse<-} and \code{cSparse(object, value)}: the updated object, returned
+invisibly by the latter.
 }
 \description{
-Get or set cell level metadata for the Sparse slot of an
-\code{\link{ScMaSigPro}} object.
+\code{cSparse()} returns the cell metadata (\code{colData}) of the \code{Sparse} slot of
+a \link[=ScMaSigPro-class]{ScMaSigPro} object; \verb{cSparse<-} replaces it.
 }
-\author{
-Priyansh Srivastava \email{spriyansh29@gmail.com}
+\details{
+The cells are the columns of the counts, and \code{\link[=sc.squeeze]{sc.squeeze()}} finds them by
+name, so a \code{value} with other cells or another order is an error.
+\code{cSparse(object, value)} sets \code{value} as \code{cSparse(object) <- value} does.
 }
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+cells <- cSparse(scmp.ob)
+head(cells[, c("Pseudotime", "Path")])
+
+# Add a column to the cell metadata
+cells$early <- cells$Pseudotime < 50
+cSparse(scmp.ob) <- cells
+
+}
+\seealso{
+Other accessors:
+\code{\link[=cDense]{cDense()}},
+\code{\link[=eDense]{eDense()}},
+\code{\link[=eSparse]{eSparse()}},
+\code{\link[=pathAssign]{pathAssign()}},
+\code{\link[=predictors]{predictors()}}
+}
+\concept{accessors}

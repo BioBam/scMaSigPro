@@ -3,22 +3,56 @@
 \docType{data}
 \name{scmp.ob}
 \alias{scmp.ob}
-\title{scMaSigPro Object with results}
+\title{A complete analysis of splat.sim}
 \format{
-An object of class \code{ScMaSigPro} built from \code{splat.sim} by the Quick
-Start workflow (polynomial degree 1, negative binomial with log size-factor
-offsets). The script that regenerates it is
-\code{system.file("scripts", "make-scmp-ob.R", package = "scMaSigPro")}.
+A \link[=ScMaSigPro-class]{ScMaSigPro} object:
+\describe{
+\item{\code{Sparse}}{The 200 cells and 100 genes of \link{splat.sim}, with the
+pseudotime in \code{Pseudotime} (\code{Step} of \link{splat.sim}) and the path in
+\code{Path} (\code{Group}).}
+\item{\code{Dense}}{The 16 bins of \code{\link[=sc.squeeze]{sc.squeeze()}} with its defaults, 8 per
+path, and their pseudo-bulk counts.}
+\item{\code{Design}}{The design of \code{\link[=sc.set.poly]{sc.set.poly()}} with
+\code{poly_degree = 1} and the offsets of \code{\link[=sc.p.vector]{sc.p.vector()}}.}
+\item{\code{Profile}}{The test of the full model of every gene by
+\code{\link[=sc.p.vector]{sc.p.vector()}}: negative binomial family with theta 10, log link and
+size-factor offsets.}
+\item{\code{Estimate}}{The models selected by \code{\link[=sc.t.fit]{sc.t.fit()}} (backward
+selection).}
+\item{\code{Significant}}{The gene lists \code{Path1} and \code{Path2vsPath1} of
+\code{\link[=sc.filter]{sc.filter()}} with \code{rsq = 0.7} and \code{vars = "groups"}, and four
+clusters of their union from \code{\link[=sc.cluster.trend]{sc.cluster.trend()}}.}
+\item{\code{Parameters}}{The settings of these steps.}
+}
+}
+\source{
+Made by \code{system.file("scripts", "make-scmp-ob.R", package = "scMaSigPro")} from \link{splat.sim}.
 }
 \usage{
-# Loading
 data("scmp.ob", package = "scMaSigPro")
 }
 \description{
-A small scMaSigPro object created from simulated data. Please follow Vignette
-\verb{scMaSigPro: Quick Start Guide} for more details.
+A \link[=ScMaSigPro-class]{ScMaSigPro} object with every step of the workflow run on
+\link{splat.sim}, for the examples and the vignettes.
+}
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+scmp.ob
+
+}
+\references{
+Srivastava P, Benegas Coll M, Götz S, Nueda MJ, Conesa A (2024).
+scMaSigPro: differential expression analysis along single-cell
+trajectories. Bioinformatics 40(7), btae443.
+\doi{10.1093/bioinformatics/btae443}
+}
+\seealso{
+Other datasets:
+\code{\link{multi.lin.sce}},
+\code{\link{splat.sim}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{datasets}
 \keyword{datasets}

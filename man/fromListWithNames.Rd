@@ -2,19 +2,22 @@
 % Please edit documentation in R/utils.R
 \name{fromListWithNames}
 \alias{fromListWithNames}
-\title{Convert List of Named Vectors to Data Frame with Row Names for UpSetR}
+\title{Gene lists as a 0/1 table}
 \usage{
 fromListWithNames(input)
 }
 \arguments{
-\item{input}{A list of named vectors to be converted to a data frame compatible with UpSetR.}
+\item{input}{A named list of character vectors.}
 }
 \value{
-A data frame with binary values indicating the presence (1) or absence (0) of each element
-in the sets, and row names corresponding to the unique elements.
+A data frame of 0 and 1, one row per gene and one column per list.
 }
 \description{
-This function converts a list of named vectors to a data frame compatible with UpSetR,
-retaining the row names corresponding to the unique elements (genes) present in the input list.
+\code{fromListWithNames()} turns a named list of gene lists into a data frame
+with one row per gene, named by gene, and a 0/1 column per list, as
+\code{UpSetR::fromList()} does, with the row names.
+}
+\seealso{
+\code{\link[=plotIntersect]{plotIntersect()}}, which calls it.
 }
 \keyword{internal}

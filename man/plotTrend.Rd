@@ -2,7 +2,7 @@
 % Please edit documentation in R/plotTrend.R
 \name{plotTrend}
 \alias{plotTrend}
-\title{Plot trend of the single gene.}
+\title{Plot the trend of a gene}
 \usage{
 plotTrend(
   scmpObj,
@@ -21,48 +21,63 @@ plotTrend(
 )
 }
 \arguments{
-\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
+\item{scmpObj}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{feature_id}{Name of the gene to be plotted.}
+\item{feature_id}{The name of a gene.}
 
-\item{xlab}{X-axis label. (Default is "Pooled Pseudotime")}
+\item{xlab}{The label of the x axis.}
 
-\item{ylab}{Y-axis label. (Default is "Pseudobulk Expression")}
+\item{ylab}{The label of the y axis; with logged points it becomes, for
+example, \code{log(ylab)}.}
 
-\item{smoothness}{How smooth the trend should be. Setting to
-higher values will result in more linear trends. (Default is 0.01)}
+\item{smoothness}{The step of the pseudotime grid of the curves: the
+smaller, the smoother.}
 
 \item{logs}{Whether to log the points: the counts of the bins, divided,
 for log-link fits, by the size factors stored in the design. The fitted
 curve is the polynomial of the selected model on the scale of the link:
 the log of the mean under the log link, the mean itself under the
-identity link. The default, \code{NULL}, logs the points when the fits
-used the log link and draws them as they are otherwise, so that points
-and curve are on the same scale.}
+identity link. The default, \code{NULL}, logs the points when the fits used
+the log link and draws them as they are otherwise, so that points and
+curve are on the same scale.}
 
-\item{logType}{How to log transform the values. Available options 'log',
-'log2', 'log10'. (Default is 'log')}
+\item{logType}{The log of the points: \code{"log"}, \code{"log2"} or \code{"log10"}.}
 
-\item{pseudoCount}{Add a pseudo-count before taking the log. (Default is 1)}
+\item{pseudoCount}{The number added to the points before the log.}
 
-\item{significant}{Plot gene only if the models are significant based on
-\code{scMaSigPro::sc.filter()}. (Default is TRUE)}
+\item{significant}{Whether the gene must be in a gene list of
+\code{\link[=sc.filter]{sc.filter()}}.}
 
-\item{summary_mode}{Compress the expression values per replicate (if present)
-per binned pseudotime point. Default is 'median'. Other option 'mean'}
+\item{summary_mode}{How the points of each binned pseudotime and path are
+summarised for the lines: \code{"median"} or \code{"mean"}.}
 
-\item{curves}{Whether to plot the fitted curves. (Default is TRUE)}
+\item{curves}{Whether to draw the fitted curves.}
 
-\item{lines}{Whether to plot the lines. (Default is FALSE)}
+\item{lines}{Whether to draw lines through the points.}
 
-\item{points}{Whether to plot the points. (Default is TRUE)}
+\item{points}{Whether to draw the points.}
 }
 \value{
-ggplot2 plot object.
+A ggplot object.
 }
 \description{
-Plot trend of the single gene across the binned pseudotime.
+\code{plotTrend()} plots the pseudo-bulk counts of a gene along the binned
+pseudotime of each path, with the curves of its selected model
+(\code{\link[=sc.t.fit]{sc.t.fit()}}).
+}
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+plotTrend(scmp.ob, "Gene10")
+
+}
+\seealso{
+Other plots:
+\code{\link[=plotBinTile]{plotBinTile()}},
+\code{\link[=plotDiagnostics]{plotDiagnostics()}},
+\code{\link[=plotIntersect]{plotIntersect()}},
+\code{\link[=plotTrendCluster]{plotTrendCluster()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{plots}

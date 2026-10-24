@@ -1,43 +1,64 @@
-#' @title Cluster the counts or coefficients.
+#' @title Cluster the significant genes
 #'
 #' @description
-#' This function clusters the counts or coefficients to visualize the collective
-#' trends later.
+#' `sc.cluster.trend()` clusters the genes of the gene lists of [sc.filter()]
+#' by the coefficients of their selected models or by their pseudo-bulk
+#' counts, as `see.genes()` of maSigPro does, with hierarchical clustering,
+#' k-means or Gaussian mixture models (mclust).
+#'
+#' @param geneSet The genes to cluster: the name of a list of [sc.filter()],
+#'   `"intersect"`, the genes in every list, or `"union"`, the genes in any
+#'   list.
+#' @param cluster_by What to cluster: the coefficients of the selected models
+#'   (`"coeff"`) or the pseudo-bulk counts (`"counts"`).
+#' @param cluster_method `"hclust"`, `"kmeans"` or `"Mclust"`, which needs the
+#'   suggested package mclust.
+#' @param hclust.agglo.method The agglomeration method of [stats::hclust()].
+#' @param hclust.distance The distance of `"hclust"`: `"cor"`, one minus the
+#'   correlation of two genes, or a method of [stats::dist()].
+#' @param k The number of clusters.
+#' @param kmeans.iter.max The maximum number of iterations of
+#'   [stats::kmeans()].
+#' @param mclust.k Whether `"Mclust"` chooses the number of clusters instead
+#'   of taking `k`.
+#' @param fill_na How missing values are filled before clustering: with
+#'   `"zero"`, or the `"mean"` or `"median"` of their column or row
+#'   (`use_dim`).
+#' @param use_dim Whether `fill_na` takes the mean or median by column
+#'   (`"col"`) or by row (`"row"`).
+#' @param verbose Not used.
 #'
 #' @importFrom stats cutree hclust
 #' @importFrom stats as.dist cor kmeans
 #'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param cluster_by Whether to use counts or coefficients for clustering.
-#' @param geneSet Specify the gene set to be used for clustering.
-#' (Default is "intersect")
-#' @param cluster_method Clustering method for data partioning. Currently "hclust",
-#' "kmeans" and "Mclust" are supported. "Mclust" needs the suggested package
-#' 'mclust'.
-#' @param hclust.agglo.method Aggregation Method. (Default is "ward.D")
-#' @param hclust.distance Distance measurement.(Default is "cor")
-#' @param k Number of clusters for data partioning.
-#' @param kmeans.iter.max Maximum number of iterations when cluster.method is
-#' kmeans
-#' @param mclust.k TRUE for computing the optimal number of clusters with
-#' Mclust algorithm. (Default is FALSE)
-#' @param fill_na Fill the NAs (if Present), by zero, mean or median.
-#' @param use_dim Whether to use rows or columns for taking mean or median while
-#' filling the NAs with `fill_na`.
-#' @param includeInflu Whether to include genes with influential observations.
-#' @param verbose Print detailed output in the console. (Default is TRUE)
+#' @return The object with the cluster of each gene in the `Significant`
+#' slot (class [Significant-class]).
 #'
-#' @return An object of class \code{\link{ScMaSigPro}}, with updated
-#' `Significant` slot with clusters.
+#' @seealso [plotTrendCluster()], which plots the clusters.
 #'
-#' @seealso `maSigPro::see.genes()`
+#' @references
+#' Conesa A, Nueda MJ, Ferrer A, Talón M (2006). maSigPro: a method to
+#' identify significantly differential expression profiles in time-course
+#' microarray experiments. Bioinformatics 22(9), 1096-1102.
+#' \doi{10.1093/bioinformatics/btl056}
 #'
-#' @references{Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
-#' maSigPro: a Method to Identify Significant Differential Expression Profiles
-#' in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
+#' Scrucca L, Fop M, Murphy TB, Raftery AE (2016). mclust 5: clustering,
+#' classification and density estimation using Gaussian finite mixture
+#' models. The R Journal 8(1), 289-317. \doi{10.32614/RJ-2016-021}
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}, Ana Conesa and
 #' Maria Jose Nueda, \email{mj.nueda@@ua.es}
+#'
+#' @family workflow steps
+#' @inheritParams scmp-params
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' # Cluster the pseudo-bulk counts of the genes of every list
+#' scmp <- sc.cluster.trend(scmp.ob,
+#'     geneSet = "union", cluster_by = "counts", k = 3
+#' )
+#' table(scmpResults(scmp)$cluster)
 #'
 #' @export
 sc.cluster.trend <- function(scmpObj,

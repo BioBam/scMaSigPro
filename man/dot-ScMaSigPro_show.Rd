@@ -2,16 +2,21 @@
 % Please edit documentation in R/show_functions.R
 \name{.ScMaSigPro_show}
 \alias{.ScMaSigPro_show}
-\title{Show ScMaSigPro Object Information}
+\title{Print a ScMaSigPro object}
 \usage{
 .ScMaSigPro_show(object)
 }
 \arguments{
-\item{object}{An object of class \code{ScMaSigPro}.}
+\item{object}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
+}
+\value{
+\code{NULL}, invisibly; called for what it prints.
 }
 \description{
-This method displays basic information about the ScMaSigPro object when the
-object is printed in the console. The method is automatically called when the
-user writes the name of the object in the console.
+\code{.ScMaSigPro_show()} prints a summary of a \link[=ScMaSigPro-class]{ScMaSigPro} object; the
+\code{show()} method calls it.
+}
+\seealso{
+\link[=ScMaSigPro-class]{ScMaSigPro}
 }
 \keyword{internal}

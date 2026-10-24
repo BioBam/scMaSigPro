@@ -5,98 +5,110 @@
 \alias{ParameterConfig}
 \alias{ParameterConfig-class}
 \title{ParameterConfig}
+\value{
+An object of class \code{ParameterConfig}: the settings of an
+analysis, one value per slot. Every step of the workflow records the
+settings it used in the \code{Parameters} slot of a \link[=ScMaSigPro-class]{ScMaSigPro} object,
+and \code{\link[=showParams]{showParams()}} lists them.
+}
 \description{
-S4 Class to hold parameters used in the analysis. It is constantly updated
-as the analysis progresses.
+The settings of an analysis: the names of the columns of the cell and bin
+metadata and the parameters of every step of the workflow.
 }
 \details{
 \code{validObject()} checks that every slot except \code{distribution} holds a
 single non-missing value, that \code{min_counts} and \code{min_bins_expressed} are
-at least 0, that \code{test} is "chisq" or "F" and that \code{distribution} is a
+at least 0, that \code{test} is \code{"chisq"} or \code{"F"} and that \code{distribution} is a
 \code{\link[stats:family]{stats::family()}} object.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{bin_ptime_col}}{A character string representing the column name
-for binned Pseudotime values in 'Dense' data. See \code{colData} from the
-\pkg{SingleCellExperiment} package.}
+\item{\code{bin_ptime_col}}{The column of the bin metadata with the binned
+pseudotime.}
 
-\item{\code{path_prefix}}{A character string, the prefix for branching path
-labels given to \code{\link[=as_scmp]{as_scmp()}} (Default is "Path"); \code{\link[=as_scmp]{as_scmp()}} also uses
-it as the default \code{path_col}.}
+\item{\code{path_prefix}}{The default path column of \code{\link[=as_scmp]{as_scmp()}}.}
 
-\item{\code{root_label}}{A character string, the label for root cells given to
-\code{\link[=as_scmp]{as_scmp()}} (Default is "root"). It is stored for reference only.}
+\item{\code{root_label}}{The label of the root cells given to \code{\link[=as_scmp]{as_scmp()}}, kept for
+reference.}
 
-\item{\code{ptime_col}}{A character string representing the column name
-for inferred Pseudotime values in 'Sparse' data. See \code{colData} from the
-\pkg{SingleCellExperiment} package.}
+\item{\code{ptime_col}}{The column of the cell metadata with the pseudotime.}
 
-\item{\code{bin_method}}{A character string representing the algorithm used for
-binning.}
+\item{\code{bin_method}}{The rule for the number of bins of \code{\link[=sc.squeeze]{sc.squeeze()}}.}
 
-\item{\code{path_col}}{A character string representing the column name for branching
-path assignment in 'Sparse' or 'Dense' data. See \code{colData} from the
-\pkg{SingleCellExperiment} package.}
+\item{\code{path_col}}{The column of the cell and bin metadata with the path
+labels.}
 
-\item{\code{bin_col}}{A character string representing the name of the column in which
-bin labels are stored.}
+\item{\code{bin_col}}{The column of the bin metadata with the bin names.}
 
-\item{\code{bin_size_col}}{A character string representing the name of the column in
-which bin sizes per bin are stored.}
+\item{\code{bin_size_col}}{The column of the bin metadata with the number of
+cells of each bin.}
 
-\item{\code{bin_mem_col}}{A character string representing the name of the column in
-which cells per bin are stored.}
+\item{\code{bin_mem_col}}{The column of the bin metadata with the cells of each
+bin.}
 
-\item{\code{anno_col}}{A character string representing the column name for cell level
-metadata containing cell level annotations. (Default is "cell_type").}
+\item{\code{anno_col}}{The column of the cell metadata with cell annotations; not
+used by the steps.}
 
-\item{\code{g}}{An integer, the number of features that \code{\link[=sc.p.vector]{sc.p.vector()}} fitted:
-those left after removing features with fewer than \code{min_na} values, with
-zero counts in every bin, or below \code{min_counts} or \code{min_bins_expressed}.}
+\item{\code{g}}{The number of genes that \code{\link[=sc.p.vector]{sc.p.vector()}} fitted: those left after
+removing the genes with fewer than \code{min_na} values, with zero counts in
+every bin, or below \code{min_counts} or \code{min_bins_expressed}.}
 
-\item{\code{p_value}}{Significance Level.}
+\item{\code{p_value}}{The level of \code{\link[=sc.p.vector]{sc.p.vector()}} and \code{\link[=sc.t.fit]{sc.t.fit()}}.}
 
 \item{\code{min_na}}{The minimum number of bins with a value (not \code{NA}) that
-\code{\link[=sc.p.vector]{sc.p.vector()}} required; it only removes features from counts with
-missing values.}
+\code{\link[=sc.p.vector]{sc.p.vector()}} required; it only removes genes from counts with missing
+values.}
 
-\item{\code{mt_correction}}{A character string specifying the p-value correction
-method.}
+\item{\code{mt_correction}}{The multiple-testing correction of \code{\link[=sc.p.vector]{sc.p.vector()}}.}
 
-\item{\code{link}}{Type of link function to use in the model. Default is "log".}
+\item{\code{link}}{The link function of the fits.}
 
-\item{\code{epsilon}}{Model convergence tolerance.}
+\item{\code{epsilon}}{The convergence tolerance of the fits.}
 
-\item{\code{selection_method}}{A character string specifying the method for stepwise
-regression.}
+\item{\code{selection_method}}{The stepwise method of \code{\link[=sc.t.fit]{sc.t.fit()}}.}
 
-\item{\code{offset}}{A logical value, whether the fits used the offset of each bin,
-the logarithm of its size factor (see \code{\link[=sc.p.vector]{sc.p.vector()}}).}
+\item{\code{offset}}{Whether the fits used the offset of each bin, the logarithm of
+its size factor (see \code{\link[=sc.p.vector]{sc.p.vector()}}).}
 
-\item{\code{max_it}}{Maximum number of iterations to fit the model.}
+\item{\code{max_it}}{The maximum number of iterations of the fits.}
 
-\item{\code{poly_degree}}{Order of the polynomial linear model.}
+\item{\code{poly_degree}}{The degree of the polynomial of \code{\link[=sc.set.poly]{sc.set.poly()}}.}
 
-\item{\code{distribution}}{Distribution of the error term.}
+\item{\code{distribution}}{The family of the fits, a \code{\link[stats:family]{stats::family()}} object;
+with an estimated theta it also holds \code{theta_estimate} and \code{theta_gene}
+(see \code{\link[=sc.p.vector]{sc.p.vector()}}).}
 
-\item{\code{cluster_method}}{Clustering method used for clustering significant genes.}
+\item{\code{cluster_method}}{The clustering method of \code{\link[=sc.cluster.trend]{sc.cluster.trend()}}.}
 
-\item{\code{use_dim}}{Dimension to use for filling the missing values before
-clustering.}
+\item{\code{use_dim}}{How \code{\link[=sc.cluster.trend]{sc.cluster.trend()}} filled missing values: by column or
+by row.}
 
-\item{\code{fill_na}}{Method to fill the missing values.}
+\item{\code{fill_na}}{What \code{\link[=sc.cluster.trend]{sc.cluster.trend()}} filled missing values with.}
 
 \item{\code{min_counts}}{The minimum total count over the bins that
-\code{\link[=sc.p.vector]{sc.p.vector()}} required of a feature (0: no minimum).}
+\code{\link[=sc.p.vector]{sc.p.vector()}} required of a gene (0: no minimum).}
 
 \item{\code{min_bins_expressed}}{The minimum number of bins with a count above 0
-that \code{\link[=sc.p.vector]{sc.p.vector()}} required of a feature (0: no minimum).}
+that \code{\link[=sc.p.vector]{sc.p.vector()}} required of a gene (0: no minimum).}
 
-\item{\code{test}}{The test of the full model of each feature that \code{\link[=sc.p.vector]{sc.p.vector()}}
-was asked for: "chisq" (the default), the chi-squared test, or "F", the F
-test.}
+\item{\code{test}}{The test of the full model of each gene that \code{\link[=sc.p.vector]{sc.p.vector()}}
+was asked for: \code{"chisq"}, the chi-squared test, or \code{"F"}, the F test.}
 }}
 
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+showParams(scmp.ob)
+
+}
+\seealso{
+Other classes:
+\code{\link{Estimates}},
+\code{\link{MatrixDesign}},
+\code{\link{ScMaSigPro}},
+\code{\link{Significant}},
+\code{\link{VariableProfiles}},
+\code{\link{updateObject,ScMaSigPro-method}}
+}
+\concept{classes}
 \keyword{classes}

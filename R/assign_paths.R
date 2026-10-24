@@ -91,6 +91,19 @@
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
+#' @family input helpers
+#'
+#' @references
+#' Street K, Risso D, Fletcher RB, Das D, Ngai J, Yosef N, Purdom E, Dudoit
+#' S (2018). Slingshot: cell lineage and pseudotime inference for
+#' single-cell transcriptomics. BMC Genomics 19, 477.
+#' \doi{10.1186/s12864-018-4772-0}
+#'
+#' Van den Berge K, Roux de Bézieux H, Street K, Saelens W, Cannoodt R,
+#' Saeys Y, Dudoit S, Clement L (2020). Trajectory-based differential
+#' expression analysis for single-cell sequencing data. Nature
+#' Communications 11, 1201. \doi{10.1038/s41467-020-14766-3}
+#'
 #' @export
 assign_paths <- function(pseudotime, weights, min_weight = 0.5,
                          root_label = "root", shared_sep = "_links_",

@@ -53,6 +53,8 @@
 
     # Log geometric mean of every gene over all samples
     if (type == "ratio") {
+        # Why: log(0) is -Inf, so a gene with a zero count has no finite
+        # geometric mean and stays out of the medians.
         log_geo_means <- rowMeans(log_counts)
     } else {
         log_pos <- log_counts
@@ -100,5 +102,6 @@
             "before them."
         )
     )
+    # Why: the offset is added to the log of the mean.
     log(.size_factors(counts))
 }

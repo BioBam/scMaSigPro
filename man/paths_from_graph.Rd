@@ -58,9 +58,25 @@ if (requireNamespace("igraph", quietly = TRUE)) {
 }
 
 }
+\references{
+Van den Berge K, Roux de Bézieux H, Street K, Saelens W, Cannoodt R,
+Saeys Y, Dudoit S, Clement L (2020). Trajectory-based differential
+expression analysis for single-cell sequencing data. Nature
+Communications 11, 1201. \doi{10.1038/s41467-020-14766-3}
+
+Csárdi G, Nepusz T (2006). The igraph software package for complex
+network research. InterJournal Complex Systems, 1695.
+\url{https://igraph.org}
+}
 \seealso{
 \code{\link[=assign_paths]{assign_paths()}}, which turns these weights into path labels.
+
+Other input helpers:
+\code{\link[=as_scmp]{as_scmp()}},
+\code{\link[=assign_paths]{assign_paths()}},
+\code{\link[=create_scmp]{create_scmp()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{input helpers}

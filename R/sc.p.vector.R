@@ -1,25 +1,70 @@
-#' @title Perform fitting with full model.
+#' @title Test the full model of each gene
 #'
 #' @description
-#' Performs a regression fit for each gene taking all variables present in the
-#' model.
+#' `sc.p.vector()` fits the full polynomial model of each gene to its
+#' pseudo-bulk counts and tests it against the intercept-only model. The
+#' genes whose adjusted p-value is at most `p_value` have a non-flat profile;
+#' [sc.t.fit()] selects the terms of their models.
 #'
-#' @importFrom stats anova dist glm make.link median p.adjust
-#' @importFrom BiocParallel bplapply bpnworkers SerialParam
-#' @importFrom MASS negative.binomial
+#' @param p_value The level of the adjusted p-values: the genes at or below it
+#'   have a non-flat profile. It is also the default level of [sc.t.fit()].
+#' @param mt_correction The method of [stats::p.adjust()] that adjusts the
+#'   p-values for multiple testing; `"BH"` is that of Benjamini and Hochberg
+#'   (1995).
+#' @param min_na The minimum number of bins with a value (not `NA`) that a
+#'   gene needs to be fitted, as `min.obs` of `p.vector()` in maSigPro. Only
+#'   counts with missing values, such as microarray data given to
+#'   [create_scmp()] with `use_as_bin = TRUE`, have fewer; it can be at most
+#'   the number of bins of the design.
+#' @param family The distribution of the error term, a [stats::family()]
+#'   object: by default the negative binomial with `theta = 10` and the link
+#'   `link`. A family given here keeps its own link.
+#' @param link The link of the default family: `"log"`, the model of the
+#'   paper, or `"identity"`. When `family` is given, `link` must be its link.
+#'   The identity link needs `offset = FALSE`; under it the fitted mean of a
+#'   gene can become negative, and [stats::glm()] then warns.
+#' @param epsilon The convergence tolerance of [stats::glm()].
+#' @param offset Whether to add the offset of each bin, the logarithm of its
+#'   size factor (see Details), to the linear predictor; it needs the log link.
+#' @param max_it The maximum number of iterations of [stats::glm()].
 #'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param p_value Significance level used for variable selection in the stepwise
-#' regression.
-#' @param mt_correction A character string specifying the p-value correction
-#' method.
-#' @param min_na Minimum number of bins with a value (not `NA`) that a gene
-#' needs to be fitted, as `min.obs` in \code{maSigPro::p.vector()}. It only
-#' matters for counts with missing values, such as microarray data given to
-#' [create_scmp()] with `use_as_bin = TRUE`: the pseudo-bulk counts of
-#' [sc.squeeze()] and [pb_counts()] have a value in every bin, so every gene
-#' passes whenever `min_na` is at most the number of bins. It cannot be more
-#' than the number of bins of the design.
+#' @details
+#' With `offset = TRUE`, the fits include an offset as Srivastava et al.
+#' (2024), Section 2.3 and Supplementary Section S1.3, describe it:
+#' "scMaSigPro incorporates an offset value to the Poly-GLM model to adjust
+#' for disparities in total read counts per bin. This offset is calculated as
+#' the logarithm of size factors for each bin". The size factors are those of
+#' the median-of-ratios method (Anders and Huber 2010; Love et al. 2014) on
+#' the raw counts: "The size factor for each bin is the median of the ratios
+#' of its counts to the geometric means for each gene". Only the genes with a
+#' count above 0 in every bin enter the medians, and the fit stops when there
+#' is none: fewer, larger bins ([sc.squeeze()]) or `offset = FALSE` avoid it.
+#' The genes are fitted on their raw counts, without a pseudo-count:
+#' "scMaSigPro can directly process raw counts". The offsets are stored in
+#' the `Design` slot, where [sc.t.fit()] finds them.
+#'
+#' Genes are left out of the fit when they have fewer than `min_na` values,
+#' when all their counts are zero, and when they are below `min_counts` or
+#' `min_bins_expressed`. They have no p-value and do not count in the
+#' multiple-testing correction; [scmpResults()] gives them `NA`. The size
+#' factors are computed before `min_counts` and `min_bins_expressed` are
+#' applied, so these two filters change the results of the genes they keep
+#' only through the correction.
+#'
+#' The test of the full model is the first step of the method of Srivastava
+#' et al. (2024), Section 2.4: "scMaSigPro implements a two-step strategy
+#' similar to the maSigPro method", in which the full model of each gene is
+#' "evaluated against a simpler intercept-only model via hypothesis testing
+#' based on the log-likelihood ratio statistic". The default,
+#' `test = "chisq"`, is that test as maSigPro computes it for families other
+#' than the Gaussian: the statistic is divided by the estimated dispersion and
+#' compared with the chi-squared distribution, as if the dispersion were
+#' known. With few bins, and so few residual degrees of freedom, the estimate
+#' varies from gene to gene and the test calls more genes significant than
+#' its level. `test = "F"`, the quasi-likelihood F test, accounts for the
+#' estimation of the dispersion through the residual degrees of freedom of
+#' the F distribution.
+#'
 #' @param min_counts Minimum total count of a gene, summed over the bins of
 #' the design. Genes with fewer counts are left out of the fit. The default,
 #' 0, keeps every gene.
@@ -27,15 +72,6 @@
 #' gene has a count above 0. Genes expressed in fewer bins are left out of
 #' the fit. The default, 0, keeps every gene; it can be at most the number of
 #' bins.
-#' @param family Distribution of the error term, a \code{\link[stats]{family}}
-#' object. The default is the negative binomial family with \code{theta = 10}
-#' and the link given by \code{link}. A family given here is used with its
-#' own link.
-#' @param link Link function of the default family: "log" (the default, the
-#' model of the paper) or "identity". When \code{family} is also given,
-#' \code{link} must be the link of that family. The identity link needs
-#' \code{offset = FALSE}; under it the fitted mean of a gene can become
-#' negative, and \code{glm()} then warns.
 #' @param theta_estimate For a negative binomial `family`: \code{"none"}
 #' (the default) fits every gene with the theta of `family` (10 by default,
 #' as maSigPro). \code{"gene"} estimates theta by maximum likelihood on each
@@ -57,81 +93,62 @@
 #' whose dispersion is estimated, so not [stats::binomial()] or
 #' [stats::poisson()]. The value is kept in the `test` parameter. See
 #' Details.
-#' @param epsilon Model convergence tolerance.
-#' @param offset logical value specifying whether to use offset during fitting.
-#' The offset of each bin, the logarithm of its size factor (see Details), is
-#' added to the linear predictor, where it scales the fitted mean under the
-#' log link only: with any other link the fits stop with an error unless
-#' \code{offset = FALSE}.
-#' @param max_it Maximum number of iterations to fit the model.
-#' @param verbose Print detailed output in the console. (Default is TRUE)
-#' @param BPPARAM A \code{BiocParallelParam} object that runs the per-gene
-#' fits, such as
-#' \code{\link[BiocParallel:MulticoreParam-class]{MulticoreParam}(2)} (Linux
-#' and macOS) or \code{\link[BiocParallel:SnowParam-class]{SnowParam}(2)}
-#' (any system, including Windows). The default,
-#' \code{\link[BiocParallel:SerialParam-class]{SerialParam}()}, fits the genes
-#' one after another. Create it with \code{progressbar = TRUE} for a progress
-#' bar. The results do not depend on the backend.
 #'
-#' @details
-#' With `offset = TRUE`, the fits include an offset as Srivastava et al.
-#' (2024), Section 2.3 and Supplementary Section S1.3, describe it:
-#' "scMaSigPro incorporates an offset value to the Poly-GLM model to adjust
-#' for disparities in total read counts per bin. This offset is calculated
-#' as the logarithm of size factors for each bin". The size factors are those
-#' of the median-of-ratios method of Love, Huber and Anders (2014), on the
-#' raw counts: "The size factor for each bin is the median of the ratios of
-#' its counts to the geometric means for each gene". Only the genes with a
-#' count above 0 in every bin have a geometric mean above 0 and enter the
-#' medians. The genes are fitted on their raw counts, without a pseudo-count:
-#' "scMaSigPro can directly process raw counts". When every gene has a zero
-#' count in some bin, the size factors cannot be computed and the fit stops
-#' with an error: fewer and larger bins (see [sc.squeeze()]) can leave genes
-#' without a zero count, and `offset = FALSE` fits without the offset. The
-#' offsets are stored in the `Design` slot, where [sc.t.fit()] finds them;
-#' with `offset = FALSE` no offset is stored.
+#' @importFrom stats anova dist glm make.link median p.adjust
+#' @importFrom BiocParallel bplapply bpnworkers SerialParam
+#' @importFrom MASS negative.binomial
 #'
-#' Genes are left out of the fit when they have fewer than `min_na` values,
-#' when all their counts are zero, and when they are below `min_counts` or
-#' `min_bins_expressed`. Genes left out have no p-value and do not count in
-#' the multiple-testing correction; [scmpResults()] gives them `NA`. The size
-#' factors of the offset are computed before `min_counts` and
-#' `min_bins_expressed` are applied, on every gene left by the first two
-#' rules, so these two filters change the results of the genes they keep
-#' only through the multiple-testing correction.
+#' @return The object with the p-values and the genes with a non-flat
+#' profile in the `Profile` slot (class [VariableProfiles-class]), the
+#' offsets in the `Design` slot and the settings of the fit in the
+#' `Parameters` slot.
 #'
-#' The test of the full model is the first step of the method of Srivastava
-#' et al. (2024), Section 2.4: "scMaSigPro implements a two-step strategy
-#' similar to the maSigPro method", in which the full model of each gene is
-#' "evaluated against a simpler intercept-only model via hypothesis testing
-#' based on the log-likelihood ratio statistic". The default,
-#' \code{test = "chisq"}, is that test, as maSigPro computes it for families
-#' other than the Gaussian: the statistic is divided by the estimated
-#' dispersion and compared with the chi-squared distribution, as if the
-#' dispersion were known. With few bins, and so few residual degrees of
-#' freedom, the estimate varies from gene to gene and the test calls more
-#' genes significant than its level. \code{test = "F"}, the quasi-likelihood F
-#' test, accounts for the estimation of the dispersion through the residual
-#' degrees of freedom of the F distribution.
+#' @seealso [scmpResults()] for the p-values; [VariableProfiles-class].
 #'
-#' @return An object of class \code{\link{ScMaSigPro}}, with updated `Profile`
-#' slot.
+#' @references
+#' Srivastava P, Benegas Coll M, Götz S, Nueda MJ, Conesa A (2024).
+#' scMaSigPro: differential expression analysis along single-cell
+#' trajectories. Bioinformatics 40(7), btae443.
+#' \doi{10.1093/bioinformatics/btae443}
 #'
-#' @seealso \code{\link{VariableProfiles}}
+#' Conesa A, Nueda MJ, Ferrer A, Talón M (2006). maSigPro: a method to
+#' identify significantly differential expression profiles in time-course
+#' microarray experiments. Bioinformatics 22(9), 1096-1102.
+#' \doi{10.1093/bioinformatics/btl056}
 #'
-#' @references Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
-#' maSigPro: a Method to Identify Significant Differential Expression Profiles
-#' in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102
+#' Nueda MJ, Tarazona S, Conesa A (2014). Next maSigPro: updating maSigPro
+#' bioconductor package for RNA-seq time series. Bioinformatics 30(18),
+#' 2598-2602. \doi{10.1093/bioinformatics/btu333}
 #'
-#' Love, M.I., Huber, W. and Anders, S. (2014). Moderated estimation of fold
-#' change and dispersion for RNA-seq data with DESeq2. Genome Biology 15, 550.
+#' Anders S, Huber W (2010). Differential expression analysis for sequence
+#' count data. Genome Biology 11(10), R106.
+#' \doi{10.1186/gb-2010-11-10-r106}
+#'
+#' Love MI, Huber W, Anders S (2014). Moderated estimation of fold change
+#' and dispersion for RNA-seq data with DESeq2. Genome Biology 15(12), 550.
 #' \doi{10.1186/s13059-014-0550-8}
+#'
+#' Benjamini Y, Hochberg Y (1995). Controlling the false discovery rate: a
+#' practical and powerful approach to multiple testing. Journal of the Royal
+#' Statistical Society: Series B 57(1), 289-300.
+#' \doi{10.1111/j.2517-6161.1995.tb02031.x}
+#'
+#' Venables WN, Ripley BD (2002). Modern Applied Statistics with S, fourth
+#' edition. Springer, New York. ISBN 0-387-95457-0.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}, Ana Conesa and
 #' Maria Jose Nueda, \email{mj.nueda@@ua.es}
 #'
 #' @keywords regression models
+#' @family workflow steps
+#' @inheritParams scmp-params
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' # Test the full model of every gene with the F test
+#' scmp <- sc.p.vector(scmp.ob, test = "F", verbose = FALSE)
+#' sum(scmpResults(scmp)$non_flat)
+#'
 #' @export
 sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
                         min_na = 6,
@@ -173,7 +190,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         msg = "link function should be either 'log' or 'identity'"
     )
 
-    # The fits use the link functions of the family (ledger S6)
+    # The fits use the link functions of the family
     family <- .fit_family(family, link, link_given, offset)
     link <- family$link
     theta_estimate <- .check_choice(theta_estimate,
@@ -221,7 +238,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     # Removing rows with many missings and rows with all zeros
     dat <- .fit_genes(dat, min_na)
 
-    # The count filter (decision D17). It is applied after the size factors
+    # The count filter. It is applied after the size factors
     # below, so it changes the results of the genes it keeps only through
     # the multiple-testing correction; a threshold of 0 keeps every gene
     keep <- rep(TRUE, nrow(dat))
@@ -234,6 +251,9 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
 
     # The offset of each bin: the logarithm of its size factor (Srivastava
     # et al. (2024), Section 2.3), computed once here for sc.t.fit() too
+    # Why: under the log link, log(s) in the linear predictor multiplies
+    # the mean of a bin by its size factor s, so the genes are compared at
+    # equal depth; sc.t.fit() reuses the same offsets.
     if (offset) {
         offsetData <- .bin_offset(dat)
         scmpObj@Design@offset <- offsetData
@@ -264,7 +284,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         )
     }
 
-    # Estimated theta (decision D16): one per gene on its full model, then
+    # Estimated theta: one per gene on its full model, then
     # each gene's own (gene) or their median (global)
     theta_gene <- NULL
     if (theta_estimate != "none") {
@@ -313,6 +333,8 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     }
     #----------------------------------------------------------------------
     # Correct p-values using FDR correction and select significant genes
+    # Why: every fitted gene is tested; the correction (Benjamini and
+    # Hochberg by default) runs over the fitted genes only.
     p.adjusted <- unlist(
         p.adjust(sc.p.vector,
             method = mt_correction,
@@ -322,6 +344,8 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     )
     names(p.adjusted) <- names(sc.p.vector)
     genes.selected <- rownames(dat)[which(p.adjusted <= p_value)]
+    # Why: the correction keeps the order of the p-values, so the selected
+    # genes have the smallest ones and this is the largest of them.
     FDR <- sort(sc.p.vector)[length(genes.selected)]
 
     # Subset the expression values of significant genes
@@ -366,10 +390,10 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
 
 # The family of the fits of sc.p.vector() and sc.t.fit(). glm() uses the
 # link functions of a family (linkfun, linkinv, mu.eta), so a family is used
-# with its own link, and renaming its `link` entry would only relabel it
-# (ledger S6). A relabelled family, such as the one an object fitted with
-# link = "identity" by scMaSigPro 0.0.5 or earlier holds, is refused (ledger
-# LK-4). `link`, when given, must be the link of the family. The size-factor
+# with its own link, and renaming its `link` entry would only relabel it.
+# A relabelled family, such as the one an object fitted with
+# link = "identity" by scMaSigPro 0.0.5 or earlier holds, is refused.
+# `link`, when given, must be the link of the family. The size-factor
 # offset is added to the linear predictor, where it scales the mean under
 # the log link only, so offset = TRUE needs the log link.
 .fit_family <- function(family, link, link_given, offset) {
@@ -435,7 +459,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
 
 # TRUE for a family whose link functions are those of another link than its
 # label: earlier versions renamed the link of a family without changing its
-# functions (ledger S6), so an object fitted by them with a link other than
+# functions, so an object fitted by them with a link other than
 # the family's holds such a family
 .relabelled <- function(family) {
     if (!inherits(family, "family")) {
@@ -502,6 +526,8 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         maxit = max_it
     )
     sc_p_val <- NA
+    # Why: when the intercept-only model fits exactly, the full model
+    # explains nothing more.
     if (model.glm$null.deviance == 0) {
         sc_p_val <- 1
     } else {
@@ -513,6 +539,8 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
 
         # Perform ANOVA or Chi-square test based on the distribution
         if (family$family == "gaussian") {
+            # Why: the Gaussian family estimates its variance, and the F test
+            # takes that estimate into account.
             test <- anova(model.glm.0, model.glm, test = "F")
             sc_p_val <- ifelse(is.na(test[6][2, 1]), 1, test[6][2, 1])
         } else if (f_test) {
@@ -522,6 +550,9 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
             p <- if ("Pr(>F)" %in% names(test)) test[2L, "Pr(>F)"] else NA
             sc_p_val <- ifelse(is.na(p), 1, p)
         } else {
+            # Why: the log-likelihood ratio test of Section 2.4 of the paper,
+            # with the deviance difference scaled by the dispersion of the full
+            # model.
             test <- anova(model.glm.0, model.glm, test = "Chisq")
             sc_p_val <- ifelse(is.na(test[5][2, 1]), 1, test[5][2, 1])
         }

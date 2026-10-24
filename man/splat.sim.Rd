@@ -3,35 +3,61 @@
 \docType{data}
 \name{splat.sim}
 \alias{splat.sim}
-\title{Simulated SingleCellExperiment Object}
+\title{Simulated bifurcating trajectory}
 \format{
-An object of class \code{SingleCellExperiment} with 100 gene and 200 cells.
+A \code{SingleCellExperiment} with 100 genes (rows) and 200 cells
+(columns):
+\describe{
+\item{\code{counts} assay}{The simulated counts.}
+\item{\code{colData}}{\code{Cell}, the cell name; \code{Batch}, the batch (one,
+\code{"Batch1"}); \code{Group}, the path of the cell, a factor with the levels
+\code{"Path1"} and \code{"Path2"}; \code{ExpLibSize}, its expected library size;
+\code{Step}, how far along its path the cell is (1 to 100), used as the
+pseudotime; \code{sizeFactor}, the size factor of
+\code{scuttle::logNormCounts()}.}
+\item{\code{rowData}}{\code{Gene}, the gene name; \code{BaseGeneMean}, the base mean
+of the gene; \code{OutlierFactor}, its outlier factor; \code{GeneMean}, its
+mean after the outlier factor; \code{LocalDEFacPath1} and
+\code{LocalDEFacPath2}, its differential expression factor along each path;
+\code{DEFacPath1} and \code{DEFacPath2}, its factor at the end of each path;
+\code{SigmaFacPath1} and \code{SigmaFacPath2}, the factor of its non-linear
+change along each path (0 for a linear change).}
+\item{\code{reducedDims}}{\code{PCA}, the first two principal components of the
+log-normalised counts.}
+}
 }
 \source{
-Simulated using the \code{Splatter} (1.26.0) package.
+Simulated with \code{splatter::splatSimulatePaths()} (splatter 1.26.0,
+\code{set.seed(123)}, 200 cells, 100 genes, two paths of 100 steps from the
+origin, \code{de.prob = 0.3}, \code{de.facLoc = 0.2}), normalised with
+\code{scuttle::logNormCounts()} and reduced with \code{scater::runPCA()}. The script
+is \code{system.file("scripts", "make-splat-sim.R", package = "scMaSigPro")}.
 }
 \usage{
-# Loading
 data("splat.sim", package = "scMaSigPro")
 }
 \description{
-A small simulated SingleCellExperiment Object created using Splatter.
-This dataset contains 200 cells and 100 genes and is simulated to have
-a bifurcating topology of the trajectory, useful for testing and development
-in \code{scMaSigPro}. The dataset is stored as an \code{sce} object from the class
-\code{SingleCellExperiment}
+A \code{SingleCellExperiment} with the counts of 100 genes in 200 cells,
+simulated with splatter (Zappia et al. 2017) along two paths that start
+from the same point.
 }
-\details{
-The \code{splat.sim} object was created with \code{splatter::splatSimulatePaths()}
-(bifurcating topology, 200 cells, 100 genes), log-normalised with
-\code{scuttle::logNormCounts()} and reduced with PCA. The complete script is
-shipped with the package:
-\code{system.file("scripts", "make-splat-sim.R", package = "scMaSigPro")}.
+\examples{
+data("splat.sim", package = "scMaSigPro")
+table(SummarizedExperiment::colData(splat.sim)$Group)
 
-This simulation creates a dataset with 100 genes and 200 cells, designed to mimic
-a bifurcating trajectory typically observed in cellular differentiation.
+}
+\references{
+Zappia L, Phipson B, Oshlack A (2017). Splatter: simulation of
+single-cell RNA sequencing data. Genome Biology 18, 174.
+\doi{10.1186/s13059-017-1305-0}
+}
+\seealso{
+Other datasets:
+\code{\link{multi.lin.sce}},
+\code{\link{scmp.ob}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{datasets}
 \keyword{datasets}

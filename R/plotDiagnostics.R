@@ -1,26 +1,34 @@
-#' @title Plot Model Diagnostics
+#' @title Plot the diagnostics of the model of a gene
 #'
 #' @description
-#' Plots model residuals for the requested gene. Can be used for model
-#' diagnostics of optimized model or full model.
+#' `plotDiagnostics()` draws four diagnostic plots of a model of a gene of
+#' the gene lists of [sc.filter()]: the normal Q-Q plot of the standardised
+#' residuals, the standardised residuals and their square root against the
+#' fitted values (scale-location), and the observed against the predicted
+#' counts.
+#'
+#' @param model The model: `"optimized"`, the model selected by [sc.t.fit()];
+#'   `"full"`; or `"intercept"`, the intercept-only model.
 #'
 #' @importFrom stats residuals fitted rstandard predict
 #' @importFrom ggplot2 .data aes element_blank element_line geom_abline
 #'   geom_hline geom_point geom_smooth ggplot labs stat_qq stat_qq_line theme
 #'   theme_minimal
 #'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param feature_id Name of the gene to be plotted.
-#' @param model Type of model to be used for plotting. Can be either 'optimized',
-#' 'intercept'and 'full'. Default is 'optimized'.
-#'
-#' @return A patchwork object with four ggplot2 panels. 'patchwork' must be
-#' installed.
+#' @return A patchwork object with four ggplot panels.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @export
+#' @family plots
+#' @inheritParams scmp-params
 #'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' if (requireNamespace("patchwork", quietly = TRUE)) {
+#'     plotDiagnostics(scmp.ob, "Gene10")
+#' }
+#'
+#' @export
 plotDiagnostics <- function(scmpObj,
                             feature_id,
                             model = "optimized") {

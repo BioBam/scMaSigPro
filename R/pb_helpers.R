@@ -6,22 +6,21 @@
 # Internal function for pseudo-bulking counts along Pseudotime. They are called
 # by sc.squeeze()
 ###############################################################################
-#' @title Calculate Bin Size Function
+#' @title Number of cells of a bin
 #'
 #' @description
-#' `calc_bin_size()` calculates the bin size based on the number of elements in
-#' the "cluster.members" column of the input data frame.
+#' `calc_bin_size()` counts the cells of a bin: the names separated by `|`
+#' in its `clus_mem_col` column.
 #'
-#' @param x A data frame containing the "cluster.members" column.
-#' @param clus_mem_col The name of the column containing the cluster members.
+#' @param x A row of the bin metadata.
+#' @param clus_mem_col The name of the column with the cells of the bin.
 #'
-#' @return A numeric value representing the size of the bin (number of elements
-#' in the "cluster.members" column).
+#' @return The number of cells of the bin.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#'
 #' @keywords internal
+#' @family binning helpers
 calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
     # Split the bin's cell members at each "|" (a fixed string, not a regular
     # expression); the number of pieces is the number of cells in the bin
@@ -31,74 +30,81 @@ calc_bin_size <- function(x, clus_mem_col = "scmp_cluster_members") {
     return(as.numeric(size))
 }
 ###############################################################################
-#' @title estBinSize
+#' @title Number of bins of a histogram rule
 #'
 #' @description
-#' `estBinSize()` estimates the number of bins for discretizing a continuous
-#' variable with one of the rules "Freedman.Diaconis", "Sqrt", "Sturges",
-#' "Rice", "Doane" and "Scott.Normal".
+#' `estBinSize()` gives the number of bins of one of the histogram rules
+#' "Sturges", "Sqrt", "Rice", "Doane", "Freedman.Diaconis" and "Scott.Normal"
+#' for a pseudotime vector, multiplied by `drop_fac`.
 #'
-#' @param time_vector A numeric vector. The time series data points that
-#' need to be binned.
-#' @param nPoints An integer. The total number of data points in time_vector.
-#' @param drop_fac A numeric. A factor to adjust the estimated number of bins:
-#' the number of bins given by the rule is multiplied by this value. Values
-#' below 1 give fewer, wider bins, which helps when the rule gives too many
-#' empty bins.
-#' @param bin_method A character string. The rule that estimates the number of
-#' bins. Possible values include "Freedman.Diaconis", "Sqrt", "Sturges",
-#' "Rice", "Doane", and "Scott.Normal". See details.
-#'
-#' @return
-#' A number: the number of bins given by the rule, multiplied by `drop_fac`.
-#' It is not rounded; [sc.squeeze()] rounds it up with `ceiling()`.
+#' @param time_vector The pseudotime values to bin.
+#' @param nPoints The number of values of `time_vector`.
+#' @param drop_fac The factor that multiplies the number of bins of the rule;
+#'   values below 1 give fewer, wider bins.
+#' @param bin_method The rule (see Details).
 #'
 #' @details
 #' With n the number of points (`nPoints`), the rules give:
 #' \describe{
-#'   \item{"Freedman.Diaconis"}{bins of width 2 IQR / n^(1/3), with IQR the
-#'   interquartile range of the points (Freedman and Diaconis, 1981).}
-#'   \item{"Sqrt"}{sqrt(n) bins.}
-#'   \item{"Sturges"}{log2(n) + 1 bins (Sturges, 1926). Srivastava et al.
+#'   \item{"Sturges"}{log2(n) + 1 bins (Sturges 1926). Srivastava et al.
 #'   (2024), Supplementary Section S1.1, writes the number of bins as
 #'   \eqn{B = [(\log_2(N)+1) \times k]}{B = [(log2(N)+1) * k]}, with k the
 #'   drop factor of their Section 2.1, and every other rule the same way,
 #'   with the brackets around the whole product: the rule times `drop_fac`
 #'   is rounded up.}
-#'   \item{"Rice"}{2 n^(1/3) bins.}
+#'   \item{"Sqrt"}{sqrt(n) bins, a common rule of thumb.}
+#'   \item{"Rice"}{2 n^(1/3) bins (Lane and Scott), close to the
+#'   oversmoothed number of bins (2n)^(1/3) of Terrell and Scott (1985).}
 #'   \item{"Doane"}{1 + log2(n) + log2(1 + |g| / s) bins, with g the sample
 #'   skewness of the points and s = sqrt(6 (n - 2) / ((n + 1) (n + 3)))
-#'   (Doane, 1976).}
+#'   (Doane 1976).}
+#'   \item{"Freedman.Diaconis"}{bins of width 2 IQR / n^(1/3), with IQR the
+#'   interquartile range of the points (Freedman and Diaconis 1981).}
 #'   \item{"Scott.Normal"}{bins of width 3.49 sd / n^(1/3), with sd the
-#'   standard deviation of the points, for nearly normal data (Scott, 1979).}
+#'   standard deviation of the points (Scott 1979).}
 #' }
-#' Freedman-Diaconis and Scott give a bin width, which is turned into a
-#' number of bins by dividing the range of the points by it. Their width is 0
-#' when the interquartile range or the standard deviation is 0 (when the
-#' points are all equal, or for Freedman-Diaconis when their first and third
-#' quartiles are equal) and undefined for Scott with a single point; the rule
-#' then gives one bin, with a message. The number of bins of every rule is
-#' multiplied by `drop_fac`.
+#' The widths of Freedman-Diaconis and Scott are turned into a number of bins
+#' by dividing the range of the points by them. A width of 0 (all points
+#' equal, or for Freedman-Diaconis equal first and third quartiles) or an
+#' undefined width (Scott with a single point) gives one bin, with a message.
+#'
+#' @return The number of bins of the rule times `drop_fac`, not rounded;
+#' [sc.squeeze()] rounds it up.
 #'
 #' @references
-#' Doane, D. P. (1976). Aesthetic frequency classifications. The American
-#' Statistician, 30, 181-183.
+#' Sturges HA (1926). The choice of a class interval. Journal of the
+#' American Statistical Association 21(153), 65-66.
+#' \doi{10.1080/01621459.1926.10502161}
 #'
-#' Freedman, D. and Diaconis, P. (1981). On the histogram as a density
-#' estimator: L2 theory. Zeitschrift für Wahrscheinlichkeitstheorie und
-#' verwandte Gebiete, 57, 453-476.
+#' Doane DP (1976). Aesthetic frequency classifications. The American
+#' Statistician 30(4), 181-183. \doi{10.1080/00031305.1976.10479172}
 #'
-#' Scott, D. W. (1979). On optimal and data-based histograms. Biometrika, 66,
-#' 605-610.
+#' Scott DW (1979). On optimal and data-based histograms. Biometrika 66(3),
+#' 605-610. \doi{10.1093/biomet/66.3.605}
 #'
-#' Sturges, H. A. (1926). The choice of a class interval. Journal of the
-#' American Statistical Association, 21, 65-66.
+#' Freedman D, Diaconis P (1981). On the histogram as a density estimator:
+#' L2 theory. Zeitschrift für Wahrscheinlichkeitstheorie und verwandte
+#' Gebiete 57(4), 453-476. \doi{10.1007/BF01025868}
+#'
+#' Terrell GR, Scott DW (1985). Oversmoothed nonparametric density
+#' estimates. Journal of the American Statistical Association 80(389),
+#' 209-214. \doi{10.1080/01621459.1985.10477163}
+#'
+#' Lane DM, Scott D. Histograms. In Online Statistics Education: A
+#' Multimedia Course of Study, Rice University.
+#' <https://onlinestatbook.com/2/graphing_distributions/histograms.html>
+#'
+#' Srivastava P, Benegas Coll M, Götz S, Nueda MJ, Conesa A (2024).
+#' scMaSigPro: differential expression analysis along single-cell
+#' trajectories. Bioinformatics 40(7), btae443.
+#' \doi{10.1093/bioinformatics/btae443}
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @importFrom stats IQR sd
 #'
 #' @keywords internal
+#' @family binning helpers
 estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
     estBins <- switch(bin_method,
         "Freedman.Diaconis" = {
@@ -213,22 +219,37 @@ estBinSize <- function(time_vector, nPoints, drop_fac, bin_method) {
     sqrt(n) * sum(d^3) / sum(d^2)^(3 / 2) * (1 - 1 / n)^(3 / 2)
 }
 ###############################################################################
-#' @title Extract Fitting
+#' @title Summaries of the selected model of a gene
 #'
-#' @param reg Regression Result from `stats::glm()`
-#' @param lmf Full model object generated from the `stats::glm()`
-#' @param model.glm.0 Intercept model object generated from the `stats::glm()`
-#' @param dis Dataframe for the predictors
-#' @param family Family used for modelling the data.
-#' @param name Feature (gene) name, used as the row name of `sol` and as
-#' the column name of the gene's entry in `influ.info`.
-#' @param vars.in Names of the predictors (the columns of `dis`); they fix
-#' the order of the returned coefficients, p-values and t-scores.
-#' @param alfa Significance threshold (Q-Value)
-#' @param influ.info Matrix of influential observations collected so far;
-#' a column for this gene is appended when it has influential observations.
+#' @description
+#' `extract_fitting()` collects, for one gene, the p-value and R-squared of
+#' its selected model, the coefficients, p-values and t statistics of its
+#' terms and its influential observations; [sc.t.fit()] calls it for each
+#' gene.
+#'
+#' @param reg The selected model, a `glm` fit.
+#' @param lmf The full model.
+#' @param model.glm.0 The intercept-only model.
+#' @param dis The design, a data frame with one column per term.
+#' @param family The family of the fits.
+#' @param name The name of the gene: the row name of `sol` and the column
+#'   name of its entry in `influ.info`.
+#' @param vars.in The names of the terms (the columns of `dis`); they fix the
+#'   order of the coefficients, p-values and t statistics.
+#' @param alfa The level at which a coefficient is significant.
+#' @param influ.info The matrix of influential observations so far; a column
+#'   for this gene is added when it has influential observations.
 #'
 #' @keywords internal
+#'
+#' @seealso [sc.t.fit()], which calls it.
+#'
+#' @return A list: the p-value (`p_value`) and R-squared (`bondad`) of the
+#' selected model; the p-values (`p_valor`), coefficients (`coeff`) and t
+#' statistics (`t`) of every term; the counts of the gene (`sig_profiles`);
+#' its row of the results (`sol`, `NULL` when no coefficient is
+#' significant); the updated `influ.info`; and the gene name
+#' (`feature_name`).
 extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, alfa, influ.info) {
     sol <- coefficients <- group.coeffs <- t.score <- sig.profiles <- NULL
     y <- reg$y
@@ -259,6 +280,9 @@ extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, a
             p.value <- test[5][2, 1]
         }
         # Computing goodness of fitting:
+        # Why: the R-squared of a GLM is the share of the null deviance
+        # that the model explains; a model worse than the intercept counts
+        # as 0.
         bondad <- (reg$null.deviance - reg$deviance) / reg$null.deviance
         if (bondad < 0) {
             bondad <- 0
@@ -327,23 +351,24 @@ extract_fitting <- function(reg, lmf, model.glm.0, dis, family, name, vars.in, a
 }
 
 ###############################################################################
-#' @title Extract Intervals
+#' @title Bins of equal width
 #'
 #' @description
 #' `extract_interval()` divides the range of `time.vector` into `nBins` bins
-#' of equal width and counts the points of each bin. The bounds of the bins
-#' are the breaks `seq(min, max, length.out = nBins + 1)` themselves.
+#' of equal width, whose bounds are the breaks
+#' `seq(min, max, length.out = nBins + 1)`, and counts the points of each bin.
 #'
-#' @param time.vector Numeric vector of Pseudotime values.
-#' @param nBins Expected number of bins.
-#' @param bin.size Column name for the bin size column.
-#' @param lbound Column name for the lower bound column.
-#' @param ubound Column name for the upper bound column.
+#' @param time.vector The pseudotime values.
+#' @param nBins The number of bins.
+#' @param bin.size The name of the column for the number of points.
+#' @param lbound,ubound The names of the columns for the lower and upper
+#'   bounds.
 #'
 #' @return A data frame with one row per bin, in increasing order, and the
 #' columns `lbound`, `ubound` and `bin.size`.
 #'
 #' @keywords internal
+#' @family binning helpers
 extract_interval <- function(time.vector, nBins = 1, bin.size, lbound,
                              ubound) {
     # Count the points in nBins bins of equal width spanning the range, with
@@ -393,40 +418,39 @@ extract_interval <- function(time.vector, nBins = 1, bin.size, lbound,
 }
 
 ###############################################################################
-#' @title Homogenize Bins of a Dataframe
+#' @title Split the bins that are too large
 #'
 #' @description
 #' `optimize_bin_max()` splits every bin that holds more than `max_allowed`
-#' points. The points of the bin get the number of bins that `method` and
-#' `drop` give for them ([estBinSize()]) and are divided into that many bins
-#' of equal width over their range; the first new bin starts at the lower
-#' bound of the bin and the last ends at its upper bound, so that the new
-#' bins cover the bin without gaps. The other bins are kept.
+#' points into the number of bins that `method` and `drop` give for its
+#' points ([estBinSize()]), of equal width over their range; the first new
+#' bin starts at the lower bound of the bin and the last ends at its upper
+#' bound, so the new bins cover it without gaps. The other bins are kept.
+#'
+#' @param bin_table A data frame of bins, one row per bin, with the columns
+#'   `lbound`, `ubound` and `bin.size`.
+#' @param max_allowed The largest number of points of a bin that is kept.
+#' @param verbose Whether to print a message for each bin.
+#' @param time_vector The pseudotime of the cells of the path.
+#' @param lbound,ubound The names of the columns of the lower and upper
+#'   bounds.
+#' @param bin.size The name of the column of the number of points.
+#' @param method The rule that gives the number of new bins.
+#' @param drop The factor that multiplies that number (`drop_fac`).
 #'
 #' @details
 #' [sc.squeeze()] passes as `max_allowed` the maximum of Srivastava et al.
 #' (2024), Section 2.2: the mean plus the standard deviation of the sizes of
-#' all bins of the path, set once from the bins of the rule. "Bins larger
+#' the bins of the path, set once from the bins of the rule. "Bins larger
 #' than the maximum size are divided", and "The process is repeated until all
 #' bins conform to the established size criteria": [sc.squeeze()] calls
 #' `optimize_bin_max()` again, with the same `max_allowed`, until no bin is
 #' larger.
 #'
-#' @param bin_table A dataframe containing the bin data.
-#' @param max_allowed The maximum allowed size for a bin: a bin with more
-#' points is split.
-#' @param verbose Logical; if TRUE, prints detailed output.
-#' @param time_vector A vector representing time or a sequence that bins refer to.
-#' @param lbound The name of the lower bound column in `bin_table`.
-#' @param ubound The name of the upper bound column in `bin_table`.
-#' @param bin.size The name of the bin size column in `bin_table`.
-#' @param method The rule that gives the number of new bins (see
-#' [estBinSize()]).
-#' @param drop The factor that multiplies that number (`drop_fac`).
-#'
-#' @return A dataframe with adjusted bins. The structure of the dataframe will be the same as `bin_table`
-#' with updated values for the bin size and bounds.
+#' @return A data frame with the columns of `bin_table`, one row per bin,
+#' where each split bin is replaced by its parts.
 #' @keywords internal
+#' @family binning helpers
 optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
                              time_vector, lbound, ubound, bin.size, method,
                              drop) {
@@ -500,45 +524,43 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
 }
 
 ################################################################################
-#' @title Create Pseudo-bulk Counts
+#' @title Pseudo-bulk counts of the bins
 #'
 #' @description
-#' `pb_counts()` creates a dataframe of pseudo bulk counts from single
-#' cell counts. It does this by either taking the mean or sum of counts across
-#' cells in each bin, depending on the specified method.
+#' `pb_counts()` adds up, or averages, the counts of the cells of each bin
+#' into the pseudo-bulk counts (`bulk.counts`) of the `Dense` slot.
+#' [sc.squeeze()] and [sc.restruct()] call it; call it after changing the
+#' bins with [cDense()].
 #'
-#' @param scmpObj object of Class scMaSigPro. See \code{\link{ScMaSigPro}}
-#' for more details.
-#' @param bin_mem_col Column name in the Dense metadata storing information
-#' about the members of the bins. (Default is 'scmp_bin_members').
-#' @param bin_col  Column name in the Dense metadata storing information
-#' about the bin labels. (Default is 'scmp_bin').
-#' @param cluster_count_by A character string specifying the method to use to
-#' aggregate counts within each cluster. Available options are 'mean' or 'sum'.
-#' (Default = "sum").
-#' @param assay_name Name of the Assay in the assay_name object from which
-#' retrieve the counts. (Default = "counts").
-#'
-#' @return
-#' An object of class \code{\link{ScMaSigPro}} whose `Dense` slot is rebuilt
-#' as a valid `SingleCellExperiment`: the `bulk.counts` assay (genes x bins)
-#' and the bin-level metadata.
+#' @param cluster_count_by How the counts of the cells of a bin are combined:
+#'   `"sum"` or `"mean"` (rounded to whole numbers).
 #'
 #' @details
-#' The function operates by iterating over each row of the pseudo_bulk_profile.
-#' For each bin, it identifies the cells that belong to the bin and selects their
-#' counts from the counts data frame. It then calculates the mean or sum of these
-#' counts (depending on the specified method), and adds these to a new data frame
-#' of pseudo bulk counts. The result is a pseudo bulk counts data frame where
-#' each row is a gene and each column is a bin.
+#' The bins are the rows of the bin metadata ([cDense()]): their row names,
+#' or the `bin_col` column when there are none, name the columns of the
+#' counts, and `bin_mem_col` gives their cells.
 #'
-#' Bins are identified by the rownames of the `Dense` cell metadata (see
-#' [cDense()]); these become the column names of `bulk.counts`. The `bin_col`
-#' column is used only when the metadata has no rownames.
+#' @return The object whose `Dense` slot holds the pseudo-bulk counts
+#' (`bulk.counts`, genes by bins) and the bin metadata.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
 #' @importClassesFrom Matrix dgCMatrix
+#'
+#' @family binning helpers
+#' @inheritParams scmp-params
+#'
+#' @references
+#' Srivastava P, Benegas Coll M, Götz S, Nueda MJ, Conesa A (2024).
+#' scMaSigPro: differential expression analysis along single-cell
+#' trajectories. Bioinformatics 40(7), btae443.
+#' \doi{10.1093/bioinformatics/btae443}
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' # The mean instead of the sum of the counts of the cells of each bin
+#' scmp <- pb_counts(scmp.ob, cluster_count_by = "mean")
+#' eDense(scmp)[1:3, 1:4]
 #'
 #' @export
 

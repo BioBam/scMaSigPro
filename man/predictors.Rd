@@ -2,21 +2,51 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{predictors}
 \alias{predictors}
-\title{Get or set the Predictor Matrix}
+\alias{predictors<-}
+\alias{predictors,ScMaSigPro-method}
+\alias{predictors<-,ScMaSigPro-method}
+\title{Design matrix of the polynomial model}
 \usage{
 predictors(object, value = "missing")
+
+predictors(object) <- value
+
+\S4method{predictors}{ScMaSigPro}(object, value = "missing")
+
+\S4method{predictors}{ScMaSigPro}(object) <- value
 }
 \arguments{
-\item{object}{An object of class \code{\link{ScMaSigPro}}.}
+\item{object}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{value}{The value of the Predictor Matrix.}
+\item{value}{A matrix with the rows of the path assignment matrix
+(\code{\link[=pathAssign]{pathAssign()}}), one per bin and with the same names, and one column
+per term of the design.}
 }
 \value{
-Get the Predictor Matrix.
+\code{predictors(object)}: a numeric matrix. \verb{predictors<-} and
+\code{predictors(object, value)}: the updated object, returned invisibly by the
+latter.
 }
 \description{
-Get or set the Predictor Matrix
+\code{predictors()} returns the design matrix that \code{\link[=sc.set.poly]{sc.set.poly()}} stores in
+the \code{Design} slot of a \link[=ScMaSigPro-class]{ScMaSigPro} object: one row per bin and one
+column per term of the full model. \verb{predictors<-} replaces it.
 }
-\author{
-Priyansh Srivastava \email{spriyansh29@gmail.com}
+\details{
+\code{predictors(object, value)} sets \code{value} as \code{predictors(object) <- value}
+does.
 }
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+head(predictors(scmp.ob))
+
+}
+\seealso{
+Other accessors:
+\code{\link[=cDense]{cDense()}},
+\code{\link[=cSparse]{cSparse()}},
+\code{\link[=eDense]{eDense()}},
+\code{\link[=eSparse]{eSparse()}},
+\code{\link[=pathAssign]{pathAssign()}}
+}
+\concept{accessors}

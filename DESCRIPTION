@@ -32,6 +32,7 @@ Imports:
     BiocParallel
 Depends: R (>= 4.0)
 Encoding: UTF-8
+Language: en-GB
 Roxygen: list(markdown = TRUE)
 Suggests:
     testthat,

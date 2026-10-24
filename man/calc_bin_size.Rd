@@ -2,24 +2,31 @@
 % Please edit documentation in R/pb_helpers.R
 \name{calc_bin_size}
 \alias{calc_bin_size}
-\title{Calculate Bin Size Function}
+\title{Number of cells of a bin}
 \usage{
 calc_bin_size(x, clus_mem_col = "scmp_cluster_members")
 }
 \arguments{
-\item{x}{A data frame containing the "cluster.members" column.}
+\item{x}{A row of the bin metadata.}
 
-\item{clus_mem_col}{The name of the column containing the cluster members.}
+\item{clus_mem_col}{The name of the column with the cells of the bin.}
 }
 \value{
-A numeric value representing the size of the bin (number of elements
-in the "cluster.members" column).
+The number of cells of the bin.
 }
 \description{
-\code{calc_bin_size()} calculates the bin size based on the number of elements in
-the "cluster.members" column of the input data frame.
+\code{calc_bin_size()} counts the cells of a bin: the names separated by \code{|}
+in its \code{clus_mem_col} column.
+}
+\seealso{
+Other binning helpers:
+\code{\link[=estBinSize]{estBinSize()}},
+\code{\link[=extract_interval]{extract_interval()}},
+\code{\link[=optimize_bin_max]{optimize_bin_max()}},
+\code{\link[=pb_counts]{pb_counts()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{binning helpers}
 \keyword{internal}

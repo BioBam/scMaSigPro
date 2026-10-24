@@ -1,25 +1,22 @@
-#' @title Plot Bin Sizes Across Binned Time and Paths
+#' @title Plot the sizes of the bins
 #'
 #' @description
-#' This function generates plots to visualize the Dense slot cell metadata
-#' from a ScMaSigPro object. It produces tile plot to display the bin sizes
-#' across different binned time intervals and paths.
+#' `plotBinTile()` draws a tile for each bin, by path and binned pseudotime,
+#' coloured and labelled by its number of cells.
 #'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param path_col A character string representing the column name for branching
-#' path assignment in 'Sparse' or 'Dense' slot.
-#' @param bin_size_col A character string representing the name of the column in
-#' which bin sizes per bin are stored. (Default is "scmp_bin_size").
-#' @param bin_ptime_col A character string representing the column name
-#' for binned Pseudotime values in 'Dense' data.
-#' (Default is "scmp_binned_pseudotime").
-#'
-#' @return ggplot2 plot object.
+#' @return A ggplot object.
 #'
 #' @importFrom ggplot2 .data aes geom_text geom_tile ggplot labs
 #'   scale_fill_gradient theme_minimal xlab ylab
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
+#' @family plots
+#' @inheritParams scmp-params
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' plotBinTile(scmp.ob)
 #'
 #' @export
 plotBinTile <- function(scmpObj,

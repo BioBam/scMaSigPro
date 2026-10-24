@@ -1,40 +1,35 @@
-#' @title Plot multiple trends of the multiple genes.
+#' @title Plot the trends of the clusters
 #'
 #' @description
-#' Plot trends of multiple genes (clustered) across the binned pseudotime.
+#' `plotTrendCluster()` plots, in one panel per cluster of
+#' [sc.cluster.trend()], the points of its genes along the binned pseudotime
+#' and a loess curve per path through their fitted curves.
+#'
+#' @param ylab The label of the y axis. The default, `NULL`, is
+#'   `"log(Pseudobulk Expression)"` for log-link fits and when the points are
+#'   logged, and `"Pseudobulk Expression"` otherwise.
+#' @param plot Not used; it must be `"counts"` or `"coeff"`.
+#' @param logs Whether to log the points, as in [plotTrend()]. The default,
+#'   `NULL`, logs them when the fits used the log link.
+#' @param includeInflu Not used.
+#' @param significant Whether the genes must be in a gene list of
+#'   [sc.filter()]; the others are left out with a warning.
+#' @param loess_span The span of the loess curves.
 #'
 #' @importFrom ggplot2 .data aes element_blank element_line element_text
 #'   facet_wrap geom_path geom_point geom_smooth ggplot labs scale_color_manual
 #'   theme theme_classic xlab ylab
 #'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param xlab X-axis label. (Default is "Pooled Pseudotime")
-#' @param ylab Y-axis label. The default, \code{NULL}, is
-#' "log(Pseudobulk Expression)" for log-link fits and when the points are
-#' logged, and "Pseudobulk Expression" otherwise.
-#' @param plot Whether to plot 'coeff' or 'counts'. (Default is 'counts')
-#' @param smoothness How smooth the trend should be. Setting to
-#' higher values will result in more linear trends. (Default is 0.01)
-#' @param logs Whether to log the points, as in [plotTrend()]. The default,
-#' \code{NULL}, logs them when the fits used the log link.
-#' @param logType How to log transform the values. Available options 'log',
-#' 'log2', 'log10'. (Default is 'log')
-#' @param includeInflu Include gene only if it has influential data.
-#' (Default is TRUE)
-#' @param significant Include gene only if the models are significant based on
-#' \code{scMaSigPro::sc.filter()}. (Default is TRUE)
-#' @param verbose Print detailed output in the console. (Default is TRUE)
-#' @param summary_mode Compress the expression values per replicate (if present)
-#'  per binned pseudotime point. Default is 'median'. Other option 'mean'
-#' @param pseudoCount Add a pseudo-count before taking the log. (Default is 1)
-#' @param curves Whether to plot the fitted curves. (Default is TRUE)
-#' @param lines Whether to plot the lines. (Default is FALSE)
-#' @param points Whether to plot the points. (Default is TRUE)
-#' @param loess_span The fraction of the data used when estimating each y-value,
-#' when plotting curves. (Default is 0.75)
-#'
-#' @return ggplot2 plot object.
+#' @return A ggplot object with one panel per cluster.
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#' @family plots
+#' @inheritParams scmp-params
+#' @inheritParams plotTrend
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' plotTrendCluster(scmp.ob, verbose = FALSE)
+#'
 #' @export
 plotTrendCluster <- function(scmpObj,
                              xlab = "Pooled Pseudotime",

@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_scmp.R
 \name{create_scmp}
 \alias{create_scmp}
-\title{Create ScMaSigPro Object}
+\title{Create a ScMaSigPro object from counts and cell metadata}
 \usage{
 create_scmp(
   counts,
@@ -16,50 +16,68 @@ create_scmp(
 )
 }
 \arguments{
-\item{counts}{A matrix containing the raw expression counts.}
+\item{counts}{A matrix of raw counts, genes by cells.}
 
-\item{cell_data}{A data frame containing the cell level metadata.}
+\item{cell_data}{A data frame of cell metadata, one row per column of
+\code{counts}, named like them.}
 
-\item{feature_data}{Optional data frame of gene metadata, one row per gene
-of \code{counts} (named like them, or with automatic row names). It becomes the
-\code{rowData()} of the \code{Sparse} slot, and of the \code{Dense} slot when this
+\item{feature_data}{An optional data frame of gene metadata, one row per
+gene of \code{counts}, named like them or with automatic row names. It becomes
+the \code{rowData()} of the \code{Sparse} slot, and of the \code{Dense} slot when this
 function builds it.}
 
 \item{bin_counts}{Optional pseudo-bulk counts of bins made outside
 scMaSigPro: a matrix with the genes of \code{counts} as rows, in the same
-order, and one column per bin. Requires \code{bin_cell_data}; not with
+order, and one column per bin. Needs \code{bin_cell_data}; not with
 \code{use_as_bin = TRUE}.}
 
 \item{bin_cell_data}{A data frame with one row per bin, named like the
-columns of \code{bin_counts}, holding the binned pseudotime in \code{ptime_col} and
-the path in \code{path_col}. A \code{scmp_bin_size} column gives the number of cells
-of each bin; without it the sizes are \code{NA}.}
+columns of \code{bin_counts}, with the binned pseudotime in \code{ptime_col} and the
+path in \code{path_col}. A \code{scmp_bin_size} column gives the number of cells of
+each bin; without it the sizes are \code{NA}.}
 
-\item{ptime_col}{A character string representing the column name
-for inferred Pseudotime values. (Default is "Pseudotime")}
+\item{ptime_col}{The name of the column of the cell metadata that holds
+the pseudotime of each cell.}
 
-\item{path_col}{A character string representing the column name for branching
-path assignment. (Default is \code{path_prefix})}
+\item{path_col}{The name of the column of the cell or bin metadata that
+holds the path label of each cell or bin.}
 
-\item{use_as_bin}{A logical indicating to run MaSigPro analysis without
-pseudotime binning. Defaults to FALSE.}
+\item{use_as_bin}{Whether every cell is a bin of its own, without
+pseudo-bulking, as for bulk time-course data.}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}, with aligned pseudotime.
+A \link[=ScMaSigPro-class]{ScMaSigPro} object with the cells in the \code{Sparse} slot
+and, with \code{use_as_bin = TRUE} or \code{bin_counts}, the bins in the \code{Dense}
+slot.
 }
 \description{
-\code{create_scmp()} initializes a ScMaSigPro object with the given counts,
-cell level metadata, and other optional parameters. \code{\link[=assign_paths]{assign_paths()}}
-builds the pseudotime and path columns of the cell metadata from the
-lineage weights of a trajectory tool.
+\code{create_scmp()} creates a \link[=ScMaSigPro-class]{ScMaSigPro} object from a count matrix and
+a table of cell metadata with the pseudotime and the path of each cell,
+such as the result of \code{\link[=assign_paths]{assign_paths()}}. Bins made elsewhere can be given
+too.
 }
 \details{
-The \code{Dense} slot holds the bins. By default it is empty and
-\code{\link[=sc.squeeze]{sc.squeeze()}} bins the cells. With \code{use_as_bin = TRUE} every cell is a
-bin. With \code{bin_counts} and \code{bin_cell_data} it holds bins made outside
-scMaSigPro, and the workflow continues with \code{\link[=sc.set.poly]{sc.set.poly()}}; such bins
-have no member cells, so \code{\link[=pb_counts]{pb_counts()}} and \code{\link[=sc.restruct]{sc.restruct()}} do not apply.
+By default the \code{Dense} slot is empty and \code{\link[=sc.squeeze]{sc.squeeze()}} bins the cells.
+With \code{use_as_bin = TRUE} every cell is a bin. With \code{bin_counts} and
+\code{bin_cell_data} it holds bins made outside scMaSigPro and the workflow
+continues with \code{\link[=sc.set.poly]{sc.set.poly()}}; such bins have no member cells, so
+\code{\link[=pb_counts]{pb_counts()}} and \code{\link[=sc.restruct]{sc.restruct()}} do not apply.
+}
+\examples{
+data("splat.sim", package = "scMaSigPro")
+counts <- SummarizedExperiment::assay(splat.sim, "counts")
+cells <- as.data.frame(SummarizedExperiment::colData(splat.sim))
+scmp <- create_scmp(counts, cells, ptime_col = "Step", path_col = "Group")
+scmp
+
+}
+\seealso{
+Other input helpers:
+\code{\link[=as_scmp]{as_scmp()}},
+\code{\link[=assign_paths]{assign_paths()}},
+\code{\link[=paths_from_graph]{paths_from_graph()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{input helpers}

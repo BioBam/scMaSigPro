@@ -3,41 +3,68 @@
 \docType{data}
 \name{multi.lin.sce}
 \alias{multi.lin.sce}
-\title{Simulated Multifurcating Trajectory SingleCellExperiment Object}
+\title{Simulated multifurcating trajectory}
 \format{
-A \code{SingleCellExperiment} with 501 genes and 1977 cells.
+A \code{SingleCellExperiment} with 501 genes (rows) and 1977 cells
+(columns):
+\describe{
+\item{\code{counts} assay}{The simulated counts.}
+\item{\code{colData}}{\code{cell_id}, the cell name; \code{group}, the path label:
+\code{"root"} for the cells on all three lineages, \code{"path_Y_15"},
+\code{"path_Y_18"} or \code{"path_Y_52"} for the cells on one, and
+\code{"path_Y_18|path_Y_15"} for the cells on these two;
+\code{Monocle3_Pseudotime}, the pseudotime of Monocle 3.}
+\item{\code{reducedDims}}{\code{TSNE}, the two dimensions of the t-SNE embedding.}
+}
+The \code{rowData} has no columns.
+}
+\source{
+The multifurcating simulation of Van den Berge et al. (2020),
+made with dyntoy (Saelens et al. 2019): \code{multifurcating_4.rds} of
+\url{https://github.com/statOmics/tradeSeqPaper}. Monocle 3 (Cao et al. 2019)
+normalised the counts, embedded the cells with PCA and t-SNE, learnt the
+principal graph and gave the pseudotime from the root node \code{Y_51}. Each
+cell is on the lineages whose shortest path from the root, on that graph,
+holds its nearest node, as in the Monocle 3 steps of the tradeSeq
+vignette; three lineages are kept and the cells on none of them are
+left out. The script is
+\code{system.file("scripts", "make-multi-lin-sce.R", package = "scMaSigPro")}.
 }
 \usage{
-data(multi.lin.sce)
+data("multi.lin.sce", package = "scMaSigPro")
 }
 \description{
-A simulated multifurcating trajectory derived from the tradeSeq
-article and analysed with Monocle3, useful for testing and development of
-trajectory analysis methods. The dataset is stored as a
-\code{SingleCellExperiment} with raw \code{counts}, a t-SNE embedding in
-\code{reducedDims(x)$TSNE}, and \code{colData} columns \code{cell_id}, \code{group} (hard branch
-assignment: \code{root}, \code{path_Y_15}, \code{path_Y_18}, \code{path_Y_52} and the shared
-segment \code{path_Y_18|path_Y_15}) and \code{Monocle3_Pseudotime}.
+A \code{SingleCellExperiment} with the counts of 501 genes in 1977 cells of a
+simulated trajectory with three end points and a shared root, with the
+pseudotime and the path labels of each cell.
 }
-\details{
-The \code{multi.lin.sce} object was created using the following steps:
-\enumerate{
-\item The multifurcating trajectory data was downloaded from the \code{tradeSeq} article.
-\item The raw counts, cell metadata, and gene metadata were extracted and transformed into a \code{Monocle3} \code{cell_data_set} object.
-\item The data was preprocessed using PCA for dimensionality reduction and normalized using a log transformation.
-\item Both t-SNE and UMAP were used for dimensionality reduction, with t-SNE embeddings stored in the UMAP slots to enable graph learning.
-\item Cells were clustered and a principal graph was learned on the data.
-\item Pseudotime was inferred based on the learned graph.
-}
+\examples{
+data("multi.lin.sce", package = "scMaSigPro")
+table(SummarizedExperiment::colData(multi.lin.sce)$group)
 
-The complete script is shipped with the package:
-\code{system.file("scripts", "make-multi-lin-sce.R", package = "scMaSigPro")}.
-This dataset includes expression data, cell metadata, and gene metadata, and it is structured to facilitate the application of various trajectory analysis methods.
 }
 \references{
-TradeSeq package: https://github.com/statOmics/tradeSeq
+Van den Berge K, Roux de Bézieux H, Street K, Saelens W, Cannoodt R,
+Saeys Y, Dudoit S, Clement L (2020). Trajectory-based differential
+expression analysis for single-cell sequencing data. Nature
+Communications 11, 1201. \doi{10.1038/s41467-020-14766-3}
+
+Saelens W, Cannoodt R, Todorov H, Saeys Y (2019). A comparison of
+single-cell trajectory inference methods. Nature Biotechnology 37(5),
+547-554. \doi{10.1038/s41587-019-0071-9}
+
+Cao J, Spielmann M, Qiu X, Huang X, Ibrahim DM, Hill AJ, Zhang F,
+Mundlos S, Christiansen L, Steemers FJ, Trapnell C, Shendure J (2019).
+The single-cell transcriptional landscape of mammalian organogenesis.
+Nature 566(7745), 496-502. \doi{10.1038/s41586-019-0969-x}
+}
+\seealso{
+Other datasets:
+\code{\link{scmp.ob}},
+\code{\link{splat.sim}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{datasets}
 \keyword{datasets}

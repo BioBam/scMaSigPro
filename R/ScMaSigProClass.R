@@ -5,72 +5,73 @@
 #' @title ParameterConfig
 #'
 #' @description
-#' S4 Class to hold parameters used in the analysis. It is constantly updated
-#' as the analysis progresses.
+#' The settings of an analysis: the names of the columns of the cell and bin
+#' metadata and the parameters of every step of the workflow.
 #'
-#' @slot bin_ptime_col A character string representing the column name
-#' for binned Pseudotime values in 'Dense' data. See `colData` from the
-#' \pkg{SingleCellExperiment} package.
-#' @slot path_prefix A character string, the prefix for branching path
-#' labels given to [as_scmp()] (Default is "Path"); [as_scmp()] also uses
-#' it as the default `path_col`.
-#' @slot root_label A character string, the label for root cells given to
-#' [as_scmp()] (Default is "root"). It is stored for reference only.
-#' @slot ptime_col A character string representing the column name
-#' for inferred Pseudotime values in 'Sparse' data. See `colData` from the
-#' \pkg{SingleCellExperiment} package.
-#' @slot bin_method A character string representing the algorithm used for
-#' binning.
-#' @slot path_col A character string representing the column name for branching
-#' path assignment in 'Sparse' or 'Dense' data. See `colData` from the
-#' \pkg{SingleCellExperiment} package.
-#' @slot bin_col A character string representing the name of the column in which
-#' bin labels are stored.
-#' @slot bin_size_col A character string representing the name of the column in
-#' which bin sizes per bin are stored.
-#' @slot bin_mem_col A character string representing the name of the column in
-#' which cells per bin are stored.
-#' @slot anno_col A character string representing the column name for cell level
-#' metadata containing cell level annotations. (Default is "cell_type").
-#' @slot g An integer, the number of features that [sc.p.vector()] fitted:
-#' those left after removing features with fewer than `min_na` values, with
-#' zero counts in every bin, or below `min_counts` or `min_bins_expressed`.
-#' @slot p_value Significance Level.
+#' @slot bin_ptime_col The column of the bin metadata with the binned
+#'   pseudotime.
+#' @slot path_prefix The default path column of [as_scmp()].
+#' @slot root_label The label of the root cells given to [as_scmp()], kept for
+#'   reference.
+#' @slot ptime_col The column of the cell metadata with the pseudotime.
+#' @slot bin_method The rule for the number of bins of [sc.squeeze()].
+#' @slot path_col The column of the cell and bin metadata with the path
+#'   labels.
+#' @slot bin_col The column of the bin metadata with the bin names.
+#' @slot bin_size_col The column of the bin metadata with the number of
+#'   cells of each bin.
+#' @slot bin_mem_col The column of the bin metadata with the cells of each
+#'   bin.
+#' @slot anno_col The column of the cell metadata with cell annotations; not
+#'   used by the steps.
+#' @slot g The number of genes that [sc.p.vector()] fitted: those left after
+#'   removing the genes with fewer than `min_na` values, with zero counts in
+#'   every bin, or below `min_counts` or `min_bins_expressed`.
+#' @slot p_value The level of [sc.p.vector()] and [sc.t.fit()].
 #' @slot min_na The minimum number of bins with a value (not `NA`) that
-#' [sc.p.vector()] required; it only removes features from counts with
-#' missing values.
-#' @slot mt_correction A character string specifying the p-value correction
-#' method.
-#' @slot link Type of link function to use in the model. Default is "log".
-#' @slot epsilon Model convergence tolerance.
-#' @slot selection_method A character string specifying the method for stepwise
-#' regression.
-#' @slot offset A logical value, whether the fits used the offset of each bin,
-#' the logarithm of its size factor (see [sc.p.vector()]).
-#' @slot max_it Maximum number of iterations to fit the model.
-#' @slot poly_degree Order of the polynomial linear model.
-#' @slot distribution Distribution of the error term.
-#' @slot cluster_method Clustering method used for clustering significant genes.
-#' @slot use_dim Dimension to use for filling the missing values before
-#' clustering.
-#' @slot fill_na Method to fill the missing values.
+#'   [sc.p.vector()] required; it only removes genes from counts with missing
+#'   values.
+#' @slot mt_correction The multiple-testing correction of [sc.p.vector()].
+#' @slot link The link function of the fits.
+#' @slot epsilon The convergence tolerance of the fits.
+#' @slot selection_method The stepwise method of [sc.t.fit()].
+#' @slot offset Whether the fits used the offset of each bin, the logarithm of
+#'   its size factor (see [sc.p.vector()]).
+#' @slot max_it The maximum number of iterations of the fits.
+#' @slot poly_degree The degree of the polynomial of [sc.set.poly()].
+#' @slot distribution The family of the fits, a [stats::family()] object;
+#'   with an estimated theta it also holds `theta_estimate` and `theta_gene`
+#'   (see [sc.p.vector()]).
+#' @slot cluster_method The clustering method of [sc.cluster.trend()].
+#' @slot use_dim How [sc.cluster.trend()] filled missing values: by column or
+#'   by row.
+#' @slot fill_na What [sc.cluster.trend()] filled missing values with.
 #' @slot min_counts The minimum total count over the bins that
-#' [sc.p.vector()] required of a feature (0: no minimum).
+#'   [sc.p.vector()] required of a gene (0: no minimum).
 #' @slot min_bins_expressed The minimum number of bins with a count above 0
-#' that [sc.p.vector()] required of a feature (0: no minimum).
-#' @slot test The test of the full model of each feature that [sc.p.vector()]
-#' was asked for: "chisq" (the default), the chi-squared test, or "F", the F
-#' test.
+#'   that [sc.p.vector()] required of a gene (0: no minimum).
+#' @slot test The test of the full model of each gene that [sc.p.vector()]
+#'   was asked for: `"chisq"`, the chi-squared test, or `"F"`, the F test.
 #'
 #' @details
 #' `validObject()` checks that every slot except `distribution` holds a
 #' single non-missing value, that `min_counts` and `min_bins_expressed` are
-#' at least 0, that `test` is "chisq" or "F" and that `distribution` is a
+#' at least 0, that `test` is `"chisq"` or `"F"` and that `distribution` is a
 #' [stats::family()] object.
 #'
 #' @name ParameterConfig
 #' @aliases ParameterConfig-class
+#' @return An object of class `ParameterConfig`: the settings of an
+#' analysis, one value per slot. Every step of the workflow records the
+#' settings it used in the `Parameters` slot of a [ScMaSigPro-class] object,
+#' and [showParams()] lists them.
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' showParams(scmp.ob)
+#'
 #' @rdname ParameterConfig-class
+#' @family classes
 #' @importFrom methods is new
 #' @keywords classes
 setClass(
@@ -167,18 +168,19 @@ setClass(
 #' @title MatrixDesign
 #'
 #' @description
-#' S4 class to store Branching Path Assignments and Prediction Matrix
+#' The design of the polynomial model of [sc.set.poly()].
 #'
-#' @slot predictor_matrix A matrix containing independent variables for
-#' model fitting
-#' @slot groups.vector A character vector specifying the branching path for each
-#' term of the polynomial GLM.
-#' @slot assignment_matrix A matrix containing binary assignment to branching paths
-#' Additionally has two columns for assignment of binned Pseudotime and
-#' replicate.
+#' @slot predictor_matrix The design matrix: one row per bin, one column per
+#'   term ([predictors()]).
+#' @slot groups.vector The path of each column of `predictor_matrix`: the
+#'   reference path for its powers of pseudotime, `<path>vs<ref>` for the
+#'   terms of another path.
+#' @slot assignment_matrix The path assignment matrix: one row per bin, with
+#'   the binned pseudotime, a replicate index and a 0/1 column per path
+#'   ([pathAssign()]).
 #' @slot offset The offset of each bin, the logarithm of its size factor (see
-#' [sc.p.vector()]), or an empty vector when the fits used no offset or no
-#' fit was made yet.
+#'   [sc.p.vector()]), or an empty vector when the fits used no offset or no
+#'   fit was made yet.
 #'
 #' @details
 #' `validObject()` checks that `assignment_matrix` has the rows of
@@ -188,7 +190,17 @@ setClass(
 #'
 #' @name MatrixDesign
 #' @aliases MatrixDesign-class
+#' @return An object of class `MatrixDesign`: the design of the polynomial
+#' model, which [sc.set.poly()] stores in the `Design` slot of a
+#' [ScMaSigPro-class] object, with the offsets that [sc.p.vector()] adds.
+#' [predictors()] and [pathAssign()] return its matrices.
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' head(predictors(scmp.ob))
+#'
 #' @rdname MatrixDesign-class
+#' @family classes
 #' @importFrom methods is new
 #' @keywords classes
 setClass(
@@ -237,14 +249,13 @@ setClass(
 #' @title VariableProfiles
 #'
 #' @description
-#' S4 class to store results of the global model fitting for all the features.
+#' The test of the full model of each gene by [sc.p.vector()].
 #'
-#' @slot non_flat A character vector of gene names marked as non-flat profiles.
-#' @slot p_values A numeric vector containing the computed p-values for
-#' non-flat profiles.
-#' @slot adj_p_values A numeric vector containing the computed adjusted
-#' p-values for non-flat profiles.
-#' @slot fdr False Discovery Rate (FDR) value for the given significance level.
+#' @slot non_flat The genes with a non-flat profile.
+#' @slot p_values The p-value of every fitted gene, named by gene.
+#' @slot adj_p_values The adjusted p-values, in the same order.
+#' @slot fdr The largest p-value of the genes with a non-flat profile, empty
+#'   when there is none.
 #'
 #' @details
 #' `validObject()` checks that `p_values` and `adj_p_values` have the same
@@ -253,7 +264,17 @@ setClass(
 #'
 #' @name VariableProfiles
 #' @aliases VariableProfiles-class
+#' @return An object of class `VariableProfiles`: the test of the full model
+#' of each gene, which [sc.p.vector()] stores in the `Profile` slot of a
+#' [ScMaSigPro-class] object. [scmpResults()] returns its p-values.
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' res <- scmpResults(scmp.ob)
+#' head(res[, c("p_value", "adj_p_value", "non_flat")])
+#'
 #' @rdname VariableProfiles-class
+#' @family classes
 #' @keywords classes
 
 #' @author Priyansh Srivastava <spriyansh29@@gmail.com>
@@ -300,17 +321,18 @@ setClass("VariableProfiles",
 #' @title Estimates
 #'
 #' @description
-#' S4 class to store results of the polynomial term selection from full model.
+#' The models that [sc.t.fit()] selected.
 #'
-#' @slot significance_matrix A matrix storing p-values for each gene per
-#' polynomial term, R2 and global p-values.
-#' @slot coefficient_matrix A matrix storing beta estimates for each polynomial
-#' term.
-#' @slot path_coefficient_matrix A matrix with the coefficients of each
-#' branching path.
-#' @slot t_score_matrix A matrix storing the t-scores for each polynomial term.
-#' @slot path A character vector containing the branching path.
-#' @slot influential A matrix with genes containing influential data.
+#' @slot significance_matrix For each gene with a significant selected
+#'   model, its p-value and R-squared and the p-value of each term
+#'   ([showSol()]).
+#' @slot coefficient_matrix The coefficients ([showCoeff()]).
+#' @slot path_coefficient_matrix The coefficients of the polynomial of each
+#'   path ([showGroupCoeff()]).
+#' @slot t_score_matrix The t statistics ([showTS()]).
+#' @slot path The path of the intercept and of each term.
+#' @slot influential The genes with influential observations
+#'   ([showInflu()]).
 #'
 #' @details
 #' `validObject()` checks that `t_score_matrix` has the shape and rows of
@@ -319,7 +341,16 @@ setClass("VariableProfiles",
 #'
 #' @name Estimates
 #' @aliases Estimates-class
+#' @return An object of class `Estimates`: the selected model of each gene,
+#' which [sc.t.fit()] stores in the `Estimate` slot of a [ScMaSigPro-class]
+#' object. [showSol()] and the other result readers return its matrices.
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' head(showCoeff(scmp.ob))
+#'
 #' @rdname Estimates-class
+#' @family classes
 #' @importFrom methods is new
 #' @keywords classes
 setClass(
@@ -371,11 +402,11 @@ setClass(
 #' @title Significant
 #'
 #' @description
-#' S4 class to store significantly selected features and their clusters.
+#' The gene lists of [sc.filter()] and the clusters of [sc.cluster.trend()].
 #'
-#' @slot genes Named list of genes selected based on user-specified thresholds.
-#' @slot clusters Named list of clusters selected based on user-specified
-#' thresholds.
+#' @slot genes A named list of gene lists.
+#' @slot clusters A list with the cluster of each clustered gene, named by
+#'   gene.
 #'
 #' @details
 #' `validObject()` checks that every element of `genes` is a character
@@ -384,7 +415,17 @@ setClass(
 #'
 #' @name Significant
 #' @aliases Significant-class
+#' @return An object of class `Significant`: the gene lists of
+#' [sc.filter()] and the clusters of [sc.cluster.trend()], stored in the
+#' `Significant` slot of a [ScMaSigPro-class] object. [scmpResults()]
+#' returns them per gene.
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' table(scmpResults(scmp.ob)$cluster)
+#'
 #' @rdname Significant-class
+#' @family classes
 #' @importFrom methods is new as
 #' @keywords classes
 setClass(
@@ -426,34 +467,32 @@ setClass(
 #' @title ScMaSigPro
 #'
 #' @description
-#' S4 class to store an analysis of the scMaSigPro workflow: the data at the
-#' level of cells and of pseudotime bins, as two \code{SingleCellExperiment}
-#' objects, and the results and parameters of every step.
+#' An analysis of the scMaSigPro workflow: the data at the level of the cells
+#' and of the pseudotime bins, as two `SingleCellExperiment` objects, and the
+#' results and settings of every step.
 #'
-#' @slot Sparse Object of class \code{\link[SingleCellExperiment]{SingleCellExperiment}}.
-#' See \pkg{SingleCellExperiment} for more details.
-#' @slot Dense Object of class \code{\link[SingleCellExperiment]{SingleCellExperiment}}.
-#' See \pkg{SingleCellExperiment} for more details.
-#' @slot Design Object of Class \code{\link{MatrixDesign}}.
-#' @slot Profile Object of Class \code{\link{VariableProfiles}}.
-#' @slot Estimate Object of Class \code{\link{Estimates}}.
-#' @slot Significant Object of Class \code{\link{Significant}}.
-#' @slot Parameters Object of Class \code{\link{ParameterConfig}}.
-#' @slot version A character string, the version of \pkg{scMaSigPro} that
-#' created the object or last changed its structure in
-#' \code{\link[=updateObject,ScMaSigPro-method]{updateObject()}}.
+#' @slot Sparse The cells: a `SingleCellExperiment` with their counts and
+#'   metadata, including the pseudotime and path columns.
+#' @slot Dense The pseudotime bins: a `SingleCellExperiment` with their
+#'   pseudo-bulk counts and metadata.
+#' @slot Design The design, a [MatrixDesign-class] object.
+#' @slot Profile The test of each gene, a [VariableProfiles-class] object.
+#' @slot Estimate The selected models, an [Estimates-class] object.
+#' @slot Significant The gene lists and clusters, a [Significant-class]
+#'   object.
+#' @slot Parameters The settings, a [ParameterConfig-class] object.
+#' @slot version The version of scMaSigPro that created the object or last
+#'   changed its structure in
+#'   \code{\link[=updateObject,ScMaSigPro-method]{updateObject()}}.
 #'
 #' @details
 #' `validObject()` checks every slot with the validity method of its class
 #' and reports each problem with the name of the slot; `version` must be a
-#' single version number. Objects are created with [create_scmp()] or
-#' [as_scmp()], which stamp them with the version of the package. These
-#' constructors, the steps of the workflow, [pb_counts()] and the setters
-#' check the object they return with `validObject()`, so a step or setter
-#' that would return an invalid object stops with these problems instead.
-#'
-#' Objects saved by an earlier version of the package, for example with
-#' `saveRDS()`, are brought up to date with
+#' single version number. The constructors, the steps of the workflow,
+#' [pb_counts()] and the setters check the object they return, so a step or
+#' setter that would return an invalid object stops with these problems
+#' instead. Objects saved by an earlier version of the package, for example
+#' with `saveRDS()`, are brought up to date with
 #' \code{\link[=updateObject,ScMaSigPro-method]{updateObject()}}.
 #'
 #' @section Why a class of its own:
@@ -477,7 +516,20 @@ setClass(
 #'
 #' @name ScMaSigPro
 #' @aliases ScMaSigPro-class
+#' @return An object of class `ScMaSigPro`. [as_scmp()] and [create_scmp()]
+#' make one with the cells in the `Sparse` slot; [sc.squeeze()] adds the
+#' bins (`Dense`), [sc.set.poly()] the design (`Design`), [sc.p.vector()]
+#' the test of each gene (`Profile`), [sc.t.fit()] the selected models
+#' (`Estimate`), [sc.filter()] and [sc.cluster.trend()] the gene lists and
+#' clusters (`Significant`), and every step its settings (`Parameters`).
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' scmp.ob
+#' validObject(scmp.ob)
+#'
 #' @rdname ScMaSigPro-class
+#' @family classes
 #' @exportClass ScMaSigPro
 #' @importFrom methods is new as validObject
 #' @keywords classes

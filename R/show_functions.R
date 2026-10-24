@@ -13,19 +13,7 @@
 # 10. showGroupCoeff():
 
 ###############################################################################
-#' @title Return the Coefficient matrix
-#'
-#' @description
-#' This function returns the Coefficients from the provided
-#' scMaSigPro object.
-#'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param includeInflu Whether to include genes with influential observations.
-#'
-#' @return The computed Coefficient matrix as a dataframe.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname showSol
 #' @export
 showCoeff <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
@@ -48,18 +36,7 @@ showCoeff <- function(scmpObj, includeInflu = TRUE) {
 }
 
 ###############################################################################
-#' @title Return the matrix of genes with influential observation
-#'
-#' @description
-#' This function returns the matrix of genes with influential
-#' observation from the provided scMaSigPro object.
-#'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#'
-#' @return Matrix of genes with influential observation.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname showSol
 #' @export
 showInflu <- function(scmpObj) {
     # Check Object Validity
@@ -77,19 +54,7 @@ showInflu <- function(scmpObj) {
 }
 
 ###############################################################################
-#' @title Return the t-score matrix
-#'
-#' @description
-#' This function returns the t-scores from the provided
-#' scMaSigPro object.
-#'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param includeInflu Whether to include genes with influential observations.
-#'
-#' @return The computed t-score matrix as a dataframe.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname showSol
 #' @export
 showTS <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
@@ -112,18 +77,41 @@ showTS <- function(scmpObj, includeInflu = TRUE) {
 }
 
 ###############################################################################
-#' @title Return the P-values after model fitting.
+#' Results of the term selection
 #'
-#' @description
-#' This function returns the matrix of p-values for each term
-#' and the full model from the provided scMaSigPro object.
+#' Read the per-gene results that [sc.t.fit()] stores in a
+#' [ScMaSigPro-class] object:
+#' * `showSol()`: for each gene whose selected model has a significant
+#'   coefficient, the p-value and R-squared of that model and the p-value of
+#'   each coefficient of the full model (`NA` for the terms it leaves out).
+#' * `showCoeff()`: the coefficients of these genes, 0 for the terms the
+#'   model leaves out and `NA` for the terms that cannot be estimated.
+#' * `showTS()`: their t statistics.
+#' * `showGroupCoeff()`: the coefficients of the polynomial of each path.
+#' * `showInflu()`: the genes with influential observations, one column per
+#'   gene and one row per bin; an entry names the influence measures that
+#'   flag the bin (DFFITS and Cook's distance, see
+#'   [stats::influence.measures()]).
+#' * `showSigProf()`: the pseudo-bulk counts of the genes of `showSol()`.
 #'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param includeInflu Whether to include genes with influential observations.
+#' @param includeInflu Whether to keep the genes with influential
+#'   observations, the columns of `showInflu()`.
 #'
-#' @return The computed p-values for each term and full model as a dataframe.
+#' @return `showSol()`, `showCoeff()` and `showGroupCoeff()`: a data frame
+#' with one row per gene. `showTS()`: a numeric matrix with one row per gene.
+#' `showInflu()`: a character matrix with one row per bin and one column per
+#' gene, 0 x 0 when no gene has influential observations. `showSigProf()`: a
+#' `dgCMatrix` with one row per gene and one column per bin.
 #'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#' @family results
+#'
+#' @inheritParams scmp-params
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' head(showSol(scmp.ob))
+#' head(showGroupCoeff(scmp.ob))
+#' colnames(showInflu(scmp.ob))
 #'
 #' @export
 showSol <- function(scmpObj, includeInflu = TRUE) {
@@ -147,19 +135,7 @@ showSol <- function(scmpObj, includeInflu = TRUE) {
 }
 
 ###############################################################################
-#' @title Return the counts for non-flat profile.
-#'
-#' @description
-#' This function returns the pseudo-bulk counts of the genes
-#' with non-flat profiles. from the provided scMaSigPro object.
-#'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param includeInflu Whether to include genes with influential observations.
-#'
-#' @return Pseudo-bulk counts as matrix for genes with non-flat profiles.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname showSol
 #' @export
 showSigProf <- function(scmpObj, includeInflu = FALSE) {
     # Check Object Validity
@@ -186,17 +162,7 @@ showSigProf <- function(scmpObj, includeInflu = FALSE) {
 }
 
 ###############################################################################
-#' @title Print the full model formula.
-#'
-#' @description
-#' Print the full model formula in console as a string.
-#'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#'
-#' @return Character string of the formula for the full model.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname showParams
 #' @export
 showPoly <- function(scmpObj) {
     # Check Object Validity
@@ -231,17 +197,26 @@ showPoly <- function(scmpObj) {
 }
 
 ###############################################################################
-#' @title Show the parameters used during the workflow.
+#' Parameters and model formula of an analysis
 #'
-#' @description
-#' Get all the parameters used during the workflow.
+#' `showParams()` lists the parameters that the steps of the workflow store
+#' in a [ScMaSigPro-class] object (see [ParameterConfig-class]).
+#' `showPoly()` writes the full model that [sc.set.poly()] set up, with one
+#' coefficient `beta1`, `beta2`, ... per column of the design matrix.
+#'
+#' @return `showParams()`: a data frame with the columns `parameters` and
+#' `value`, one row per parameter. `showPoly()`: a character string.
+#'
+#' @family results
 #'
 #' @importFrom methods slot slotNames
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #'
-#' @return Dataframe of the parameters used in the analysis.
+#' @inheritParams scmp-params
 #'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' head(showParams(scmp.ob))
+#' showPoly(scmp.ob)
 #'
 #' @export
 showParams <- function(scmpObj) {
@@ -290,17 +265,7 @@ showParams <- function(scmpObj) {
 }
 
 ###############################################################################
-#' @title Return the Branching Path Coefficient matrix
-#'
-#' @description
-#' This function returns the branching paths Coefficients from
-#' the provided scMaSigPro object.
-#'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param includeInflu Whether to include genes with influential observations.
-#'
-#' @return The computed branching path Coefficient matrix as a dataframe.
-#'
+#' @rdname showSol
 #' @export
 showGroupCoeff <- function(scmpObj, includeInflu = TRUE) {
     # Check Object Validity
@@ -323,16 +288,19 @@ showGroupCoeff <- function(scmpObj, includeInflu = TRUE) {
 }
 
 ###############################################################################
-#' @title Show ScMaSigPro Object Information
+#' @title Print a ScMaSigPro object
 #'
 #' @description
-#' This method displays basic information about the ScMaSigPro object when the
-#' object is printed in the console. The method is automatically called when the
-#' user writes the name of the object in the console.
+#' `.ScMaSigPro_show()` prints a summary of a [ScMaSigPro-class] object; the
+#' `show()` method calls it.
 #'
-#' @param object An object of class \code{ScMaSigPro}.
+#' @param object A [ScMaSigPro-class] object.
 #'
 #' @keywords internal
+#'
+#' @seealso [ScMaSigPro-class]
+#'
+#' @return `NULL`, invisibly; called for what it prints.
 .ScMaSigPro_show <- function(object) {
     # Show Basic information
     cat("Class: ScMaSigProClass\n")
@@ -425,17 +393,23 @@ showGroupCoeff <- function(scmpObj, includeInflu = TRUE) {
 }
 
 ###############################################################################
-#' @title Extract Information `.ScMaSigPro_show`
+#' @title Bins per path for the printed summary
 #'
 #' @description
-#' Extract details for the console cat of `.ScMaSigPro_show`.
+#' `extract_info()` gives the mean bin size or the number of bins of each path
+#' for `.ScMaSigPro_show()`.
 #'
-#' @param data A dataframe.
-#' @param return_type Average Bin Size or Number of Bins.
-#' @param bin_size_col Column name with the bins.
-#' @param path_col Column name with the path information.
+#' @param data The bin metadata.
+#' @param return_type `"avg_bin_size"` or `"num_bins"`.
+#' @param bin_size_col The column with the number of cells of each bin.
+#' @param path_col The column with the path labels.
 #'
 #' @keywords internal
+#'
+#' @seealso [ScMaSigPro-class], whose `show()` method prints it.
+#'
+#' @return One value per path: the mean bin size (`"avg_bin_size"`) or the
+#' number of bins (`"num_bins"`, a table).
 extract_info <- function(data, return_type = "avg_bin_size",
                          bin_size_col, path_col) {
     if (return_type == "avg_bin_size") {
