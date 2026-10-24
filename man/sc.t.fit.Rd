@@ -13,11 +13,9 @@ sc.t.fit(
   epsilon = scmpObj@Parameters@epsilon,
   offset = scmpObj@Parameters@offset,
   verbose = TRUE,
-  parallel = FALSE,
-  n_cores = availableCores() - 2,
-  log_offset = scmpObj@Parameters@log_offset,
   max_it = scmpObj@Parameters@max_it,
-  link = scmpObj@Parameters@link
+  link = scmpObj@Parameters@link,
+  BPPARAM = SerialParam()
 )
 }
 \arguments{
@@ -30,29 +28,38 @@ regression.}
 
 \item{nvar_correction}{Argument for correcting significance level. See details.}
 
-\item{family}{Distribution of the error term.}
+\item{family}{Distribution of the error term, a \code{\link[stats]{family}}
+object. The default is the family that \code{sc.p.vector()} used, with its
+link. When \code{sc.p.vector()} estimated one theta per gene
+(\code{theta_estimate = "gene"}), each gene is fitted with its own theta.}
 
 \item{epsilon}{Model convergence tolerance.}
 
-\item{offset}{A logical value specifying whether to use offset during fitting.}
+\item{offset}{A logical value specifying whether to use offset during
+fitting: the logarithm of the size factor of each bin, which needs the log
+link. The fits use the offsets that \code{sc.p.vector()} computed from
+every gene it fitted and stored in the \code{Design} slot; when it stored none
+(\code{offset = FALSE}), they are computed here in the same way.}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{parallel}{Use forking process to run parallelly. (Default is FALSE)
-(Currently, Windows is not supported)}
-
-\item{n_cores}{Explicitly specify the number of cores to use for parallel model
-fitting. (Default is inferred from the system using availableCores()-2)}
-
-\item{log_offset}{A logical value specifying whether to take the logarithm of
-the offsets.}
-
 \item{max_it}{Maximum number of iterations to fit the model.}
 
-\item{link}{Type of link function to use in the model. Default is "log".}
+\item{link}{The link of \code{family}. The default is the link that
+\code{sc.p.vector()} used; when given, it must be the link of
+\code{family}. Choose the link in \code{sc.p.vector()}.}
+
+\item{BPPARAM}{A \code{BiocParallelParam} object that runs the per-gene
+fits, such as
+\code{\link[BiocParallel:MulticoreParam-class]{MulticoreParam}(2)} (Linux
+and macOS) or \code{\link[BiocParallel:SnowParam-class]{SnowParam}(2)}
+(any system, including Windows). The default,
+\code{\link[BiocParallel:SerialParam-class]{SerialParam}()}, fits the genes
+one after another. Create it with \code{progressbar = TRUE} for a progress
+bar. The results do not depend on the backend.}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}, with updated `Estimate`
+An object of class \code{\link{ScMaSigPro}}, with updated \code{Estimate}
 slot.
 }
 \description{

@@ -21,41 +21,42 @@ sc.filter(
 
 \item{p_value}{Overall model significance.}
 
-\item{vars}{Variables for which to extract significant genes. See details.}
+\item{vars}{Variables for which to extract significant genes: "all" (the
+default), "each" or "groups". See details.}
 
 \item{intercept}{Specify the branching path treated as reference. See details.
-(When `vars` equals "groups").}
+(When \code{vars} equals "groups").}
 
 \item{term_p_value}{Term wise significance.}
 
 \item{includeInflu}{Whether to include genes with influential observations.}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}, with updated `Significant`
+An object of class \code{\link{ScMaSigPro}}, with updated \code{Significant}
 slot.
 }
 \description{
-`sc.filter()` creates lists of significant genes based on user-specified
+\code{sc.filter()} creates lists of significant genes based on user-specified
 constraints.
 }
 \details{
-`vars` Parameter can take one of the following values:
+\code{vars} Parameter can take one of the following values:
 \itemize{
-  \item \code{"all"}: Generates one gene list with all significant genes.
-  \item \code{"each"}: Generates gene list for each term in the polynomial GLM.
-  \item \code{"groups"}: Generates gene list for each branching path.
+\item \code{"all"}: Generates one gene list with all significant genes.
+\item \code{"each"}: Generates gene list for each term in the polynomial GLM.
+\item \code{"groups"}: Generates gene list for each branching path.
 }
 
-`intercept` Parameter modulates the treatment for intercept coefficients to
-apply for selecting significant genes when `vars` equals "groups". There are
+\code{intercept} Parameter modulates the treatment for intercept coefficients to
+apply for selecting significant genes when \code{vars} equals "groups". There are
 three possible values:
- \itemize{
-  \item \code{"none"}: No significant intercept (differences) are considered.
-  \item \code{"dummy"}: Includes genes with significant intercept differences
-  between branching paths.
-  \item \code{"all"}: When both significant intercept coefficient for the
-  reference path and significant intercept differences are considered for
-   selecting significant genes.
+\itemize{
+\item \code{"none"}: No significant intercept (differences) are considered.
+\item \code{"dummy"}: Includes genes with significant intercept differences
+between branching paths.
+\item \code{"all"}: When both significant intercept coefficient for the
+reference path and significant intercept differences are considered for
+selecting significant genes.
 }
 }
 \references{
@@ -64,7 +65,7 @@ maSigPro: a Method to Identify Significant Differential Expression Profiles
 in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
 }
 \seealso{
-`maSigPro::get.siggenes()`
+\code{maSigPro::get.siggenes()}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and

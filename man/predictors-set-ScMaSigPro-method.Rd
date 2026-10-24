@@ -12,10 +12,16 @@
 \item{value}{The value of the Predictors Matrix.}
 }
 \value{
-Modified `ScMaSigPro` object.
+Modified \code{ScMaSigPro} object.
 }
 \description{
 Replacement method for predictors
+}
+\details{
+The new object is checked with \code{validObject()}: \code{value} must have the
+rows of the assignment matrix, one per bin and with the same names, and
+one column per term of the design (see \link{MatrixDesign}). Anything else is
+an error.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

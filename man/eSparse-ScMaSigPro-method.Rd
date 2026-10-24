@@ -9,15 +9,14 @@
 \arguments{
 \item{object}{An \code{\link{ScMaSigPro}} object from which to retrieve expression data.}
 
-\item{i}{The name of the assay to retrieve expression counts for.
-The default value "counts" is a placeholder that results in the method returning
-the first assay's data found in the Sparse slot.}
+\item{i}{The name of the assay to retrieve expression counts for. The
+default, "counts", returns the counts, or the first assay when the Sparse
+slot has no assay called "counts".}
 
 \item{...}{Additional arguments (not used currently).}
 }
 \value{
-An expression matrix for the specified (or first, by default) assay
-from the Sparse slot.
+An expression matrix for the specified assay from the Sparse slot.
 }
 \description{
 Retrieves expression counts from the Sparse slot of an

@@ -23,7 +23,7 @@
 #' (if not NULL).
 #' @param verbose Print detailed output in the console. (Default is TRUE)
 #'
-#' @return A \code{\link{SingleCellExperiment}} object with updated cell metadata.
+#' @return A \code{\link[SingleCellExperiment]{SingleCellExperiment}} object with updated cell metadata.
 #'
 #' @seealso \pkg{SingleCellExperiment} package.
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
@@ -38,55 +38,55 @@ annotate_sce <- function(sce,
                          exist_path_col = NULL,
                          labels_exist = FALSE,
                          verbose = TRUE) {
-  # Overwite the columns
-  if (labels_exist) {
-    assertthat::assert_that(
-      all(!is.null(exist_ptime_col) & !is.null(exist_path_col)),
-      msg = paste(
-        "Requested to set 'path_col' as", path_col,
-        "with 'labels_exist' as TRUE. Please supply
-                  'exist_ptime_col' and 'exist_path_col'"
-      )
-    )
-
-    if (verbose) {
-      message(paste0(
-        "Overwritting columns in cell level metadata, '", exist_path_col, "'
-        is replaced by '", path_col,
-        "' and '", exist_ptime_col, "' is replaced by '", ptime_col, "'."
-      ))
-    }
-
-    # Extract the cell metadata
-    cell.meta <- as.data.frame(colData(sce))
-
-    # Check columns
-    assertthat::assert_that(
-      all(exist_ptime_col %in% colnames(cell.meta)),
-      msg = paste("'", exist_ptime_col, "', doesn't exist in colData.")
-    )
-    # Check columns
-    assertthat::assert_that(
-      all(exist_path_col %in% colnames(cell.meta)),
-      msg = paste("'", exist_path_col, "', doesn't exist in colData")
-    )
-
-    # Override
-    names(cell.meta)[names(cell.meta) == exist_ptime_col] <- ptime_col
-
     # Overwite the columns
-    names(cell.meta)[names(cell.meta) == exist_path_col] <- path_col
+    if (labels_exist) {
+        .check(
+            all(!is.null(exist_ptime_col) & !is.null(exist_path_col)),
+            msg = paste(
+                "Requested to set 'path_col' as", path_col,
+                "with 'labels_exist' as TRUE. Please supply",
+                "'exist_ptime_col' and 'exist_path_col'"
+            )
+        )
 
-    # Update cell dataset with the updated cell metadata
-    sce@colData <- DataFrame(cell.meta)
+        if (verbose) {
+            message(
+                "Overwriting columns in cell level metadata, '", exist_path_col,
+                "' is replaced by '", path_col, "' and '", exist_ptime_col,
+                "' is replaced by '", ptime_col, "'."
+            )
+        }
 
-    # Return
-    return(sce)
-  } else {
-    if (verbose) {
-      message(paste("Skipping overwritting of colnames in cell level metadata"))
+        # Extract the cell metadata
+        cell.meta <- as.data.frame(colData(sce))
+
+        # Check columns
+        .check(
+            all(exist_ptime_col %in% colnames(cell.meta)),
+            msg = paste0("'", exist_ptime_col, "' doesn't exist in colData.")
+        )
+        # Check columns
+        .check(
+            all(exist_path_col %in% colnames(cell.meta)),
+            msg = paste0("'", exist_path_col, "' doesn't exist in colData.")
+        )
+
+        # Override
+        names(cell.meta)[names(cell.meta) == exist_ptime_col] <- ptime_col
+
+        # Overwite the columns
+        names(cell.meta)[names(cell.meta) == exist_path_col] <- path_col
+
+        # Update cell dataset with the updated cell metadata
+        colData(sce) <- DataFrame(cell.meta)
+
+        # Return
+        return(sce)
+    } else {
+        if (verbose) {
+            message("Skipping overwriting of colnames in cell level metadata")
+        }
+        # Return
+        return(sce)
     }
-    # Return
-    return(sce)
-  }
 }

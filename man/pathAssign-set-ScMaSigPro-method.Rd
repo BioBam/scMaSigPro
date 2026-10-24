@@ -12,10 +12,15 @@
 \item{value}{The value of the branch Assignment Matrix.}
 }
 \value{
-Modified `ScMaSigPro` object.
+Modified \code{ScMaSigPro} object.
 }
 \description{
 Replacement method for pathAssign
+}
+\details{
+The new object is checked with \code{validObject()}: \code{value} must have the
+rows of the predictor matrix, one per bin and with the same names (see
+\link{MatrixDesign}). Anything else is an error.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

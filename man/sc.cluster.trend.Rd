@@ -29,7 +29,8 @@ sc.cluster.trend(
 \item{cluster_by}{Whether to use counts or coefficients for clustering.}
 
 \item{cluster_method}{Clustering method for data partioning. Currently "hclust",
-"kmeans" and "Mclust" are supported.}
+"kmeans" and "Mclust" are supported. "Mclust" needs the suggested package
+'mclust'.}
 
 \item{hclust.agglo.method}{Aggregation Method. (Default is "ward.D")}
 
@@ -50,11 +51,11 @@ Mclust algorithm. (Default is FALSE)}
 \item{fill_na}{Fill the NAs (if Present), by zero, mean or median.}
 
 \item{use_dim}{Whether to use rows or columns for taking mean or median while
-filling the NAs with `fill_na`.}
+filling the NAs with \code{fill_na}.}
 }
 \value{
 An object of class \code{\link{ScMaSigPro}}, with updated
-`Significant` slot with clusters.
+\code{Significant} slot with clusters.
 }
 \description{
 This function clusters the counts or coefficients to visualize the collective
@@ -66,7 +67,7 @@ maSigPro: a Method to Identify Significant Differential Expression Profiles
 in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
 }
 \seealso{
-`maSigPro::see.genes()`
+\code{maSigPro::see.genes()}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and

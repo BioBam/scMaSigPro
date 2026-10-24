@@ -4,14 +4,12 @@
 \alias{extract_interval}
 \title{Extract Intervals}
 \usage{
-extract_interval(time.vector, nBins = 1, bin, bin.size, lbound, ubound)
+extract_interval(time.vector, nBins = 1, bin.size, lbound, ubound)
 }
 \arguments{
 \item{time.vector}{Numeric vector of Pseudotime values.}
 
 \item{nBins}{Expected number of bins.}
-
-\item{bin}{Column name for the bin column.}
 
 \item{bin.size}{Column name for the bin size column.}
 
@@ -19,7 +17,13 @@ extract_interval(time.vector, nBins = 1, bin, bin.size, lbound, ubound)
 
 \item{ubound}{Column name for the upper bound column.}
 }
+\value{
+A data frame with one row per bin, in increasing order, and the
+columns \code{lbound}, \code{ubound} and \code{bin.size}.
+}
 \description{
-Extract Intervals
+\code{extract_interval()} divides the range of \code{time.vector} into \code{nBins} bins
+of equal width and counts the points of each bin. The bounds of the bins
+are the breaks \code{seq(min, max, length.out = nBins + 1)} themselves.
 }
 \keyword{internal}

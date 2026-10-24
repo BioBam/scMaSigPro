@@ -9,13 +9,20 @@
 \arguments{
 \item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The new value for the `colData` slot. (When Setting)}
+\item{value}{The new value for the \code{colData} slot. (When Setting)}
 }
 \value{
-Modified `ScMaSigPro` object.
+Modified \code{ScMaSigPro} object.
 }
 \description{
 Replacement method for cSparse
+}
+\details{
+\code{value} must have one row per cell, named after the cells of the \code{Sparse}
+slot and in their order, as \code{\link[=cSparse]{cSparse()}} returns it; a table without
+rownames is taken in the order of the cells. Anything else is an error:
+the cells are the columns of the count matrix, and \code{\link[=sc.squeeze]{sc.squeeze()}} finds
+them by name.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

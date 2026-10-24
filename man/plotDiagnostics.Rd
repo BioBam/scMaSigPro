@@ -15,7 +15,8 @@ plotDiagnostics(scmpObj, feature_id, model = "optimized")
 'intercept'and 'full'. Default is 'optimized'.}
 }
 \value{
-ggplot2 plot object.
+A patchwork object with four ggplot2 panels. 'patchwork' must be
+installed.
 }
 \description{
 Plots model residuals for the requested gene. Can be used for model

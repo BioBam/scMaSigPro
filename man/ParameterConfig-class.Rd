@@ -7,28 +7,37 @@
 \title{ParameterConfig}
 \description{
 S4 Class to hold parameters used in the analysis. It is constantly updated
-asthe analysis progresses.
+as the analysis progresses.
+}
+\details{
+\code{validObject()} checks that every slot except \code{distribution} holds a
+single non-missing value, that \code{min_counts} and \code{min_bins_expressed} are
+at least 0, that \code{test} is "chisq" or "F" and that \code{distribution} is a
+\code{\link[stats:family]{stats::family()}} object.
 }
 \section{Slots}{
 
 \describe{
 \item{\code{bin_ptime_col}}{A character string representing the column name
-for binned Pseudotime values in 'Dense' data. See `colData` from the
+for binned Pseudotime values in 'Dense' data. See \code{colData} from the
 \pkg{SingleCellExperiment} package.}
 
-\item{\code{path_prefix}}{Update Description..}
+\item{\code{path_prefix}}{A character string, the prefix for branching path
+labels given to \code{\link[=as_scmp]{as_scmp()}} (Default is "Path"); \code{\link[=as_scmp]{as_scmp()}} also uses
+it as the default \code{path_col}.}
 
-\item{\code{root_label}}{Update Description..}
+\item{\code{root_label}}{A character string, the label for root cells given to
+\code{\link[=as_scmp]{as_scmp()}} (Default is "root"). It is stored for reference only.}
 
 \item{\code{ptime_col}}{A character string representing the column name
-for inferred Pseudotime values in 'Sparse' data. See `colData` from the
+for inferred Pseudotime values in 'Sparse' data. See \code{colData} from the
 \pkg{SingleCellExperiment} package.}
 
 \item{\code{bin_method}}{A character string representing the algorithm used for
 binning.}
 
 \item{\code{path_col}}{A character string representing the column name for branching
-path assignment in 'Sparse' or 'Dense' data. See `colData` from the
+path assignment in 'Sparse' or 'Dense' data. See \code{colData} from the
 \pkg{SingleCellExperiment} package.}
 
 \item{\code{bin_col}}{A character string representing the name of the column in which
@@ -43,12 +52,15 @@ which cells per bin are stored.}
 \item{\code{anno_col}}{A character string representing the column name for cell level
 metadata containing cell level annotations. (Default is "cell_type").}
 
-\item{\code{g}}{Update Description..}
+\item{\code{g}}{An integer, the number of features that \code{\link[=sc.p.vector]{sc.p.vector()}} fitted:
+those left after removing features with fewer than \code{min_na} values, with
+zero counts in every bin, or below \code{min_counts} or \code{min_bins_expressed}.}
 
 \item{\code{p_value}}{Significance Level.}
 
-\item{\code{min_na}}{Minimum values needed per gene across cells to estimate the
-model.}
+\item{\code{min_na}}{The minimum number of bins with a value (not \code{NA}) that
+\code{\link[=sc.p.vector]{sc.p.vector()}} required; it only removes features from counts with
+missing values.}
 
 \item{\code{mt_correction}}{A character string specifying the p-value correction
 method.}
@@ -60,10 +72,8 @@ method.}
 \item{\code{selection_method}}{A character string specifying the method for stepwise
 regression.}
 
-\item{\code{offset}}{A logical value specifying whether to use offset during fitting.}
-
-\item{\code{log_offset}}{A logical value specifying whether to take the logarithm of
-the offsets.}
+\item{\code{offset}}{A logical value, whether the fits used the offset of each bin,
+the logarithm of its size factor (see \code{\link[=sc.p.vector]{sc.p.vector()}}).}
 
 \item{\code{max_it}}{Maximum number of iterations to fit the model.}
 
@@ -77,6 +87,16 @@ the offsets.}
 clustering.}
 
 \item{\code{fill_na}}{Method to fill the missing values.}
+
+\item{\code{min_counts}}{The minimum total count over the bins that
+\code{\link[=sc.p.vector]{sc.p.vector()}} required of a feature (0: no minimum).}
+
+\item{\code{min_bins_expressed}}{The minimum number of bins with a count above 0
+that \code{\link[=sc.p.vector]{sc.p.vector()}} required of a feature (0: no minimum).}
+
+\item{\code{test}}{The test of the full model of each feature that \code{\link[=sc.p.vector]{sc.p.vector()}}
+was asked for: "chisq" (the default), the chi-squared test, or "F", the F
+test.}
 }}
 
 \keyword{classes}

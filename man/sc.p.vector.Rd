@@ -9,15 +9,17 @@ sc.p.vector(
   p_value = 0.05,
   mt_correction = "BH",
   min_na = 6,
-  family = negative.binomial(theta = 10),
+  min_counts = 0,
+  min_bins_expressed = 0,
+  family = negative.binomial(theta = 10, link = link),
   epsilon = 1e-08,
   verbose = TRUE,
   offset = TRUE,
-  parallel = FALSE,
-  n_cores = availableCores() - 2,
-  log_offset = FALSE,
   max_it = 100,
-  link = "log"
+  link = "log",
+  theta_estimate = "none",
+  test = "chisq",
+  BPPARAM = SerialParam()
 )
 }
 \arguments{
@@ -29,42 +31,135 @@ regression.}
 \item{mt_correction}{A character string specifying the p-value correction
 method.}
 
-\item{min_na}{Minimum values needed per gene across cells to estimate the
-model.}
+\item{min_na}{Minimum number of bins with a value (not \code{NA}) that a gene
+needs to be fitted, as \code{min.obs} in \code{maSigPro::p.vector()}. It only
+matters for counts with missing values, such as microarray data given to
+\code{\link[=create_scmp]{create_scmp()}} with \code{use_as_bin = TRUE}: the pseudo-bulk counts of
+\code{\link[=sc.squeeze]{sc.squeeze()}} and \code{\link[=pb_counts]{pb_counts()}} have a value in every bin, so every gene
+passes whenever \code{min_na} is at most the number of bins. It cannot be more
+than the number of bins of the design.}
 
-\item{family}{Distribution of the error term.}
+\item{min_counts}{Minimum total count of a gene, summed over the bins of
+the design. Genes with fewer counts are left out of the fit. The default,
+0, keeps every gene.}
+
+\item{min_bins_expressed}{Minimum number of bins of the design in which a
+gene has a count above 0. Genes expressed in fewer bins are left out of
+the fit. The default, 0, keeps every gene; it can be at most the number of
+bins.}
+
+\item{family}{Distribution of the error term, a \code{\link[stats]{family}}
+object. The default is the negative binomial family with \code{theta = 10}
+and the link given by \code{link}. A family given here is used with its
+own link.}
 
 \item{epsilon}{Model convergence tolerance.}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{offset}{logical value specifying whether to use offset during fitting.}
-
-\item{parallel}{Use forking process to run parallelly. (Default is FALSE)
-(Currently, Windows is not supported)}
-
-\item{n_cores}{Explicitly specify the number of cores to use for parallel model
-fitting. (Default is inferred from the system using availableCores()-2)}
-
-\item{log_offset}{A logical value specifying whether to take the logarithm of
-the offsets.}
+\item{offset}{logical value specifying whether to use offset during fitting.
+The offset of each bin, the logarithm of its size factor (see Details), is
+added to the linear predictor, where it scales the fitted mean under the
+log link only: with any other link the fits stop with an error unless
+\code{offset = FALSE}.}
 
 \item{max_it}{Maximum number of iterations to fit the model.}
 
-\item{link}{Type of link function to use in the model. Default is "log".}
+\item{link}{Link function of the default family: "log" (the default, the
+model of the paper) or "identity". When \code{family} is also given,
+\code{link} must be the link of that family. The identity link needs
+\code{offset = FALSE}; under it the fitted mean of a gene can become
+negative, and \code{glm()} then warns.}
+
+\item{theta_estimate}{For a negative binomial \code{family}: \code{"none"}
+(the default) fits every gene with the theta of \code{family} (10 by default,
+as maSigPro). \code{"gene"} estimates theta by maximum likelihood on each
+gene's full model and fits the gene with it; \code{"global"} fits every
+gene with the median of these estimates. The estimates are kept in the
+\code{distribution} parameter, for \code{\link[=sc.t.fit]{sc.t.fit()}} and \code{\link[=plotDiagnostics]{plotDiagnostics()}}:
+\code{theta_gene} holds one per gene and \code{theta_estimate} the choice.}
+
+\item{test}{The test of each gene's full model against its intercept-only
+model: \code{"chisq"} (the default) or \code{"F"}. Both divide the
+difference in deviance between the two models by the dispersion of the
+full model, which, for the negative binomial and Gaussian families, is
+estimated as its Pearson statistic divided by its residual degrees of
+freedom. \code{"chisq"} compares the result with the chi-squared
+distribution, as maSigPro does. \code{"F"} also divides it by the
+difference in degrees of freedom and compares it with the F distribution
+on the residual degrees of freedom of the full model: the F test of
+\code{\link[stats:anova.glm]{stats::anova.glm()}}. With the Gaussian family both values give the F
+test, the test of maSigPro for that family. \code{"F"} needs a family
+whose dispersion is estimated, so not \code{\link[stats:binomial]{stats::binomial()}} or
+\code{\link[stats:poisson]{stats::poisson()}}. The value is kept in the \code{test} parameter. See
+Details.}
+
+\item{BPPARAM}{A \code{BiocParallelParam} object that runs the per-gene
+fits, such as
+\code{\link[BiocParallel:MulticoreParam-class]{MulticoreParam}(2)} (Linux
+and macOS) or \code{\link[BiocParallel:SnowParam-class]{SnowParam}(2)}
+(any system, including Windows). The default,
+\code{\link[BiocParallel:SerialParam-class]{SerialParam}()}, fits the genes
+one after another. Create it with \code{progressbar = TRUE} for a progress
+bar. The results do not depend on the backend.}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}, with updated `Profile`
+An object of class \code{\link{ScMaSigPro}}, with updated \code{Profile}
 slot.
 }
 \description{
 Performs a regression fit for each gene taking all variables present in the
 model.
 }
+\details{
+With \code{offset = TRUE}, the fits include an offset as Srivastava et al.
+(2024), Section 2.3 and Supplementary Section S1.3, describe it:
+"scMaSigPro incorporates an offset value to the Poly-GLM model to adjust
+for disparities in total read counts per bin. This offset is calculated
+as the logarithm of size factors for each bin". The size factors are those
+of the median-of-ratios method of Love, Huber and Anders (2014), on the
+raw counts: "The size factor for each bin is the median of the ratios of
+its counts to the geometric means for each gene". Only the genes with a
+count above 0 in every bin have a geometric mean above 0 and enter the
+medians. The genes are fitted on their raw counts, without a pseudo-count:
+"scMaSigPro can directly process raw counts". When every gene has a zero
+count in some bin, the size factors cannot be computed and the fit stops
+with an error: fewer and larger bins (see \code{\link[=sc.squeeze]{sc.squeeze()}}) can leave genes
+without a zero count, and \code{offset = FALSE} fits without the offset. The
+offsets are stored in the \code{Design} slot, where \code{\link[=sc.t.fit]{sc.t.fit()}} finds them;
+with \code{offset = FALSE} no offset is stored.
+
+Genes are left out of the fit when they have fewer than \code{min_na} values,
+when all their counts are zero, and when they are below \code{min_counts} or
+\code{min_bins_expressed}. Genes left out have no p-value and do not count in
+the multiple-testing correction; \code{\link[=scmpResults]{scmpResults()}} gives them \code{NA}. The size
+factors of the offset are computed before \code{min_counts} and
+\code{min_bins_expressed} are applied, on every gene left by the first two
+rules, so these two filters change the results of the genes they keep
+only through the multiple-testing correction.
+
+The test of the full model is the first step of the method of Srivastava
+et al. (2024), Section 2.4: "scMaSigPro implements a two-step strategy
+similar to the maSigPro method", in which the full model of each gene is
+"evaluated against a simpler intercept-only model via hypothesis testing
+based on the log-likelihood ratio statistic". The default,
+\code{test = "chisq"}, is that test, as maSigPro computes it for families
+other than the Gaussian: the statistic is divided by the estimated
+dispersion and compared with the chi-squared distribution, as if the
+dispersion were known. With few bins, and so few residual degrees of
+freedom, the estimate varies from gene to gene and the test calls more
+genes significant than its level. \code{test = "F"}, the quasi-likelihood F
+test, accounts for the estimation of the dispersion through the residual
+degrees of freedom of the F distribution.
+}
 \references{
 Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
 maSigPro: a Method to Identify Significant Differential Expression Profiles
 in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102
+
+Love, M.I., Huber, W. and Anders, S. (2014). Moderated estimation of fold
+change and dispersion for RNA-seq data with DESeq2. Genome Biology 15, 550.
+\doi{10.1186/s13059-014-0550-8}
 }
 \seealso{
 \code{\link{VariableProfiles}}

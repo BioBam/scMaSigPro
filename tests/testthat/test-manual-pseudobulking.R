@@ -1,64 +1,47 @@
-suppressPackageStartupMessages(library(testthat))
-suppressPackageStartupMessages(library(scMaSigPro))
+# sc.squeeze() must reproduce a manual pseudo-bulk: for every bin, the sum (or
+# rounded mean) of the counts of its member cells, for every gene.
 
-test_that("Check Pseudo-bulking with manual bulking", {
-  # Step-1: Load Data
-  data("splat.sim", package = "scMaSigPro")
+bin_members <- function(ob) {
+    bins <- cDense(ob)
+    members <- strsplit(bins[[ob@Parameters@bin_mem_col]], "|", fixed = TRUE)
+    names(members) <- rownames(bins)
+    members
+}
 
-  # Step-2: Create scMaSigPro object
-  scmp_ob <- as_scmp(
-    object = splat.sim, from = "sce",
-    align_pseudotime = FALSE,
-    verbose = FALSE,
-    additional_params = list(
-      labels_exist = TRUE,
-      exist_ptime_col = "Step",
-      exist_path_col = "Group"
-    )
-  )
+test_that("pseudo-bulk counts equal the per-bin sums of the member cells", {
+    ob <- splat_binned()
+    bins <- cDense(ob)
+    counts <- eSparse(ob)
+    bulk <- eDense(ob)
+    members <- bin_members(ob)
 
-  # Step-3: Perform Pseudobulking
-  scmp_ob <- sc.squeeze(scmp_ob)
+    # every cell is in exactly one bin, and bin sizes are recorded correctly
+    expect_setequal(unlist(members, use.names = FALSE), colnames(counts))
+    expect_identical(anyDuplicated(unlist(members, use.names = FALSE)), 0L)
+    expect_equal(unname(lengths(members)), as.numeric(bins[[ob@Parameters@bin_size_col]]))
 
-  # Extract data for a random gene
-  random_gene <- sample(nrow(eSparse(scmp_ob)), 1)
-  slot_gen9 <- eSparse(scmp_ob)[random_gene, ]
-  slot_Bgen9 <- eDense(scmp_ob)[random_gene, ]
+    manual <- vapply(members, function(cells) {
+        rowSums(counts[, cells, drop = FALSE])
+    }, numeric(nrow(counts)))
+    expect_equal(manual, bulk[, names(members)])
+    expect_equal(sum(bulk), sum(counts))
+})
 
-  # Extract Pseudotime and the binned Pseudotime
-  Pseudotime <- cSparse(scmp_ob)$Pseudotime
-  names(Pseudotime) <- rownames(cSparse(scmp_ob))
-  BinnedPseudotime <- cSparse(scmp_ob)$scmp_binned_pseudotime
-  names(BinnedPseudotime) <- rownames(cSparse(scmp_ob))
+test_that("aggregate = 'mean' gives the rounded per-bin mean of the member cells", {
+    ob <- sc.squeeze(splat_scmp(), aggregate = "mean")
+    counts <- eSparse(ob)
+    bulk <- eDense(ob)
+    members <- bin_members(ob)
 
-  # Extract bin information
-  Bin <- cDense(scmp_ob)[[scmp_ob@Parameters@bin_ptime_col]]
-  names(Bin) <- rownames(cDense(scmp_ob))
-  Bpath <- rep(c(1:2), each = length(Bin) / 2)
+    manual <- vapply(members, function(cells) {
+        round(rowMeans(counts[, cells, drop = FALSE]))
+    }, numeric(nrow(counts)))
+    expect_equal(manual, bulk[, names(members)])
+})
 
-  # Check total sum
-  expect_identical(
-    expected = as.numeric(sum(slot_gen9)),
-    object = as.numeric(sum(slot_Bgen9))
-  )
-
-  # Create vectors
-  sum1_new <- sum2_new <- NULL
-
-  # Compute pseudo-bulk
-  for (i in 1:length(Bin) / 2) {
-    cell_vector <- names(BinnedPseudotime[BinnedPseudotime == i])
-    cell_count_vector <- slot_gen9[names(slot_gen9) %in% cell_vector]
-    sum1_new <- c(sum1_new, sum(cell_count_vector))
-
-    bin_vector <- names(Bin[Bin == i])
-    bin_count_vector <- slot_Bgen9[names(Bin) %in% bin_vector]
-    sum2_new <- c(sum2_new, sum(bin_count_vector))
-  }
-
-  # Check
-  expect_identical(
-    object = as.numeric(sum1_new),
-    expected = as.numeric(sum2_new)
-  )
+test_that("pb_counts() can be re-run on an object and gives the same matrix", {
+    ob <- splat_binned()
+    again <- pb_counts(ob, assay_name = "counts", cluster_count_by = "sum")
+    expect_equal(eDense(again), eDense(ob))
+    expect_equal(cDense(again), cDense(ob))
 })

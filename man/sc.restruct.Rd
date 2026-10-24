@@ -16,8 +16,7 @@ sc.restruct(
 )
 }
 \arguments{
-\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.
-path assignment in 'Sparse' or 'Dense' data.}
+\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
 
 \item{end_node_list}{A list of end nodes in of the branch.}
 
@@ -31,20 +30,26 @@ used. (Default = "counts").}
 \item{aggregate}{A character string specifying the method to aggregate counts
 within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").}
 
-\item{link_sep}{A character string to separate the link nodes. (Default = "_links_")}
+\item{link_sep}{A character string that separates the two nodes in the
+label of a link node. It is matched as fixed text when the label contains
+it, and as a regular expression otherwise, so \code{"|"} and \code{"\\\\|"} both work.
+(Default = \code{"_links_"})}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}, with updated `Dense`
+An object of class \code{\link{ScMaSigPro}}, with updated \code{Dense}
 slot.
 }
 \description{
-`sc.restruct()` Add Description
+\code{sc.restruct()} rebuilds the binned data so that every end path starts at
+the root: the bins of each link node are added to the paths it links, the
+root bins are added to every end node, the binned pseudotime of the later
+bins is shifted to follow them, and the pseudo-bulk counts are recomputed
+with \code{\link[=pb_counts]{pb_counts()}}.
 }
 \seealso{
-\code{\link{estBinSize}}, \code{\link{discretize}},
-\code{\link{create_range}}
+\code{\link{estBinSize}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

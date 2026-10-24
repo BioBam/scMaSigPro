@@ -4,14 +4,13 @@
 #' `sc.filter()` creates lists of significant genes based on user-specified
 #' constraints.
 #'
-#' @importFrom maSigPro get.siggenes
-#'
 #' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param rsq Coefficient of determination or R-squared value threshold.
 #' @param includeInflu Whether to include genes with influential observations.
 #' @param p_value Overall model significance.
 #' @param term_p_value Term wise significance.
-#' @param vars Variables for which to extract significant genes. See details.
+#' @param vars Variables for which to extract significant genes: "all" (the
+#' default), "each" or "groups". See details.
 #' @param intercept Specify the branching path treated as reference. See details.
 #' (When `vars` equals "groups").
 #'
@@ -55,124 +54,106 @@ sc.filter <- function(scmpObj,
                       intercept = "dummy",
                       term_p_value = 0.05,
                       includeInflu = TRUE) {
-  # Check Validity of the object
-  assertthat::assert_that(is(scmpObj, "ScMaSigPro"),
-    msg = "Please provide object of class 'ScMaSigPro'"
-  )
+    # Check Validity of the object
+    .check_scmp(scmpObj)
 
-  assertthat::assert_that(
-    all(
-      vars %in% c("all", "each", "groups")
-    ),
-    msg = "Invalid selction for 'vars'"
-  )
-
-  # Initiate empty list
-  sig.list <- list()
-
-  # Extract sol
-  sol <- showSol(scmpObj, includeInflu = includeInflu)
-
-  # Replace the NAs with corresponding values
-  sol[is.na(sol$`p-value`), "p-value"] <- 1
-  sol[is.na(sol$`R-squared`), "R-squared"] <- 0
-  sol[, !(colnames(sol) %in% c("p-value", "R-squared"))][is.na(sol[, !(colnames(sol) %in% c("p-value", "R-squared"))])] <- 1
-
-  # Filter based on RSQ and P-value
-  sol <- sol[sol$`p-value` <= p_value, ]
-  sol <- sol[sol$`R-squared` >= rsq, ]
-
-  # If`all`
-  if (vars == "all") {
-    # Return a list of gene names
-    sig.list[["all"]] <- rownames(sol)
-  } else if (vars == "each") {
-    # Subset
-    sol.sub <- sol[, !(colnames(sol) %in% c("p-value", "R-squared")), drop = FALSE]
-
-    # Get the genes
-    sig.list <- apply(sol.sub, 2, function(column) row.names(sol.sub)[which(column <= term_p_value)])
-    names(sig.list) <- stringr::str_remove(names(sig.list), "p.valor_")
-  } else if (vars == "groups") {
-    # Subset
-    sol.sub <- sol[, !(colnames(sol) %in% c("p-value", "R-squared")), drop = FALSE]
-
-    # Get group_vector, from T fit
-    group_vector <- scmpObj@Estimate@path
-
-    # Based on the dummy, none and all
-    if (intercept == "all") {
-      select_cols <- seq(from = 1, to = ncol(sol.sub))
-    } else if (intercept == "dummy") {
-      select_cols <- seq(from = 2, to = ncol(sol.sub))
-    } else if (intercept == "none") {
-      select_cols <- seq(from = 3, to = ncol(sol.sub))
+    # The default lists the choices and means the first, as in match.arg()
+    if (missing(vars)) {
+        vars <- "all"
+    }
+    vars <- .check_choice(vars, c("all", "each", "groups"),
+        msg = "Invalid selection for 'vars'"
+    )
+    if (vars == "groups") {
+        intercept <- .check_choice(intercept, c("dummy", "none", "all"),
+            msg = "Invalid selection for 'intercept'"
+        )
     }
 
-    # subset groupVector and sol
-    group_vector <- group_vector[select_cols]
-    sol.sub <- sol.sub[, select_cols, drop = FALSE]
+    # Initiate empty list
+    sig.list <- list()
 
-    # Create Named list for traversal
-    group_term_list <- as.list(as.vector(colnames(sol.sub)))
-    names(group_term_list) <- group_vector
+    # Extract sol
+    sol <- showSol(scmpObj, includeInflu = includeInflu)
 
-    # Available groups
-    avail_groups <- unique(group_vector)
+    # Replace the NAs with corresponding values
+    sol[is.na(sol$`p-value`), "p-value"] <- 1
+    sol[is.na(sol$`R-squared`), "R-squared"] <- 0
+    sol[, !(colnames(sol) %in% c("p-value", "R-squared"))][is.na(sol[, !(colnames(sol) %in% c("p-value", "R-squared"))])] <- 1
 
-    # Get per path
-    sig.list <- lapply(avail_groups, function(group_i) {
-      # Get names per path
-      group_term_list_sub <- group_term_list[names(group_term_list) %in% group_i]
+    # Filter based on RSQ and P-value
+    sol <- sol[sol$`p-value` <= p_value, ]
+    sol <- sol[sol$`R-squared` >= rsq, ]
 
-      # get subset
-      sol.sub.term <- sol.sub[, unlist(group_term_list_sub), drop = FALSE]
+    # If`all`
+    if (vars == "all") {
+        # Return a list of gene names
+        sig.list[["all"]] <- rownames(sol)
+    } else if (vars == "each") {
+        # Subset
+        sol.sub <- sol[, !(colnames(sol) %in% c("p-value", "R-squared")), drop = FALSE]
 
-      # Get group wise genes
-      sig.list.tmp <- row.names(sol.sub.term)[apply(sol.sub.term, 1, function(x) any(x <= term_p_value))]
+        # Get the genes of each term: lapply(), because apply() returns a
+        # matrix when every term selects the same number of genes
+        sig.list <- lapply(sol.sub, function(column) {
+            row.names(sol.sub)[which(column <= term_p_value)]
+        })
+        names(sig.list) <- sub("p.valor_", "", names(sig.list), fixed = TRUE)
+    } else if (vars == "groups") {
+        # Subset
+        sol.sub <- sol[, !(colnames(sol) %in% c("p-value", "R-squared")), drop = FALSE]
 
-      # Return
-      return(sig.list.tmp)
-    })
+        # Get group_vector, from T fit
+        group_vector <- scmpObj@Estimate@path
 
-    # Add names
-    names(sig.list) <- avail_groups
-  }
+        # Based on the dummy, none and all
+        if (intercept == "all") {
+            select_cols <- seq(from = 1, to = ncol(sol.sub))
+        } else if (intercept == "dummy") {
+            select_cols <- seq(from = 2, to = ncol(sol.sub))
+        } else if (intercept == "none") {
+            select_cols <- seq(from = 3, to = ncol(sol.sub))
+        }
 
-  # # Create a named tstep
-  ## Donot remove this ##
-  # tstep <- list(
-  #   dis = scmpObj@design@predictor,
-  #   edesign = scmpObj@design@alloc,
-  #   groups.vector = scmpObj@estimate@path,
-  #   sol = showSol(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
-  #   coefficients = showCoeff(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
-  #   sig.profiles = showSigProf(scmpObj, return = TRUE, view = FALSE, includeInflu = includeInflu),
-  #   group.coeffs = scmpObj@estimate@group.coeffs
-  # )
+        # subset groupVector and sol
+        group_vector <- group_vector[select_cols]
+        sol.sub <- sol.sub[, select_cols, drop = FALSE]
 
-  # sig.genes.s3 <- get.siggenes(tstep,
-  #   rsq = rsq, add.IDs = FALSE, IDs = NULL, matchID.col = 1,
-  #   only.names = FALSE, vars = vars,
-  #   intercept = intercept,
-  #   groups.vector = NULL, trat.repl.spots = "none",
-  #   r = 0.7
-  # )
+        # Create Named list for traversal
+        group_term_list <- as.list(as.vector(colnames(sol.sub)))
+        names(group_term_list) <- group_vector
 
-  # Create Object
-  # siggenes.object <- new("Significant",
-  #   summary = sig.genes.s3$summary,
-  #   sig.genes = sig.genes.s3$sig.genes
-  # )
+        # Available groups
+        avail_groups <- unique(group_vector)
 
-  # Create Object
-  siggenes.object <- new("Significant",
-    genes = sig.list
-  )
+        # Get per path
+        sig.list <- lapply(avail_groups, function(group_i) {
+            # Get names per path
+            group_term_list_sub <- group_term_list[names(group_term_list) %in% group_i]
 
-  # Update the slot
-  scmpObj@Significant <- siggenes.object
+            # get subset
+            sol.sub.term <- sol.sub[, unlist(group_term_list_sub), drop = FALSE]
 
-  # Return
-  return(scmpObj)
+            # Get group wise genes
+            sig.list.tmp <- row.names(sol.sub.term)[apply(sol.sub.term, 1, function(x) any(x <= term_p_value))]
+
+            # Return
+            return(sig.list.tmp)
+        })
+
+        # Add names
+        names(sig.list) <- avail_groups
+    }
+
+    # Create Object
+    siggenes.object <- new("Significant",
+        genes = sig.list
+    )
+
+    # Update the slot
+    scmpObj@Significant <- siggenes.object
+    validObject(scmpObj)
+
+    # Return
+    return(scmpObj)
 }

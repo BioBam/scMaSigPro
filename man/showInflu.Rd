@@ -4,20 +4,16 @@
 \alias{showInflu}
 \title{Return the matrix of genes with influential observation}
 \usage{
-showInflu(scmpObj, view = FALSE, return = TRUE)
+showInflu(scmpObj)
 }
 \arguments{
 \item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
-
-\item{view}{Whether to view the data in the explorer. (Default: FALSE)}
-
-\item{return}{Whether to return the data. (Default: TRUE)}
 }
 \value{
 Matrix of genes with influential observation.
 }
 \description{
-This function is used to view or return the matrix of genes with influential
+This function returns the matrix of genes with influential
 observation from the provided scMaSigPro object.
 }
 \author{

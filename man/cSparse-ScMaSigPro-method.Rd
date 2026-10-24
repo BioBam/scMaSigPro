@@ -9,13 +9,16 @@
 \arguments{
 \item{object}{An object of class \code{\link{ScMaSigPro}}.}
 
-\item{value}{The new value for the `colData` slot. (When Setting)}
+\item{value}{The new value for the \code{colData} slot. (When Setting)}
 }
 \value{
-`colData` when getting, modified `ScMaSigPro` object when setting.
+\code{colData} when getting, modified \code{ScMaSigPro} object when setting.
 }
 \description{
 Set or get the Sparse Column Data of an ScMaSigPro Object
+}
+\details{
+When \code{value} is given, it is checked as by \code{\link{cSparse<-}}.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

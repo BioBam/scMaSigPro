@@ -11,7 +11,6 @@ optimize_bin_max(
   time_vector,
   lbound,
   ubound,
-  bin,
   bin.size,
   method,
   drop
@@ -20,34 +19,43 @@ optimize_bin_max(
 \arguments{
 \item{bin_table}{A dataframe containing the bin data.}
 
-\item{max_allowed}{The maximum allowed size for a bin.}
+\item{max_allowed}{The maximum allowed size for a bin: a bin with more
+points is split.}
 
 \item{verbose}{Logical; if TRUE, prints detailed output.}
 
 \item{time_vector}{A vector representing time or a sequence that bins refer to.}
 
-\item{lbound}{The name of the lower bound column in `bin_table`.}
+\item{lbound}{The name of the lower bound column in \code{bin_table}.}
 
-\item{ubound}{The name of the upper bound column in `bin_table`.}
+\item{ubound}{The name of the upper bound column in \code{bin_table}.}
 
-\item{bin}{The name of the bin identifier column in `bin_table`.}
+\item{bin.size}{The name of the bin size column in \code{bin_table}.}
 
-\item{bin.size}{The name of the bin size column in `bin_table`.}
+\item{method}{The rule that gives the number of new bins (see
+\code{\link[=estBinSize]{estBinSize()}}).}
 
-\item{method}{The method for handling small bins: 'merge' to merge with previous or next bin,
-'drop' to remove small bins, or 'ignore' to leave small bins as they are.}
-
-\item{drop}{The threshold below which a bin is considered too small and subject to the method.}
+\item{drop}{The factor that multiplies that number (\code{drop_fac}).}
 }
 \value{
-A dataframe with adjusted bins. The structure of the dataframe will be the same as `bin_table`
+A dataframe with adjusted bins. The structure of the dataframe will be the same as \code{bin_table}
 with updated values for the bin size and bounds.
 }
 \description{
-Adjust the bins of a dataframe based on a specified maximum bin size threshold.
-It checks if the bin size is too large relative to this threshold.
-If a bin is too large, it will be split into two equal parts until all bins are
-below the maximum allowed size. Optionally, bins too small can be merged with
-adjacent bins based on the provided method.
+\code{optimize_bin_max()} splits every bin that holds more than \code{max_allowed}
+points. The points of the bin get the number of bins that \code{method} and
+\code{drop} give for them (\code{\link[=estBinSize]{estBinSize()}}) and are divided into that many bins
+of equal width over their range; the first new bin starts at the lower
+bound of the bin and the last ends at its upper bound, so that the new
+bins cover the bin without gaps. The other bins are kept.
+}
+\details{
+\code{\link[=sc.squeeze]{sc.squeeze()}} passes as \code{max_allowed} the maximum of Srivastava et al.
+(2024), Section 2.2: the mean plus the standard deviation of the sizes of
+all bins of the path, set once from the bins of the rule. "Bins larger
+than the maximum size are divided", and "The process is repeated until all
+bins conform to the established size criteria": \code{\link[=sc.squeeze]{sc.squeeze()}} calls
+\code{optimize_bin_max()} again, with the same \code{max_allowed}, until no bin is
+larger.
 }
 \keyword{internal}

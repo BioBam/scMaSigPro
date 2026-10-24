@@ -7,10 +7,10 @@
 plotTrendCluster(
   scmpObj,
   xlab = "Pooled Pseudotime",
-  ylab = "log(Pseudobulk Expression)",
+  ylab = NULL,
   plot = "counts",
   summary_mode = "median",
-  logs = TRUE,
+  logs = NULL,
   logType = "log",
   smoothness = 1,
   includeInflu = TRUE,
@@ -20,7 +20,6 @@ plotTrendCluster(
   curves = TRUE,
   lines = FALSE,
   points = TRUE,
-  parallel = FALSE,
   loess_span = 0.8
 )
 }
@@ -29,14 +28,17 @@ plotTrendCluster(
 
 \item{xlab}{X-axis label. (Default is "Pooled Pseudotime")}
 
-\item{ylab}{Y-axis label. (Default is "Pseudobulk Expression")}
+\item{ylab}{Y-axis label. The default, \code{NULL}, is
+"log(Pseudobulk Expression)" for log-link fits and when the points are
+logged, and "Pseudobulk Expression" otherwise.}
 
 \item{plot}{Whether to plot 'coeff' or 'counts'. (Default is 'counts')}
 
 \item{summary_mode}{Compress the expression values per replicate (if present)
 per binned pseudotime point. Default is 'median'. Other option 'mean'}
 
-\item{logs}{Whether to log transform counts. (Default is TRUE)}
+\item{logs}{Whether to log the points, as in \code{\link[=plotTrend]{plotTrend()}}. The default,
+\code{NULL}, logs them when the fits used the log link.}
 
 \item{logType}{How to log transform the values. Available options 'log',
 'log2', 'log10'. (Default is 'log')}
@@ -59,9 +61,6 @@ higher values will result in more linear trends. (Default is 0.01)}
 \item{lines}{Whether to plot the lines. (Default is FALSE)}
 
 \item{points}{Whether to plot the points. (Default is TRUE)}
-
-\item{parallel}{Use forking process to run parallelly. (Default is FALSE)
-(Currently, Windows is not supported)}
 
 \item{loess_span}{The fraction of the data used when estimating each y-value,
 when plotting curves. (Default is 0.75)}

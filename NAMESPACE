@@ -6,15 +6,15 @@ export("eDense<-")
 export("eSparse<-")
 export("pathAssign<-")
 export("predictors<-")
-export(.ScMaSigPro_show)
 export(as_scmp)
+export(assign_paths)
 export(cDense)
 export(cSparse)
 export(create_scmp)
 export(eDense)
 export(eSparse)
-export(m3_select_path)
 export(pathAssign)
+export(paths_from_graph)
 export(pb_counts)
 export(plotBinTile)
 export(plotDiagnostics)
@@ -30,6 +30,8 @@ export(sc.restruct)
 export(sc.set.poly)
 export(sc.squeeze)
 export(sc.t.fit)
+export(scmpResults)
+export(scmpToRowData)
 export(showCoeff)
 export(showGroupCoeff)
 export(showInflu)
@@ -51,116 +53,88 @@ exportMethods(eDense)
 exportMethods(eSparse)
 exportMethods(pathAssign)
 exportMethods(predictors)
-import(ggplot2)
-importFrom(MASS,glm.nb)
+exportMethods(updateObject)
+importClassesFrom(Matrix,dgCMatrix)
+importFrom(BiocParallel,
+  SerialParam,
+  bplapply,
+  bpnworkers
+)
 importFrom(MASS,negative.binomial)
-importFrom(MatrixGenerics,rowMeans)
-importFrom(MatrixGenerics,rowSums)
-importFrom(S4Vectors,DataFrame)
-importFrom(S4Vectors,coolcat)
-importFrom(S4Vectors,isEmpty)
-importFrom(SingleCellExperiment,SingleCellExperiment)
-importFrom(SingleCellExperiment,colData)
-importFrom(SingleCellExperiment,reducedDims)
-importFrom(dplyr,arrange)
-importFrom(dplyr,bind_rows)
-importFrom(dplyr,filter)
-importFrom(dplyr,group_by)
-importFrom(dplyr,group_by_at)
-importFrom(dplyr,join_by)
-importFrom(dplyr,left_join)
-importFrom(dplyr,mutate)
-importFrom(dplyr,n)
-importFrom(dplyr,pull)
-importFrom(dplyr,rename_with)
-importFrom(dplyr,row_number)
-importFrom(dplyr,select)
-importFrom(dplyr,summarise)
-importFrom(dplyr,summarize)
-importFrom(dplyr,ungroup)
-importFrom(e1071,skewness)
-importFrom(entropy,discretize)
-importFrom(igraph,get.data.frame)
-importFrom(maSigPro,get.siggenes)
-importFrom(maSigPro,make.design.matrix)
-importFrom(maSigPro,reg.coeffs)
-importFrom(magrittr,"%>%")
-importFrom(mclust,Mclust)
-importFrom(methods,as)
-importFrom(methods,is)
-importFrom(methods,new)
-importFrom(methods,slot)
-importFrom(methods,slotNames)
-importFrom(parallel,detectCores)
-importFrom(parallel,mclapply)
-importFrom(parallelly,availableCores)
-importFrom(plotly,config)
-importFrom(plotly,event_data)
-importFrom(plotly,ggplotly)
-importFrom(plotly,layout)
-importFrom(plotly,plotlyOutput)
-importFrom(plotly,renderPlotly)
-importFrom(rlang,":=")
-importFrom(scales,rescale)
-importFrom(shiny,HTML)
-importFrom(shiny,actionButton)
-importFrom(shiny,column)
-importFrom(shiny,fluidPage)
-importFrom(shiny,fluidRow)
-importFrom(shiny,h3)
-importFrom(shiny,h4)
-importFrom(shiny,h5)
-importFrom(shiny,hr)
-importFrom(shiny,mainPanel)
-importFrom(shiny,modalButton)
-importFrom(shiny,modalDialog)
-importFrom(shiny,observeEvent)
-importFrom(shiny,radioButtons)
-importFrom(shiny,reactive)
-importFrom(shiny,reactiveVal)
-importFrom(shiny,removeModal)
-importFrom(shiny,renderText)
-importFrom(shiny,renderUI)
-importFrom(shiny,runApp)
-importFrom(shiny,shinyApp)
-importFrom(shiny,showModal)
-importFrom(shiny,showNotification)
-importFrom(shiny,sidebarLayout)
-importFrom(shiny,sidebarPanel)
-importFrom(shiny,sliderInput)
-importFrom(shiny,stopApp)
-importFrom(shiny,tagList)
-importFrom(shiny,textInput)
-importFrom(shiny,titlePanel)
-importFrom(shiny,uiOutput)
-importFrom(shiny,verbatimTextOutput)
-importFrom(stats,IQR)
-importFrom(stats,anova)
-importFrom(stats,as.dist)
-importFrom(stats,complete.cases)
-importFrom(stats,cor)
-importFrom(stats,cutree)
-importFrom(stats,dist)
-importFrom(stats,family)
-importFrom(stats,fitted)
-importFrom(stats,gaussian)
-importFrom(stats,glm)
-importFrom(stats,glm.control)
-importFrom(stats,hclust)
-importFrom(stats,influence.measures)
-importFrom(stats,kmeans)
-importFrom(stats,median)
-importFrom(stats,na.omit)
-importFrom(stats,p.adjust)
-importFrom(stats,poisson)
-importFrom(stats,predict)
-importFrom(stats,residuals)
-importFrom(stats,rstandard)
-importFrom(stats,sd)
-importFrom(stats,setNames)
-importFrom(utils,View)
-importFrom(utils,combn)
-importFrom(utils,data)
-importFrom(utils,packageVersion)
-importFrom(utils,setTxtProgressBar)
-importFrom(utils,txtProgressBar)
+importFrom(S4Vectors,
+  DataFrame,
+  isEmpty,
+  updateObject
+)
+importFrom(SingleCellExperiment,
+  SingleCellExperiment,
+  colData
+)
+importFrom(SummarizedExperiment,
+  "assay<-",
+  "colData<-",
+  "rowData<-",
+  assay,
+  assayNames,
+  rowData
+)
+importFrom(ggplot2,
+  .data,
+  aes,
+  element_blank,
+  element_line,
+  element_text,
+  facet_wrap,
+  geom_abline,
+  geom_hline,
+  geom_line,
+  geom_path,
+  geom_point,
+  geom_smooth,
+  geom_text,
+  geom_tile,
+  ggplot,
+  ggtitle,
+  labs,
+  scale_color_manual,
+  scale_fill_gradient,
+  scale_x_continuous,
+  stat_qq,
+  stat_qq_line,
+  theme,
+  theme_classic,
+  theme_minimal,
+  xlab,
+  ylab
+)
+importFrom(methods,
+  .hasSlot,
+  as,
+  is,
+  new,
+  slot,
+  slotNames,
+  validObject
+)
+importFrom(stats,
+  IQR,
+  anova,
+  as.dist,
+  cor,
+  cutree,
+  dist,
+  fitted,
+  gaussian,
+  glm,
+  hclust,
+  influence.measures,
+  kmeans,
+  make.link,
+  median,
+  optimize,
+  p.adjust,
+  predict,
+  residuals,
+  rstandard,
+  sd
+)

@@ -10,7 +10,7 @@ plotTrend(
   xlab = "Pooled Pseudotime",
   ylab = "Pseudobulk Expression",
   smoothness = 0.01,
-  logs = TRUE,
+  logs = NULL,
   logType = "log",
   pseudoCount = 1,
   significant = TRUE,
@@ -32,7 +32,13 @@ plotTrend(
 \item{smoothness}{How smooth the trend should be. Setting to
 higher values will result in more linear trends. (Default is 0.01)}
 
-\item{logs}{Whether to log transform counts. (Default is TRUE)}
+\item{logs}{Whether to log the points: the counts of the bins, divided,
+for log-link fits, by the size factors stored in the design. The fitted
+curve is the polynomial of the selected model on the scale of the link:
+the log of the mean under the log link, the mean itself under the
+identity link. The default, \code{NULL}, logs the points when the fits
+used the log link and draws them as they are otherwise, so that points
+and curve are on the same scale.}
 
 \item{logType}{How to log transform the values. Available options 'log',
 'log2', 'log10'. (Default is 'log')}

@@ -10,7 +10,9 @@
 \item{object}{An \code{\link{ScMaSigPro}} object from which to retrieve
 the expression data.}
 
-\item{i}{The name of the dataset to retrieve. The default value is "bulk.counts".}
+\item{i}{The name of the dataset to retrieve. The default,
+"bulk.counts", returns the pseudo-bulk counts, or the first assay when the
+Dense slot has no assay called "bulk.counts".}
 
 \item{...}{Additional arguments (not used currently).}
 }

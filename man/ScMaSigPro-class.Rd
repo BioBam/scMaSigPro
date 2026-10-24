@@ -6,16 +6,30 @@
 \alias{ScMaSigPro-class}
 \title{ScMaSigPro}
 \description{
-S4 class to store analysis of ScMaSigPro worflow. It stores results,
-parameters and associated data. Inherits slots from \code{SingleCellExperiment}.
+S4 class to store an analysis of the scMaSigPro workflow: the data at the
+level of cells and of pseudotime bins, as two \code{SingleCellExperiment}
+objects, and the results and parameters of every step.
+}
+\details{
+\code{validObject()} checks every slot with the validity method of its class
+and reports each problem with the name of the slot; \code{version} must be a
+single version number. Objects are created with \code{\link[=create_scmp]{create_scmp()}} or
+\code{\link[=as_scmp]{as_scmp()}}, which stamp them with the version of the package. These
+constructors, the steps of the workflow, \code{\link[=pb_counts]{pb_counts()}} and the setters
+check the object they return with \code{validObject()}, so a step or setter
+that would return an invalid object stops with these problems instead.
+
+Objects saved by an earlier version of the package, for example with
+\code{saveRDS()}, are brought up to date with
+\code{\link[=updateObject,ScMaSigPro-method]{updateObject()}}.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{Sparse}}{Object of class \code{\link{SingleCellExperiment}}.
+\item{\code{Sparse}}{Object of class \code{\link[SingleCellExperiment]{SingleCellExperiment}}.
 See \pkg{SingleCellExperiment} for more details.}
 
-\item{\code{Dense}}{Object of class \code{\link{SingleCellExperiment}}.
+\item{\code{Dense}}{Object of class \code{\link[SingleCellExperiment]{SingleCellExperiment}}.
 See \pkg{SingleCellExperiment} for more details.}
 
 \item{\code{Design}}{Object of Class \code{\link{MatrixDesign}}.}
@@ -27,6 +41,31 @@ See \pkg{SingleCellExperiment} for more details.}
 \item{\code{Significant}}{Object of Class \code{\link{Significant}}.}
 
 \item{\code{Parameters}}{Object of Class \code{\link{ParameterConfig}}.}
+
+\item{\code{version}}{A character string, the version of \pkg{scMaSigPro} that
+created the object or last changed its structure in
+\code{\link[=updateObject,ScMaSigPro-method]{updateObject()}}.}
 }}
+
+\section{Why a class of its own}{
+
+\code{ScMaSigPro} holds two \code{SingleCellExperiment} objects because the analysis
+works at two resolutions whose columns differ. \code{Sparse} holds the cells,
+with their pseudotime and path labels. \code{Dense} holds the pseudotime bins
+(the pseudo-bulk) to which the polynomial GLMs are fitted. One
+\code{SingleCellExperiment} cannot hold both: \code{altExp()} needs the columns of
+the main experiment, and bins stored in \code{metadata()} would lose the
+validity checks and accessors of an experiment. The other slots hold
+results that have no place in the SummarizedExperiment model: the design
+matrices (\code{MatrixDesign}), the per-gene fits of the full model
+(\code{VariableProfiles}), the coefficients and significance of the selected
+models (\code{Estimates}), the gene lists and clusters (\code{Significant}) and a
+record of every parameter used (\code{ParameterConfig}), for reproducibility.
+Both experiments are built and changed through the SummarizedExperiment
+accessors only, and \code{validObject()} runs after every step of the
+workflow. To use the results with other tools, \code{\link[=scmpResults]{scmpResults()}} returns
+them as a \code{DataFrame} with one row per gene, and \code{\link[=scmpToRowData]{scmpToRowData()}} writes
+them into the \code{rowData()} of a \code{SingleCellExperiment}.
+}
 
 \keyword{classes}

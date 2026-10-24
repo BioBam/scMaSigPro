@@ -12,10 +12,13 @@
 \item{value}{The value of the branch Assignment Matrix.}
 }
 \value{
-Modified `ScMaSigPro` object with new Assignment Matrix.
+Modified \code{ScMaSigPro} object with new Assignment Matrix.
 }
 \description{
 Set or get the Assignment Matrix.
+}
+\details{
+When \code{value} is given, it is checked as by \code{\link{pathAssign<-}}.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

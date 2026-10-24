@@ -13,33 +13,13 @@
 
 ## Installation
 
-### Bioconductor and Dependencies
-```
-# Install Dependencies
-if (!requireNamespace("BiocManager", quietly = TRUE))
-install.packages("BiocManager")
-BiocManager::install(version = "3.14")
-
-BiocManager::install(c('SingleCellExperiment', 'maSigPro', 'MatrixGenerics', 'S4Vectors'))
-```
-
-### scMaSigPro latest version
-To install `scMaSigPro` from GitHub, use the following R code:
-
-```
-# Install devtools if not already installed
-if (!requireNamespace("devtools", quietly = TRUE)) {
-    install.packages("devtools")
+```r
+# Install BiocManager if needed, then scMaSigPro together with its
+# Bioconductor dependencies from GitHub
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
 }
-
-# Install scMaSigPro
-devtools::install_github("BioBam/scMaSigPro",
-                         ref = "main",
-                         build_vignettes = FALSE,
-                         build_manual = TRUE,
-                         upgrade = "never",
-                         force = TRUE,
-                         quiet = TRUE)
+BiocManager::install("BioBam/scMaSigPro")
 ```
 
 ---
@@ -60,7 +40,6 @@ data("splat.sim", package = "scMaSigPro")
 # Helper Function to convert annotated SCE object to scmpObject
 scmp.ob <- as_scmp(
   object = splat.sim, from = "sce",
-  align_pseudotime = FALSE,
   verbose = TRUE,
   additional_params = list(
     labels_exist = TRUE,

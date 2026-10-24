@@ -2,28 +2,25 @@
 % Please edit documentation in R/as_scmp.R
 \name{as_scmp}
 \alias{as_scmp}
-\title{Convert 'Cell Dataset' or 'SingleCellExperiment' object to ScMaSigPro
-object.}
+\title{Convert a 'SingleCellExperiment' object to a ScMaSigPro object.}
 \usage{
 as_scmp(
   object,
-  from = "cds",
+  from = "sce",
   path_prefix = "Path",
   root_label = "root",
   ptime_col = "Pseudotime",
-  align_pseudotime = FALSE,
   path_col = path_prefix,
-  anno_col = "cell_type",
   verbose = TRUE,
-  interactive = TRUE,
   additional_params = list(labels_exist = FALSE)
 )
 }
 \arguments{
-\item{object}{An S4 object of class `cds/CellDataSet` or `SingleCellExperiment`.}
+\item{object}{An S4 object of class \code{SingleCellExperiment}.}
 
-\item{from}{Character string specifying the class of 'object'. Use "cds" for
-`cds/CellDataSet` class and "sce" for `SingleCellExperiment` class.}
+\item{from}{Character string specifying the class of 'object'. Only "sce"
+(\code{SingleCellExperiment}) is supported; Monocle3 \code{cell_data_set} objects
+("cds") are no longer converted. (Default is "sce").}
 
 \item{path_prefix}{Prefix used to annotate the paths. (Default is "Path").}
 
@@ -32,28 +29,28 @@ as_scmp(
 \item{ptime_col}{A character string representing the column name
 for inferred Pseudotime values. (Default is "Pseudotime")}
 
-\item{align_pseudotime}{Whether to automatically align two different pseudotimes.
-See \code{\link{align_pseudotime}} for more details. (Default is FALSE).}
-
 \item{path_col}{A character string representing the column name for branching
-path assignment. (Default is `path_prefix`)}
-
-\item{anno_col}{A character string representing the column name for cell level
-metadata containing cell level annotations. (Default is "cell_type").}
+path assignment. (Default is \code{path_prefix})}
 
 \item{verbose}{Print detailed output in the console. (Default is TRUE)}
 
-\item{interactive}{Whether to use the shiny application to select branching
-paths. (Default is TRUE).}
-
-\item{additional_params}{A named list of additional parameters. See examples.}
+\item{additional_params}{A named list of additional parameters:
+\code{labels_exist}, \code{exist_ptime_col} and \code{exist_path_col}. With
+\code{labels_exist = TRUE}, the existing \code{colData} columns \code{exist_ptime_col} and
+\code{exist_path_col} are renamed to \code{ptime_col} and \code{path_col}. See examples.}
 }
 \value{
 An object of class \code{\link{ScMaSigPro}}.
 }
 \description{
-`as_scmp()` converts a cds/CellDataSet object from Monocle3 or a
-SingleCellExperiment #' object to an instance of the scmpClass object.
+\code{as_scmp()} converts a \code{SingleCellExperiment} object, whose cell metadata
+(\code{colData}) holds a pseudotime column and a branching-path column, to a
+\code{\link{ScMaSigPro}} object. To start from a count matrix and a table of
+cell metadata, for example with pseudotime and path labels extracted from a
+trajectory tool such as Monocle3 or slingshot, use \code{\link[=create_scmp]{create_scmp()}}; the
+"Common Root Cells" vignette shows the steps for a Monocle3 \code{cell_data_set}.
+\code{\link[=assign_paths]{assign_paths()}} and \code{\link[=paths_from_graph]{paths_from_graph()}} build the two columns from
+lineage weights or from a trajectory graph.
 }
 \examples{
 # Load Library
@@ -66,14 +63,13 @@ data("splat.sim", package = "scMaSigPro")
 # Step-2: Convert to ScMaSigPro Object
 # Here, we convert the sce object to an scMaSigPro object
 scmp.sce <- as_scmp(
-  object = splat.sim, from = "sce",
-  align_pseudotime = TRUE,
-  verbose = FALSE,
-  additional_params = list(
-    labels_exist = TRUE,
-    exist_ptime_col = "Step",
-    exist_path_col = "Group"
-  )
+    object = splat.sim, from = "sce",
+    verbose = FALSE,
+    additional_params = list(
+        labels_exist = TRUE,
+        exist_ptime_col = "Step",
+        exist_path_col = "Group"
+    )
 )
 
 }

@@ -20,6 +20,13 @@ vignette: >
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(crop = NULL)
 library(scMaSigPro)
+# maSigPro is suggested, not required: without it the code is shown, not run
+has_masigpro <- requireNamespace("maSigPro", quietly = TRUE)
+knitr::opts_chunk$set(eval = has_masigpro)
+```
+
+```{r, "no-maSigPro", echo=FALSE, eval=!has_masigpro, results="asis"}
+cat("*`maSigPro` is not installed, so the code below is shown but not run.*\n")
 ```
 
 ## Introduction
@@ -55,34 +62,13 @@ application of `maSigPro` to the more complex RNA-Seq data.
 
 Currently, `scMaSigPro` is available on GitHub and can be installed as follows:
 
-### Bioconductor and Dependencies
-```{r, eval=FALSE, echo=TRUE}
-# Install Dependencies
+```{r, "install", eval=FALSE, echo=TRUE}
+# Install BiocManager if needed, then scMaSigPro together with its
+# Bioconductor dependencies from GitHub
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
+    install.packages("BiocManager")
 }
-BiocManager::install(version = "3.14")
-
-BiocManager::install(c("SingleCellExperiment", "maSigPro", "MatrixGenerics", "S4Vectors"))
-```
-
-### scMaSigPro latest version
-To install `scMaSigPro` from GitHub, use the following R code:
-```{r, eval=FALSE, echo=TRUE}
-# Install devtools if not already installed
-if (!requireNamespace("devtools", quietly = TRUE)) {
-  install.packages("devtools")
-}
-
-# Install scMaSigPro
-devtools::install_github("BioBam/scMaSigPro",
-  ref = "main",
-  build_vignettes = FALSE,
-  build_manual = TRUE,
-  upgrade = "never",
-  force = TRUE,
-  quiet = TRUE
-)
+BiocManager::install("BioBam/scMaSigPro")
 ```
 
 ### Installing `maSigPro`
@@ -91,7 +77,7 @@ You can easily install `maSigPro` from Bioconductor using the following steps:
 ```{r, "maSigPro-install", echo=TRUE, eval=FALSE}
 # Install Bioconductor if not already installed
 if (!require("BiocManager", quietly = TRUE)) {
-  install.packages("BiocManager")
+    install.packages("BiocManager")
 }
 
 # install maSigPro
@@ -103,7 +89,7 @@ First, we need to load both `scMaSigPro` and `maSigPro`. Additionally, we will l
 `testthat`, a user-friendly testing framework for R that integrates well with
 existing workflows. We will use testthat to verify if `scMaSigPro` produces 
 the same results as `maSigPro` when used in bulk mode.
-```{r, "set up", echo=TRUE, eval=TRUE}
+```{r, "set up", echo=TRUE}
 # load scMaSigPro
 library(scMaSigPro)
 
@@ -119,7 +105,7 @@ In this tutorial, we will use datasets from `maSigPro` and aim to replicate the
 same analysis pipeline using `scMaSigPro`. For more detailed information about
 the data analysis, refer to the original [`maSigPro` vignette-userguide](https://www.bioconductor.org/packages/release/bioc/vignettes/maSigPro/inst/doc/maSigProUsersGuide.pdf)
 
-```{r, "get-data", echo=TRUE, eval=TRUE}
+```{r, "get-data", echo=TRUE}
 # load counts
 data(data.abiotic)
 
@@ -132,7 +118,7 @@ metadata <- as.data.frame(edesign.abiotic)
 ```
 
 Let's briefly examine each dataset:
-```{r, "view-data", echo=TRUE, eval=TRUE}
+```{r, "view-data", echo=TRUE}
 # View a subset of count data
 print(data.abiotic[c(1:5), c(1:5)])
 
@@ -146,16 +132,16 @@ and includes temporal replicates.
 
 To simplify the analysis, we'll convert the binarized groups into a single column.
 `scMaSigPro` automatically binarizes groups internally, reducing the likelihood of errors.
-```{r, "non-binarize", echo=TRUE, eval=TRUE}
+```{r, "non-binarize", echo=TRUE}
 # Add group column
 metadata$Group <- apply(metadata[, c(3:6)], 1, FUN = function(x) {
-  return(names(x[x == 1]))
+    return(names(x[x == 1]))
 })
 
 # Remove binary columns
-metadata <- metadata[, !(colnames(metadata) %in%
-  c("Control", "Cold", "Heat", "Salt")),
-drop = FALSE
+metadata <- metadata[,
+    !(colnames(metadata) %in% c("Control", "Cold", "Heat", "Salt")),
+    drop = FALSE
 ]
 
 # View
@@ -173,13 +159,13 @@ As we are using `scMaSigPro` in bulk mode, we will set use_as_bin = TRUE. This
 directs the data to the dense slot of the scmpObject, allowing us to proceed with
 the analysis without using `sc.squeeze()`, which is specifically designed for scRNA-Seq
 pseudo-bulking.
-```{r, "create-scmpObject", echo=TRUE, eval=TRUE}
+```{r, "create-scmpObject", echo=TRUE}
 scmp_ob <- create_scmp(
-  counts = count,
-  cell_data = metadata,
-  ptime_col = "Time",
-  path_col = "Group",
-  use_as_bin = TRUE
+    counts = count,
+    cell_data = metadata,
+    ptime_col = "Time",
+    path_col = "Group",
+    use_as_bin = TRUE
 )
 
 # Print Console output
@@ -200,8 +186,8 @@ The `eDense()` function retrieves the dense expression file from the `scMaSigPro
  
 ```{r, "eDense(scmp_ob)"}
 expect_identical(
-  object = as.data.frame(eDense(scmp_ob)),
-  expected = data.abiotic
+    object = as.data.frame(eDense(scmp_ob)),
+    expected = data.abiotic
 )
 ```
 
@@ -227,7 +213,7 @@ scmp_ob <- sc.set.poly(scmp_ob, poly_degree = 2)
 expect_equal(pathAssign(scmp_ob), expected = edesign.abiotic)
 
 # Comparing regression matrices
-expect_identical(scmp_ob@Design@predictor_matrix, expected = design$dis)
+expect_identical(predictors(scmp_ob), expected = design$dis)
 ```
 
 No errors were thrown, so we can proceed with the analysis.
@@ -239,20 +225,21 @@ which accounts for variations in bin sizes. Since we are not dealing with
 scRNA-Seq data, we will disable this parameter.
 ```{r, "compare p.vetor"}
 # Using maSigPro
-gc <- capture_output(fit <- p.vector(data.abiotic, design,
-  Q = 0.05,
-  MT.adjust = "BH", min.obs = 20
+gc <- capture_output(fit <- p.vector(
+    data.abiotic, design,
+    Q = 0.05,
+    MT.adjust = "BH", min.obs = 20
 ))
 
 # Using ScMaSigPro
 scmp_ob <- sc.p.vector(scmp_ob,
-  min_na = 20,
-  verbose = FALSE,
-  link = "identity",
-  offset = FALSE,
-  max_it = 25,
-  epsilon = 0.00001,
-  family = gaussian()
+    min_na = 20,
+    verbose = FALSE,
+    link = "identity",
+    offset = FALSE,
+    max_it = 25,
+    epsilon = 0.00001,
+    family = gaussian()
 )
 ```
 
@@ -260,17 +247,21 @@ Now, we'll compare the S3 object `fit from `maSigPro::p.vector()` with the
 results from `sc.p.vector()`:
 
 ```{r, "testthat pvector"}
+# scmpResults() has one row per gene, with NA p-values for the genes left
+# out for having fewer than min_na values: compare the fitted genes
+expect_identical(
+    rownames(scmpResults(scmp_ob))[!is.na(scmpResults(scmp_ob)$p_value)],
+    expected = rownames(fit$p.vector)
+)
+
 # Compare p-values
 expect_identical(
-  matrix(scmp_ob@Profile@p_values,
-    dimnames = list(names(scmp_ob@Profile@p_values), "p.value")
-  ),
-  expected = as.matrix(fit$p.vector[, 1, drop = FALSE])
+    scmpResults(scmp_ob)[rownames(fit$p.vector), "p_value"],
+    expected = unname(fit$p.vector[, 1])
 )
 
 # Compare adjusted p-values
-pad <- scmp_ob@Profile@adj_p_values
-names(pad) <- NULL
+pad <- scmpResults(scmp_ob)[rownames(fit$p.vector), "adj_p_value"]
 expect_identical(pad, expected = fit$p.adjusted)
 ```
 
@@ -283,10 +274,10 @@ gc <- capture_output(tstep <- T.fit(fit, step.method = "backward", alfa = 0.05))
 
 # Using scMaSigPro
 scmp_ob <- sc.t.fit(scmp_ob,
-  offset = FALSE,
-  verbose = FALSE,
-  epsilon = 0.00001,
-  family = gaussian()
+    offset = FALSE,
+    verbose = FALSE,
+    epsilon = 0.00001,
+    family = gaussian()
 )
 ```
 
@@ -321,24 +312,29 @@ scmp_ob <- sc.filter(scmp_ob, rsq = 0.6, vars = "groups")
 We'll compare the s3 object (sigs) from `maSigPro::get.siggenes()' with the results from sc.filter()':
 
 ```{r}
+# The genes of each list are TRUE in its sig_ column of scmpResults()
 # Compare Cold vs Control
-expect_identical(scmp_ob@Significant@genes$ColdvsControl,
-  expected = sigs$summary$ColdvsControl
+expect_identical(
+    rownames(scmpResults(scmp_ob))[scmpResults(scmp_ob)$sig_ColdvsControl],
+    expected = sigs$summary$ColdvsControl
 )
 
 # Compare Heat vs Control
-expect_identical(scmp_ob@Significant@genes$HeatvsControl,
-  expected = sigs$summary$HeatvsControl[sigs$summary$HeatvsControl != " "]
+expect_identical(
+    rownames(scmpResults(scmp_ob))[scmpResults(scmp_ob)$sig_HeatvsControl],
+    expected = sigs$summary$HeatvsControl[sigs$summary$HeatvsControl != " "]
 )
 
 # Compare Salt vs Control
-expect_identical(scmp_ob@Significant@genes$SaltvsControl,
-  expected = sigs$summary$SaltvsControl[sigs$summary$SaltvsControl != " "]
+expect_identical(
+    rownames(scmpResults(scmp_ob))[scmpResults(scmp_ob)$sig_SaltvsControl],
+    expected = sigs$summary$SaltvsControl[sigs$summary$SaltvsControl != " "]
 )
 
 # Compare Control
-expect_identical(scmp_ob@Significant@genes$Control,
-  expected = sigs$summary$Control[sigs$summary$Control != " "]
+expect_identical(
+    rownames(scmpResults(scmp_ob))[scmpResults(scmp_ob)$sig_Control],
+    expected = sigs$summary$Control[sigs$summary$Control != " "]
 )
 ```
 
@@ -357,8 +353,8 @@ suma2Venn(sigs$summary[, c(1:4)])
 
 # Upset plot of scMaSigPro
 plotIntersect(
-  scmpObj = scmp_ob,
-  min_intersection_size = 0
+    scmpObj = scmp_ob,
+    min_intersection_size = 0
 )
 ```
 
@@ -376,16 +372,16 @@ STMDE66 <- data.abiotic[rownames(data.abiotic) == "STMDE66", ]
 
 # Plotting with maSigPro
 PlotGroups(STMDE66,
-  edesign = edesign.abiotic, show.fit = TRUE,
-  dis = design$dis, groups.vector = design$groups.vector
+    edesign = edesign.abiotic, show.fit = TRUE,
+    dis = design$dis, groups.vector = design$groups.vector
 )
 
 # Plotting the same gene with scMaSigPro
 plotTrend(scmp_ob, "STMDE66",
-  logs = FALSE, pseudoCount = 0,
-  smoothness = 0.01, significant = FALSE,
-  summary_mode = "mean",
-  curves = TRUE, lines = TRUE, points = TRUE
+    logs = FALSE, pseudoCount = 0,
+    smoothness = 0.01, significant = FALSE,
+    summary_mode = "mean",
+    curves = TRUE, lines = TRUE, points = TRUE
 )
 ```
 
@@ -393,25 +389,25 @@ plotTrend(scmp_ob, "STMDE66",
 ```{r, "Cluster Plots", fig.width=7, warning=FALSE}
 # Plot clustered Trend
 gc <- capture_output(
-  res <- see.genes(sigs$sig.genes$ColdvsControl,
-    show.fit = TRUE, dis = design$dis,
-    cluster.method = "hclust", cluster.data = 1, k = 9
-  )
+    res <- see.genes(sigs$sig.genes$ColdvsControl,
+        show.fit = TRUE, dis = design$dis,
+        cluster.method = "hclust", cluster.data = 1, k = 9
+    )
 )
 
 # Compute Clusters
 scmp_ob <- sc.cluster.trend(scmp_ob,
-  geneSet = "ColdvsControl",
-  cluster_by = "counts"
+    geneSet = "ColdvsControl",
+    cluster_by = "counts"
 )
 ```
 
 ### Plot cluster Trends 
 ```{r, "Plot Clustered Trends", fig.width=8, fig.height=8}
 plotTrendCluster(
-  scmpObj = scmp_ob,
-  plot = "coeff",
-  verbose = FALSE
+    scmpObj = scmp_ob,
+    plot = "coeff",
+    verbose = FALSE
 )
 ```
 
