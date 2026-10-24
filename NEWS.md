@@ -1,4 +1,4 @@
-## scMaSigPro 0.6.0
+## scMaSigPro 0.6.0 (2026-10-24)
 
 * Breaking changes
     * `as_scmp()` no longer converts Monocle3 `cell_data_set` objects. The `from = "cds"` route and the interactive Shiny app it opened to pick the root and the branching paths are removed, together with the exported `m3_select_path()` and the internal `shinySelect()` and `align_pseudotime()`. `as_scmp()` now takes any `SingleCellExperiment` (subclasses other than `cell_data_set` used to return `NULL`), and `from` defaults to `"sce"`, its only accepted value.
@@ -112,7 +112,7 @@
     * `sc.set.poly()` builds the polynomial design, and `sc.t.fit()` and `plotTrend()` the coefficients of each path, with new internal functions written from the published maSigPro model (Conesa et al. 2006, Bioinformatics 22:1096) instead of maSigPro's `make.design.matrix()` and `reg.coeffs()`. For every whole degree of at least 1 where maSigPro returned a design, the new function returns an identical one, and the path coefficients are identical; the maSigPro oracle tests, the golden results and the plots are unchanged. scMaSigPro no longer calls any maSigPro function.
     * The package reads and writes the `Sparse` and `Dense` slots with the `SingleCellExperiment` accessors `colData()`, `assay()`, `assayNames()` and their replacement forms instead of reaching into the internal slots of those objects, so it no longer depends on how SummarizedExperiment stores its data. Results are unchanged.
 
-## scMaSigPro 0.0.5
+## scMaSigPro 0.0.5 (2026-10-13)
 
 * Bug Fixes
     * `sc.squeeze()` no longer scrambles the cell metadata in the `Sparse` slot. Binning stacked the cells path by path, but the count matrix kept its original column order, so `colData()`, `counts()`, `assay()` and `cSparse()` paired every cell with another cell's counts (on `splat.sim`, `counts(ob@Sparse)[, "Cell2"]` returned the counts of `Cell1`). Pseudo-bulk counts, fits and gene lists were not affected because they match cells by name. Running `sc.squeeze()` again repairs objects binned with 0.0.4.
