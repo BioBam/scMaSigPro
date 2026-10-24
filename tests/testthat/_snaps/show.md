@@ -138,5 +138,6 @@
       23            fill_na                   zero
       24         min_counts                      0
       25 min_bins_expressed                      0
-      26       distribution  Negative Binomial(10)
+      26               test                  chisq
+      27       distribution  Negative Binomial(10)
 

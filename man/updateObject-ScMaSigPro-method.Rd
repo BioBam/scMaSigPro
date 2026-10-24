@@ -38,6 +38,10 @@ parameters existed get both set to 0, the values that keep every gene
 (\code{\link[=sc.p.vector]{sc.p.vector()}} had no such filter then), and the version of the
 package that is running.
 
+Objects saved before the \code{test} parameter existed get it set to "chisq",
+the test of \code{\link[=sc.p.vector]{sc.p.vector()}} then, and the version of the package that is
+running.
+
 Objects saved with the \code{log_offset} parameter lose it. The fits of an
 object saved with \code{log_offset = FALSE}, the default, used the size factor
 of each bin as the offset: \code{updateObject()} stores the logarithm of the

@@ -43,6 +43,20 @@
 #' gene with the median of these estimates. The estimates are kept in the
 #' `distribution` parameter, for [sc.t.fit()] and [plotDiagnostics()]:
 #' `theta_gene` holds one per gene and `theta_estimate` the choice.
+#' @param test The test of each gene's full model against its intercept-only
+#' model: \code{"chisq"} (the default) or \code{"F"}. Both divide the
+#' difference in deviance between the two models by the dispersion of the
+#' full model, which, for the negative binomial and Gaussian families, is
+#' estimated as its Pearson statistic divided by its residual degrees of
+#' freedom. \code{"chisq"} compares the result with the chi-squared
+#' distribution, as maSigPro does. \code{"F"} also divides it by the
+#' difference in degrees of freedom and compares it with the F distribution
+#' on the residual degrees of freedom of the full model: the F test of
+#' [stats::anova.glm()]. With the Gaussian family both values give the F
+#' test, the test of maSigPro for that family. \code{"F"} needs a family
+#' whose dispersion is estimated, so not [stats::binomial()] or
+#' [stats::poisson()]. The value is kept in the `test` parameter. See
+#' Details.
 #' @param epsilon Model convergence tolerance.
 #' @param offset logical value specifying whether to use offset during fitting.
 #' The offset of each bin, the logarithm of its size factor (see Details), is
@@ -87,6 +101,20 @@
 #' rules, so these two filters change the results of the genes they keep
 #' only through the multiple-testing correction.
 #'
+#' The test of the full model is the first step of the method of Srivastava
+#' et al. (2024), Section 2.4: "scMaSigPro implements a two-step strategy
+#' similar to the maSigPro method", in which the full model of each gene is
+#' "evaluated against a simpler intercept-only model via hypothesis testing
+#' based on the log-likelihood ratio statistic". The default,
+#' \code{test = "chisq"}, is that test, as maSigPro computes it for families
+#' other than the Gaussian: the statistic is divided by the estimated
+#' dispersion and compared with the chi-squared distribution, as if the
+#' dispersion were known. With few bins, and so few residual degrees of
+#' freedom, the estimate varies from gene to gene and the test calls more
+#' genes significant than its level. \code{test = "F"}, the quasi-likelihood F
+#' test, accounts for the estimation of the dispersion through the residual
+#' degrees of freedom of the F distribution.
+#'
 #' @return An object of class \code{\link{ScMaSigPro}}, with updated `Profile`
 #' slot.
 #'
@@ -116,6 +144,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
                         max_it = 100,
                         link = "log",
                         theta_estimate = "none",
+                        test = "chisq",
                         BPPARAM = SerialParam()) {
     # Check Object Validity
     .check_scmp(scmpObj)
@@ -155,6 +184,15 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         msg = paste(
             "'theta_estimate' needs a negative binomial family, such as",
             "MASS::negative.binomial(10)."
+        )
+    )
+    test <- .check_choice(test, c("chisq", "F"),
+        msg = "'test' must be either 'chisq' or 'F'"
+    )
+    .check(test == "chisq" || !.fixed_dispersion(family),
+        msg = paste0(
+            "test = 'F' needs a family whose dispersion is estimated: the '",
+            family$family, "' family fixes it at 1. Use test = 'chisq'."
         )
     )
 
@@ -264,7 +302,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     p.vector.list <- bplapply(seq_len(g), .pvector_gene,
         dat = dat, dis = dis, family = family, epsilon = epsilon,
         offset_data = offsetData, max_it = max_it, theta = theta_gene,
-        BPPARAM = BPPARAM
+        f_test = test == "F", BPPARAM = BPPARAM
     )
 
     names(p.vector.list) <- rownames(dat)
@@ -313,6 +351,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
     scmpObj@Parameters@min_bins_expressed <- as.numeric(min_bins_expressed)
     scmpObj@Parameters@g <- g
     scmpObj@Parameters@mt_correction <- mt_correction
+    scmpObj@Parameters@test <- test
     scmpObj@Parameters@epsilon <- epsilon
     scmpObj@Parameters@distribution <- family
     scmpObj@Parameters@link <- link
@@ -356,6 +395,14 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         )
     )
     family
+}
+
+# TRUE for a family whose dispersion summary.glm() and anova() fix instead
+# of estimating: one that declares it, or the binomial and Poisson families
+.fixed_dispersion <- function(family) {
+    dispersion <- family[["dispersion"]]
+    (!is.null(dispersion) && !is.na(dispersion)) ||
+        family$family %in% c("binomial", "poisson")
 }
 
 # The link whose functions `family` has: its own link label when the
@@ -436,12 +483,13 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
 }
 
 # Full-model p-value of gene i (row i of dat): glm(y ~ .) against glm(y ~ 1),
-# with an F test for the Gaussian family and a chi-squared test otherwise.
-# With `theta` (one estimate per gene) both models of gene i use theta[[i]].
-# sc.p.vector() runs it through bplapply(), so it takes all its data as
-# arguments: SnowParam workers are new R sessions.
+# with an F test for the Gaussian family and, for the other families, a
+# chi-squared test, or an F test when f_test is TRUE. With `theta` (one
+# estimate per gene) both models of gene i use theta[[i]]. sc.p.vector()
+# runs it through bplapply(), so it takes all its data as arguments:
+# SnowParam workers are new R sessions.
 .pvector_gene <- function(i, dat, dis, family, epsilon, offset_data, max_it,
-                          theta = NULL) {
+                          theta = NULL, f_test = FALSE) {
     y <- as.numeric(dat[i, ])
     if (!is.null(theta)) {
         family <- .nb_with_theta(family, theta[[i]])
@@ -467,6 +515,12 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
         if (family$family == "gaussian") {
             test <- anova(model.glm.0, model.glm, test = "F")
             sc_p_val <- ifelse(is.na(test[6][2, 1]), 1, test[6][2, 1])
+        } else if (f_test) {
+            # Without residual degrees of freedom anova() gives no F
+            # statistic: the p-value is then 1, as with the chi-squared test
+            test <- anova(model.glm.0, model.glm, test = "F")
+            p <- if ("Pr(>F)" %in% names(test)) test[2L, "Pr(>F)"] else NA
+            sc_p_val <- ifelse(is.na(p), 1, p)
         } else {
             test <- anova(model.glm.0, model.glm, test = "Chisq")
             sc_p_val <- ifelse(is.na(test[5][2, 1]), 1, test[5][2, 1])

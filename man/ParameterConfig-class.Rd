@@ -12,7 +12,8 @@ as the analysis progresses.
 \details{
 \code{validObject()} checks that every slot except \code{distribution} holds a
 single non-missing value, that \code{min_counts} and \code{min_bins_expressed} are
-at least 0 and that \code{distribution} is a \code{\link[stats:family]{stats::family()}} object.
+at least 0, that \code{test} is "chisq" or "F" and that \code{distribution} is a
+\code{\link[stats:family]{stats::family()}} object.
 }
 \section{Slots}{
 
@@ -92,6 +93,10 @@ clustering.}
 
 \item{\code{min_bins_expressed}}{The minimum number of bins with a count above 0
 that \code{\link[=sc.p.vector]{sc.p.vector()}} required of a feature (0: no minimum).}
+
+\item{\code{test}}{The test of the full model of each feature that \code{\link[=sc.p.vector]{sc.p.vector()}}
+was asked for: "chisq" (the default), the chi-squared test, or "F", the F
+test.}
 }}
 
 \keyword{classes}

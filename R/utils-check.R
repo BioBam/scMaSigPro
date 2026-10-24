@@ -29,9 +29,9 @@
 #' `ScMaSigPro` object, before any work is done: the object must be of that
 #' class and have the `version` slot, which objects saved by scMaSigPro
 #' 0.0.5 and earlier lack until [updateObject()] adds it, and the
-#' `min_counts` and `min_bins_expressed` parameters, which [updateObject()]
-#' adds to objects saved before them, but not the `log_offset` parameter,
-#' which [updateObject()] removes.
+#' `min_counts`, `min_bins_expressed` and `test` parameters, which
+#' [updateObject()] adds to objects saved before them, but not the
+#' `log_offset` parameter, which [updateObject()] removes.
 #' `.check_dense_counts()` opens the functions that read the pseudo-bulk
 #' counts: the `Dense` slot must hold a `bulk.counts` assay, which it lacks
 #' after [cDense<-] changed the number of bins and before [pb_counts()] was
@@ -64,6 +64,7 @@
     .hasSlot(object, "version") &&
         .hasSlot(object@Parameters, "min_counts") &&
         .hasSlot(object@Parameters, "min_bins_expressed") &&
+        .hasSlot(object@Parameters, "test") &&
         !.hasSlot(object@Parameters, "log_offset")
 }
 

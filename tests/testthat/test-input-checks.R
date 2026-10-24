@@ -452,6 +452,48 @@ test_that("an object saved before the count filter stops before any work", {
     expect_output(print(old), "update it with updateObject()", fixed = TRUE)
 })
 
+test_that("test is 'chisq' or 'F', and 'F' needs an estimated dispersion", {
+    design <- splat_design(2)
+    for (bad in list("f", "Chisq", "LRT", c("chisq", "F"), NA_character_, 1)) {
+        expect_error(sc.p.vector(design, test = bad, verbose = FALSE),
+            "'test' must be either 'chisq' or 'F'",
+            fixed = TRUE
+        )
+    }
+    declared <- MASS::negative.binomial(10)
+    declared$dispersion <- 1
+    families <- list(poisson(), binomial(link = "log"), declared)
+    for (fam in families) {
+        expect_error(
+            sc.p.vector(design, family = fam, test = "F", verbose = FALSE),
+            paste0(
+                "test = 'F' needs a family whose dispersion is estimated: ",
+                "the '", fam$family, "' family fixes it at 1. ",
+                "Use test = 'chisq'."
+            ),
+            fixed = TRUE
+        )
+    }
+    # Control: the chi-squared test takes the Poisson family
+    expect_s4_class(
+        sc.p.vector(design, family = poisson(), verbose = FALSE),
+        "ScMaSigPro"
+    )
+})
+
+test_that("an object saved before the test parameter stops before any work", {
+    old <- splat_clustered()
+    params <- old@Parameters
+    attr(params, "test") <- NULL
+    old@Parameters <- params
+    for (f in calls_on(old, splat_sig_gene())) {
+        expect_error(f(), "update it with updateObject() first.",
+            fixed = TRUE
+        )
+    }
+    expect_output(print(old), "update it with updateObject()", fixed = TRUE)
+})
+
 test_that("theta_estimate is one of three values (decision D16)", {
     design <- splat_design(2)
     for (bad in list("each", c("gene", "global"), NA_character_, 1)) {

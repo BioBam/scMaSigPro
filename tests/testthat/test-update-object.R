@@ -114,6 +114,27 @@ test_that("updateObject() adds the count filter parameters (decision D17)", {
     expect_identical(updateObject(older), ob)
 })
 
+test_that("updateObject() adds the test parameter", {
+    ob <- load_dataset("scmp.ob")
+    old <- ob
+    params <- old@Parameters
+    attr(params, "test") <- NULL
+    old@Parameters <- params
+    expect_error(validObject(old), "but not in object", fixed = TRUE)
+    msgs <- capture_messages(up <- updateObject(old, verbose = TRUE))
+    expect_match(msgs, "Adding the parameter test (\"chisq\").",
+        fixed = TRUE, all = FALSE
+    )
+    expect_valid_scmp(up)
+    expect_identical(up@Parameters@test, "chisq")
+    expect_identical(up, ob)
+    # An object saved before the count filter and the version slot
+    attr(params, "min_counts") <- NULL
+    attr(params, "min_bins_expressed") <- NULL
+    old@Parameters <- params
+    expect_identical(updateObject(without_version(old)), ob)
+})
+
 test_that("updateObject() warns about a relabelled family (ledger LK-4)", {
     old <- splat_relabelled()
     msg <- paste(

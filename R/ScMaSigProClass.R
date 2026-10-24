@@ -58,11 +58,15 @@
 #' [sc.p.vector()] required of a feature (0: no minimum).
 #' @slot min_bins_expressed The minimum number of bins with a count above 0
 #' that [sc.p.vector()] required of a feature (0: no minimum).
+#' @slot test The test of the full model of each feature that [sc.p.vector()]
+#' was asked for: "chisq" (the default), the chi-squared test, or "F", the F
+#' test.
 #'
 #' @details
 #' `validObject()` checks that every slot except `distribution` holds a
 #' single non-missing value, that `min_counts` and `min_bins_expressed` are
-#' at least 0 and that `distribution` is a [stats::family()] object.
+#' at least 0, that `test` is "chisq" or "F" and that `distribution` is a
+#' [stats::family()] object.
 #'
 #' @name ParameterConfig
 #' @aliases ParameterConfig-class
@@ -97,7 +101,8 @@ setClass(
         use_dim = "character",
         fill_na = "character",
         min_counts = "numeric",
-        min_bins_expressed = "numeric"
+        min_bins_expressed = "numeric",
+        test = "character"
     ),
     validity = function(object) {
         msg <- character()
@@ -116,6 +121,11 @@ setClass(
             if (length(value) == 1L && !is.na(value) && value < 0) {
                 msg <- c(msg, paste0("'", s, "' must be at least 0"))
             }
+        }
+        test <- object@test
+        known <- test %in% c("chisq", "F")
+        if (length(test) == 1L && !is.na(test) && !known) {
+            msg <- c(msg, "'test' must be \"chisq\" or \"F\"")
         }
         if (!inherits(object@distribution, "family")) {
             msg <- c(msg, "'distribution' must be a 'family' object")
@@ -148,7 +158,8 @@ setClass(
         use_dim = "col",
         fill_na = "zero",
         min_counts = 0,
-        min_bins_expressed = 0
+        min_bins_expressed = 0,
+        test = "chisq"
     )
 )
 

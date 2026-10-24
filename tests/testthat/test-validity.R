@@ -264,3 +264,20 @@ test_that("the count filter parameters are at least 0 (decision D17)", {
         "'min_bins_expressed' must be at least 0"
     ))
 })
+
+test_that("the test parameter is \"chisq\" or \"F\"", {
+    params <- new("ParameterConfig")
+    expect_identical(params@test, "chisq")
+    params@test <- "F"
+    expect_true(validObject(params, test = TRUE))
+    params@test <- "LRT"
+    expect_identical(
+        validObject(params, test = TRUE),
+        "'test' must be \"chisq\" or \"F\""
+    )
+    params@test <- c("chisq", "F")
+    expect_identical(
+        validObject(params, test = TRUE),
+        "'test' must be a single non-missing value"
+    )
+})

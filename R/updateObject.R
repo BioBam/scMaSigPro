@@ -26,6 +26,10 @@
 #' ([sc.p.vector()] had no such filter then), and the version of the
 #' package that is running.
 #'
+#' Objects saved before the `test` parameter existed get it set to "chisq",
+#' the test of [sc.p.vector()] then, and the version of the package that is
+#' running.
+#'
 #' Objects saved with the `log_offset` parameter lose it. The fits of an
 #' object saved with `log_offset = FALSE`, the default, used the size factor
 #' of each bin as the offset: `updateObject()` stores the logarithm of the
@@ -95,6 +99,17 @@ setMethod("updateObject", "ScMaSigPro", function(object, ...,
         for (s in missing_params) {
             attr(params, s) <- 0
         }
+        object@Parameters <- params
+        object@version <- .scmp_version()
+    }
+    # Saved before the test of sc.p.vector() could be chosen: its fits used
+    # the chi-squared test
+    params <- object@Parameters
+    if (!.hasSlot(params, "test")) {
+        if (verbose) {
+            message("[updateObject] Adding the parameter test (\"chisq\").")
+        }
+        attr(params, "test") <- "chisq"
         object@Parameters <- params
         object@version <- .scmp_version()
     }
