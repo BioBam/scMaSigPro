@@ -47,7 +47,8 @@ Suggests:
     pkgload,
     maSigPro (>= 1.74.0),
     igraph,
-    slingshot
+    slingshot,
+    DelayedMatrixStats
 Config/testthat/edition: 3
 URL: https://github.com/BioBam/scMaSigPro/,
     https://spriyansh.github.io/scMaSigPro/

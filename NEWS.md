@@ -109,6 +109,7 @@
 * `maSigPro` moves from Imports to Suggests: only the tests that compare scMaSigPro with maSigPro and the "maSigPro and the ScMaSigPro class" vignette use it, and the vignette shows that code without running it when maSigPro is not installed. Installing scMaSigPro pulls in 44 non-base packages instead of 48 (`maSigPro`, `mclust`, `venn` and `admisc` are no longer installed with it).
 * `igraph` is suggested again, for `paths_from_graph()` only. Installing scMaSigPro still pulls in 44 non-base packages.
 * `slingshot` is suggested, for the test and the "Trajectory input" vignette that run a slingshot trajectory of `multi.lin.sce` through `assign_paths()` and the workflow; both skip it when slingshot is not installed.
+* `DelayedMatrixStats` is suggested: the slingshot section of the "Trajectory input" vignette needs it through slingshot's lineage inference.
 
 ## Internal
 

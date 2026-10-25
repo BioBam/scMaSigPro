@@ -110,10 +110,12 @@ number of lineages keeps the root cells.
 slingshot needs a low-dimensional embedding and clusters of cells. Here the
 embedding is the t-SNE of `multi.lin.sce` and the clusters are its Monocle3
 path labels, with the root as the start and the three end paths as the end
-clusters. This section runs when slingshot is installed.
+clusters. This section runs when slingshot and DelayedMatrixStats, which its
+lineage inference needs, are installed.
 
 ```{r slingshot}
-#| eval: !expr requireNamespace("slingshot", quietly = TRUE)
+#| eval: !expr requireNamespace("slingshot", quietly = TRUE) &&
+#|   requireNamespace("DelayedMatrixStats", quietly = TRUE)
 leaves <- c("path_Y_15", "path_Y_18", "path_Y_52")
 sds <- slingshot::slingshot(
     reducedDim(multi.lin.sce, "TSNE"),
@@ -127,7 +129,8 @@ slingshot::slingLineages(sds)
 Each lineage ends in one of the end clusters, which gives it its name:
 
 ```{r slingshot-paths}
-#| eval: !expr requireNamespace("slingshot", quietly = TRUE)
+#| eval: !expr requireNamespace("slingshot", quietly = TRUE) &&
+#|   requireNamespace("DelayedMatrixStats", quietly = TRUE)
 ends <- vapply(
     slingshot::slingLineages(sds), function(l) l[length(l)], character(1)
 )
@@ -148,7 +151,8 @@ joins those paths. They are so few that the simplest choice is to leave
 them out:
 
 ```{r slingshot-links}
-#| eval: !expr requireNamespace("slingshot", quietly = TRUE)
+#| eval: !expr requireNamespace("slingshot", quietly = TRUE) &&
+#|   requireNamespace("DelayedMatrixStats", quietly = TRUE)
 link <- "path_Y_15_links_path_Y_18"
 cells <- cells[cells$Path %in% c("root", link, leaves), ]
 table(
@@ -162,7 +166,8 @@ workflow then runs as for any other input; here on the first 100 genes, with
 the root and the link added to the end paths by `sc.restruct()`:
 
 ```{r slingshot-workflow, fig.width = 6, fig.height = 3}
-#| eval: !expr requireNamespace("slingshot", quietly = TRUE)
+#| eval: !expr requireNamespace("slingshot", quietly = TRUE) &&
+#|   requireNamespace("DelayedMatrixStats", quietly = TRUE)
 #| fig.alt: >
 #|   Tile plot of the bins of the three end paths, each starting with the bins
 #|   of the root.
