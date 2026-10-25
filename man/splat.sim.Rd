@@ -39,7 +39,9 @@ data("splat.sim", package = "scMaSigPro")
 \description{
 A \code{SingleCellExperiment} with the counts of 100 genes in 200 cells,
 simulated with splatter (Zappia et al. 2017) along two paths that start
-from the same point.
+from the same point. The vignettes \href{https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro.html}{Quick start} and
+\href{https://spriyansh.github.io/scMaSigPro/articles/model-and-tuning.html}{Model and tuning}
+analyse it.
 }
 \examples{
 data("splat.sim", package = "scMaSigPro")

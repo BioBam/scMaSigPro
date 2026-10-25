@@ -1,0 +1,457 @@
+---
+title: "Model and tuning"
+author: "Priyansh Srivastava"
+package: scMaSigPro
+abstract: >
+  This vignette explains the model that scMaSigPro fits and the settings of
+  each step: the bins, the polynomial and its dummies, the reference path,
+  the negative binomial distribution and its theta, the size-factor offset,
+  the link, the test of each gene, the selection of terms and the gene
+  lists. On a simulated data set with a known truth, it measures how the
+  main settings change the genes found.
+output: BiocStyle::html_document
+bibliography: scMaSigPro.bib
+vignette: >
+  %\VignetteIndexEntry{Model and tuning}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", crop = NULL)
+```
+
+# The data
+
+The examples use `splat.sim`, the bifurcating trajectory of the
+[Quick start](https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro.html)
+vignette: 200 cells on two paths, `Path1` and `Path2`, with the simulated
+step of each cell as its pseudotime. splatter [@zappia2017] stores how it
+simulated each gene; a gene whose differential expression factor
+(`DEFacPath1`, `DEFacPath2`) is not 1 on a path changes along that path.
+
+```{r load-data, message = FALSE}
+library(scMaSigPro)
+library(SingleCellExperiment)
+library(ggplot2)
+
+data("splat.sim", package = "scMaSigPro")
+truth <- rowData(splat.sim)
+changes <- truth$DEFacPath1 != 1 | truth$DEFacPath2 != 1
+names(changes) <- rownames(truth)
+sum(changes)
+
+scmp_ob <- as_scmp(splat.sim,
+    verbose = FALSE,
+    additional_params = list(
+        labels_exist = TRUE,
+        exist_ptime_col = "Step",
+        exist_path_col = "Group"
+    )
+)
+```
+
+# Bins
+
+A single cell holds few reads of each gene, and many of its counts are
+zero. scMaSigPro therefore pools the cells of each path into bins along
+pseudotime and adds up their counts into a pseudo-bulk count per bin, which
+raises the signal-to-noise ratio; the bins, numbered in order along
+pseudotime, become the time points of a time course, as in maSigPro
+[@srivastava2024, sec. 2.1].
+
+`sc.squeeze()` divides the pseudotime range of each path into bins of equal
+width. Each bin is closed on the left and open on the right, except the last
+bin of a path, which is closed on both ends, so a cell on the border of two
+bins goes to the later one. The number of bins comes from a histogram rule
+(`bin_method`), applied to the n cells of the path:
+
+* `"Sturges"` (the default): log~2~(n) + 1 bins [@sturges1926];
+* `"Sqrt"`: the square root of n;
+* `"Rice"`: 2 n^1/3^;
+* `"Doane"`: Sturges' rule plus a term for the skewness of the pseudotime
+    [@doane1976];
+* `"Freedman.Diaconis"` and `"Scott.Normal"`: bins of width
+    2 IQR / n^1/3^ and 3.49 sd / n^1/3^ [@freedman1981; @scott1979], turned
+    into a number of bins by dividing the range of the pseudotime by the
+    width.
+
+The number of bins is then multiplied by the drop factor `drop_fac` (at
+least 0.3; below 1 for fewer, wider bins) and rounded up. For data with
+many zeros, the article recommends a lower drop factor, which gives fewer
+bins with more cells each; it also suggests the rule of Rice for
+pseudotime values that span a broad range and that of Doane for skewed
+ones [@srivastava2024, sec. 4]. The number of bins of each rule for the two
+paths of `splat.sim`:
+
+```{r bin-rules}
+rules <- c(
+    "Sturges", "Sqrt", "Rice", "Doane", "Freedman.Diaconis", "Scott.Normal"
+)
+sapply(rules, function(rule) {
+    table(cDense(sc.squeeze(scmp_ob, bin_method = rule))$Path)
+})
+```
+
+Bins of equal width hold different numbers of cells where cells are dense or
+sparse along the pseudotime. `split_bins = TRUE` divides the bins of a path
+that hold more cells than the mean plus the standard deviation of its bin
+sizes, and `prune_bins = TRUE` removes those that hold fewer than the mean
+minus the standard deviation [@srivastava2024, sec. 2.2]. `fill_gaps`
+renumbers the bins after pruning, and `drop_trails` cuts the longer paths
+to the binned pseudotime of the shortest.
+
+```{r bin-split, fig.width = 6, fig.height = 3}
+#| fig.alt: >
+#|   Tile plot of the bins of splat.sim after splitting the bins that hold the
+#|   most cells.
+split_ob <- sc.squeeze(scmp_ob, split_bins = TRUE)
+table(cDense(split_ob)$Path)
+plotBinTile(split_ob)
+```
+
+Fewer, larger bins give each pseudo-bulk count more cells and the model
+fewer points; more, smaller bins the reverse. A polynomial of
+degree d has d + 1 coefficients per path, so each path needs more than d + 1
+bins to leave residual degrees of freedom for the test.
+
+# The model
+
+## A polynomial in pseudotime per path
+
+`sc.set.poly()` builds the design of the model of maSigPro
+[@conesa2006; @nueda2014]. With two paths and a polynomial of degree 2, the
+expected count $\mu$ of a gene in a bin at binned pseudotime $t$ is modelled
+as
+
+$$
+\log(\mu) = \beta_0 + \beta_1 t + \beta_2 t^2
+    + \beta_3 z + \beta_4 t z + \beta_5 t^2 z + \text{offset},
+$$
+
+where $z$ is a dummy variable, 1 for the bins of the second path and 0 for
+those of the reference path [@srivastava2024, sec. 2.3]. $\beta_0$,
+$\beta_1$ and $\beta_2$ describe the profile of the reference path;
+$\beta_3$, $\beta_4$ and $\beta_5$ are the differences of the second path
+from it, in level, slope and curvature. With more paths, every path but the
+reference gets a dummy and its products with the powers of $t$.
+
+```{r design}
+scmp_ob <- sc.squeeze(scmp_ob)
+scmp_ob <- sc.set.poly(scmp_ob, poly_degree = 2)
+showPoly(scmp_ob)
+head(predictors(scmp_ob), 3)
+head(pathAssign(scmp_ob), 3)
+```
+
+`predictors()` returns the design, one row per bin and one column per term
+besides the intercept, and `pathAssign()` the binned pseudotime and the path
+of each bin, the `edesign` of maSigPro.
+
+## The reference path
+
+The reference path is the path the others are compared with. Without
+`reference`, `sc.set.poly()` takes the first path of the bins: the first
+level of the path column when it is a factor, and otherwise the first label
+in C-locale (byte) order, in every locale. The full model is the same with
+any reference, written in other terms, so the test of each gene does not
+change; the coefficients, the terms that `sc.t.fit()` selects and the
+`"groups"` lists of `sc.filter()` describe the chosen comparison.
+
+```{r reference}
+ref1 <- sc.p.vector(sc.set.poly(scmp_ob, poly_degree = 1), verbose = FALSE)
+ref2 <- sc.p.vector(
+    sc.set.poly(scmp_ob, poly_degree = 1, reference = "Path2"),
+    verbose = FALSE
+)
+showPoly(ref2)
+all.equal(scmpResults(ref1)$p_value, scmpResults(ref2)$p_value)
+identical(scmpResults(ref1)$non_flat, scmpResults(ref2)$non_flat)
+```
+
+The [Shared root](
+    https://spriyansh.github.io/scMaSigPro/articles/shared-root.html)
+vignette chooses the reference in a trajectory with more paths.
+
+## The negative binomial distribution and theta
+
+The counts of a gene vary more between bins than a Poisson distribution
+allows, so the default model is negative binomial [@srivastava2024, sec.
+2.3]. Its family is `MASS::negative.binomial(theta = 10)` [@venables2002],
+whose variance is $\mu + \mu^2 / \theta$: `theta` is fixed at 10 by
+default, as in maSigPro, and any other theta or family can be passed to
+`family`.
+
+`theta_estimate` estimates theta from the data instead: `"gene"` estimates
+it by maximum likelihood on the full model of each gene and fits the gene
+with its own theta, and `"global"` fits every gene with the median of these
+estimates. `sc.t.fit()` and `plotDiagnostics()` use the same theta.
+
+```{r theta}
+theta_ob <- sc.p.vector(scmp_ob, theta_estimate = "gene", verbose = FALSE)
+showParams(theta_ob)[showParams(theta_ob)$parameters == "distribution", ]
+```
+
+## The offset
+
+Bins hold different numbers of cells, so their pseudo-bulk counts differ in
+total even for a gene that does not change. The offset corrects for this:
+it is the logarithm of a size factor per bin, added to the linear predictor
+with a fixed coefficient of 1 [@srivastava2024, sec. 2.3]. The size factors
+are those of the median-of-ratios method [@anders2010; @love2014]: the size
+factor of a bin is the median, over the genes, of the ratio of the gene's
+count in the bin to its geometric mean over all bins. The worked example of
+the article's supplementary section S1.3, three genes in three bins:
+
+```{r offset-example}
+counts <- rbind(
+    Gene1 = c(Bin1 = 100, Bin2 = 150, Bin3 = 200),
+    Gene2 = c(Bin1 = 200, Bin2 = 300, Bin3 = 250),
+    Gene3 = c(Bin1 = 300, Bin2 = 450, Bin3 = 500)
+)
+log_geo_mean <- rowMeans(log(counts))
+size_factor <- exp(apply(log(counts) - log_geo_mean, 2, median))
+size_factor
+log(size_factor)
+```
+
+`sc.p.vector()` computes them in the same way from the pseudo-bulk counts
+of every gene without a zero count, and `sc.t.fit()` uses the same offsets.
+On `splat.sim` the size factors follow the number of cells of the bins:
+
+```{r offset-bins, fig.width = 5, fig.height = 3.5}
+#| fig.alt: >
+#|   Size factor of each bin against its number of cells: the size factor grows
+#|   with the number of cells.
+bulk <- eDense(scmp_ob)
+log_geo_mean <- rowMeans(log(bulk))
+use <- is.finite(log_geo_mean)
+bins <- cDense(scmp_ob)
+bins$size_factor <- exp(
+    apply(log(bulk[use, rownames(bins)]) - log_geo_mean[use], 2, median)
+)
+ggplot(bins, aes(scmp_bin_size, size_factor, colour = Path)) +
+    geom_point() +
+    labs(x = "Cells in the bin", y = "Size factor") +
+    theme_minimal()
+```
+
+Without the offset (`offset = FALSE`), this difference between bins stays
+in the counts of every gene, and on `splat.sim` far fewer genes pass the
+test, as the table at the end shows.
+
+## The link
+
+The link function relates the expected count to the polynomial. The
+default, the log link, makes the terms multiplicative and is the one the
+offset needs. `link = "identity"` fits the expected count itself; it needs
+`offset = FALSE`, and with a negative binomial family the fitted mean of a
+gene can become negative, which `glm()` refuses or warns about. For data
+that are not counts, such as log-normalised values, `family = gaussian()`
+with `offset = FALSE` fits the linear model of maSigPro for microarrays, as
+the [maSigPro and the ScMaSigPro class](
+    https://spriyansh.github.io/scMaSigPro/articles/masigpro-and-class.html)
+vignette shows.
+
+# The steps and their settings
+
+## Testing each gene
+
+`sc.p.vector()` fits the full model of each gene and tests it against the
+model with the intercept only, which is a flat profile; the genes whose
+adjusted p-value is at most `p_value` have a non-flat profile
+[@srivastava2024, sec. 2.4]. The p-values are adjusted for the number of
+genes with `mt_correction`, by default the method of Benjamini and Hochberg
+[@benjamini1995], so `p_value` is a false discovery rate.
+
+The default test, `test = "chisq"`, divides the difference in deviance by
+the estimated dispersion and compares it with the chi-squared distribution,
+as maSigPro does. With few bins, the estimate of the dispersion varies from
+gene to gene and the test calls more genes significant than its level.
+`test = "F"` accounts for that estimate and is more conservative:
+
+```{r test}
+chisq_ob <- sc.p.vector(scmp_ob, verbose = FALSE)
+f_ob <- sc.p.vector(scmp_ob, test = "F", verbose = FALSE)
+c(
+    chisq = sum(scmpResults(chisq_ob)$non_flat),
+    F = sum(scmpResults(f_ob)$non_flat)
+)
+```
+
+Two filters leave genes with little expression out of the fit and out of
+the correction: `min_counts`, the smallest total count of a gene over the
+bins, and `min_bins_expressed`, the smallest number of bins in which its
+count is above 0. Both are 0 by default.
+
+## Selecting the terms
+
+`sc.t.fit()` selects, for each gene with a non-flat profile, the terms of
+its model that are significant at `p_value`: backward selection by default,
+which starts from the full model and removes the least significant term
+while its p-value is above the level, and forward or two-way selection with
+`selection_method` [@conesa2006]. `nvar_correction = TRUE` divides the level
+by the number of terms. The selected model of each gene, its p-value and
+R-squared are in `showSol()`; its coefficients, with 0 for the terms not
+selected, in `showCoeff()`; and the coefficients of each path's polynomial
+in `showGroupCoeff()`.
+
+```{r t-fit}
+scmp_ob <- sc.t.fit(chisq_ob, verbose = FALSE)
+head(showCoeff(scmp_ob), 3)
+head(showGroupCoeff(scmp_ob), 3)
+```
+
+## Gene lists
+
+`sc.filter()` keeps the genes whose selected model has an R-squared of at
+least `rsq` and a p-value of at most `p_value`, and makes lists with `vars`:
+`"all"`, one list; `"each"`, one list per term, with the genes whose term
+has a p-value of at most `term_p_value`; `"groups"`, one list per path. With
+`"groups"`, `intercept` says whether the dummies of the paths (`"dummy"`, the
+default), these and the intercept (`"all"`), or neither (`"none"`) count.
+`includeInflu = FALSE` leaves out the genes with influential observations.
+
+For a generalised linear model, R-squared is the proportion of the deviance
+of a gene that its model explains [@nueda2014; @srivastava2024, sec. 2.4],
+so a higher `rsq` keeps fewer genes with clearer profiles:
+
+```{r rsq}
+vapply(c(0.5, 0.6, 0.7, 0.8, 0.9), function(r) {
+    sum(scmpResults(sc.filter(scmp_ob, rsq = r, vars = "all"))$sig_all)
+}, numeric(1))
+each_ob <- sc.filter(scmp_ob, rsq = 0.7, vars = "each")
+each_res <- scmpResults(each_ob)
+colSums(as.data.frame(each_res[, grep("^sig_", colnames(each_res))]))
+```
+
+## Influential observations
+
+A bin can pull the fit of a gene on its own. `sc.t.fit()` marks the genes
+with a bin whose DFFITS and Cook's distance are both above the cut-off values of
+`stats::influence.measures()`; `showInflu()` lists them. `plotDiagnostics()`
+draws the residuals and the fit of the model of a gene of the lists of
+`sc.filter()`, to judge whether to keep it:
+
+```{r influence, fig.width = 7, fig.height = 6}
+#| fig.alt: >
+#|   Four diagnostic plots of the model of one gene: normal Q-Q plot, residuals
+#|   against fitted values, scale-location, and observed against predicted
+#|   counts.
+influential <- colnames(showInflu(scmp_ob))
+influential
+scmp_ob <- sc.filter(scmp_ob, rsq = 0.7, vars = "all")
+listed <- rownames(scmpResults(scmp_ob))[scmpResults(scmp_ob)$sig_all]
+plotDiagnostics(scmp_ob, intersect(influential, listed)[1])
+```
+
+## Reading the coefficients
+
+`queryCoeff()` returns the coefficients of a group of terms, for the genes
+whose selected model keeps every term of the group. With
+`change = "increasing"` it keeps the genes whose coefficients of the group
+add up to a positive number, or, with `strictly = TRUE`, are all positive;
+`"decreasing"` does the same for negative numbers. Here the group is the
+terms in pseudotime of the reference path, `Path1`:
+
+```{r query}
+rising <- queryCoeff(scmp_ob,
+    query = "pseudotime", change = "increasing", verbose = FALSE
+)
+head(rising)
+```
+
+## Parallel fits
+
+The fits of `sc.p.vector()` and `sc.t.fit()` run gene by gene through
+BiocParallel [@biocparallel]. The default, `SerialParam()`, fits one gene
+after another; `BPPARAM = BiocParallel::MulticoreParam(4)` (Linux and
+macOS) or `BPPARAM = BiocParallel::SnowParam(4)` (any system) fits four at a
+time. The results do not depend on the backend.
+
+# The settings against the truth
+
+The function below runs the workflow with some settings changed and counts
+how many of the genes it finds were simulated to change (precision) and how
+many of those it finds (recall), for the non-flat genes of `sc.p.vector()`
+and for the list of `sc.filter(rsq = 0.7, vars = "all")`. Every run starts
+from the settings of the
+[Quick start](https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro.html)
+vignette: Sturges' rule, degree 1, the chi-squared test and theta 10.
+
+```{r grid-function}
+base_ob <- as_scmp(splat.sim,
+    verbose = FALSE,
+    additional_params = list(
+        labels_exist = TRUE,
+        exist_ptime_col = "Step",
+        exist_path_col = "Group"
+    )
+)
+
+score <- function(found) {
+    tp <- sum(found & changes[names(found)])
+    c(
+        genes = sum(found), precision = tp / sum(found),
+        recall = tp / sum(changes)
+    )
+}
+
+run <- function(squeeze = list(), degree = 1, fit = list()) {
+    ob <- do.call(sc.squeeze, c(list(base_ob), squeeze))
+    ob <- sc.set.poly(ob, poly_degree = degree)
+    ob <- do.call(sc.p.vector, c(list(ob, verbose = FALSE), fit))
+    non_flat <- setNames(scmpResults(ob)$non_flat, rownames(scmpResults(ob)))
+    ob <- sc.t.fit(ob, verbose = FALSE)
+    ob <- sc.filter(ob, rsq = 0.7, vars = "all")
+    listed <- setNames(scmpResults(ob)$sig_all, rownames(scmpResults(ob)))
+    round(c(bins = nrow(cDense(ob)), score(non_flat), score(listed)), 2)
+}
+```
+
+```{r grid}
+grid <- rbind(
+    "default" = run(),
+    "bin_method = Sqrt" = run(squeeze = list(bin_method = "Sqrt")),
+    "bin_method = Freedman.Diaconis" =
+        run(squeeze = list(bin_method = "Freedman.Diaconis")),
+    "drop_fac = 0.5" = run(squeeze = list(drop_fac = 0.5)),
+    "split_bins = TRUE" = run(squeeze = list(split_bins = TRUE)),
+    "prune_bins = TRUE" = run(squeeze = list(prune_bins = TRUE)),
+    "poly_degree = 2" = run(degree = 2),
+    "poly_degree = 3" = run(degree = 3),
+    "test = F" = run(fit = list(test = "F")),
+    "theta_estimate = gene" = run(fit = list(theta_estimate = "gene")),
+    "offset = FALSE" = run(fit = list(offset = FALSE))
+)
+colnames(grid) <- c(
+    "bins", "non-flat", "precision", "recall",
+    "listed", "precision", "recall"
+)
+knitr::kable(grid)
+```
+
+```{r grid-numbers, include = FALSE}
+with_offset <- grid[rownames(grid) != "offset = FALSE", ]
+best_recall <- rownames(with_offset)[which.max(with_offset[, 4])]
+best_precision <- rownames(with_offset)[which.max(with_offset[, 3])]
+```
+
+On this data set the offset matters most: without it, only
+`r grid["offset = FALSE", 2]` genes pass the test. Among the other
+settings, the highest recall of the non-flat genes is that of
+`r best_recall` and the highest precision that of `r best_precision`; the F
+test finds `r grid["test = F", 2]` non-flat genes instead of
+`r grid["default", 2]`, with a precision of `r grid["test = F", 3]` and a
+recall of `r grid["test = F", 4]`. Other data sets, with other numbers of
+cells, depths and shapes of change, can favour other settings; a
+simulation that resembles the data, as splatter makes them, is a way to
+compare settings for a study.
+
+# Session information
+
+```{r session-info}
+sessionInfo()
+```
+
+# References

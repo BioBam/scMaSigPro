@@ -36,7 +36,10 @@ data("multi.lin.sce", package = "scMaSigPro")
 \description{
 A \code{SingleCellExperiment} with the counts of 501 genes in 1977 cells of a
 simulated trajectory with three end points and a shared root, with the
-pseudotime and the path labels of each cell.
+pseudotime and the path labels of each cell. The vignettes
+\href{https://spriyansh.github.io/scMaSigPro/articles/trajectory-input.html}{Trajectory input}
+and \href{https://spriyansh.github.io/scMaSigPro/articles/shared-root.html}{Shared root}
+analyse it.
 }
 \examples{
 data("multi.lin.sce", package = "scMaSigPro")

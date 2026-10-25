@@ -33,7 +33,8 @@ data("scmp.ob", package = "scMaSigPro")
 }
 \description{
 A \link[=ScMaSigPro-class]{ScMaSigPro} object with every step of the workflow run on
-\link{splat.sim}, for the examples and the vignettes.
+\link{splat.sim}, for the examples and the vignettes. The \href{https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro.html}{Quick start}
+vignette runs the same steps.
 }
 \examples{
 data("scmp.ob", package = "scMaSigPro")

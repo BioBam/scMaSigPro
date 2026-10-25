@@ -1,0 +1,288 @@
+---
+title: "Trajectory input"
+author: "Priyansh Srivastava"
+package: scMaSigPro
+abstract: >
+  scMaSigPro needs one pseudotime value and one path label per cell, and
+  nothing else from the tool that inferred the trajectory. This vignette
+  describes that input and builds it from the output of slingshot, from a
+  trajectory graph and from a Monocle3 object.
+output: BiocStyle::html_document
+bibliography: scMaSigPro.bib
+vignette: >
+  %\VignetteIndexEntry{Trajectory input}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", crop = NULL)
+```
+
+# The input contract
+
+Trajectory inference tools describe a trajectory in different ways:
+slingshot fits one principal curve per lineage and gives every cell a
+pseudotime and a weight on each lineage [@street2018], Monocle3 learns a
+principal graph and gives every cell one pseudotime from a root node
+[@cao2019], and tradeSeq takes such weights to fit its own models
+[@vandenberge2020]. scMaSigPro needs much less: for every cell,
+
+* one **pseudotime** value, a number that orders the cells of a path, and
+* one **path** label, the path that the cell belongs to.
+
+Every cell has one path label: scMaSigPro uses hard assignments. When the
+paths of a trajectory share their first cells, as the branches of a tree
+share its trunk, those cells get labels of their own:
+
+* the cells on every path get the **root** label;
+* the cells on some of the paths but not all of them get a **link** label,
+    the names of those paths joined by a separator, `_links_` by default;
+* every other cell gets the name of its path, an **end** path.
+
+`sc.restruct()` uses these labels to add the bins of the root and of the
+links to the end paths that share them; the
+[Shared root](https://spriyansh.github.io/scMaSigPro/articles/shared-root.html)
+vignette shows how.
+
+The two columns enter scMaSigPro in one of two ways:
+
+* `as_scmp()` takes a `SingleCellExperiment` whose `colData()` holds them;
+* `create_scmp()` takes a count matrix, genes by cells, and a data frame
+    with one row per cell, named by cell, that holds them.
+
+The rest of this vignette builds this table from the output of trajectory
+tools. The bundled data set `multi.lin.sce` serves as the example: a
+simulated trajectory with three end points [@vandenberge2020; @saelens2019],
+whose cells Monocle3 placed on three paths that share a root and a link.
+
+```{r load-data, message = FALSE}
+library(scMaSigPro)
+library(SingleCellExperiment)
+library(ggplot2)
+
+data("multi.lin.sce", package = "scMaSigPro")
+table(colData(multi.lin.sce)$group)
+```
+
+# From lineage weights
+
+`assign_paths()` turns lineage weights into path labels. It takes a matrix
+of weights, one row per cell and one column per lineage, and the pseudotime
+of each cell, either as a matrix of the same shape (one pseudotime per
+lineage, as slingshot gives it) or as one vector (one pseudotime shared by
+every lineage, as Monocle3 gives it). A cell is on a lineage when its weight
+there is at least `min_weight`, 0.5 by default, and its pseudotime there is
+known.
+
+A small example with three lineages shows the rules:
+
+```{r toy-weights}
+weights <- rbind(
+    cell1 = c(A = 1, B = 1, C = 1),
+    cell2 = c(A = 0.9, B = 0.8, C = 0.1),
+    cell3 = c(A = 1, B = 0, C = 0),
+    cell4 = c(A = 0, B = 0, C = 0.7),
+    cell5 = c(A = 0.2, B = 0.3, C = 0.1)
+)
+pseudotime <- rbind(
+    cell1 = c(A = 1, B = 1.2, C = 0.8),
+    cell2 = c(A = 4, B = 5, C = NA),
+    cell3 = c(A = 9, B = NA, C = NA),
+    cell4 = c(A = NA, B = NA, C = 7),
+    cell5 = c(A = 2, B = 2, C = 2)
+)
+assign_paths(pseudotime, weights)
+```
+
+`cell1` is on every lineage and becomes a root cell; `cell2` is on `A` and
+`B` only and gets the link label `A_links_B`; `cell3` and `cell4` are on one
+lineage each. A cell on several lineages gets the mean of its pseudotimes
+there. `cell5` is on no lineage and is left out, with a message.
+
+The weights are compared with `min_weight` as they are given. slingshot's
+curve weights are close to 1 on every lineage for the cells of the root; for
+weights that add up to 1 in each cell, a `min_weight` below 1 divided by the
+number of lineages keeps the root cells.
+
+# From slingshot
+
+slingshot needs a low-dimensional embedding and clusters of cells. Here the
+embedding is the t-SNE of `multi.lin.sce` and the clusters are its Monocle3
+path labels, with the root as the start and the three end paths as the end
+clusters. This section runs when slingshot is installed.
+
+```{r slingshot}
+#| eval: !expr requireNamespace("slingshot", quietly = TRUE)
+leaves <- c("path_Y_15", "path_Y_18", "path_Y_52")
+sds <- slingshot::slingshot(
+    reducedDim(multi.lin.sce, "TSNE"),
+    clusterLabels = colData(multi.lin.sce)$group,
+    start.clus = "root",
+    end.clus = leaves
+)
+slingshot::slingLineages(sds)
+```
+
+Each lineage ends in one of the end clusters, which gives it its name:
+
+```{r slingshot-paths}
+#| eval: !expr requireNamespace("slingshot", quietly = TRUE)
+ends <- vapply(
+    slingshot::slingLineages(sds), function(l) l[length(l)], character(1)
+)
+time <- slingshot::slingPseudotime(sds)
+weights <- slingshot::slingCurveWeights(sds)
+colnames(time) <- colnames(weights) <- ends
+
+cells <- assign_paths(time, weights)
+table(cells$Path)
+```
+
+The two tools draw the borders between the root, the link and the end
+paths in different places; slingshot, for one, puts fewer cells in the root
+than Monocle3 does here. Soft weights also place a few cells on two
+lineages that share nothing but the root, here `path_Y_52` and one of the
+other two; their labels look like links, but no segment of the trajectory
+joins those paths. They are so few that the simplest choice is to leave
+them out:
+
+```{r slingshot-links}
+#| eval: !expr requireNamespace("slingshot", quietly = TRUE)
+link <- "path_Y_15_links_path_Y_18"
+cells <- cells[cells$Path %in% c("root", link, leaves), ]
+table(
+    slingshot = cells$Path,
+    monocle3 = colData(multi.lin.sce)[rownames(cells), "group"]
+)
+```
+
+The cell table goes to `create_scmp()` with the counts of its cells. The
+workflow then runs as for any other input; here on the first 100 genes, with
+the root and the link added to the end paths by `sc.restruct()`:
+
+```{r slingshot-workflow, fig.width = 6, fig.height = 3}
+#| eval: !expr requireNamespace("slingshot", quietly = TRUE)
+#| fig.alt: >
+#|   Tile plot of the bins of the three end paths, each starting with the bins
+#|   of the root.
+genes <- rownames(multi.lin.sce)[seq_len(100)]
+scmp_ob <- create_scmp(
+    counts = counts(multi.lin.sce)[genes, rownames(cells)],
+    cell_data = cells,
+    ptime_col = "Pseudotime",
+    path_col = "Path"
+)
+scmp_ob <- sc.squeeze(scmp_ob)
+scmp_ob <- sc.restruct(scmp_ob,
+    end_node_list = as.list(leaves),
+    root_node = "root",
+    link_node_list = list(link),
+    verbose = FALSE
+)
+plotBinTile(scmp_ob)
+scmp_ob <- sc.set.poly(scmp_ob, poly_degree = 2)
+scmp_ob <- sc.p.vector(scmp_ob, verbose = FALSE)
+scmp_ob <- sc.t.fit(scmp_ob, verbose = FALSE)
+scmp_ob <- sc.filter(scmp_ob, rsq = 0.7, vars = "groups")
+res <- scmpResults(scmp_ob)
+colSums(as.data.frame(res[, grep("^sig_", colnames(res))]))
+```
+
+# From a trajectory graph
+
+Tools that describe a trajectory as a graph, such as the principal graph of
+Monocle3 or a minimum spanning tree of clusters, give every cell a node of
+the graph. `paths_from_graph()` turns the graph into lineage weights: each
+lineage is the path from the root node to an end node, and a cell has
+weight 1 on the lineages that pass through its node and 0 elsewhere. It
+finds the paths with the igraph package [@csardi2006].
+
+The graph here has the Monocle3 path labels of `multi.lin.sce` as its nodes:
+the root joins the end path `path_Y_52` and the link, and the link joins the
+other two end paths.
+
+```{r graph}
+#| eval: !expr requireNamespace("igraph", quietly = TRUE)
+edges <- rbind(
+    c("root", "path_Y_52"),
+    c("root", "path_Y_18|path_Y_15"),
+    c("path_Y_18|path_Y_15", "path_Y_15"),
+    c("path_Y_18|path_Y_15", "path_Y_18")
+)
+cell_node <- colData(multi.lin.sce)$group
+names(cell_node) <- colnames(multi.lin.sce)
+graph_weights <- paths_from_graph(cell_node, edges, root = "root")
+head(graph_weights)
+```
+
+The end nodes are the nodes with one edge other than the root, in the order
+in which they appear in `edges`; `endpoints` chooses them. With the Monocle3
+pseudotime, shared by every lineage, `assign_paths()` gives back the path
+labels of the data set, with the link written in the `_links_` format:
+
+```{r graph-paths}
+#| eval: !expr requireNamespace("igraph", quietly = TRUE)
+graph_cells <- assign_paths(
+    colData(multi.lin.sce)$Monocle3_Pseudotime, graph_weights
+)
+table(graph_cells$Path)
+```
+
+# From Monocle3
+
+A Monocle3 `cell_data_set` after `learn_graph()` and `order_cells()` holds
+the same pieces: the principal graph, the nearest node of each cell, the
+root node and the pseudotime. The code below builds the cell table from
+them with `paths_from_graph()` and `assign_paths()`. It is not run here:
+monocle3 is distributed on GitHub, not on CRAN or Bioconductor, so
+scMaSigPro cannot depend on it.
+
+```{r monocle3, eval = FALSE}
+library(monocle3)
+# `cds`: a cell_data_set after learn_graph() and order_cells()
+graph <- principal_graph(cds)[["UMAP"]]
+aux <- principal_graph_aux(cds)[["UMAP"]]
+
+# The nearest node of each cell, as a node name, and the root node
+nearest <- aux$pr_graph_cell_proj_closest_vertex
+cell_node <- igraph::V(graph)$name[nearest[, 1]]
+names(cell_node) <- rownames(nearest)
+root <- aux$root_pr_nodes
+
+# One lineage per end node, then the path label of each cell
+weights <- paths_from_graph(cell_node, igraph::as_edgelist(graph),
+    root = root
+)
+cells <- assign_paths(pseudotime(cds), weights)
+
+scmp_ob <- create_scmp(
+    counts = counts(cds)[, rownames(cells)],
+    cell_data = cells,
+    ptime_col = "Pseudotime",
+    path_col = "Path"
+)
+```
+
+The principal graph often has more end nodes than the branches of
+interest, and a graph learnt on several partitions has parts that the root
+cannot reach; `endpoints` names the end nodes of the lineages to analyse,
+which must be reachable from the root. Cells on none of these lineages, and
+cells with an infinite pseudotime, are left out.
+
+# Other tools
+
+Any tool will do that gives a pseudotime and a lineage for every cell. With
+lineage weights, as slingshot and tradeSeq give them, `assign_paths()` makes
+the labels; with a graph of nodes, `paths_from_graph()` makes the weights
+first. With hard labels already, as `multi.lin.sce` has them, add the two
+columns to the `colData()` and call `as_scmp()`, or pass the table to
+`create_scmp()`.
+
+# Session information
+
+```{r session-info}
+sessionInfo()
+```
+
+# References

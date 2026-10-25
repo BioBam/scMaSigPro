@@ -42,17 +42,22 @@ of \code{\link[=assign_paths]{assign_paths()}} describes the format.
 
 \section{Documentation}{
 
-The vignettes and these help pages are also on the package website,
+\code{browseVignettes("scMaSigPro")} lists the vignettes. They and these help
+pages are also on the package website,
 \url{https://spriyansh.github.io/scMaSigPro/}:
 \itemize{
-\item Quick Start Guide:
-\url{https://spriyansh.github.io/scMaSigPro/articles/Basic-Workflow.html}
-\item Common Root Cells:
-\url{https://spriyansh.github.io/scMaSigPro/articles/Common-Root-Cells.html}
-\item scMaSigProClass:
-\url{https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro-Class.html}
-\item Bridging maSigPro Analysis:
-\url{https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro-maSigPro.html}
+\item Quick start:
+\url{https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro.html}
+\item Trajectory input:
+\url{https://spriyansh.github.io/scMaSigPro/articles/trajectory-input.html}
+\item Shared root:
+\url{https://spriyansh.github.io/scMaSigPro/articles/shared-root.html}
+\item Model and tuning:
+\url{https://spriyansh.github.io/scMaSigPro/articles/model-and-tuning.html}
+\item maSigPro and the ScMaSigPro class:
+\url{https://spriyansh.github.io/scMaSigPro/articles/masigpro-and-class.html}
+\item Frequently asked questions:
+\url{https://spriyansh.github.io/scMaSigPro/articles/faq.html}
 }
 }
 
@@ -75,6 +80,7 @@ bioconductor package for RNA-seq time series. Bioinformatics 30(18),
 Useful links:
 \itemize{
   \item \url{https://github.com/BioBam/scMaSigPro/}
+  \item \url{https://spriyansh.github.io/scMaSigPro/}
   \item Report bugs at \url{https://github.com/BioBam/scMaSigPro/issues}
 }
 

@@ -1,0 +1,362 @@
+---
+title: "maSigPro and the ScMaSigPro class"
+author: "Priyansh Srivastava"
+package: scMaSigPro
+abstract: >
+  The first part of this vignette describes the ScMaSigPro object: what each
+  slot holds, the accessors that read it and how to bring an object saved by
+  an earlier version up to date. The second part runs the maSigPro workflow
+  and the scMaSigPro workflow side by side on the data of maSigPro, with a
+  Gaussian and a negative binomial model, and checks that their results are
+  identical.
+output: BiocStyle::html_document
+bibliography: scMaSigPro.bib
+vignette: >
+  %\VignetteIndexEntry{maSigPro and the ScMaSigPro class}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", crop = NULL)
+```
+
+# The ScMaSigPro object
+
+## Two resolutions and the results
+
+An analysis works at two resolutions: the cells, with their pseudotime and
+path, and the pseudotime bins whose pseudo-bulk counts the models are fitted
+to. A `ScMaSigPro` object holds both as `SingleCellExperiment` objects, one
+per slot, because their columns differ: `altExp()` needs the columns of the
+main experiment, and bins kept in `metadata()` would lose the checks and the
+accessors of an experiment. The other slots hold the results of the steps,
+which have no place in a `SingleCellExperiment`, and a record of every
+setting. Every step returns the object with one more slot filled, and checks
+it with `validObject()`.
+
+```{r slots-table, echo = FALSE}
+code <- function(x) paste0("`", x, "`")
+slots <- data.frame(
+    Slot = code(c(
+        "Sparse", "Dense", "Design", "Profile", "Estimate", "Significant",
+        "Parameters", "version"
+    )),
+    Class = code(c(
+        "SingleCellExperiment", "SingleCellExperiment", "MatrixDesign",
+        "VariableProfiles", "Estimates", "Significant", "ParameterConfig",
+        "character"
+    )),
+    `Filled by` = c(
+        "`as_scmp()`, `create_scmp()`", "`sc.squeeze()`, `sc.restruct()`",
+        "`sc.set.poly()`", "`sc.p.vector()`", "`sc.t.fit()`",
+        "`sc.filter()`, `sc.cluster.trend()`", "every step",
+        "the creation of the object"
+    ),
+    `Read with` = c(
+        "`cSparse()`, `eSparse()`", "`cDense()`, `eDense()`",
+        "`predictors()`, `pathAssign()`, `showPoly()`", "`scmpResults()`",
+        paste(
+            "`showSol()`, `showCoeff()`, `showGroupCoeff()`, `showTS()`,",
+            "`showInflu()`, `showSigProf()`"
+        ),
+        "`scmpResults()`", "`showParams()`", "`updateObject()`"
+    ),
+    check.names = FALSE
+)
+knitr::kable(slots)
+```
+
+The bundled object `scmp.ob` holds the analysis of the
+[Quick start](https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro.html)
+vignette; printing it summarises every step that has run:
+
+```{r scmp-ob, message = FALSE}
+library(scMaSigPro)
+data("scmp.ob", package = "scMaSigPro")
+scmp.ob
+```
+
+## Cells and bins
+
+`cSparse()` and `cDense()` return the metadata of the cells and of the bins
+as data frames, and `eSparse()` and `eDense()` their counts, by default the
+`counts` and `bulk.counts` assays. Each has a replacement form
+(`cSparse<-` and so on) that checks the new value and the object.
+
+```{r cells-bins}
+head(cSparse(scmp.ob)[, c("Pseudotime", "Path", "scmp_binned_pseudotime")], 3)
+bins <- cDense(scmp.ob)
+head(bins[, c("Path", "scmp_binned_pseudotime", "scmp_bin_size")], 3)
+eSparse(scmp.ob)[1:3, 1:4]
+eDense(scmp.ob)[1:3, 1:4]
+```
+
+The names of the columns are kept in the parameters (`ptime_col`,
+`path_col`, `bin_col` and others), which `showParams()` lists.
+
+## The design
+
+`predictors()` returns the design of the model, one row per bin and one
+column per term besides the intercept; `pathAssign()` the binned pseudotime
+and the path of each bin; `showPoly()` the model as a formula.
+
+```{r design}
+showPoly(scmp.ob)
+head(predictors(scmp.ob), 3)
+head(pathAssign(scmp.ob), 3)
+```
+
+## The results
+
+`scmpResults()` gathers the results of every gene in one table: the test of
+the full model, the selected model, the gene lists and the cluster.
+`scmpToRowData()` writes the same columns into the `rowData()` of a
+`SingleCellExperiment`. The `show*()` readers return the parts of the
+selected models: `showSol()` their p-values and R-squared, `showCoeff()`
+their coefficients, `showGroupCoeff()` the coefficients of the polynomial of
+each path, `showTS()` the t statistics, `showInflu()` the bins with
+influential observations and `showSigProf()` the pseudo-bulk counts of the
+genes with a selected model.
+
+```{r results}
+head(scmpResults(scmp.ob), 3)
+head(showSol(scmp.ob), 3)
+head(showGroupCoeff(scmp.ob), 3)
+```
+
+## The settings
+
+`showParams()` lists every setting that the steps used, and the steps take
+their defaults from them: `sc.t.fit()` uses the family, the link and the
+level of `sc.p.vector()` unless told otherwise.
+
+```{r params}
+showParams(scmp.ob)
+```
+
+## Objects from earlier versions
+
+The `version` slot records the version of scMaSigPro that created an object.
+An object saved by an earlier version, with `saveRDS()` or `save()`, may
+lack a slot or a setting that the current version needs; the steps then
+stop and ask for `updateObject()`, which adds what is missing and says what
+it changed:
+
+```{r update-object, eval = FALSE}
+scmp_ob <- updateObject(readRDS("analysis.rds"))
+```
+
+A current object is returned unchanged:
+
+```{r update-current}
+identical(updateObject(scmp.ob), scmp.ob)
+validObject(scmp.ob)
+```
+
+# Equivalence with maSigPro
+
+scMaSigPro fits the models of maSigPro [@conesa2006; @nueda2014] to
+pseudo-bulk counts. Its design, tests, stepwise selection and gene lists are
+implemented anew, without calling maSigPro, and with the settings of
+maSigPro, without the offset, they give the same results. This part runs
+both packages on the data of maSigPro and checks that every result is
+identical. It runs when maSigPro is installed:
+
+```{r masigpro-install, eval = FALSE}
+BiocManager::install("maSigPro")
+```
+
+```{r no-masigpro, echo = FALSE, results = "asis"}
+#| eval: !expr '!requireNamespace("maSigPro", quietly = TRUE)'
+cat(
+    "*maSigPro is not installed, so the code of this part is shown but",
+    "not run.*\n"
+)
+```
+
+## A Gaussian model on microarray data
+
+`data.abiotic` holds the expression of 1000 genes in a time-course
+microarray experiment on potato plants: a control and three abiotic
+stresses (cold, heat and salt), at 3, 9 and 27 hours, with three replicates
+each, 36 samples in all.
+`edesign.abiotic` describes the samples with one 0/1 column per group;
+scMaSigPro takes one column with the group instead.
+
+```{r abiotic-data}
+#| eval: !expr requireNamespace("maSigPro", quietly = TRUE)
+library(maSigPro)
+data("data.abiotic", "edesign.abiotic", package = "maSigPro")
+head(edesign.abiotic, 3)
+
+samples <- as.data.frame(edesign.abiotic)
+groups <- c("Control", "Cold", "Heat", "Salt")
+samples$Group <- groups[max.col(samples[, groups], ties.method = "first")]
+samples <- samples[, c("Time", "Replicate", "Group")]
+head(samples, 3)
+```
+
+Each sample is a bin of its own (`use_as_bin = TRUE`), so `sc.squeeze()` is
+not needed. The design of `sc.set.poly()` is that of `make.design.matrix()`:
+
+```{r abiotic-design}
+#| eval: !expr requireNamespace("maSigPro", quietly = TRUE)
+scmp_ab <- create_scmp(
+    counts = as.matrix(data.abiotic),
+    cell_data = samples,
+    ptime_col = "Time",
+    path_col = "Group",
+    use_as_bin = TRUE
+)
+scmp_ab <- sc.set.poly(scmp_ab, poly_degree = 2)
+design <- make.design.matrix(edesign.abiotic, degree = 2)
+
+stopifnot(
+    identical(predictors(scmp_ab), design$dis),
+    all.equal(pathAssign(scmp_ab), as.matrix(design$edesign))
+)
+```
+
+`sc.p.vector()` with the Gaussian family, the identity link and no offset is
+`p.vector()`, and `sc.t.fit()` is `T.fit()`. maSigPro prints its progress;
+`capture.output()` keeps it out of the vignette.
+
+```{r abiotic-fit}
+#| eval: !expr requireNamespace("maSigPro", quietly = TRUE)
+invisible(capture.output(
+    fit <- p.vector(data.abiotic, design,
+        Q = 0.05, MT.adjust = "BH", min.obs = 20
+    )
+))
+scmp_ab <- sc.p.vector(scmp_ab,
+    family = gaussian(), link = "identity", offset = FALSE,
+    min_na = 20, epsilon = 1e-5, max_it = 25, verbose = FALSE
+)
+
+invisible(capture.output(
+    tstep <- T.fit(fit, step.method = "backward", alfa = 0.05)
+))
+scmp_ab <- sc.t.fit(scmp_ab, verbose = FALSE)
+
+res <- scmpResults(scmp_ab)
+fitted <- rownames(fit$p.vector)
+stopifnot(
+    identical(res[fitted, "p_value"], unname(fit$p.vector[, 1])),
+    identical(res[fitted, "adj_p_value"], fit$p.adjusted),
+    identical(rownames(res)[res$non_flat], rownames(fit$SELEC)),
+    identical(showSol(scmp_ab), tstep$sol),
+    identical(showCoeff(scmp_ab), tstep$coefficients),
+    identical(showGroupCoeff(scmp_ab), tstep$group.coeffs),
+    identical(as.data.frame(showTS(scmp_ab)), tstep$t.score)
+)
+sum(res$non_flat)
+```
+
+The gene lists of `sc.filter()` are those of `get.siggenes()`; maSigPro pads
+its lists with blanks to the same length:
+
+```{r abiotic-lists}
+#| eval: !expr requireNamespace("maSigPro", quietly = TRUE)
+sigs <- get.siggenes(tstep, rsq = 0.6, vars = "groups")
+scmp_ab <- sc.filter(scmp_ab, rsq = 0.6, vars = "groups")
+res <- scmpResults(scmp_ab)
+for (list in colnames(sigs$summary)) {
+    expected <- sigs$summary[[list]]
+    expected <- expected[expected != " "]
+    found <- rownames(res)[res[[paste0("sig_", list)]]]
+    stopifnot(identical(found, expected))
+}
+colSums(as.data.frame(res[, grep("^sig_", colnames(res))]))
+```
+
+`plotTrend()` plays the part of `PlotGroups()` of maSigPro: the expression
+of one gene in each group over time, with the fitted curve of each group.
+
+```{r abiotic-plots, fig.width = 6, fig.height = 4}
+#| eval: !expr requireNamespace("maSigPro", quietly = TRUE)
+#| fig.alt: >
+#|   Expression of the gene STMDE66 over time in the four groups of
+#|   data.abiotic, with the fitted curve of each group, drawn by scMaSigPro.
+plotTrend(scmp_ab, "STMDE66",
+    logs = FALSE, pseudoCount = 0, summary_mode = "mean",
+    significant = FALSE, lines = TRUE
+)
+```
+
+## A negative binomial model on counts
+
+`NBdata` holds counts of 100 genes simulated with a negative binomial
+distribution, in two groups with six time points and three replicates
+each; the first 20 genes change over time. With the negative binomial
+family, theta 10 and no offset, `sc.p.vector()` and `sc.t.fit()` are
+`p.vector(counts = TRUE)` and `T.fit()`:
+
+```{r nb}
+#| eval: !expr requireNamespace("maSigPro", quietly = TRUE)
+data("NBdata", "NBdesign", package = "maSigPro")
+samples <- as.data.frame(NBdesign)
+samples$Group <- c("Group.1", "Group.2")[
+    max.col(samples[, 3:4], ties.method = "first")
+]
+samples <- samples[, c("Time", "Replicates", "Group")]
+
+nb_family <- MASS::negative.binomial(theta = 10)
+design <- make.design.matrix(NBdesign, degree = 2)
+invisible(capture.output(
+    fit <- p.vector(NBdata, design,
+        Q = 0.05, MT.adjust = "BH", min.obs = 6, counts = TRUE, theta = 10
+    )
+))
+invisible(capture.output(
+    tstep <- T.fit(fit,
+        step.method = "backward", alfa = 0.05, family = nb_family,
+        epsilon = 1e-5
+    )
+))
+
+scmp_nb <- create_scmp(
+    counts = as.matrix(NBdata),
+    cell_data = samples,
+    ptime_col = "Time",
+    path_col = "Group",
+    use_as_bin = TRUE
+)
+scmp_nb <- sc.set.poly(scmp_nb, poly_degree = 2)
+scmp_nb <- sc.p.vector(scmp_nb,
+    family = nb_family, offset = FALSE, min_na = 6, epsilon = 1e-5,
+    max_it = 25, verbose = FALSE
+)
+scmp_nb <- sc.t.fit(scmp_nb, verbose = FALSE)
+
+res <- scmpResults(scmp_nb)
+stopifnot(
+    identical(res$p_value, unname(fit$p.vector[, 1])),
+    identical(res$adj_p_value, fit$p.adjusted),
+    identical(rownames(res)[res$non_flat], rownames(fit$SELEC)),
+    identical(showSol(scmp_nb), tstep$sol),
+    identical(showCoeff(scmp_nb), tstep$coefficients)
+)
+sum(res$non_flat)
+```
+
+## What scMaSigPro adds
+
+On single cells, scMaSigPro adds what the cells need before the model of
+maSigPro applies [@srivastava2024]: the bins along pseudotime
+(`sc.squeeze()`), the shared root (`sc.restruct()`), the size-factor offset
+for the bins, the choice of the reference path, and the estimation of theta.
+It also fits the genes in parallel with BiocParallel, offers the F test of
+the full model, and returns the results as a `DataFrame` or in the
+`rowData()` of the data. The
+[Model and tuning](
+    https://spriyansh.github.io/scMaSigPro/articles/model-and-tuning.html)
+vignette describes these settings.
+
+# Session information
+
+```{r session-info}
+sessionInfo()
+```
+
+# References

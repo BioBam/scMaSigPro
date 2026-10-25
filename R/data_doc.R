@@ -2,7 +2,11 @@
 #'
 #' A `SingleCellExperiment` with the counts of 100 genes in 200 cells,
 #' simulated with splatter (Zappia et al. 2017) along two paths that start
-#' from the same point.
+#' from the same point. The vignettes [Quick start](
+#'   https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro.html) and
+#' [Model and tuning](
+#'   https://spriyansh.github.io/scMaSigPro/articles/model-and-tuning.html)
+#' analyse it.
 #'
 #' @format A `SingleCellExperiment` with 100 genes (rows) and 200 cells
 #' (columns):
@@ -50,7 +54,9 @@
 #' A complete analysis of splat.sim
 #'
 #' A [ScMaSigPro-class] object with every step of the workflow run on
-#' [splat.sim], for the examples and the vignettes.
+#' [splat.sim], for the examples and the vignettes. The [Quick start](
+#'   https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro.html)
+#' vignette runs the same steps.
 #'
 #' @format A [ScMaSigPro-class] object:
 #' \describe{
@@ -96,7 +102,12 @@
 #'
 #' A `SingleCellExperiment` with the counts of 501 genes in 1977 cells of a
 #' simulated trajectory with three end points and a shared root, with the
-#' pseudotime and the path labels of each cell.
+#' pseudotime and the path labels of each cell. The vignettes
+#' [Trajectory input](
+#'   https://spriyansh.github.io/scMaSigPro/articles/trajectory-input.html)
+#' and [Shared root](
+#'   https://spriyansh.github.io/scMaSigPro/articles/shared-root.html)
+#' analyse it.
 #'
 #' @format A `SingleCellExperiment` with 501 genes (rows) and 1977 cells
 #' (columns):

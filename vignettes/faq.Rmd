@@ -1,0 +1,180 @@
+---
+title: "Frequently asked questions"
+author: "Priyansh Srivastava"
+package: scMaSigPro
+abstract: >
+  Short answers to common questions about the input, the settings and the
+  results of scMaSigPro, with links to the vignettes and help pages that
+  answer them in full.
+output: BiocStyle::html_document
+vignette: >
+  %\VignetteIndexEntry{Frequently asked questions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", crop = NULL)
+```
+
+The vignettes are on the package website,
+<https://spriyansh.github.io/scMaSigPro/articles/>, and in R with
+`browseVignettes("scMaSigPro")`; every function has a help page, such as
+`?sc.squeeze`.
+
+# Input
+
+## What does scMaSigPro need from a trajectory?
+
+One pseudotime value and one path label per cell, and the raw counts of the
+cells. `as_scmp()` takes them as a `SingleCellExperiment` with two
+`colData()` columns, `create_scmp()` as a count matrix and a data frame. See
+the [Trajectory input](
+    https://spriyansh.github.io/scMaSigPro/articles/trajectory-input.html)
+vignette and the "Input contract" section of `?assign_paths`.
+
+## How do I analyse a Monocle3 trajectory?
+
+Take the principal graph, the nearest node of each cell, the root node and
+the pseudotime from the `cell_data_set`, turn them into path labels with
+`paths_from_graph()` and `assign_paths()`, and pass the counts and the cell
+table to `create_scmp()`. The
+[Trajectory input](
+    https://spriyansh.github.io/scMaSigPro/articles/trajectory-input.html)
+vignette has the code. Monocle3 itself is not a dependency, as it is not on
+CRAN or Bioconductor.
+
+## What about cells that belong to several paths?
+
+Every cell gets one label. Cells on every path are the root, and cells on
+some paths are a link, labelled with the names of those paths joined by
+`_links_`; `assign_paths()` makes these labels from lineage weights, such as
+those of slingshot. Then either analyse each segment as a path of its own,
+or add the root and the links to the paths that share them with
+`sc.restruct()`; the
+[Shared root](https://spriyansh.github.io/scMaSigPro/articles/shared-root.html)
+vignette compares the two.
+
+## Raw or normalised counts?
+
+Raw counts. The model is negative binomial, a distribution of counts, and
+the offset of each bin accounts for its sequencing depth. For values that
+are not counts, such as log-normalised or scaled data, use
+`family = gaussian()` with `offset = FALSE` in `sc.p.vector()`.
+
+## How many cells and bins are enough?
+
+A polynomial of degree d has d + 1 coefficients per path, so each path needs
+at least d + 1 bins, and a few more leave residual degrees of freedom for the
+test. `plotBinTile()` shows the number of cells per bin; bins of very few
+cells give noisy pseudo-bulk counts, which `prune_bins` removes and a lower
+`drop_fac` avoids.
+
+## The paths have different lengths. Does that matter?
+
+Each path is binned along its own range of pseudotime, into a number of
+bins that depends on its number of cells, and the model compares the paths
+at the same binned pseudotime, the index of the bin. A path with more bins
+extends beyond the others; `drop_trails = TRUE` in `sc.squeeze()` cuts the
+longer paths to the binned pseudotime of the shortest, to compare only the
+stretch they share.
+
+# Settings
+
+## Which bin rule should I use?
+
+Sturges' rule, the default, is the rule of the analyses of the article;
+`drop_fac` below 1 gives fewer, larger bins, useful for data with many
+zeros, and `split_bins` and `prune_bins` even out the number of cells per
+bin. The
+[Model and tuning](
+    https://spriyansh.github.io/scMaSigPro/articles/model-and-tuning.html)
+vignette describes every rule and compares them, and `?estBinSize` gives
+their formulas.
+
+## Which test should I use for the full model, chi-squared or F?
+
+`test = "chisq"`, the default and the test of maSigPro, treats the
+estimated dispersion as known; with few bins it calls more genes
+significant than its level. `test = "F"` accounts for the estimate and is
+more conservative. The
+[Model and tuning](
+    https://spriyansh.github.io/scMaSigPro/articles/model-and-tuning.html)
+vignette shows both.
+
+## When should I turn the offset off?
+
+When the data are not raw counts, such as normalised or scaled values, and
+with any link other than the log link, which the offset needs. With raw
+counts keep it: it corrects for the different numbers of cells, and so
+depths, of the bins.
+
+## How do I fit the genes in parallel?
+
+Pass a BiocParallel backend to `sc.p.vector()` and `sc.t.fit()`, such as
+`BPPARAM = BiocParallel::MulticoreParam(4)` on Linux and macOS or
+`BPPARAM = BiocParallel::SnowParam(4)` on any system, Windows included. The
+results do not depend on the backend.
+
+## Are the results reproducible?
+
+The workflow has no random step except the k-means clustering of
+`sc.cluster.trend()`; call `set.seed()` before it for the same clusters.
+Every setting a step used is kept in the object (`showParams()`).
+
+# Results
+
+## No gene passes. What now?
+
+Check the bins first: too few bins, or bins of very few cells, leave the
+test little to work with (`plotBinTile()`). Then the thresholds: `p_value`
+of `sc.p.vector()` is, with the default correction, a false discovery rate,
+and `rsq` of `sc.filter()` a threshold on the fit; `scmpResults()` reports
+both values for every gene. On raw counts, turning the offset off can also
+hide most genes, as the
+[Model and tuning](
+    https://spriyansh.github.io/scMaSigPro/articles/model-and-tuning.html)
+vignette shows.
+
+## Why do my results differ from those of version 0.0.4 or the 2024 article?
+
+Version 0.6.0 changed how the bins are made and how the offset is computed,
+honours the `link` argument and chooses the reference path in the same way
+in every locale; each change is listed under "Changes affecting results" in
+the [news](https://spriyansh.github.io/scMaSigPro/news/index.html). To
+repeat an earlier analysis exactly, install the version that made it, for
+example `BiocManager::install("BioBam/scMaSigPro@v0.0.4")`.
+
+## I saved an object with an earlier version. Can I still use it?
+
+Yes: run `updateObject()` on it after `readRDS()` or `load()`. The steps
+stop with "update it with updateObject() first" until then. See
+`help("updateObject,ScMaSigPro-method")` and the
+[maSigPro and the ScMaSigPro class](
+    https://spriyansh.github.io/scMaSigPro/articles/masigpro-and-class.html)
+vignette.
+
+## How do I get the results into my SingleCellExperiment?
+
+`scmpToRowData(sce, scmp_ob)` writes the columns of `scmpResults()`, with
+the prefix `scmp_`, into the `rowData()` of `sce`, matching the genes by
+name.
+
+## How long does an analysis take?
+
+The fits run gene by gene, so the time grows with the number of genes and
+with the number of bins; the number of cells matters only for the binning.
+On the 100 genes and 16 bins of `splat.sim` the whole workflow takes well
+under a second. A parallel backend fits several genes at a time.
+
+# Citing scMaSigPro
+
+```{r citation}
+citation("scMaSigPro")
+```
+
+# Session information
+
+```{r session-info}
+sessionInfo()
+```

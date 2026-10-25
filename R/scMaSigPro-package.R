@@ -28,16 +28,21 @@
 #' of [assign_paths()] describes the format.
 #'
 #' @section Documentation:
-#' The vignettes and these help pages are also on the package website,
+#' `browseVignettes("scMaSigPro")` lists the vignettes. They and these help
+#' pages are also on the package website,
 #' <https://spriyansh.github.io/scMaSigPro/>:
-#' * Quick Start Guide:
-#'   <https://spriyansh.github.io/scMaSigPro/articles/Basic-Workflow.html>
-#' * Common Root Cells:
-#'   <https://spriyansh.github.io/scMaSigPro/articles/Common-Root-Cells.html>
-#' * scMaSigProClass:
-#'   <https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro-Class.html>
-#' * Bridging maSigPro Analysis:
-#'   <https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro-maSigPro.html>
+#' * Quick start:
+#'   <https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro.html>
+#' * Trajectory input:
+#'   <https://spriyansh.github.io/scMaSigPro/articles/trajectory-input.html>
+#' * Shared root:
+#'   <https://spriyansh.github.io/scMaSigPro/articles/shared-root.html>
+#' * Model and tuning:
+#'   <https://spriyansh.github.io/scMaSigPro/articles/model-and-tuning.html>
+#' * maSigPro and the ScMaSigPro class:
+#'   <https://spriyansh.github.io/scMaSigPro/articles/masigpro-and-class.html>
+#' * Frequently asked questions:
+#'   <https://spriyansh.github.io/scMaSigPro/articles/faq.html>
 #'
 #' @references
 #' Srivastava P, Benegas Coll M, Götz S, Nueda MJ, Conesa A (2024).
