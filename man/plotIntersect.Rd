@@ -2,42 +2,55 @@
 % Please edit documentation in R/plotIntersect.R
 \name{plotIntersect}
 \alias{plotIntersect}
-\title{Generate UpSet Plot}
+\title{Plot the overlaps of the gene lists}
 \usage{
 plotIntersect(
   scmpObj,
   min_intersection_size = 1,
   keep_empty_groups = FALSE,
-  width_ratio = 0.1,
-  show_sets_size = FALSE,
   return = FALSE
 )
 }
 \arguments{
-\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
+\item{scmpObj}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{min_intersection_size}{Minimal number of observations in an intersection
-for it to be included.}
+\item{min_intersection_size}{The smallest intersection drawn.}
 
-\item{keep_empty_groups}{Whether empty sets should be kept (including sets
-which are only empty after filtering by size)}
+\item{keep_empty_groups}{Whether to draw the empty intersections.}
 
-\item{width_ratio}{Ratio of the overall set size width to intersection matrix
-width.}
-
-\item{show_sets_size}{The overall set sizes plot, e.g. from upset_set_size()}
-
-\item{return}{If set to true, it will return dataframe from the UpSetR::fromList().
-(Default is TRUE)}
+\item{return}{Whether to return the data instead of the plot.}
 }
 \value{
-upset object for 'UpSetR'.
+An \code{upset} object of UpSetR or, with \code{return = TRUE}, a data frame
+with one row per gene and a 0/1 column per gene list.
 }
 \description{
-Generate UpSet Plot on Intersection of Significant Genes from scMaSigPro
-object. It is a wrapper \code{UpSetR::upset}, so drawing the plot needs the
-suggested package 'UpSetR'; \code{return = TRUE} does not.
+\code{plotIntersect()} draws an UpSet plot of the gene lists of \code{\link[=sc.filter]{sc.filter()}}
+with \code{UpSetR::upset()}, which needs the suggested package UpSetR, or
+returns its data.
+}
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+# The genes of each list as 0/1 columns
+head(plotIntersect(scmp.ob, return = TRUE))
+if (requireNamespace("UpSetR", quietly = TRUE)) {
+    plotIntersect(scmp.ob)
+}
+
+}
+\references{
+Conway JR, Lex A, Gehlenborg N (2017). UpSetR: an R package for the
+visualization of intersecting sets and their properties. Bioinformatics
+33(18), 2938-2940. \doi{10.1093/bioinformatics/btx364}
+}
+\seealso{
+Other plots:
+\code{\link[=plotBinTile]{plotBinTile()}},
+\code{\link[=plotDiagnostics]{plotDiagnostics()}},
+\code{\link[=plotTrend]{plotTrend()}},
+\code{\link[=plotTrendCluster]{plotTrendCluster()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{plots}

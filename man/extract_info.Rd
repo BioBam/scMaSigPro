@@ -2,20 +2,28 @@
 % Please edit documentation in R/show_functions.R
 \name{extract_info}
 \alias{extract_info}
-\title{Extract Information \code{.ScMaSigPro_show}}
+\title{Bins per path for the printed summary}
 \usage{
 extract_info(data, return_type = "avg_bin_size", bin_size_col, path_col)
 }
 \arguments{
-\item{data}{A dataframe.}
+\item{data}{The bin metadata.}
 
-\item{return_type}{Average Bin Size or Number of Bins.}
+\item{return_type}{\code{"avg_bin_size"} or \code{"num_bins"}.}
 
-\item{bin_size_col}{Column name with the bins.}
+\item{bin_size_col}{The column with the number of cells of each bin.}
 
-\item{path_col}{Column name with the path information.}
+\item{path_col}{The column with the path labels.}
+}
+\value{
+One value per path: the mean bin size (\code{"avg_bin_size"}) or the
+number of bins (\code{"num_bins"}, a table).
 }
 \description{
-Extract details for the console cat of \code{.ScMaSigPro_show}.
+\code{extract_info()} gives the mean bin size or the number of bins of each path
+for the \code{show()} method of \link[=ScMaSigPro-class]{ScMaSigPro}.
+}
+\seealso{
+\link[=ScMaSigPro-class]{ScMaSigPro}, whose \code{show()} method prints it.
 }
 \keyword{internal}

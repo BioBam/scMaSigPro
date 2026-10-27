@@ -2,8 +2,7 @@
 % Please edit documentation in R/annotate_sce.R
 \name{annotate_sce}
 \alias{annotate_sce}
-\title{Annotate \code{SingleCellExperiment} class object with pseudotime and path
-information.}
+\title{Rename the pseudotime and path columns of a SingleCellExperiment}
 \usage{
 annotate_sce(
   sce,
@@ -18,39 +17,36 @@ annotate_sce(
 )
 }
 \arguments{
-\item{sce}{A \code{SingleCellExperiment} object to be annotated.}
+\item{sce}{A \code{SingleCellExperiment}.}
 
-\item{ptime_col}{A character string representing the column name
-for inferred Pseudotime values. (Default is "Pseudotime")}
+\item{ptime_col}{The name of the column of the cell metadata that holds
+the pseudotime of each cell.}
 
-\item{path_prefix}{Prefix used to annotate the paths. (Default is "Path").}
+\item{path_prefix}{The default of \code{path_col}, kept in the parameters.}
 
-\item{root_label}{Label used to annotate root cells. (Default is "root").}
+\item{root_label}{The label of the root cells, kept in the parameters.}
 
-\item{path_col}{A character string representing the column name for branching
-path assignment. (Default is \code{path_prefix})}
+\item{path_col}{The name of the column of the cell or bin metadata that
+holds the path label of each cell or bin.}
 
-\item{exist_ptime_col}{The name of an existing pseudotime column
-to be replaced (if not NULL).}
+\item{exist_ptime_col}{The column with the pseudotime.}
 
-\item{exist_path_col}{The name of an existing path column to be replaced
-(if not NULL).}
+\item{exist_path_col}{The column with the path labels.}
 
-\item{labels_exist}{Logical indicating whether if the existing column names
-should be overwritten. (Default is TRUE)}
+\item{labels_exist}{Whether to rename the columns.}
 
-\item{verbose}{Print detailed output in the console. (Default is TRUE)}
+\item{verbose}{Whether to print progress messages.}
 }
 \value{
-A \code{\link[SingleCellExperiment]{SingleCellExperiment}} object with updated cell metadata.
+\code{sce} with the renamed columns.
 }
 \description{
-\code{annotate_sce()} annotates a \code{SingleCellExperiment} class object with pseudotime
-and path information in its \code{cell.metadata} generated using \code{colData} from the
-\pkg{SingleCellExperiment} package.
+\code{annotate_sce()} renames the columns \code{exist_ptime_col} and \code{exist_path_col}
+of the cell metadata of \code{sce} to \code{ptime_col} and \code{path_col} when
+\code{labels_exist = TRUE}, and returns \code{sce} unchanged otherwise.
 }
 \seealso{
-\pkg{SingleCellExperiment} package.
+\code{\link[=as_scmp]{as_scmp()}}, which calls it.
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/sc.filter.R
 \name{sc.filter}
 \alias{sc.filter}
-\title{Extract significant genes based on R-Square and P-values}
+\title{List the significant genes}
 \usage{
 sc.filter(
   scmpObj,
@@ -15,59 +15,71 @@ sc.filter(
 )
 }
 \arguments{
-\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
+\item{scmpObj}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{rsq}{Coefficient of determination or R-squared value threshold.}
+\item{rsq}{The smallest R-squared of the selected model of a gene.}
 
-\item{p_value}{Overall model significance.}
+\item{p_value}{The largest p-value of the selected model of a gene; by
+default that of \code{\link[=sc.p.vector]{sc.p.vector()}}.}
 
-\item{vars}{Variables for which to extract significant genes: "all" (the
-default), "each" or "groups". See details.}
+\item{vars}{\code{"all"}: one list with every gene that passes; \code{"each"}: one
+list per term, with the genes whose term passes \code{term_p_value};
+\code{"groups"}: one list per path, with the genes with a term of that path
+that passes it.}
 
-\item{intercept}{Specify the branching path treated as reference. See details.
-(When \code{vars} equals "groups").}
+\item{intercept}{With \code{vars = "groups"}, the intercept terms that count:
+\code{"dummy"}, the dummies of the paths (the differences of their intercepts
+from the reference); \code{"all"}, these and the intercept of the reference
+path; \code{"none"}, neither, so that only the terms in pseudotime count.}
 
-\item{term_p_value}{Term wise significance.}
+\item{term_p_value}{The largest p-value of a term, for \code{vars = "each"} and
+\code{vars = "groups"}.}
 
-\item{includeInflu}{Whether to include genes with influential observations.}
+\item{includeInflu}{Whether to keep the genes with influential
+observations (see \code{\link[=showInflu]{showInflu()}}).}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}, with updated \code{Significant}
-slot.
+The object with the gene lists in the \code{Significant} slot
+(class \link[=Significant-class]{Significant}); earlier clusters are removed.
 }
 \description{
-\code{sc.filter()} creates lists of significant genes based on user-specified
-constraints.
+\code{sc.filter()} lists the genes whose selected model (\code{\link[=sc.t.fit]{sc.t.fit()}}) has an
+R-squared of at least \code{rsq} and a p-value of at most \code{p_value}: in one list,
+one list per term or one list per path (\code{vars}), as \code{get.siggenes()} of
+maSigPro does.
 }
-\details{
-\code{vars} Parameter can take one of the following values:
-\itemize{
-\item \code{"all"}: Generates one gene list with all significant genes.
-\item \code{"each"}: Generates gene list for each term in the polynomial GLM.
-\item \code{"groups"}: Generates gene list for each branching path.
-}
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+scmp <- sc.filter(scmp.ob, rsq = 0.6, vars = "groups")
+res <- scmpResults(scmp)
+# The number of genes in each list
+c(Path1 = sum(res$sig_Path1), Path2vsPath1 = sum(res$sig_Path2vsPath1))
 
-\code{intercept} Parameter modulates the treatment for intercept coefficients to
-apply for selecting significant genes when \code{vars} equals "groups". There are
-three possible values:
-\itemize{
-\item \code{"none"}: No significant intercept (differences) are considered.
-\item \code{"dummy"}: Includes genes with significant intercept differences
-between branching paths.
-\item \code{"all"}: When both significant intercept coefficient for the
-reference path and significant intercept differences are considered for
-selecting significant genes.
-}
 }
 \references{
-{Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
-maSigPro: a Method to Identify Significant Differential Expression Profiles
-in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
+Conesa A, Nueda MJ, Ferrer A, Talón M (2006). maSigPro: a method to
+identify significantly differential expression profiles in time-course
+microarray experiments. Bioinformatics 22(9), 1096-1102.
+\doi{10.1093/bioinformatics/btl056}
+
+Nueda MJ, Tarazona S, Conesa A (2014). Next maSigPro: updating maSigPro
+bioconductor package for RNA-seq time series. Bioinformatics 30(18),
+2598-2602. \doi{10.1093/bioinformatics/btu333}
 }
 \seealso{
-\code{maSigPro::get.siggenes()}
+\code{\link[=plotIntersect]{plotIntersect()}} for the overlaps of the lists;
+\link[=Significant-class]{Significant}.
+
+Other workflow steps:
+\code{\link[=sc.cluster.trend]{sc.cluster.trend()}},
+\code{\link[=sc.p.vector]{sc.p.vector()}},
+\code{\link[=sc.restruct]{sc.restruct()}},
+\code{\link[=sc.set.poly]{sc.set.poly()}},
+\code{\link[=sc.squeeze]{sc.squeeze()}},
+\code{\link[=sc.t.fit]{sc.t.fit()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and
 Maria Jose Nueda, \email{mj.nueda@ua.es}
 }
+\concept{workflow steps}

@@ -2,18 +2,16 @@
 % Please edit documentation in R/plotTrendCluster.R
 \name{plotTrendCluster}
 \alias{plotTrendCluster}
-\title{Plot multiple trends of the multiple genes.}
+\title{Plot the trends of the clusters}
 \usage{
 plotTrendCluster(
   scmpObj,
   xlab = "Pooled Pseudotime",
   ylab = NULL,
-  plot = "counts",
   summary_mode = "median",
   logs = NULL,
   logType = "log",
   smoothness = 1,
-  includeInflu = TRUE,
   verbose = TRUE,
   pseudoCount = 1,
   significant = FALSE,
@@ -24,53 +22,61 @@ plotTrendCluster(
 )
 }
 \arguments{
-\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
+\item{scmpObj}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{xlab}{X-axis label. (Default is "Pooled Pseudotime")}
+\item{xlab}{The label of the x axis.}
 
-\item{ylab}{Y-axis label. The default, \code{NULL}, is
-"log(Pseudobulk Expression)" for log-link fits and when the points are
-logged, and "Pseudobulk Expression" otherwise.}
+\item{ylab}{The label of the y axis. The default, \code{NULL}, is
+\code{"log(Pseudobulk Expression)"} for log-link fits and when the points are
+logged, and \code{"Pseudobulk Expression"} otherwise.}
 
-\item{plot}{Whether to plot 'coeff' or 'counts'. (Default is 'counts')}
-
-\item{summary_mode}{Compress the expression values per replicate (if present)
-per binned pseudotime point. Default is 'median'. Other option 'mean'}
+\item{summary_mode}{How the points of each binned pseudotime and path are
+summarised for the lines: \code{"median"} or \code{"mean"}.}
 
 \item{logs}{Whether to log the points, as in \code{\link[=plotTrend]{plotTrend()}}. The default,
 \code{NULL}, logs them when the fits used the log link.}
 
-\item{logType}{How to log transform the values. Available options 'log',
-'log2', 'log10'. (Default is 'log')}
+\item{logType}{The log of the points: \code{"log"}, \code{"log2"} or \code{"log10"}.}
 
-\item{smoothness}{How smooth the trend should be. Setting to
-higher values will result in more linear trends. (Default is 0.01)}
+\item{smoothness}{The step of the pseudotime grid of the curves: the
+smaller, the smoother.}
 
-\item{includeInflu}{Include gene only if it has influential data.
-(Default is TRUE)}
+\item{verbose}{Whether to print progress messages.}
 
-\item{verbose}{Print detailed output in the console. (Default is TRUE)}
+\item{pseudoCount}{The number added to the points before the log.}
 
-\item{pseudoCount}{Add a pseudo-count before taking the log. (Default is 1)}
+\item{significant}{Whether the genes must be in a gene list of
+\code{\link[=sc.filter]{sc.filter()}}; the others are left out with a warning.}
 
-\item{significant}{Include gene only if the models are significant based on
-\code{scMaSigPro::sc.filter()}. (Default is TRUE)}
+\item{curves}{Whether to draw the fitted curves.}
 
-\item{curves}{Whether to plot the fitted curves. (Default is TRUE)}
+\item{lines}{Whether to draw lines through the points.}
 
-\item{lines}{Whether to plot the lines. (Default is FALSE)}
+\item{points}{Whether to draw the points.}
 
-\item{points}{Whether to plot the points. (Default is TRUE)}
-
-\item{loess_span}{The fraction of the data used when estimating each y-value,
-when plotting curves. (Default is 0.75)}
+\item{loess_span}{The span of the loess curves.}
 }
 \value{
-ggplot2 plot object.
+A ggplot object with one panel per cluster.
 }
 \description{
-Plot trends of multiple genes (clustered) across the binned pseudotime.
+\code{plotTrendCluster()} plots, in one panel per cluster of
+\code{\link[=sc.cluster.trend]{sc.cluster.trend()}}, the points of its genes along the binned pseudotime
+and a loess curve per path through their fitted curves.
+}
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+plotTrendCluster(scmp.ob, verbose = FALSE)
+
+}
+\seealso{
+Other plots:
+\code{\link[=plotBinTile]{plotBinTile()}},
+\code{\link[=plotDiagnostics]{plotDiagnostics()}},
+\code{\link[=plotIntersect]{plotIntersect()}},
+\code{\link[=plotTrend]{plotTrend()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{plots}

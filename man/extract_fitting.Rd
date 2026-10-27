@@ -2,7 +2,7 @@
 % Please edit documentation in R/pb_helpers.R
 \name{extract_fitting}
 \alias{extract_fitting}
-\title{Extract Fitting}
+\title{Summaries of the selected model of a gene}
 \usage{
 extract_fitting(
   reg,
@@ -17,28 +17,42 @@ extract_fitting(
 )
 }
 \arguments{
-\item{reg}{Regression Result from \code{stats::glm()}}
+\item{reg}{The selected model, a \code{glm} fit.}
 
-\item{lmf}{Full model object generated from the \code{stats::glm()}}
+\item{lmf}{The full model.}
 
-\item{model.glm.0}{Intercept model object generated from the \code{stats::glm()}}
+\item{model.glm.0}{The intercept-only model.}
 
-\item{dis}{Dataframe for the predictors}
+\item{dis}{The design, a data frame with one column per term.}
 
-\item{family}{Family used for modelling the data.}
+\item{family}{The family of the fits.}
 
-\item{name}{Feature (gene) name, used as the row name of \code{sol} and as
-the column name of the gene's entry in \code{influ.info}.}
+\item{name}{The name of the gene: the row name of \code{sol} and the column
+name of its entry in \code{influ.info}.}
 
-\item{vars.in}{Names of the predictors (the columns of \code{dis}); they fix
-the order of the returned coefficients, p-values and t-scores.}
+\item{vars.in}{The names of the terms (the columns of \code{dis}); they fix the
+order of the coefficients, p-values and t statistics.}
 
-\item{alfa}{Significance threshold (Q-Value)}
+\item{alfa}{The level at which a coefficient is significant.}
 
-\item{influ.info}{Matrix of influential observations collected so far;
-a column for this gene is appended when it has influential observations.}
+\item{influ.info}{The matrix of influential observations so far; a column
+for this gene is added when it has influential observations.}
+}
+\value{
+A list: the p-value (\code{p_value}) and R-squared (\code{bondad}) of the
+selected model; the p-values (\code{p_valor}), coefficients (\code{coeff}) and t
+statistics (\code{t}) of every term; the counts of the gene (\code{sig_profiles});
+its row of the results (\code{sol}, \code{NULL} when no coefficient is
+significant); the updated \code{influ.info}; and the gene name
+(\code{feature_name}).
 }
 \description{
-Extract Fitting
+\code{extract_fitting()} collects, for one gene, the p-value and R-squared of
+its selected model, the coefficients, p-values and t statistics of its
+terms and its influential observations; \code{\link[=sc.t.fit]{sc.t.fit()}} calls it for each
+gene.
+}
+\seealso{
+\code{\link[=sc.t.fit]{sc.t.fit()}}, which calls it.
 }
 \keyword{internal}

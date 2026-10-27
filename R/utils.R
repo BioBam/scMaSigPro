@@ -1,14 +1,17 @@
-#' Convert List of Named Vectors to Data Frame with Row Names for UpSetR
+#' @title Gene lists as a 0/1 table
 #'
-#' This function converts a list of named vectors to a data frame compatible with UpSetR,
-#' retaining the row names corresponding to the unique elements (genes) present in the input list.
+#' @description
+#' `fromListWithNames()` turns a named list of gene lists into a data frame
+#' with one row per gene, named by gene, and a 0/1 column per list, as
+#' `UpSetR::fromList()` does, with the row names.
 #'
-#' @param input A list of named vectors to be converted to a data frame compatible with UpSetR.
+#' @param input A named list of character vectors.
 #'
-#' @return A data frame with binary values indicating the presence (1) or absence (0) of each element
-#' in the sets, and row names corresponding to the unique elements.
+#' @return A data frame of 0 and 1, one row per gene and one column per list.
 #'
 #' @keywords internal
+#'
+#' @seealso [plotIntersect()], which calls it.
 fromListWithNames <- function(input) {
     # Get unique elements (genes)
     elements <- unique(unlist(input))
@@ -33,17 +36,19 @@ fromListWithNames <- function(input) {
     return(data)
 }
 
-#' Get Color Palette
+#' @title Colours of the paths
 #'
-#' This function returns a specified number of contrasting colors from a predefined palette.
-#' If the requested number of colors exceeds the length of the predefined palette,
-#' additional unique colors from the default R color set are included.
+#' @description
+#' `scmp_colors()` returns `n` contrasting colours: those of a fixed palette
+#' of nine, then named colours of [grDevices::colors()].
 #'
-#' @param n An integer specifying the number of colors to return.
+#' @param n The number of colours.
 #'
-#' @return A character vector of hex color codes.
+#' @return A character vector of `n` colours.
 #'
 #' @keywords internal
+#'
+#' @seealso [plotTrend()] and [plotTrendCluster()], which call it.
 scmp_colors <- function(n) {
     # Define Palette
     ten_pal <- c("#d95f02", "#4daf4a", "#377eb8", "#E69F00", "#f781bf", "#56B4E9", "#a65628", "#009E73", "#7570b3")
@@ -53,9 +58,9 @@ scmp_colors <- function(n) {
     extra_pal <- extra_pal[!extra_pal %in% ten_pal]
 
     if (n <= 9) {
-        return(ten_pal[1:n])
+        return(ten_pal[seq_len(n)])
     } else {
-        return(c(ten_pal, extra_pal[1:(n - 9)]))
+        return(c(ten_pal, extra_pal[seq_len(n - 9)]))
     }
 }
 

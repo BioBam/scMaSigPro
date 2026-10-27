@@ -2,19 +2,21 @@
 % Please edit documentation in R/utils.R
 \name{scmp_colors}
 \alias{scmp_colors}
-\title{Get Color Palette}
+\title{Colours of the paths}
 \usage{
 scmp_colors(n)
 }
 \arguments{
-\item{n}{An integer specifying the number of colors to return.}
+\item{n}{The number of colours.}
 }
 \value{
-A character vector of hex color codes.
+A character vector of \code{n} colours.
 }
 \description{
-This function returns a specified number of contrasting colors from a predefined palette.
-If the requested number of colors exceeds the length of the predefined palette,
-additional unique colors from the default R color set are included.
+\code{scmp_colors()} returns \code{n} contrasting colours: those of a fixed palette
+of nine, then named colours of \code{\link[grDevices:colors]{grDevices::colors()}}.
+}
+\seealso{
+\code{\link[=plotTrend]{plotTrend()}} and \code{\link[=plotTrendCluster]{plotTrendCluster()}}, which call it.
 }
 \keyword{internal}

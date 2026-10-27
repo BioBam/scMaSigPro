@@ -1,4 +1,4 @@
-# create_scmp() with bins made outside scMaSigPro (roadmap #18d, D18)
+# create_scmp() with bins made outside scMaSigPro
 
 # The cells of splat.sim and their bins, as a user would bring them
 own_bins <- function(scmp, binned) {
@@ -13,7 +13,7 @@ own_bins <- function(scmp, binned) {
     )
 }
 
-test_that("create_scmp() builds the Dense slot from given bins (ledger q10)", {
+test_that("create_scmp() builds the Dense slot from given bins", {
     x <- own_bins(splat_scmp(), splat_binned())
     ob <- create_scmp(
         counts = x$counts, cell_data = x$cell_data,
@@ -85,7 +85,7 @@ test_that("create_scmp() checks the bins it is given", {
     )
 })
 
-test_that("create_scmp() stores feature_data as rowData (ledger q10)", {
+test_that("create_scmp() stores feature_data as rowData", {
     x <- own_bins(splat_scmp(), splat_binned())
     genes <- data.frame(symbol = tolower(rownames(x$counts)))
     ob <- create_scmp(

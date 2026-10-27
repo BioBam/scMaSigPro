@@ -1,0 +1,277 @@
+---
+title: "Shared root"
+author: "Priyansh Srivastava"
+package: scMaSigPro
+abstract: >
+  In most trajectories the paths share their first cells: a root, and
+  sometimes a segment that several later paths share, a link. This vignette
+  analyses such a trajectory in two ways, with each segment as a path of its
+  own and with the root and the link added to the paths that share them,
+  and shows how the choice of the reference path shapes the results.
+output: BiocStyle::html_document
+bibliography: scMaSigPro.bib
+vignette: >
+  %\VignetteIndexEntry{Shared root}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", crop = NULL)
+```
+
+# Root, link and end paths
+
+`multi.lin.sce` is a simulated trajectory with three end points, made with
+dyntoy for the benchmarks of tradeSeq [@saelens2019; @vandenberge2020] and
+analysed with Monocle3 [@cao2019]. Its cells carry a hard path label
+(`group`) and the Monocle3 pseudotime (`Monocle3_Pseudotime`); the
+[Trajectory input](
+    https://spriyansh.github.io/scMaSigPro/articles/trajectory-input.html)
+vignette shows how to build such labels.
+
+```{r load-data, message = FALSE}
+library(scMaSigPro)
+library(SingleCellExperiment)
+library(ggplot2)
+
+data("multi.lin.sce", package = "scMaSigPro")
+table(colData(multi.lin.sce)$group)
+```
+
+```{r plot-tsne, fig.width = 8, fig.height = 4}
+#| fig.alt: >
+#|   t-SNE of multi.lin.sce, coloured by path label (left) and by Monocle3
+#|   pseudotime (right).
+tsne <- as.data.frame(reducedDim(multi.lin.sce, "TSNE"))
+colnames(tsne) <- c("tSNE1", "tSNE2")
+tsne$path <- colData(multi.lin.sce)$group
+tsne$pseudotime <- colData(multi.lin.sce)$Monocle3_Pseudotime
+p_path <- ggplot(tsne, aes(tSNE1, tSNE2, colour = path)) +
+    geom_point(size = 0.5) +
+    theme_minimal() +
+    theme(legend.position = "bottom", legend.direction = "vertical")
+p_time <- ggplot(tsne, aes(tSNE1, tSNE2, colour = pseudotime)) +
+    geom_point(size = 0.5) +
+    scale_colour_viridis_c() +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+patchwork::wrap_plots(p_path, p_time, ncol = 2)
+```
+
+The cells start in the `root`, which all three lineages share. One lineage
+leads straight to the end path `path_Y_52`; the other two first share a
+segment, the link `path_Y_18|path_Y_15`, and then part into the end paths
+`path_Y_15` and `path_Y_18`. The pseudotime runs from the root through each
+lineage; every lineage shares it.
+
+# The object
+
+The labels are shortened first: the `path_` prefix is dropped and the link
+gets the separator `_links_`, the default of `sc.restruct()`. To keep the
+vignette fast, the analysis uses the first 200 of the 501 genes.
+
+```{r create-object}
+cell_data <- as.data.frame(colData(multi.lin.sce))
+cell_data$group <- gsub("path_", "", cell_data$group, fixed = TRUE)
+cell_data$group <- gsub("|", "_links_", cell_data$group, fixed = TRUE)
+table(cell_data$group)
+
+genes <- rownames(multi.lin.sce)[seq_len(200)]
+scmp_ob <- create_scmp(
+    counts = counts(multi.lin.sce)[genes, ],
+    cell_data = cell_data,
+    ptime_col = "Monocle3_Pseudotime",
+    path_col = "group"
+)
+```
+
+# Each segment as a path
+
+The first way treats the root, the link and the three end paths as five
+paths. `sc.squeeze()` bins each of them along its own pseudotime, so the
+bins of every segment start at 1:
+
+```{r segments-bins, fig.width = 6, fig.height = 3.5}
+#| fig.alt: >
+#|   Tile plot of the bins of the five segments, each binned from 1 along its
+#|   own pseudotime.
+seg_ob <- sc.squeeze(scmp_ob)
+plotBinTile(seg_ob)
+```
+
+The model then compares each segment with a reference segment. With the
+root as the reference, the terms of every other segment describe how it
+differs from the root, at the same binned pseudotime. `reference` names it;
+without it, `sc.set.poly()` takes the first path in C-locale (byte) order,
+here `Y_15`, whose uppercase `Y` sorts before the lowercase `r` of `root`.
+
+```{r segments-fit}
+seg_ob <- sc.set.poly(seg_ob, poly_degree = 3, reference = "root")
+seg_ob <- sc.p.vector(seg_ob, verbose = FALSE)
+seg_ob <- sc.t.fit(seg_ob, verbose = FALSE)
+seg_ob <- sc.filter(seg_ob, rsq = 0.6, vars = "groups")
+seg_res <- scmpResults(seg_ob)
+seg_lists <- as.data.frame(seg_res[, grep("^sig_", colnames(seg_res))])
+colSums(seg_lists)
+```
+
+`sig_root` holds the genes that change along the root, and
+`sig_Y_52vsroot`, for example, the genes whose profile in `Y_52` differs
+from that in the root. The overlaps of the lists sort the genes by the
+segments in which they differ from the root:
+
+```{r segments-intersect, warning = FALSE, fig.width = 7, fig.height = 4.5}
+#| fig.alt: >
+#|   UpSet plot of the gene lists of the five segments with the root as the
+#|   reference.
+plotIntersect(seg_ob)
+```
+
+```{r segments-genes, include = FALSE}
+link_like_root <- rownames(seg_lists)[
+    seg_lists$sig_Y_15vsroot & seg_lists$sig_Y_18vsroot &
+        seg_lists$sig_Y_52vsroot & !seg_lists$sig_Y_18_links_Y_15vsroot
+]
+```
+
+For example, `r length(link_like_root)` genes differ from the root in all
+three end paths but not in the link: along these genes the link carries on
+the expression of the root, and the end paths leave it. One of them:
+
+```{r segments-trend, fig.width = 6, fig.height = 4}
+#| fig.alt: >
+#|   Trend of one gene in the five segments: the link follows the root, and the
+#|   three end paths differ from it.
+plotTrend(seg_ob, link_like_root[1], points = FALSE, lines = TRUE)
+```
+
+This view answers questions about the segments themselves, such as which
+genes the link turns on, but every segment starts again at binned
+pseudotime 1, so it does not follow a gene from the root to the end of a
+lineage.
+
+# The root and the link in every path
+
+The second way follows each lineage from the start: the end path `Y_15`
+holds the bins of the root, then those of the link, then its own, and so do
+`Y_18` and `Y_52` with the segments on their way. `sc.restruct()` does this
+after `sc.squeeze()`: it copies the bins of the root and of the links into
+the end paths that share them, shifts the binned pseudotime of the later
+bins to follow them, and computes the pseudo-bulk counts again.
+
+```{r restruct, fig.width = 6, fig.height = 3}
+#| fig.alt: >
+#|   Tile plot of the bins of the three end paths, each starting with the bins
+#|   of the root.
+lin_ob <- sc.restruct(sc.squeeze(scmp_ob),
+    end_node_list = list("Y_15", "Y_18", "Y_52"),
+    root_node = "root",
+    link_node_list = list("Y_18_links_Y_15"),
+    verbose = FALSE
+)
+plotBinTile(lin_ob)
+```
+
+The end paths now share their first bins, and the model compares whole
+lineages. `sc.restruct()` puts the paths in the order of `end_node_list`, so
+`Y_15` is the reference unless `reference` names another:
+
+```{r restruct-fit}
+lin_ob <- sc.set.poly(lin_ob, poly_degree = 3)
+lin_ob <- sc.p.vector(lin_ob, verbose = FALSE)
+lin_ob <- sc.t.fit(lin_ob, verbose = FALSE)
+lin_ob <- sc.filter(lin_ob, rsq = 0.6, vars = "groups")
+lin_res <- scmpResults(lin_ob)
+colSums(as.data.frame(lin_res[, grep("^sig_", colnames(lin_res))]))
+```
+
+```{r restruct-clusters, fig.width = 8, fig.height = 6}
+#| fig.alt: >
+#|   Trends of the clusters of the genes of the lists, one panel per cluster,
+#|   with one curve per lineage.
+lin_ob <- sc.cluster.trend(lin_ob, geneSet = "union", k = 4)
+plotTrendCluster(lin_ob, verbose = FALSE)
+```
+
+## By hand
+
+`sc.restruct()` handles a root, links and end paths. For other shapes,
+build the bins by hand: take the bin table of `sc.squeeze()` with
+`cDense()`, stack the bins of the segments of each lineage with their binned
+pseudotime shifted, give the stacked bins the label of the lineage in the
+path column, store the table with `cDense<-` and compute the pseudo-bulk
+counts with `pb_counts()`. For this trajectory, the result is that of
+`sc.restruct()`:
+
+```{r by-hand}
+bins <- cDense(sc.squeeze(scmp_ob))
+
+stack_bins <- function(bins, segments, path) {
+    out <- NULL
+    shift <- 0
+    for (segment in segments) {
+        b <- bins[bins$group == segment, , drop = FALSE]
+        b$scmp_binned_pseudotime <- b$scmp_binned_pseudotime + shift
+        shift <- max(b$scmp_binned_pseudotime)
+        out <- rbind(out, b)
+    }
+    out$group <- path
+    rownames(out) <- paste(path, "bin", out$scmp_binned_pseudotime, sep = "_")
+    out
+}
+
+hand_ob <- sc.squeeze(scmp_ob)
+cDense(hand_ob) <- rbind(
+    stack_bins(bins, c("root", "Y_18_links_Y_15", "Y_15"), "Y_15"),
+    stack_bins(bins, c("root", "Y_18_links_Y_15", "Y_18"), "Y_18"),
+    stack_bins(bins, c("root", "Y_52"), "Y_52")
+)
+hand_ob <- pb_counts(hand_ob)
+
+restruct_ob <- sc.restruct(sc.squeeze(scmp_ob),
+    end_node_list = list("Y_15", "Y_18", "Y_52"),
+    root_node = "root",
+    link_node_list = list("Y_18_links_Y_15"),
+    verbose = FALSE
+)
+identical(eDense(hand_ob), eDense(restruct_ob))
+```
+
+# Choosing the reference path
+
+The dummies of the model compare every path with the reference path, so the
+reference decides what the coefficients and the `"groups"` lists of
+`sc.filter()` say: with `Y_15` as the reference, `sig_Y_52vsY_15` lists the
+genes whose profile in `Y_52` differs from that in `Y_15`. The full model is
+the same with any reference, only written in other terms, so the p-values of
+`sc.p.vector()` and its non-flat genes do not change, up to rounding. With
+`Y_52`, the lineage that leaves the root on its own, as the reference:
+
+```{r reference}
+ref_ob <- sc.set.poly(lin_ob, poly_degree = 3, reference = "Y_52")
+showPoly(ref_ob)
+ref_ob <- sc.p.vector(ref_ob, verbose = FALSE)
+all.equal(scmpResults(ref_ob)$p_value, lin_res$p_value)
+identical(scmpResults(ref_ob)$non_flat, lin_res$non_flat)
+ref_ob <- sc.t.fit(ref_ob, verbose = FALSE)
+ref_ob <- sc.filter(ref_ob, rsq = 0.6, vars = "groups")
+ref_res <- scmpResults(ref_ob)
+colSums(as.data.frame(ref_res[, grep("^sig_", colnames(ref_res))]))
+```
+
+A good reference is the path the others are best described against: the
+root when the segments are compared, a control or the most common fate
+when lineages are compared. Without `reference`, the first path is the
+first level of the path column when it is a factor, and otherwise the first
+label in C-locale (byte) order, in every locale; after `sc.restruct()`, the
+first path of `end_node_list`. Naming the reference keeps an analysis the
+same when the labels change.
+
+# Session information
+
+```{r session-info}
+sessionInfo()
+```
+
+# References

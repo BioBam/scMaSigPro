@@ -2,7 +2,7 @@
 % Please edit documentation in R/pb_helpers.R
 \name{optimize_bin_max}
 \alias{optimize_bin_max}
-\title{Homogenize Bins of a Dataframe}
+\title{Split the bins that are too large}
 \usage{
 optimize_bin_max(
   bin_table,
@@ -17,45 +17,50 @@ optimize_bin_max(
 )
 }
 \arguments{
-\item{bin_table}{A dataframe containing the bin data.}
+\item{bin_table}{A data frame of bins, one row per bin, with the columns
+\code{lbound}, \code{ubound} and \code{bin.size}.}
 
-\item{max_allowed}{The maximum allowed size for a bin: a bin with more
-points is split.}
+\item{max_allowed}{The largest number of points of a bin that is kept.}
 
-\item{verbose}{Logical; if TRUE, prints detailed output.}
+\item{verbose}{Whether to print a message for each bin.}
 
-\item{time_vector}{A vector representing time or a sequence that bins refer to.}
+\item{time_vector}{The pseudotime of the cells of the path.}
 
-\item{lbound}{The name of the lower bound column in \code{bin_table}.}
+\item{lbound, ubound}{The names of the columns of the lower and upper
+bounds.}
 
-\item{ubound}{The name of the upper bound column in \code{bin_table}.}
+\item{bin.size}{The name of the column of the number of points.}
 
-\item{bin.size}{The name of the bin size column in \code{bin_table}.}
-
-\item{method}{The rule that gives the number of new bins (see
-\code{\link[=estBinSize]{estBinSize()}}).}
+\item{method}{The rule that gives the number of new bins.}
 
 \item{drop}{The factor that multiplies that number (\code{drop_fac}).}
 }
 \value{
-A dataframe with adjusted bins. The structure of the dataframe will be the same as \code{bin_table}
-with updated values for the bin size and bounds.
+A data frame with the columns of \code{bin_table}, one row per bin,
+where each split bin is replaced by its parts.
 }
 \description{
 \code{optimize_bin_max()} splits every bin that holds more than \code{max_allowed}
-points. The points of the bin get the number of bins that \code{method} and
-\code{drop} give for them (\code{\link[=estBinSize]{estBinSize()}}) and are divided into that many bins
-of equal width over their range; the first new bin starts at the lower
-bound of the bin and the last ends at its upper bound, so that the new
-bins cover the bin without gaps. The other bins are kept.
+points into the number of bins that \code{method} and \code{drop} give for its
+points (\code{\link[=estBinSize]{estBinSize()}}), of equal width over their range; the first new
+bin starts at the lower bound of the bin and the last ends at its upper
+bound, so the new bins cover it without gaps. The other bins are kept.
 }
 \details{
 \code{\link[=sc.squeeze]{sc.squeeze()}} passes as \code{max_allowed} the maximum of Srivastava et al.
 (2024), Section 2.2: the mean plus the standard deviation of the sizes of
-all bins of the path, set once from the bins of the rule. "Bins larger
+the bins of the path, set once from the bins of the rule. "Bins larger
 than the maximum size are divided", and "The process is repeated until all
 bins conform to the established size criteria": \code{\link[=sc.squeeze]{sc.squeeze()}} calls
 \code{optimize_bin_max()} again, with the same \code{max_allowed}, until no bin is
 larger.
 }
+\seealso{
+Other binning helpers:
+\code{\link[=calc_bin_size]{calc_bin_size()}},
+\code{\link[=estBinSize]{estBinSize()}},
+\code{\link[=extract_interval]{extract_interval()}},
+\code{\link[=pb_counts]{pb_counts()}}
+}
+\concept{binning helpers}
 \keyword{internal}

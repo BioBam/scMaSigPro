@@ -2,7 +2,7 @@
 % Please edit documentation in R/pb_helpers.R
 \name{pb_counts}
 \alias{pb_counts}
-\title{Create Pseudo-bulk Counts}
+\title{Pseudo-bulk counts of the bins}
 \usage{
 pb_counts(
   scmpObj,
@@ -13,44 +13,56 @@ pb_counts(
 )
 }
 \arguments{
-\item{scmpObj}{object of Class scMaSigPro. See \code{\link{ScMaSigPro}}
-for more details.}
+\item{scmpObj}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{bin_mem_col}{Column name in the Dense metadata storing information
-about the members of the bins. (Default is 'scmp_bin_members').}
+\item{bin_mem_col}{The name of the column of the bin metadata that holds
+the cells of each bin, separated by \code{|}.}
 
-\item{bin_col}{Column name in the Dense metadata storing information
-about the bin labels. (Default is 'scmp_bin').}
+\item{bin_col}{The name of the column of the bin metadata that holds the
+name of each bin.}
 
-\item{assay_name}{Name of the Assay in the assay_name object from which
-retrieve the counts. (Default = "counts").}
+\item{assay_name}{The name of the assay of the \code{Sparse} slot that holds
+the counts of the cells.}
 
-\item{cluster_count_by}{A character string specifying the method to use to
-aggregate counts within each cluster. Available options are 'mean' or 'sum'.
-(Default = "sum").}
+\item{cluster_count_by}{How the counts of the cells of a bin are combined:
+\code{"sum"} or \code{"mean"} (rounded to whole numbers).}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}} whose \code{Dense} slot is rebuilt
-as a valid \code{SingleCellExperiment}: the \code{bulk.counts} assay (genes x bins)
-and the bin-level metadata.
+The object whose \code{Dense} slot holds the pseudo-bulk counts
+(\code{bulk.counts}, genes by bins) and the bin metadata.
 }
 \description{
-\code{pb_counts()} creates a dataframe of pseudo bulk counts from single
-cell counts. It does this by either taking the mean or sum of counts across
-cells in each bin, depending on the specified method.
+\code{pb_counts()} adds up, or averages, the counts of the cells of each bin
+into the pseudo-bulk counts (\code{bulk.counts}) of the \code{Dense} slot.
+\code{\link[=sc.squeeze]{sc.squeeze()}} and \code{\link[=sc.restruct]{sc.restruct()}} call it; call it after changing the
+bins with \code{\link[=cDense]{cDense()}}.
 }
 \details{
-The function operates by iterating over each row of the pseudo_bulk_profile.
-For each bin, it identifies the cells that belong to the bin and selects their
-counts from the counts data frame. It then calculates the mean or sum of these
-counts (depending on the specified method), and adds these to a new data frame
-of pseudo bulk counts. The result is a pseudo bulk counts data frame where
-each row is a gene and each column is a bin.
+The bins are the rows of the bin metadata (\code{\link[=cDense]{cDense()}}): their row names,
+or the \code{bin_col} column when there are none, name the columns of the
+counts, and \code{bin_mem_col} gives their cells.
+}
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+# The mean instead of the sum of the counts of the cells of each bin
+scmp <- pb_counts(scmp.ob, cluster_count_by = "mean")
+eDense(scmp)[1:3, 1:4]
 
-Bins are identified by the rownames of the \code{Dense} cell metadata (see
-\code{\link[=cDense]{cDense()}}); these become the column names of \code{bulk.counts}. The \code{bin_col}
-column is used only when the metadata has no rownames.
+}
+\references{
+Srivastava P, Benegas Coll M, Götz S, Nueda MJ, Conesa A (2024).
+scMaSigPro: differential expression analysis along single-cell
+trajectories. Bioinformatics 40(7), btae443.
+\doi{10.1093/bioinformatics/btae443}
+}
+\seealso{
+Other binning helpers:
+\code{\link[=calc_bin_size]{calc_bin_size()}},
+\code{\link[=estBinSize]{estBinSize()}},
+\code{\link[=extract_interval]{extract_interval()}},
+\code{\link[=optimize_bin_max]{optimize_bin_max()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{binning helpers}

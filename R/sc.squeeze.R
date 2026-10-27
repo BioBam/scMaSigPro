@@ -1,98 +1,90 @@
-#' @title Pseudo-bulking with optimal number of Pseudotime based bins
+#' @title Bin the cells of each path along pseudotime
 #'
 #' @description
-#' `sc.squeeze()` discretizes a continuous time series column into bins
-#' of equal width. It automatically calculates the optimal number of bins
-#' using one of the supported methods.
+#' `sc.squeeze()` divides the pseudotime range of each path into bins of
+#' equal width and adds up the counts of the cells of each bin into
+#' pseudo-bulk counts. The number of bins of a path is that of a histogram
+#' rule ([estBinSize()]) times `drop_fac`, rounded up.
 #'
-#' The bins of a path divide the range of its pseudotime into intervals of
-#' equal width (`split_bins` divides large ones further), and each cell goes
-#' to the bin whose interval holds its pseudotime. As in Srivastava et al.
-#' (2024), Section 2.1, "bins are structured as left-closed and right-open
-#' intervals, except for the last bin, which is closed on both ends": a cell
-#' whose pseudotime is the bound of two bins goes to the later one. The
-#' bounds of the intervals are stored in the `scmp_l_bound` and
-#' `scmp_u_bound` columns of the bin metadata (see [cDense()]).
+#' Each cell goes to the bin whose interval holds its pseudotime. As in
+#' Srivastava et al. (2024), Section 2.1, "bins are structured as left-closed
+#' and right-open intervals, except for the last bin, which is closed on both
+#' ends": a cell on the bound of two bins goes to the later one. The bounds
+#' are stored in the `scmp_l_bound` and `scmp_u_bound` columns of the bin
+#' metadata ([cDense()]).
 #'
 #' The paths are binned, and their bins stored, in the order of the levels of
-#' the path column when it is a factor, and otherwise in the C-locale order of
-#' the path labels (byte order: digits before uppercase letters, uppercase
-#' before lowercase), whatever the collation of the R session. [sc.set.poly()]
-#' takes the first path as the reference unless its `reference` argument names
-#' another one.
+#' the path column when it is a factor, and otherwise in the C-locale (byte)
+#' order of the labels, whatever the collation of the session.
+#' [sc.set.poly()] takes the first path as the reference unless told
+#' otherwise.
+#'
+#' @param bin_method The rule for the number of bins: `"Sturges"`, `"Sqrt"`,
+#'   `"Rice"`, `"Doane"`, `"Freedman.Diaconis"` or `"Scott.Normal"` (see
+#'   [estBinSize()]).
+#' @param drop_fac The drop factor of Srivastava et al. (2024), Section 2.1,
+#'   at least 0.3: it multiplies the number of bins of the rule, and the
+#'   product is rounded up. Values below 1 give fewer, wider bins.
+#' @param split_bins Whether to divide the bins of a path that hold more cells
+#'   than the mean plus the standard deviation of its bin sizes (see Details).
+#' @param prune_bins Whether to remove the bins of a path that hold fewer
+#'   cells than the mean minus the standard deviation of its bin sizes (see
+#'   Details).
+#' @param drop_trails Whether to drop the last bins of the longer paths, so
+#'   that every path has the binned pseudotime of the shortest.
+#' @param fill_gaps Whether to renumber the bins of a path whose binned
+#'   pseudotime has gaps, such as after pruning.
+#' @param additional_params A list: `use_unique_time_points = TRUE` bins the
+#'   distinct pseudotime values of each path instead of its cells.
+#'
+#' @details
+#' `split_bins` and `prune_bins` follow Section 2.2 of Srivastava et al.
+#' (2024): "scMaSigPro calculates the mean (\eqn{\mu}) and standard deviation
+#' (\eqn{\sigma}) of the sizes of all bins per path to establish maximum
+#' (\eqn{\mu+\sigma}) and minimum (\eqn{\mu-\sigma}) allowable bin sizes. Bins
+#' larger than the maximum size are divided, and those smaller than the
+#' minimum size can be optionally removed, ensuring uniform bin sizes. The
+#' process is repeated until all bins conform to the established size
+#' criteria." Both limits are set once, from the bins of the rule, empty bins
+#' included. A bin above the maximum is divided into the number of bins that
+#' the rule and `drop_fac` give for its cells, until no bin is larger;
+#' `sc.squeeze()` stops when a division gives back bins it has already made.
+#' A path with a single bin keeps it. Pruning comes after the divisions: a
+#' negative minimum removes no bin, and the cells of a removed bin stay in
+#' the `Sparse` slot without a bin.
 #'
 #' @importFrom SummarizedExperiment assay colData<-
 #'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param ptime_col A character string representing the column name
-#' for inferred Pseudotime values in 'Sparse' data. (Default is "Pseudotime").
-#' @param path_col A character string representing the column name for branching
-#' path assignment in 'Sparse' or 'Dense' data. (Default is `path_prefix`).
-#' @param bin_ptime_col A character string representing the column name
-#' for binned Pseudotime values in 'Dense' data.
-#' (Default is "scmp_binned_pseudotime").
-#' @param bin_mem_col A character string representing the name of the column in
-#' which cells per bin are stored. (Default is "scmp_bin_members").
-#' @param bin_col A character string representing the name of the column in which
-#' bin labels are stored. (Default is "scmp_bin").
-#' @param bin_size_col A character string representing the name of the column in
-#' which bin sizes per bin are stored. (Default is "scmp_bin_size").
-#' @param bin_method  A character string representing the algorithm used for
-#' binning. Available options: "Freedman.Diaconis",
-#' "Sqrt", "Sturges", "Rice", "Doane", and "Scott.Normal". (Default = "Sturges")
-#' @param drop_fac A numeric value specifying the factor by which to adjust the
-#' number of bins if the initial binning results in too many/few bins: the
-#' drop factor of Srivastava et al. (2024), Section 2.1, at least 0.3. The
-#' number of bins that `bin_method` gives a path is multiplied by `drop_fac`
-#' and the product is rounded up (see [estBinSize()]). (Default = 1).
-#' @param assay_name Name of the Assay in sparse data from which the counts are
-#' used. (Default = "counts").
-#' @param split_bins If `TRUE`, divide the bins of a path that hold more cells
-#' than the mean plus the standard deviation of the bin sizes of the path
-#' (Srivastava et al. (2024), Section 2.2; see Details). (Default = FALSE).
-#' @param prune_bins If `TRUE`, remove the bins of a path that hold fewer cells
-#' than the mean minus the standard deviation of the bin sizes of the path
-#' (Srivastava et al. (2024), Section 2.2; see Details). (Default = FALSE).
-#' @param drop_trails If the paths have different lengths of the binned pseudotime,
-#' drop the bins from the path with more bins. (Default = FALSE).
-#' @param fill_gaps If corresponding bin is missing for a time-point, pull the
-#' successive bins and fill the gaps.
-#' @param aggregate A character string specifying the method to aggregate counts
-#' within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").
-#' @param verbose  Print detailed output in the console. (Default is TRUE)
-#' @param additional_params Pass additional parameters as a named list.
-#' See examples
-#'
-#' @details
-#' `split_bins` and `prune_bins` equalise the sizes of the bins of each path
-#' as Section 2.2 of Srivastava et al. (2024) describes: "scMaSigPro
-#' calculates the mean (\eqn{\mu}) and standard deviation (\eqn{\sigma}) of
-#' the sizes of all bins per path to establish maximum (\eqn{\mu+\sigma}) and
-#' minimum (\eqn{\mu-\sigma}) allowable bin sizes. Bins larger than the
-#' maximum size are divided, and those smaller than the minimum size can be
-#' optionally removed, ensuring uniform bin sizes. The process is repeated
-#' until all bins conform to the established size criteria." The mean and
-#' the standard deviation are those of the sizes of the bins that
-#' `bin_method` gives the path, empty bins included, and both limits are set
-#' once, before any bin is divided.
-#'
-#' With `split_bins = TRUE`, a bin larger than the maximum is divided into
-#' the number of bins that `bin_method` and `drop_fac` give for its cells,
-#' rounded up, until no bin is larger; `sc.squeeze()` stops with an error
-#' when a division gives back bins it has already produced. A path with a
-#' single bin has no standard deviation and keeps its bin.
-#'
-#' With `prune_bins = TRUE`, the bins smaller than the minimum are removed,
-#' after any division. When the standard deviation is larger than the mean,
-#' the minimum is negative and no bin is removed. The cells of a removed bin
-#' stay in the `Sparse` slot, but no bin of the `Dense` slot holds them.
-#'
-#' @return An object of class \code{\link{ScMaSigPro}}, with updated `Dense`
-#' slot.
+#' @return The object with the bins and their pseudo-bulk counts
+#' (`bulk.counts`) in the `Dense` slot and the binned pseudotime of each cell
+#' in the cell metadata.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @seealso \code{\link{estBinSize}}
+#' @seealso [estBinSize()] for the rules that set the number of bins;
+#' [plotBinTile()] to see the bins.
+#'
+#' @family workflow steps
+#' @inheritParams scmp-params
+#'
+#' @references
+#' Srivastava P, Benegas Coll M, Götz S, Nueda MJ, Conesa A (2024).
+#' scMaSigPro: differential expression analysis along single-cell
+#' trajectories. Bioinformatics 40(7), btae443.
+#' \doi{10.1093/bioinformatics/btae443}
+#'
+#' @examples
+#' data("splat.sim", package = "scMaSigPro")
+#' scmp <- as_scmp(splat.sim,
+#'     additional_params = list(
+#'         labels_exist = TRUE, exist_ptime_col = "Step",
+#'         exist_path_col = "Group"
+#'     ),
+#'     verbose = FALSE
+#' )
+#' scmp <- sc.squeeze(scmp)
+#' bins <- cDense(scmp)
+#' head(bins[, c("Path", "scmp_binned_pseudotime", "scmp_bin_size")])
 #'
 #' @export
 sc.squeeze <- function(scmpObj,
@@ -159,6 +151,7 @@ sc.squeeze <- function(scmpObj,
             "Please review the 'path_col' parameter."
         )
     )
+    # Why: Section 2.1 of the paper bounds the drop factor below by 0.3.
     .check(drop_fac >= 0.3,
         msg = "Invalid value for 'drop_fac'. It should be at least 0.3."
     )
@@ -221,7 +214,7 @@ sc.squeeze <- function(scmpObj,
     # Order the paths: by the levels of a factor, as model formulas do, and
     # otherwise by the bytes of the labels (the C locale) in every locale:
     # order() alone follows the session's collation, which put "root" first
-    # in en_US and after "Y_15" in C (ledger L1)
+    # in en_US and after "Y_15" in C
     path_values <- raw_cell_metadata[[path_col]]
     if (is.factor(path_values)) {
         avail.paths <- intersect(levels(path_values), avail.paths)
@@ -273,6 +266,8 @@ sc.squeeze <- function(scmpObj,
         # Calculate Optimal Number of Bins
         tryCatch(
             expr = {
+                # Why: Supplementary Section S1.1 of the paper rounds the
+                # rule times the drop factor up.
                 estBins <- ceiling(estBinSize(
                     time_vector = time_vector, nPoints = length_n,
                     drop_fac = drop_factor, bin_method = method.bin
@@ -286,7 +281,7 @@ sc.squeeze <- function(scmpObj,
                 }
             },
             error = function(e) {
-                message("Error message: ", e$message)
+                message("Could not estimate the number of bins: ", e$message)
                 stop("Unable to estimate bin size")
             }
         )

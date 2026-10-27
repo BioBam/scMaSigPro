@@ -1,34 +1,23 @@
-#' @title Annotate `SingleCellExperiment` class object with pseudotime and path
-#' information.
+#' @title Rename the pseudotime and path columns of a SingleCellExperiment
 #'
 #' @description
-#' `annotate_sce()` annotates a `SingleCellExperiment` class object with pseudotime
-#' and path information in its `cell.metadata` generated using `colData` from the
-#' \pkg{SingleCellExperiment} package.
+#' `annotate_sce()` renames the columns `exist_ptime_col` and `exist_path_col`
+#' of the cell metadata of `sce` to `ptime_col` and `path_col` when
+#' `labels_exist = TRUE`, and returns `sce` unchanged otherwise.
+#'
+#' @param sce A `SingleCellExperiment`.
+#' @param labels_exist Whether to rename the columns.
+#' @param exist_ptime_col The column with the pseudotime.
+#' @param exist_path_col The column with the path labels.
+#' @inheritParams as_scmp
 #'
 #' @importFrom SingleCellExperiment colData
 #'
-#' @param sce A `SingleCellExperiment` object to be annotated.
-#' @param ptime_col A character string representing the column name
-#' for inferred Pseudotime values. (Default is "Pseudotime")
-#' @param path_prefix Prefix used to annotate the paths. (Default is "Path").
-#' @param root_label Label used to annotate root cells. (Default is "root").
-#' @param path_col A character string representing the column name for branching
-#' path assignment. (Default is `path_prefix`)
-#' @param labels_exist Logical indicating whether if the existing column names
-#' should be overwritten. (Default is TRUE)
-#' @param exist_ptime_col The name of an existing pseudotime column
-#' to be replaced (if not NULL).
-#' @param exist_path_col The name of an existing path column to be replaced
-#' (if not NULL).
-#' @param verbose Print detailed output in the console. (Default is TRUE)
+#' @return `sce` with the renamed columns.
 #'
-#' @return A \code{\link[SingleCellExperiment]{SingleCellExperiment}} object with updated cell metadata.
-#'
-#' @seealso \pkg{SingleCellExperiment} package.
+#' @seealso [as_scmp()], which calls it.
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #' @keywords internal
-#'
 annotate_sce <- function(sce,
                          ptime_col = "Pseudotime",
                          path_prefix = "Path",

@@ -1,8 +1,8 @@
 # Internal binning helpers. extract_interval() counts points in equal-width
-# bins whose bounds are the numeric breaks (ledger S3), and .assign_bins()
+# bins whose bounds are the numeric breaks, and .assign_bins()
 # puts points in bins with the same intervals.
 # estBinSize() gives the number of bins of each rule; Freedman-Diaconis and
-# Scott give a bin width, turned into a number of bins by the range (ledger g).
+# Scott give a bin width, turned into a number of bins by the range.
 
 test_that("extract_interval() counts equal-width bins over the range", {
     x <- c(0, 0.1, 0.25, 0.5, 0.75, 1)
@@ -55,7 +55,7 @@ test_that(".skewness() is the type-3 sample skewness", {
     expect_true(is.nan(.skewness(c(5, 5, 5))))
 })
 
-test_that("estBinSize() counts Freedman-Diaconis and Scott bins (ledger g)", {
+test_that("estBinSize() counts Freedman-Diaconis and Scott bins", {
     # 0:7: n^(1/3) = 2 and the interquartile range is 3.5, so the
     # Freedman-Diaconis width is 3.5 and the range of 7 holds 2 bins (the
     # width itself was returned as the number of bins before)
@@ -80,7 +80,7 @@ test_that("estBinSize() counts Freedman-Diaconis and Scott bins (ledger g)", {
     expect_equal(estBinSize(c(1, 2), 2, 1, "Freedman.Diaconis"), 2^(1 / 3))
 })
 
-test_that("estBinSize() gives one bin when the width is 0 (ledger g)", {
+test_that("estBinSize() gives one bin when the width is 0", {
     msg <- function(spread, n, value = "0") {
         paste0(
             "The ", spread, " of the ", n, " pseudotime value(s) is ", value

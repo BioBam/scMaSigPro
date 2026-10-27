@@ -1,7 +1,7 @@
 #' Estimated theta for the negative binomial family
 #'
 #' Internal helpers behind `sc.p.vector(theta_estimate = "gene")` and
-#' `sc.p.vector(theta_estimate = "global")` (decision D16). By default the
+#' `sc.p.vector(theta_estimate = "global")`. By default the
 #' negative binomial family has a fixed theta (`negative.binomial(10)`), as
 #' in maSigPro. On request, theta is estimated by maximum likelihood on each
 #' gene's full model: the fit and theta are updated in turn (as

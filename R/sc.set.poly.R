@@ -1,42 +1,50 @@
-#' @title Set up polynomial models and create Predictor Matrix
+#' @title Set up the polynomial design
 #'
 #' @description
-#' Set up polynomial models and create Predictor Matrix that will contain the
-#' independent variables: the design of the maSigPro model (Conesa et al.
-#' 2006), with a dummy for every path but the first, the reference, and its
-#' products with each power of the binned pseudotime up to `poly_degree`.
+#' `sc.set.poly()` builds the design of the maSigPro model (Conesa et al.
+#' 2006): a 0/1 dummy for every path but the first, the reference, and the
+#' products of each dummy with each power of the binned pseudotime up to
+#' `poly_degree`.
 #'
 #' The reference is `reference` when it is given. Otherwise it is the first
-#' path of the `Dense` slot: after [sc.squeeze()], the first level of the path
-#' column when it is a factor and else the first path label in C-locale
-#' (byte) order, whatever the locale of the session; after [sc.restruct()],
-#' the first path of `end_node_list`; with bins given to [create_scmp()] or
-#' \code{\link{cDense<-}}, the path of the first bin. The other paths keep the
-#' order of the `Dense` slot.
+#' path of the `Dense` slot: after [sc.squeeze()], the first level of a factor
+#' path column, or else the first label in C-locale (byte) order; after
+#' [sc.restruct()], the first path of `end_node_list`; with bins given to
+#' [create_scmp()] or [cDense()], the path of the first bin. The other paths
+#' keep the order of the `Dense` slot.
 #'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param poly_degree Degree of the polynomial.
-#' @param bin_ptime_col A character string representing the column name
-#' for binned Pseudotime values in 'Dense' data.
-#' @param path_col A character string representing the column name for branching
-#' path assignment in 'Sparse' or 'Dense' slot.
+#' @param poly_degree The degree of the polynomial in pseudotime.
 #' @param reference The reference path, one of the path labels of the `Dense`
-#' slot, or `NULL` (default) for the first path of the `Dense` slot. See
-#' Description.
+#'   slot, or `NULL` for the first path.
 #'
-#' @return An object of class \code{\link{ScMaSigPro}}, with updated `Design`
-#' slot.
+#' @return The object with the design in the `Design` slot
+#' (class [MatrixDesign-class]).
 #'
-#' @seealso \code{\link{MatrixDesign}} Class.
+#' @seealso [showPoly()], [predictors()] and [pathAssign()], which read the
+#' design; [MatrixDesign-class].
 #'
-#' @references{Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
-#' maSigPro: a Method to Identify Significant Differential Expression Profiles
-#' in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
+#' @references
+#' Conesa A, Nueda MJ, Ferrer A, Talón M (2006). maSigPro: a method to
+#' identify significantly differential expression profiles in time-course
+#' microarray experiments. Bioinformatics 22(9), 1096-1102.
+#' \doi{10.1093/bioinformatics/btl056}
+#'
+#' Srivastava P, Benegas Coll M, Götz S, Nueda MJ, Conesa A (2024).
+#' scMaSigPro: differential expression analysis along single-cell
+#' trajectories. Bioinformatics 40(7), btae443.
+#' \doi{10.1093/bioinformatics/btae443}
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}, Ana Conesa and
 #' Maria Jose Nueda, \email{mj.nueda@@ua.es}
-#' @export
+#' @family workflow steps
+#' @inheritParams scmp-params
 #'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' scmp <- sc.set.poly(scmp.ob, poly_degree = 2)
+#' showPoly(scmp)
+#'
+#' @export
 sc.set.poly <- function(scmpObj,
                         poly_degree = 2,
                         bin_ptime_col = scmpObj@Parameters@bin_ptime_col,
@@ -79,6 +87,9 @@ sc.set.poly <- function(scmpObj,
     }
 
     # Add Dummy Variables
+    # Why: one 0/1 column per path; .poly_design() drops that of the
+    # reference, so the terms of another path measure its difference
+    # from the reference.
     for (i in avail.paths) {
         com.cell.meta[[i]] <- ifelse(com.cell.meta[[path_col]] %in% i, 1, 0)
     }

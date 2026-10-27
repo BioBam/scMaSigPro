@@ -8,7 +8,7 @@
 # in the same commit as the code change, summarise what moved in the commit
 # message, and add a NEWS entry under "Changes affecting results".
 # testthat runs every test file with LC_COLLATE=C; generate under the same
-# collation so sort()/order() on labels cannot differ (roadmap L1).
+# collation so sort()/order() on labels cannot differ.
 invisible(Sys.setlocale("LC_COLLATE", "C"))
 suppressPackageStartupMessages(devtools::load_all(".", quiet = TRUE))
 source("tests/testthat/helper-fixtures.R")

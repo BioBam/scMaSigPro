@@ -1,110 +1,97 @@
-<img src="man/figures/logo.png" alt="scMaSigPro Logo" width="17%"/>
 
-### Implementation of MaSigPro for scRNA-Seq Data.
+<!-- README.md is generated from README.Rmd. Please edit that file. -->
 
-[![R-CMD-Check](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/r.yml)
-[![test-coverage](https://github.com/BioBam/scMaSigPro/actions/workflows/test-coverage.yaml/badge.svg?branch=main)](https://github.com/BioBam/scMaSigPro/actions/workflows/test-coverage.yaml)
+# scMaSigPro <img src="man/figures/logo.png" align="right" height="139" alt="scMaSigPro logo" />
 
----
+<!-- badges: start -->
 
-## Introduction
+[![Website](https://img.shields.io/badge/website-spriyansh.github.io%2FscMaSigPro-blue)](https://spriyansh.github.io/scMaSigPro/)
+[![Licence: GPL (\>= 2)](https://img.shields.io/badge/licence-GPL%20%28%3E%3D%202%29-blue)](https://github.com/BioBam/scMaSigPro/blob/main/LICENSE.md)
+<!-- badges: end -->
 
-`scMaSigPro` is an R package designed for analyzing single-cell RNA-seq data over pseudotime. Building on the [maSigPro](https://www.bioconductor.org/packages/release/bioc/html/maSigPro.html) package, it identifies genes with significant expression changes across branching paths in a pseudotime-ordered dataset. This guide provides a step-by-step workflow for ScMaSigPro, making it accessible for users.
+scMaSigPro finds genes whose expression changes along pseudotime and
+differs between the branching paths of a single-cell trajectory. It pools
+the cells of each path into bins along pseudotime, adds up their counts,
+and fits the polynomial generalised linear models of maSigPro to these
+pseudo-bulk counts, with a negative binomial distribution and an offset
+for the sequencing depth of each bin. The genes whose expression changes,
+and the paths in which it changes, come out as lists, plots and clusters.
 
 ## Installation
 
-```r
-# Install BiocManager if needed, then scMaSigPro together with its
-# Bioconductor dependencies from GitHub
+``` r
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
 BiocManager::install("BioBam/scMaSigPro")
 ```
 
----
+## Example
 
-## Basic Usage
-The basic workflow of `scMaSigPro` involves the following steps:
+The bundled data set `splat.sim` holds a simulated trajectory with two
+paths, with the pseudotime of each cell in its `Step` column and its path
+in `Group`:
 
-### 1. Load Package and Dataset
-```
-set.seed(123)
+``` r
 library(scMaSigPro)
 data("splat.sim", package = "scMaSigPro")
+scmp_ob <- as_scmp(splat.sim, additional_params = list(
+    labels_exist = TRUE, exist_ptime_col = "Step", exist_path_col = "Group"
+))
+scmp_ob <- sc.squeeze(scmp_ob)
+scmp_ob <- sc.set.poly(scmp_ob, poly_degree = 1)
+scmp_ob <- sc.p.vector(scmp_ob)
+scmp_ob <- sc.t.fit(scmp_ob)
+scmp_ob <- sc.filter(scmp_ob, rsq = 0.7, vars = "groups")
+plotTrend(scmp_ob, "Gene10")
+head(scmpResults(scmp_ob))
 ```
 
-### 2. Create `scMaSigPro` Object
+The [Quick start](https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro.html)
+vignette explains each step.
 
-```
-# Helper Function to convert annotated SCE object to scmpObject
-scmp.ob <- as_scmp(
-  object = splat.sim, from = "sce",
-  verbose = TRUE,
-  additional_params = list(
-    labels_exist = TRUE,
-    exist_ptime_col = "Step",
-    exist_path_col = "Group"
-  )
-)
-```
+## Documentation
 
-### 3. Pseudo-bulking with `sc.squeeze()`
+The website, <https://spriyansh.github.io/scMaSigPro/>, holds the help
+pages, the news and the vignettes, which are also in the package
+(`browseVignettes("scMaSigPro")`):
 
-This function discretizes a continuous pseudotime column into bins:
-
-```
-scmp.ob <- sc.squeeze(scmp.ob)
-```
-
-### 4. Setting up the Polynomial Model
-
-```
-scmp.ob <- sc.set.poly(scmp.ob)
-```
-
-### 5. Detecting Genes with Non-Flat Profiles
-
-```
-scmp.ob <- sc.p.vector(scmp.ob)
-```
-
-### 6. Model Refinement
-
-```
-scmp.ob <- sc.t.fit(scmp.ob)
-```
-
-### 7. Gene selection with $R^2$
-
-```
-scmp.ob <- sc.filter(scmp.ob, vars = "all")
-```
-
-### 8. Gene Trend Visualization
-
-```
-plotTrend(scmp.ob, "Gene10")
-```
-
-For detailed instructions and additional steps, please refer to the following vignettes.
-
-- [Basic Workflow](https://www.metapriyansh.com/scMaSigPro/package_vignette/Basic-Workflow.html)
-- [maSigPro Analysis](https://www.metapriyansh.com/scMaSigPro/package_vignette/scMaSigPro-maSigPro.html) 
-- [scMaSigPro Class](https://www.metapriyansh.com/scMaSigPro/package_vignette/scMaSigPro-Class.html) 
-
-## Contributing
-Contributions, including bug reports, suggestions, and pull requests, are welcome.
-
-## License
-This project is licensed under GPL>=2 - see the LICENSE.md file for details.
-
-## Funding Information 
-This project has received funding from the European Union’s Framework Programme for Research and Innovation Horizon 2020 (2014-2020) under the Marie Skłodowska-Curie Grant Agreement No 953407.
+- [Quick start](https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro.html):
+  the workflow from a `SingleCellExperiment` to gene lists, plots and
+  clusters.
+- [Trajectory input](https://spriyansh.github.io/scMaSigPro/articles/trajectory-input.html):
+  pseudotime and path labels from slingshot, Monocle3 or a trajectory
+  graph.
+- [Shared root](https://spriyansh.github.io/scMaSigPro/articles/shared-root.html):
+  trajectories whose paths share a root and links.
+- [Model and tuning](https://spriyansh.github.io/scMaSigPro/articles/model-and-tuning.html):
+  the model, its settings and their effect.
+- [maSigPro and the ScMaSigPro class](https://spriyansh.github.io/scMaSigPro/articles/masigpro-and-class.html):
+  the object and the equivalence with maSigPro.
+- [Frequently asked questions](https://spriyansh.github.io/scMaSigPro/articles/faq.html).
 
 ## Citation
-If you use `scMaSigPro` in your research, please cite:
 
-Priyansh Srivastava, Marta Benegas Coll, Stefan Götz, María José Nueda, Ana Conesa, "scMaSigPro: differential expression analysis along single-cell trajectories"", Bioinformatics, Volume 40, Issue 7, July 2024, btae443, [https://doi.org/10.1093/bioinformatics/btae443](https://doi.org/10.1093/bioinformatics/btae443)
+If you use scMaSigPro, please cite the article that describes it, as
+`citation("scMaSigPro")` prints it:
 
----
+> Srivastava P, Benegas Coll M, Götz S, Nueda MJ, Conesa A (2024).
+> “scMaSigPro: differential expression analysis along single-cell
+> trajectories.” *Bioinformatics*, 40(7), btae443.
+> <https://doi.org/10.1093/bioinformatics/btae443>
+
+## Contributing
+
+Bug reports, questions and suggestions are welcome on the
+[issue tracker](https://github.com/BioBam/scMaSigPro/issues).
+
+## Licence
+
+scMaSigPro is free software under the GNU General Public License, version 2
+or later; see [LICENSE.md](LICENSE.md).
+
+## Funding
+
+This project has received funding from the European Union’s Framework
+Programme for Research and Innovation Horizon 2020 (2014-2020) under the
+Marie Skłodowska-Curie Grant Agreement No 953407.

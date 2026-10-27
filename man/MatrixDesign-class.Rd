@@ -5,8 +5,14 @@
 \alias{MatrixDesign}
 \alias{MatrixDesign-class}
 \title{MatrixDesign}
+\value{
+An object of class \code{MatrixDesign}: the design of the polynomial
+model, which \code{\link[=sc.set.poly]{sc.set.poly()}} stores in the \code{Design} slot of a
+\link[=ScMaSigPro-class]{ScMaSigPro} object, with the offsets that \code{\link[=sc.p.vector]{sc.p.vector()}} adds.
+\code{\link[=predictors]{predictors()}} and \code{\link[=pathAssign]{pathAssign()}} return its matrices.
+}
 \description{
-S4 class to store Branching Path Assignments and Prediction Matrix
+The design of the polynomial model of \code{\link[=sc.set.poly]{sc.set.poly()}}.
 }
 \details{
 \code{validObject()} checks that \code{assignment_matrix} has the rows of
@@ -17,19 +23,35 @@ per row and that \code{groups.vector} has one value per column of
 \section{Slots}{
 
 \describe{
-\item{\code{predictor_matrix}}{A matrix containing independent variables for
-model fitting}
+\item{\code{predictor_matrix}}{The design matrix: one row per bin, one column per
+term (\code{\link[=predictors]{predictors()}}).}
 
-\item{\code{groups.vector}}{A character vector specifying the branching path for each
-term of the polynomial GLM.}
+\item{\code{groups.vector}}{The path of each column of \code{predictor_matrix}: the
+reference path for its powers of pseudotime, \verb{<path>vs<ref>} for the
+terms of another path.}
 
-\item{\code{assignment_matrix}}{A matrix containing binary assignment to branching paths
-Additionally has two columns for assignment of binned Pseudotime and
-replicate.}
+\item{\code{assignment_matrix}}{The path assignment matrix: one row per bin, with
+the binned pseudotime, a replicate index and a 0/1 column per path
+(\code{\link[=pathAssign]{pathAssign()}}).}
 
 \item{\code{offset}}{The offset of each bin, the logarithm of its size factor (see
 \code{\link[=sc.p.vector]{sc.p.vector()}}), or an empty vector when the fits used no offset or no
 fit was made yet.}
 }}
 
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+head(predictors(scmp.ob))
+
+}
+\seealso{
+Other classes:
+\code{\link{Estimates}},
+\code{\link{ParameterConfig}},
+\code{\link{ScMaSigPro}},
+\code{\link{Significant}},
+\code{\link{VariableProfiles}},
+\code{\link{updateObject,ScMaSigPro-method}}
+}
+\concept{classes}
 \keyword{classes}

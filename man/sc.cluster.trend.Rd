@@ -2,7 +2,7 @@
 % Please edit documentation in R/sc.cluster.trend.R
 \name{sc.cluster.trend}
 \alias{sc.cluster.trend}
-\title{Cluster the counts or coefficients.}
+\title{Cluster the significant genes}
 \usage{
 sc.cluster.trend(
   scmpObj,
@@ -15,61 +15,88 @@ sc.cluster.trend(
   includeInflu = TRUE,
   mclust.k = FALSE,
   k = 9,
-  verbose = FALSE,
   fill_na = "zero",
   use_dim = "col"
 )
 }
 \arguments{
-\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
+\item{scmpObj}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{geneSet}{Specify the gene set to be used for clustering.
-(Default is "intersect")}
+\item{geneSet}{The genes to cluster: the name of a list of \code{\link[=sc.filter]{sc.filter()}},
+\code{"intersect"}, the genes in every list, or \code{"union"}, the genes in any
+list.}
 
-\item{cluster_by}{Whether to use counts or coefficients for clustering.}
+\item{cluster_by}{What to cluster: the coefficients of the selected models
+(\code{"coeff"}) or the pseudo-bulk counts (\code{"counts"}).}
 
-\item{cluster_method}{Clustering method for data partioning. Currently "hclust",
-"kmeans" and "Mclust" are supported. "Mclust" needs the suggested package
-'mclust'.}
+\item{cluster_method}{\code{"hclust"}, \code{"kmeans"} or \code{"Mclust"}, which needs the
+suggested package mclust.}
 
-\item{hclust.agglo.method}{Aggregation Method. (Default is "ward.D")}
+\item{hclust.agglo.method}{The agglomeration method of \code{\link[stats:hclust]{stats::hclust()}}.}
 
-\item{kmeans.iter.max}{Maximum number of iterations when cluster.method is
-kmeans}
+\item{kmeans.iter.max}{The maximum number of iterations of
+\code{\link[stats:kmeans]{stats::kmeans()}}.}
 
-\item{hclust.distance}{Distance measurement.(Default is "cor")}
+\item{hclust.distance}{The distance of \code{"hclust"}: \code{"cor"}, one minus the
+correlation of two genes, or a method of \code{\link[stats:dist]{stats::dist()}}.}
 
-\item{includeInflu}{Whether to include genes with influential observations.}
+\item{includeInflu}{Whether to keep the genes with influential
+observations (see \code{\link[=showInflu]{showInflu()}}).}
 
-\item{mclust.k}{TRUE for computing the optimal number of clusters with
-Mclust algorithm. (Default is FALSE)}
+\item{mclust.k}{Whether \code{"Mclust"} chooses the number of clusters instead
+of taking \code{k}.}
 
-\item{k}{Number of clusters for data partioning.}
+\item{k}{The number of clusters.}
 
-\item{verbose}{Print detailed output in the console. (Default is TRUE)}
+\item{fill_na}{How missing values are filled before clustering: with
+\code{"zero"}, or the \code{"mean"} or \code{"median"} of their column or row
+(\code{use_dim}).}
 
-\item{fill_na}{Fill the NAs (if Present), by zero, mean or median.}
-
-\item{use_dim}{Whether to use rows or columns for taking mean or median while
-filling the NAs with \code{fill_na}.}
+\item{use_dim}{Whether \code{fill_na} takes the mean or median by column
+(\code{"col"}) or by row (\code{"row"}).}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}, with updated
-\code{Significant} slot with clusters.
+The object with the cluster of each gene in the \code{Significant}
+slot (class \link[=Significant-class]{Significant}).
 }
 \description{
-This function clusters the counts or coefficients to visualize the collective
-trends later.
+\code{sc.cluster.trend()} clusters the genes of the gene lists of \code{\link[=sc.filter]{sc.filter()}}
+by the coefficients of their selected models or by their pseudo-bulk
+counts, as \code{see.genes()} of maSigPro does, with hierarchical clustering,
+k-means or Gaussian mixture models (mclust).
+}
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+# Cluster the pseudo-bulk counts of the genes of every list
+scmp <- sc.cluster.trend(scmp.ob,
+    geneSet = "union", cluster_by = "counts", k = 3
+)
+table(scmpResults(scmp)$cluster)
+
 }
 \references{
-{Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
-maSigPro: a Method to Identify Significant Differential Expression Profiles
-in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
+Conesa A, Nueda MJ, Ferrer A, Talón M (2006). maSigPro: a method to
+identify significantly differential expression profiles in time-course
+microarray experiments. Bioinformatics 22(9), 1096-1102.
+\doi{10.1093/bioinformatics/btl056}
+
+Scrucca L, Fop M, Murphy TB, Raftery AE (2016). mclust 5: clustering,
+classification and density estimation using Gaussian finite mixture
+models. The R Journal 8(1), 289-317. \doi{10.32614/RJ-2016-021}
 }
 \seealso{
-\code{maSigPro::see.genes()}
+\code{\link[=plotTrendCluster]{plotTrendCluster()}}, which plots the clusters.
+
+Other workflow steps:
+\code{\link[=sc.filter]{sc.filter()}},
+\code{\link[=sc.p.vector]{sc.p.vector()}},
+\code{\link[=sc.restruct]{sc.restruct()}},
+\code{\link[=sc.set.poly]{sc.set.poly()}},
+\code{\link[=sc.squeeze]{sc.squeeze()}},
+\code{\link[=sc.t.fit]{sc.t.fit()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and
 Maria Jose Nueda, \email{mj.nueda@ua.es}
 }
+\concept{workflow steps}

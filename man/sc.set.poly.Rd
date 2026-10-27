@@ -2,7 +2,7 @@
 % Please edit documentation in R/sc.set.poly.R
 \name{sc.set.poly}
 \alias{sc.set.poly}
-\title{Set up polynomial models and create Predictor Matrix}
+\title{Set up the polynomial design}
 \usage{
 sc.set.poly(
   scmpObj,
@@ -13,47 +13,67 @@ sc.set.poly(
 )
 }
 \arguments{
-\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
+\item{scmpObj}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{poly_degree}{Degree of the polynomial.}
+\item{poly_degree}{The degree of the polynomial in pseudotime.}
 
-\item{bin_ptime_col}{A character string representing the column name
-for binned Pseudotime values in 'Dense' data.}
+\item{bin_ptime_col}{The name of the column of the bin metadata that holds
+the binned pseudotime of each bin.}
 
-\item{path_col}{A character string representing the column name for branching
-path assignment in 'Sparse' or 'Dense' slot.}
+\item{path_col}{The name of the column of the cell or bin metadata that
+holds the path label of each cell or bin.}
 
 \item{reference}{The reference path, one of the path labels of the \code{Dense}
-slot, or \code{NULL} (default) for the first path of the \code{Dense} slot. See
-Description.}
+slot, or \code{NULL} for the first path.}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}, with updated \code{Design}
-slot.
+The object with the design in the \code{Design} slot
+(class \link[=MatrixDesign-class]{MatrixDesign}).
 }
 \description{
-Set up polynomial models and create Predictor Matrix that will contain the
-independent variables: the design of the maSigPro model (Conesa et al.
-2006), with a dummy for every path but the first, the reference, and its
-products with each power of the binned pseudotime up to \code{poly_degree}.
+\code{sc.set.poly()} builds the design of the maSigPro model (Conesa et al.
+2006): a 0/1 dummy for every path but the first, the reference, and the
+products of each dummy with each power of the binned pseudotime up to
+\code{poly_degree}.
 
 The reference is \code{reference} when it is given. Otherwise it is the first
-path of the \code{Dense} slot: after \code{\link[=sc.squeeze]{sc.squeeze()}}, the first level of the path
-column when it is a factor and else the first path label in C-locale
-(byte) order, whatever the locale of the session; after \code{\link[=sc.restruct]{sc.restruct()}},
-the first path of \code{end_node_list}; with bins given to \code{\link[=create_scmp]{create_scmp()}} or
-\code{\link{cDense<-}}, the path of the first bin. The other paths keep the
-order of the \code{Dense} slot.
+path of the \code{Dense} slot: after \code{\link[=sc.squeeze]{sc.squeeze()}}, the first level of a factor
+path column, or else the first label in C-locale (byte) order; after
+\code{\link[=sc.restruct]{sc.restruct()}}, the first path of \code{end_node_list}; with bins given to
+\code{\link[=create_scmp]{create_scmp()}} or \code{\link[=cDense]{cDense()}}, the path of the first bin. The other paths
+keep the order of the \code{Dense} slot.
+}
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+scmp <- sc.set.poly(scmp.ob, poly_degree = 2)
+showPoly(scmp)
+
 }
 \references{
-{Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
-maSigPro: a Method to Identify Significant Differential Expression Profiles
-in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
+Conesa A, Nueda MJ, Ferrer A, Talón M (2006). maSigPro: a method to
+identify significantly differential expression profiles in time-course
+microarray experiments. Bioinformatics 22(9), 1096-1102.
+\doi{10.1093/bioinformatics/btl056}
+
+Srivastava P, Benegas Coll M, Götz S, Nueda MJ, Conesa A (2024).
+scMaSigPro: differential expression analysis along single-cell
+trajectories. Bioinformatics 40(7), btae443.
+\doi{10.1093/bioinformatics/btae443}
 }
 \seealso{
-\code{\link{MatrixDesign}} Class.
+\code{\link[=showPoly]{showPoly()}}, \code{\link[=predictors]{predictors()}} and \code{\link[=pathAssign]{pathAssign()}}, which read the
+design; \link[=MatrixDesign-class]{MatrixDesign}.
+
+Other workflow steps:
+\code{\link[=sc.cluster.trend]{sc.cluster.trend()}},
+\code{\link[=sc.filter]{sc.filter()}},
+\code{\link[=sc.p.vector]{sc.p.vector()}},
+\code{\link[=sc.restruct]{sc.restruct()}},
+\code{\link[=sc.squeeze]{sc.squeeze()}},
+\code{\link[=sc.t.fit]{sc.t.fit()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and
 Maria Jose Nueda, \email{mj.nueda@ua.es}
 }
+\concept{workflow steps}

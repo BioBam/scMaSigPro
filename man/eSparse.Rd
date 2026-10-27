@@ -2,25 +2,61 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{eSparse}
 \alias{eSparse}
-\title{Get Expression Counts from Sparse Slot}
+\alias{eSparse<-}
+\alias{eSparse,ScMaSigPro-method}
+\alias{eSparse<-,ScMaSigPro,character-method}
+\alias{eSparse<-,ScMaSigPro,missing-method}
+\title{Cell counts of the Sparse slot}
 \usage{
 eSparse(object, i = "counts", ...)
+
+eSparse(object, i = "counts") <- value
+
+\S4method{eSparse}{ScMaSigPro}(object, i = "counts", ...)
+
+\S4method{eSparse}{ScMaSigPro,character}(object, i = "counts") <- value
+
+\S4method{eSparse}{ScMaSigPro,missing}(object, i = "counts") <- value
 }
 \arguments{
-\item{object}{An object of class \code{\link{ScMaSigPro}}.}
+\item{object}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{i}{The name of the assay to retrieve expression counts for.
-Default is "counts", which will return the default expression matrix.}
+\item{i}{The name of the assay. With the default, \code{"counts"}, \code{eSparse()}
+returns the first assay when no assay has that name.}
 
-\item{...}{Additional arguments (not used currently).}
+\item{...}{Not used.}
+
+\item{value}{A matrix, a \code{dgCMatrix} or a data frame of numbers, with one
+row per gene and one column per cell of the \code{Sparse} slot. Its row and
+column names, when present, must be the gene and cell names of the slot
+in the same order; missing names are filled in.}
 }
 \value{
-An expression matrix for the specified assay from the Sparse slot.
+\code{eSparse()}: a numeric matrix. \verb{eSparse<-}: the updated object.
 }
 \description{
-\code{eSparse} is a generic function for retrieving expression counts stored in the
-Sparse slot of an \code{\link{ScMaSigPro}} object.
+\code{eSparse()} returns an assay of the \code{Sparse} slot of a \link[=ScMaSigPro-class]{ScMaSigPro}
+object, genes by cells, as a dense matrix; \verb{eSparse<-} sets one.
 }
-\author{
-Priyansh Srivastava \email{spriyansh29@gmail.com}
+\details{
+\verb{eSparse<-} stores \code{value} as a \code{dgCMatrix}. It gives a message when it
+creates a new assay and a warning when it replaces one.
 }
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+counts <- eSparse(scmp.ob)
+counts[1:3, 1:4]
+
+# Add a second assay
+eSparse(scmp.ob, "logcounts") <- log1p(counts)
+
+}
+\seealso{
+Other accessors:
+\code{\link[=cDense]{cDense()}},
+\code{\link[=cSparse]{cSparse()}},
+\code{\link[=eDense]{eDense()}},
+\code{\link[=pathAssign]{pathAssign()}},
+\code{\link[=predictors]{predictors()}}
+}
+\concept{accessors}

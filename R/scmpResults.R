@@ -1,20 +1,19 @@
 #' @title Per-gene results of an analysis
 #'
 #' @description
-#' `scmpResults()` collects the per-gene results stored in an
-#' \code{\link{ScMaSigPro}} object in one table with a row per gene.
+#' `scmpResults()` collects the per-gene results stored in a
+#' [ScMaSigPro-class] object in one table with a row per gene.
 #' `scmpToRowData()` writes that table into the `rowData()` of a
 #' `SingleCellExperiment`, such as the one the analysis started from, so that
 #' the results travel with the data.
 #'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
 #' @param sce A `SingleCellExperiment`, or another `SummarizedExperiment`,
-#' whose row names are gene names.
+#'   whose row names are gene names.
 #'
 #' @details
 #' `scmpResults()` has one row per gene of the object (the rows of the
-#' `Sparse` slot), named by gene, and the columns of the steps that have
-#' been run:
+#' `Sparse` slot), named by gene, and the columns of the steps that have been
+#' run:
 #' * [sc.p.vector()]: `p_value` and `adj_p_value`, the p-value of the full
 #'   model and its adjusted value, `NA` for the genes that were not fitted
 #'   (too few values or only zero counts); `non_flat`, `TRUE` for the genes
@@ -26,8 +25,8 @@
 #'   influential observations (the columns of [showInflu()]).
 #' * [sc.filter()]: one column per gene list, named `sig_` followed by the
 #'   name of the list, `TRUE` for the genes of the list.
-#' * [sc.cluster.trend()]: `cluster`, the cluster of each clustered gene,
-#'   `NA` for the other genes.
+#' * [sc.cluster.trend()]: `cluster`, the cluster of each clustered gene, `NA`
+#'   for the other genes.
 #'
 #' The logical columns are `FALSE`, never `NA`, for the genes outside a set.
 #'
@@ -59,6 +58,9 @@
 #' @importFrom SummarizedExperiment rowData rowData<-
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
+#' @family results
+#' @inheritParams scmp-params
 #'
 #' @export
 scmpResults <- function(scmpObj) {

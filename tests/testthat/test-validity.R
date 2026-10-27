@@ -1,6 +1,6 @@
 # Structural validity of the object and of its two SingleCellExperiment slots.
-# Regression tests for roadmap items S1 and S2 (invalid Dense slot, cell
-# metadata misaligned with the count matrix after binning).
+# Regression tests for an invalid Dense slot and for cell metadata
+# misaligned with the count matrix after binning.
 
 test_that("objects are valid S4 at every stage of the splat.sim workflow", {
     expect_valid_scmp(splat_scmp())
@@ -87,7 +87,7 @@ test_that("pb_counts() rejects duplicated bin names", {
 
 test_that("sc.squeeze(split_bins = TRUE) keeps every cell of multi.lin.sce", {
     # The split bins were built from bounds rounded to 3 significant digits,
-    # which left 3 cells outside every bin with Sturges (ledger Q1); 0.0.4
+    # which left 3 cells outside every bin with Sturges; 0.0.4
     # dropped them from the metadata only, leaving an invalid object, and
     # 0.0.5 removed them from the object with a warning.
     expect_no_warning(ob <- sc.squeeze(multi_scmp(), split_bins = TRUE))
@@ -248,7 +248,7 @@ test_that("bins without counts pass the check of sc.set.poly()", {
     expect_identical(nrow(predictors(ob)), 15L)
 })
 
-test_that("the count filter parameters are at least 0 (decision D17)", {
+test_that("the count filter parameters are at least 0", {
     params <- new("ParameterConfig")
     expect_identical(params@min_counts, 0)
     expect_identical(params@min_bins_expressed, 0)

@@ -1,31 +1,42 @@
-#' @title Get Features from scMaSigPro Object
+#' @title Query the coefficients of the selected models
 #'
 #' @description
-#' This function extracts features from an object of class `scMaSigPro`
-#' based on a specified query. The function query the coefficients matrix.
+#' `queryCoeff()` returns the coefficients of a group of terms for the genes
+#' whose selected model ([sc.t.fit()]) passes `rsq` and `p_value` and has a
+#' non-zero coefficient for every term of the group. It also prints the
+#' formula of the model.
 #'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param rsq Coefficient of determination or R-squared value threshold.
-#' @param includeInflu Whether to include genes with influential observations.
-#' @param p_value Overall model significance.
-#' @param query A string specifying the type of query.
-#' @param change The effective change at the end of the pseudotime.
-#' (Default is NULL)
-#' @param strictly If `change != NULL`, selects features if all coefficients
-#' have similar change.
-#' @param verbose Print detailed output in the console. (Default is TRUE)
+#' @param query The terms: `"pseudotime"`, the powers of pseudotime of the
+#'   reference path; `"pseudotime_path"` or `"path_pseudotime"`, their products
+#'   with the path dummies; `"path"`, the path dummies.
+#' @param change `NULL`, or `"increasing"` or `"decreasing"`: keep the genes
+#'   whose coefficients of the query add up to a positive (negative) number,
+#'   or with `strictly = TRUE` are all positive (negative).
+#' @param strictly See `change`.
 #'
-#' @return A subset of matrix of coefficients.
+#' @return A data frame of coefficients: one row per gene that passes the
+#' thresholds and the query, one column per queried term.
 #'
-#' @seealso `scMaSigPro::sc.filter()`
+#' @seealso [showCoeff()] for the coefficients of every gene.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}.
+#'
+#' @family results
+#' @inheritParams scmp-params
+#' @inheritParams sc.filter
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' # Genes whose coefficients of pseudotime are all positive
+#' queryCoeff(scmp.ob,
+#'     query = "pseudotime", change = "increasing", strictly = TRUE,
+#'     verbose = FALSE
+#' )
 #'
 #' @export
 queryCoeff <- function(scmpObj,
                        rsq = 0.7,
                        p_value = scmpObj@Parameters@p_value,
-                       includeInflu = TRUE,
                        query = "pseudotime_path",
                        change = NULL,
                        strictly = FALSE,

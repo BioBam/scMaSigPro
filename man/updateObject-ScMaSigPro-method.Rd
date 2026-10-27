@@ -7,38 +7,37 @@
 \S4method{updateObject}{ScMaSigPro}(object, ..., verbose = FALSE)
 }
 \arguments{
-\item{object}{An object of class \code{\link{ScMaSigPro}}.}
+\item{object}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{...}{Additional arguments, passed to the \code{updateObject()} methods of
-the \code{Sparse} and \code{Dense} slots.}
+\item{...}{Passed to the \code{updateObject()} methods of the \code{Sparse} and
+\code{Dense} slots.}
 
-\item{verbose}{Print a message when the object is updated. (Default is
-FALSE)}
+\item{verbose}{Whether to print a message when the object is updated.}
 }
 \value{
 The updated \code{ScMaSigPro} object.
 }
 \description{
-\code{updateObject()} brings an \code{\link{ScMaSigPro}} object saved by an
-earlier version of \pkg{scMaSigPro}, for example with \code{saveRDS()} or
-\code{save()}, up to date. Call it on such an object after \code{readRDS()} or
-\code{load()}, before the next step of the workflow.
+\code{updateObject()} brings a \link[=ScMaSigPro-class]{ScMaSigPro} object saved by an earlier
+version of scMaSigPro, for example with \code{saveRDS()} or \code{save()}, up to
+date. Call it on such an object after \code{readRDS()} or \code{load()}, before the
+next step of the workflow.
 }
 \details{
 Objects saved before the \code{version} slot was added (scMaSigPro 0.0.5 and
 earlier) fail \code{validObject()}; \code{updateObject()} adds the slot with the
-version of the package that is running. For every object, the \code{Sparse}
-and \code{Dense} slots are passed to the \code{updateObject()} method of
-\pkg{SingleCellExperiment}, and the result is checked with
-\code{validObject()}. A current object, such as one created by this version
-of the package, is returned unchanged.
+version of the package that is running. For every object, the \code{Sparse} and
+\code{Dense} slots are passed to the \code{updateObject()} method of
+SingleCellExperiment, and the result is checked with \code{validObject()}. A
+current object, such as one created by this version of the package, is
+returned unchanged.
 
-Objects saved before the \code{min_counts} and \code{min_bins_expressed}
-parameters existed get both set to 0, the values that keep every gene
-(\code{\link[=sc.p.vector]{sc.p.vector()}} had no such filter then), and the version of the
-package that is running.
+Objects saved before the \code{min_counts} and \code{min_bins_expressed} parameters
+existed get both set to 0, the values that keep every gene
+(\code{\link[=sc.p.vector]{sc.p.vector()}} had no such filter then), and the version of the package
+that is running.
 
-Objects saved before the \code{test} parameter existed get it set to "chisq",
+Objects saved before the \code{test} parameter existed get it set to \code{"chisq"},
 the test of \code{\link[=sc.p.vector]{sc.p.vector()}} then, and the version of the package that is
 running.
 
@@ -74,8 +73,17 @@ unlink(path)
 
 }
 \seealso{
-\code{\link{ScMaSigPro}}
+\link[=ScMaSigPro-class]{ScMaSigPro}
+
+Other classes:
+\code{\link{Estimates}},
+\code{\link{MatrixDesign}},
+\code{\link{ParameterConfig}},
+\code{\link{ScMaSigPro}},
+\code{\link{Significant}},
+\code{\link{VariableProfiles}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{classes}

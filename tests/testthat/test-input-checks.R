@@ -1,4 +1,4 @@
-# Checks at the start of the exported functions (roadmap #18a): the object
+# Checks at the start of the exported functions: the object
 # they are given, then their arguments. Exact messages, no snapshot.
 
 # Every exported function that takes an ScMaSigPro object, called on `ob`
@@ -101,7 +101,7 @@ test_that("the steps say which earlier step is missing", {
     expect_error(sc.t.fit(splat_design(2), verbose = FALSE), msg,
         fixed = TRUE
     )
-    # sc.p.vector() that selected no gene (ledger Z1)
+    # sc.p.vector() that selected no gene
     none <- suppressMessages(
         sc.p.vector(splat_design(2), p_value = 1e-300, verbose = FALSE)
     )
@@ -112,7 +112,7 @@ test_that("the steps say which earlier step is missing", {
     )
 })
 
-test_that("a choice argument takes one of its values, once (ledger V4)", {
+test_that("a choice argument takes one of its values, once", {
     two <- function(x) c(x, x)
     ob <- splat_clustered()
     gene <- splat_sig_gene()
@@ -208,7 +208,7 @@ test_that("a choice argument takes one of its values, once (ledger V4)", {
     )
 })
 
-test_that("the family, link and offset of the fits agree (ledger S6)", {
+test_that("the family, link and offset of the fits agree", {
     design <- splat_design(2)
     fitted <- splat_fitted("default")
     # glm() warns for genes whose identity-link mean becomes negative
@@ -290,13 +290,13 @@ test_that("the family, link and offset of the fits agree (ledger S6)", {
     )
 })
 
-test_that("sc.filter() uses 'all' by default (ledger V1)", {
+test_that("sc.filter() uses 'all' by default", {
     fitted <- splat_fitted("default")
     expect_identical(sc.filter(fitted), sc.filter(fitted, vars = "all"))
     expect_named(sc.filter(fitted)@Significant@genes, "all")
 })
 
-test_that("column names and labels are single strings (ledger V5)", {
+test_that("column names and labels are single strings", {
     sce <- load_dataset("splat.sim")
     for (arg in c("path_prefix", "root_label", "ptime_col", "path_col")) {
         for (bad in list(NA_character_, c("a", "b"), 1, character())) {
@@ -336,7 +336,7 @@ test_that("column names and labels are single strings (ledger V5)", {
     )
 })
 
-test_that("additional_params can be NULL (ledger n1)", {
+test_that("additional_params can be NULL", {
     ob <- splat_scmp()
     expect_identical(sc.squeeze(ob, additional_params = NULL), splat_binned())
     expect_identical(sc.squeeze(ob, additional_params = list()), splat_binned())
@@ -355,7 +355,7 @@ test_that("additional_params can be NULL (ledger n1)", {
     )
 })
 
-test_that("sc.cluster.trend() needs enough genes for k (ledger V6)", {
+test_that("sc.cluster.trend() needs enough genes for k", {
     ob <- splat_filtered()
     set <- function(n) {
         genes <- sort(unique(unlist(ob@Significant@genes)))[seq_len(n)]
@@ -392,7 +392,7 @@ test_that("sc.cluster.trend() needs enough genes for k (ledger V6)", {
     )
 })
 
-test_that("sc.set.poly() takes one of the paths as reference (ledger L1)", {
+test_that("sc.set.poly() takes one of the paths as reference", {
     binned <- splat_binned()
     expect_error(sc.set.poly(binned, reference = "Path3"),
         "'reference' must be one of the paths: Path1, Path2.",
@@ -411,7 +411,7 @@ test_that("sc.set.poly() takes one of the paths as reference (ledger L1)", {
     )
 })
 
-test_that("sc.p.vector() checks the count filter (decision D17)", {
+test_that("sc.p.vector() checks the count filter", {
     design <- splat_design(2)
     nbins <- nrow(predictors(design))
     msg <- paste0(
@@ -494,7 +494,7 @@ test_that("an object saved before the test parameter stops before any work", {
     expect_output(print(old), "update it with updateObject()", fixed = TRUE)
 })
 
-test_that("theta_estimate is one of three values (decision D16)", {
+test_that("theta_estimate is one of three values", {
     design <- splat_design(2)
     for (bad in list("each", c("gene", "global"), NA_character_, 1)) {
         expect_error(
@@ -513,7 +513,7 @@ test_that("theta_estimate is one of three values (decision D16)", {
     )
 })
 
-test_that("a relabelled family is refused (ledger LK-4)", {
+test_that("a relabelled family is refused", {
     design <- splat_design(2)
     msg <- "'family' is labelled with the 'identity' link but has the link"
     nb <- MASS::negative.binomial(10)
@@ -570,5 +570,17 @@ test_that("sc.squeeze() takes any drop_fac of at least 0.3", {
             if (k == 0.3) c(3L, 3L) else c(12L, 12L),
             info = k
         )
+    }
+})
+
+test_that("arguments without effect are gone", {
+    gone <- list(
+        plotTrendCluster = c("plot", "includeInflu"),
+        plotIntersect = c("width_ratio", "show_sets_size"),
+        queryCoeff = "includeInflu",
+        sc.cluster.trend = "verbose"
+    )
+    for (fn in names(gone)) {
+        expect_false(any(gone[[fn]] %in% names(formals(fn))), label = fn)
     }
 })

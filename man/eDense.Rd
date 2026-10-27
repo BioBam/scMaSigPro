@@ -2,25 +2,61 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{eDense}
 \alias{eDense}
-\title{Retrieve Expression Counts from Dense Slot}
+\alias{eDense<-}
+\alias{eDense,ScMaSigPro-method}
+\alias{eDense<-,ScMaSigPro,character-method}
+\alias{eDense<-,ScMaSigPro,missing-method}
+\title{Pseudo-bulk counts of the Dense slot}
 \usage{
 eDense(object, i = "bulk.counts", ...)
+
+eDense(object, i = "bulk.counts") <- value
+
+\S4method{eDense}{ScMaSigPro}(object, i = "bulk.counts", ...)
+
+\S4method{eDense}{ScMaSigPro,character}(object, i = "bulk.counts") <- value
+
+\S4method{eDense}{ScMaSigPro,missing}(object, i = "bulk.counts") <- value
 }
 \arguments{
-\item{object}{An object of class \code{\link{ScMaSigPro}}.}
+\item{object}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{i}{The name of the dataset to retrieve expression counts for.
-Default is "bulk.counts", which will return the default expression matrix.}
+\item{i}{The name of the assay. With the default, \code{"bulk.counts"},
+\code{eDense()} returns the first assay when no assay has that name.}
 
-\item{...}{Additional arguments (not used currently).}
+\item{...}{Not used.}
+
+\item{value}{A matrix, a \code{dgCMatrix} or a data frame of numbers, with one
+row per gene and one column per bin of the \code{Dense} slot. Its row and
+column names, when present, must be the gene and bin names of the slot
+in the same order; missing names are filled in.}
 }
 \value{
-An expression matrix for the specified dataset from the Dense slot.
+\code{eDense()}: a numeric matrix. \verb{eDense<-}: the updated object.
 }
 \description{
-\code{eDense} is a generic function for retrieving expression counts stored in the Dense slot
-of an \code{\link{ScMaSigPro}} object.
+\code{eDense()} returns an assay of the \code{Dense} slot of a \link[=ScMaSigPro-class]{ScMaSigPro}
+object, genes by bins, as a dense matrix; \verb{eDense<-} sets one.
 }
-\author{
-Priyansh Srivastava \email{spriyansh29@gmail.com}
+\details{
+\verb{eDense<-} stores \code{value} as a \code{dgCMatrix}. It gives a message when it
+creates a new assay and a warning when it replaces one.
 }
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+bulk <- eDense(scmp.ob)
+bulk[1:3, 1:4]
+
+# Add a second assay
+eDense(scmp.ob, "logcounts") <- log1p(bulk)
+
+}
+\seealso{
+Other accessors:
+\code{\link[=cDense]{cDense()}},
+\code{\link[=cSparse]{cSparse()}},
+\code{\link[=eSparse]{eSparse()}},
+\code{\link[=pathAssign]{pathAssign()}},
+\code{\link[=predictors]{predictors()}}
+}
+\concept{accessors}

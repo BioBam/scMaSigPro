@@ -1,0 +1,342 @@
+---
+title: "Quick start"
+author: "Priyansh Srivastava"
+package: scMaSigPro
+abstract: >
+  scMaSigPro finds genes whose expression changes along pseudotime and
+  differs between the branching paths of a single-cell trajectory. This
+  vignette runs the whole workflow on a small simulated data set, from a
+  `SingleCellExperiment` to lists of genes, plots and clusters, and checks
+  the genes it finds against the truth of the simulation.
+output: BiocStyle::html_document
+bibliography: scMaSigPro.bib
+vignette: >
+  %\VignetteIndexEntry{Quick start}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", crop = NULL)
+```
+
+# Introduction
+
+A trajectory inference tool orders the cells of a single-cell RNA-seq
+experiment along a pseudotime and splits them into branching paths, such as
+the paths from a progenitor to two cell types. scMaSigPro finds the genes
+whose expression changes along the pseudotime of a path and the genes whose
+expression differs between paths [@srivastava2024]. It brings the
+method of the maSigPro package for time-course experiments
+[@conesa2006; @nueda2014] to single cells in two steps:
+
+1. The cells of each path are pooled into bins along pseudotime, and their
+    counts are added up into pseudo-bulk counts. The bins play the part of the
+    time points of a time-course experiment.
+2. A polynomial generalised linear model in the binned pseudotime, with one
+    set of terms per path, is fitted to the pseudo-bulk counts of each gene,
+    by default with a negative binomial distribution and an offset for the
+    sequencing depth of each bin. The genes whose model is better than a flat
+    line, and the terms that make it so, tell how a gene changes along each
+    path.
+
+This vignette runs these steps on `splat.sim`, a small data set bundled with
+the package. The other vignettes go further:
+
+* [Trajectory input](
+    https://spriyansh.github.io/scMaSigPro/articles/trajectory-input.html):
+    pseudotime and path labels from slingshot, Monocle3 or another tool.
+* [Shared root](
+    https://spriyansh.github.io/scMaSigPro/articles/shared-root.html):
+    trajectories whose paths share their first cells.
+* [Model and tuning](
+    https://spriyansh.github.io/scMaSigPro/articles/model-and-tuning.html):
+    the model, its settings and how they change the results.
+* [maSigPro and the ScMaSigPro class](
+    https://spriyansh.github.io/scMaSigPro/articles/masigpro-and-class.html):
+    the object, its accessors and the equivalence with maSigPro.
+* [Frequently asked questions](
+    https://spriyansh.github.io/scMaSigPro/articles/faq.html).
+
+# Installation
+
+scMaSigPro is installed from GitHub with BiocManager, which also installs
+its Bioconductor dependencies:
+
+```{r install, eval = FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
+BiocManager::install("BioBam/scMaSigPro")
+```
+
+# The data
+
+`splat.sim` is a `SingleCellExperiment` with the counts of 100 genes in 200
+cells, simulated with splatter [@zappia2017] along two paths that
+start from the same cells. Each cell has a simulated step along its path,
+which serves as its pseudotime, and the label of its path.
+
+```{r load-data, message = FALSE}
+library(scMaSigPro)
+library(SingleCellExperiment)
+library(ggplot2)
+
+data("splat.sim", package = "scMaSigPro")
+splat.sim
+head(colData(splat.sim)[, c("Step", "Group")])
+```
+
+The first two principal components show the two paths, `Path1` and `Path2`,
+leaving the same starting cells:
+
+```{r plot-pca, fig.width = 6, fig.height = 4}
+#| fig.alt: >
+#|   Principal components of splat.sim: the cells of Path1 and Path2 leave the
+#|   same starting cells, coloured from low to high step.
+pca <- as.data.frame(reducedDim(splat.sim, "PCA"))
+pca$Step <- colData(splat.sim)$Step
+pca$Path <- colData(splat.sim)$Group
+ggplot(pca, aes(x = PC1, y = PC2, colour = Step, shape = Path)) +
+    geom_point() +
+    scale_colour_viridis_c() +
+    theme_minimal()
+```
+
+# The workflow
+
+## Create the object
+
+scMaSigPro keeps the data and every result in an object of class
+`ScMaSigPro`. `as_scmp()` creates it from a `SingleCellExperiment` whose
+cell metadata holds the pseudotime and the path of each cell; here they are
+the `Step` and `Group` columns. `create_scmp()` does the same from a count
+matrix and a table of cell metadata.
+
+```{r create-object}
+scmp_ob <- as_scmp(
+    object = splat.sim,
+    verbose = FALSE,
+    additional_params = list(
+        labels_exist = TRUE,
+        exist_ptime_col = "Step",
+        exist_path_col = "Group"
+    )
+)
+scmp_ob
+```
+
+## Bin the cells along pseudotime
+
+`sc.squeeze()` divides the pseudotime of each path into bins of equal width
+and adds up the counts of the cells of each bin. The number of bins comes
+from a histogram rule, by default that of Sturges, log~2~(n) + 1 bins for
+the n cells of a path, rounded up.
+
+```{r squeeze}
+scmp_ob <- sc.squeeze(scmp_ob)
+bins <- cDense(scmp_ob)
+table(bins$Path)
+```
+
+The `r nrow(bins)` bins hold between `r min(bins$scmp_bin_size)` and
+`r max(bins$scmp_bin_size)` cells. `plotBinTile()` shows the number of cells
+of each bin along the binned pseudotime of each path:
+
+```{r plot-bins, fig.width = 6, fig.height = 3}
+#| fig.alt: >
+#|   Tile plot of the bins of Path1 and Path2 along binned pseudotime, coloured
+#|   by the number of cells of each bin.
+plotBinTile(scmp_ob)
+```
+
+## Set up the polynomial model
+
+`sc.set.poly()` builds the design of the model. With two paths and a
+polynomial of degree 1, the model of the expected count of a gene in a bin
+is
+
+$$
+\log(\mu) = \beta_0 + \beta_1 D + \beta_2 t + \beta_3 t D + \text{offset},
+$$
+
+where $t$ is the binned pseudotime and $D$ is 1 for the bins of `Path2` and
+0 for those of `Path1`, the reference path. $\beta_0$ and $\beta_2$ describe
+the reference path; $\beta_1$ and $\beta_3$ are the differences of `Path2`
+from it, at the start and in slope.
+
+```{r set-poly}
+scmp_ob <- sc.set.poly(scmp_ob, poly_degree = 1)
+showPoly(scmp_ob)
+```
+
+A higher degree adds the squares, cubes and so on of $t$ and their products
+with $D$, for profiles that rise and fall; the
+[Model and tuning](
+    https://spriyansh.github.io/scMaSigPro/articles/model-and-tuning.html)
+vignette compares degrees.
+
+## Find the genes that change
+
+`sc.p.vector()` fits the full model of each gene and tests it against a
+model with the intercept only, a flat profile. The genes whose adjusted
+p-value is at most `p_value` have a non-flat profile.
+
+```{r p-vector}
+scmp_ob <- sc.p.vector(scmp_ob, p_value = 0.05, verbose = FALSE)
+res <- scmpResults(scmp_ob)
+sum(res$non_flat)
+```
+
+`r sum(res$non_flat)` of the `r nrow(res)` genes have a non-flat profile.
+
+## Select the significant terms
+
+`sc.t.fit()` then removes, one at a time, the terms of the model of each of
+these genes that are not significant (backward stepwise selection). What is
+left says how the gene changes: a gene with only $\beta_3$ besides the
+intercept, for example, has the same expression in both paths at the start
+but a different slope.
+
+```{r t-fit}
+scmp_ob <- sc.t.fit(scmp_ob, verbose = FALSE)
+head(showSol(scmp_ob)[, c("p-value", "R-squared")])
+```
+
+## List the significant genes
+
+`sc.filter()` keeps the genes whose selected model explains enough of their
+variation, measured by its R-squared, and sorts them into lists. With
+`vars = "groups"` there is one list per path: the list of the reference path
+holds the genes that change along it, and the list `Path2vsPath1` the genes
+whose profile in `Path2` differs from that in `Path1`.
+
+```{r filter}
+scmp_ob <- sc.filter(scmp_ob, rsq = 0.7, vars = "groups")
+res <- scmpResults(scmp_ob)
+table(Path1 = res$sig_Path1, Path2vsPath1 = res$sig_Path2vsPath1)
+```
+
+The genes in both lists change along `Path1` and differ in `Path2`; those
+only in `Path2vsPath1` are flat in `Path1` but change in `Path2`; those only
+in `Path1` change along it in the same way in both paths.
+
+`plotIntersect()` shows how the lists overlap; it draws an UpSet plot with
+the UpSetR package [@conway2017]:
+
+```{r plot-intersect, warning = FALSE, fig.width = 6, fig.height = 4}
+#| fig.alt: >
+#|   UpSet plot of the gene lists Path1 and Path2vsPath1: the size of each list
+#|   and of their intersection.
+plotIntersect(scmp_ob)
+```
+
+```{r lists, include = FALSE}
+both <- rownames(res)[res$sig_Path1 & res$sig_Path2vsPath1]
+only_diff <- rownames(res)[!res$sig_Path1 & res$sig_Path2vsPath1]
+only_ref <- rownames(res)[res$sig_Path1 & !res$sig_Path2vsPath1]
+```
+
+## Plot gene trends
+
+`plotTrend()` draws the pseudo-bulk counts of a gene, divided by the size
+factor of their bin, on the log scale against the binned pseudotime, with
+the fitted curve of each path. Here is one gene of each kind:
+
+```{r plot-trends, fig.width = 7, fig.height = 6}
+#| fig.alt: >
+#|   Trends of three genes: one that changes in Path1 and differs in Path2, one
+#|   flat in Path1 that changes in Path2, and one that changes in the same way
+#|   in both paths.
+genes <- c(both[1], only_diff[1], only_ref[1])
+plots <- lapply(genes, function(g) plotTrend(scmp_ob, g, lines = TRUE))
+patchwork::wrap_plots(plots, ncol = 2)
+```
+
+## Cluster the trends
+
+`sc.cluster.trend()` groups the genes of the lists by the coefficients of
+their models, here with hierarchical clustering into four clusters; k-means
+and the model-based clustering of mclust [@scrucca2016] are the other
+methods (`cluster_method`). `plotTrendCluster()` draws the trends of each
+cluster:
+
+```{r cluster, fig.width = 7, fig.height = 6}
+#| fig.alt: >
+#|   Trends of the four clusters of genes, one panel per cluster, with the
+#|   median profile of each path.
+scmp_ob <- sc.cluster.trend(scmp_ob, geneSet = "union", k = 4)
+plotTrendCluster(scmp_ob, verbose = FALSE)
+```
+
+## Get the results
+
+`scmpResults()` returns every result with one row per gene: the p-value of
+the full model and whether the profile is non-flat (`sc.p.vector()`), the
+p-value and R-squared of the selected model and whether the gene has
+influential observations (`sc.t.fit()`), one column per gene list
+(`sc.filter()`) and the cluster (`sc.cluster.trend()`).
+
+```{r results}
+head(scmpResults(scmp_ob))
+```
+
+`scmpToRowData()` writes these columns, with the prefix `scmp_`, into the
+`rowData()` of a `SingleCellExperiment`, so that they travel with the data:
+
+```{r row-data}
+splat.sim <- scmpToRowData(splat.sim, scmp_ob)
+head(rowData(splat.sim)[, c("scmp_non_flat", "scmp_cluster")])
+```
+
+# Compare with the simulated truth
+
+splatter stores in the `rowData()` how it simulated each gene. `DEFacPath1`
+and `DEFacPath2` are the factors by which the expression of a gene changes
+from the start to the end of each path: a gene whose factor is not 1 on a
+path changes along that path. In `splat.sim` every such gene has different
+factors on the two paths, so it also differs between them.
+
+```{r truth}
+truth <- rowData(splat.sim)
+changes <- truth$DEFacPath1 != 1 | truth$DEFacPath2 != 1
+names(changes) <- rownames(truth)
+found <- scmpResults(scmp_ob)$non_flat
+table(non_flat = found, simulated = changes[rownames(scmpResults(scmp_ob))])
+```
+
+```{r truth-numbers, include = FALSE}
+tp <- sum(found & changes)
+precision <- tp / sum(found)
+recall <- tp / sum(changes)
+```
+
+Of the `r sum(found)` genes with a non-flat profile, `r tp` were simulated
+to change (a precision of `r round(precision, 2)`), and they are
+`r tp` of the `r sum(changes)` genes simulated to change (a recall of
+`r round(recall, 2)`). The
+[Model and tuning](
+    https://spriyansh.github.io/scMaSigPro/articles/model-and-tuning.html)
+vignette shows how the settings move these numbers.
+
+The trends of the plotted genes follow the factors of the simulation:
+
+```{r truth-genes}
+as.data.frame(truth[genes, c("DEFacPath1", "DEFacPath2")])
+```
+
+The bundled object `scmp.ob` holds the result of this workflow, so the
+examples of the help pages and the other vignettes can start from it:
+
+```{r scmp-ob}
+data("scmp.ob", package = "scMaSigPro")
+identical(scmpResults(scmp.ob), scmpResults(scmp_ob))
+```
+
+# Session information
+
+```{r session-info}
+sessionInfo()
+```
+
+# References

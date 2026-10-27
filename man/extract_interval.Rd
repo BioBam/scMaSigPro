@@ -2,20 +2,19 @@
 % Please edit documentation in R/pb_helpers.R
 \name{extract_interval}
 \alias{extract_interval}
-\title{Extract Intervals}
+\title{Bins of equal width}
 \usage{
 extract_interval(time.vector, nBins = 1, bin.size, lbound, ubound)
 }
 \arguments{
-\item{time.vector}{Numeric vector of Pseudotime values.}
+\item{time.vector}{The pseudotime values.}
 
-\item{nBins}{Expected number of bins.}
+\item{nBins}{The number of bins.}
 
-\item{bin.size}{Column name for the bin size column.}
+\item{bin.size}{The name of the column for the number of points.}
 
-\item{lbound}{Column name for the lower bound column.}
-
-\item{ubound}{Column name for the upper bound column.}
+\item{lbound, ubound}{The names of the columns for the lower and upper
+bounds.}
 }
 \value{
 A data frame with one row per bin, in increasing order, and the
@@ -23,7 +22,15 @@ columns \code{lbound}, \code{ubound} and \code{bin.size}.
 }
 \description{
 \code{extract_interval()} divides the range of \code{time.vector} into \code{nBins} bins
-of equal width and counts the points of each bin. The bounds of the bins
-are the breaks \code{seq(min, max, length.out = nBins + 1)} themselves.
+of equal width, whose bounds are the breaks
+\code{seq(min, max, length.out = nBins + 1)}, and counts the points of each bin.
 }
+\seealso{
+Other binning helpers:
+\code{\link[=calc_bin_size]{calc_bin_size()}},
+\code{\link[=estBinSize]{estBinSize()}},
+\code{\link[=optimize_bin_max]{optimize_bin_max()}},
+\code{\link[=pb_counts]{pb_counts()}}
+}
+\concept{binning helpers}
 \keyword{internal}

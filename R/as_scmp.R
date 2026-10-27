@@ -1,56 +1,39 @@
-#' @title Convert a 'SingleCellExperiment' object to a ScMaSigPro object.
+#' @title Create a ScMaSigPro object from a SingleCellExperiment
 #'
 #' @description
-#' `as_scmp()` converts a `SingleCellExperiment` object, whose cell metadata
-#' (`colData`) holds a pseudotime column and a branching-path column, to a
-#' \code{\link{ScMaSigPro}} object. To start from a count matrix and a table of
-#' cell metadata, for example with pseudotime and path labels extracted from a
-#' trajectory tool such as Monocle3 or slingshot, use [create_scmp()]; the
-#' "Common Root Cells" vignette shows the steps for a Monocle3 `cell_data_set`.
-#' [assign_paths()] and [paths_from_graph()] build the two columns from
-#' lineage weights or from a trajectory graph.
+#' `as_scmp()` creates a [ScMaSigPro-class] object from a
+#' `SingleCellExperiment` whose cell metadata (`colData`) holds a pseudotime
+#' column and a path column. To start from a count matrix and a cell table,
+#' use [create_scmp()]; [assign_paths()] and [paths_from_graph()] build the
+#' two columns from the output of a trajectory tool.
+#'
+#' @param object A `SingleCellExperiment` with the counts of the cells.
+#' @param from The class of `object`; only `"sce"` is supported.
+#' @param path_prefix The default of `path_col`, kept in the parameters.
+#' @param root_label The label of the root cells, kept in the parameters.
+#' @param additional_params A list: with `labels_exist = TRUE`, the columns
+#'   `exist_ptime_col` and `exist_path_col` of the cell metadata are renamed
+#'   to `ptime_col` and `path_col`.
 #'
 #' @importFrom SingleCellExperiment SingleCellExperiment
 #'
-#' @param object An S4 object of class `SingleCellExperiment`.
-#' @param from Character string specifying the class of 'object'. Only "sce"
-#' (`SingleCellExperiment`) is supported; Monocle3 `cell_data_set` objects
-#' ("cds") are no longer converted. (Default is "sce").
-#' @param path_prefix Prefix used to annotate the paths. (Default is "Path").
-#' @param root_label Label used to annotate root cells. (Default is "root").
-#' @param ptime_col A character string representing the column name
-#' for inferred Pseudotime values. (Default is "Pseudotime")
-#' @param path_col A character string representing the column name for branching
-#' path assignment. (Default is `path_prefix`)
-#' @param verbose Print detailed output in the console. (Default is TRUE)
-#' @param additional_params A named list of additional parameters:
-#' `labels_exist`, `exist_ptime_col` and `exist_path_col`. With
-#' `labels_exist = TRUE`, the existing `colData` columns `exist_ptime_col` and
-#' `exist_path_col` are renamed to `ptime_col` and `path_col`. See examples.
-#'
-#' @return An object of class \code{\link{ScMaSigPro}}.
+#' @return A [ScMaSigPro-class] object with the cells in the `Sparse` slot.
 #'
 #' @examples
-#' # Load Library
-#' # library(scMaSigPro)
-#' # Step-1: Load a dataset for testing
-#' # This dataset is available as part of the package
-#' # It is simulated with splatter
 #' data("splat.sim", package = "scMaSigPro")
-#'
-#' # Step-2: Convert to ScMaSigPro Object
-#' # Here, we convert the sce object to an scMaSigPro object
-#' scmp.sce <- as_scmp(
-#'     object = splat.sim, from = "sce",
-#'     verbose = FALSE,
+#' scmp <- as_scmp(splat.sim,
 #'     additional_params = list(
-#'         labels_exist = TRUE,
-#'         exist_ptime_col = "Step",
+#'         labels_exist = TRUE, exist_ptime_col = "Step",
 #'         exist_path_col = "Group"
-#'     )
+#'     ),
+#'     verbose = FALSE
 #' )
+#' scmp
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#'
+#' @family input helpers
+#' @inheritParams scmp-params
 #'
 #' @export
 as_scmp <- function(object, from = "sce",
@@ -69,7 +52,7 @@ as_scmp <- function(object, from = "sce",
             "objects only. Monocle3 'cell_data_set' objects (from = \"cds\")",
             "are no longer converted; pass the counts and a cell table with",
             "pseudotime and path columns to create_scmp(), as shown in the",
-            "'Common Root Cells' vignette."
+            "'Trajectory input' vignette."
         )
     )
 

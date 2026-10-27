@@ -2,7 +2,7 @@
 % Please edit documentation in R/sc.restruct.R
 \name{sc.restruct}
 \alias{sc.restruct}
-\title{Restructure the binned data.}
+\title{Restructure the bins of paths that share a root}
 \usage{
 sc.restruct(
   scmpObj,
@@ -16,41 +16,70 @@ sc.restruct(
 )
 }
 \arguments{
-\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
+\item{scmpObj}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{end_node_list}{A list of end nodes in of the branch.}
+\item{end_node_list}{A list of the labels of the end paths.}
 
-\item{root_node}{A character string specifying the root node.}
+\item{root_node}{The label of the root path.}
 
-\item{link_node_list}{A list of links between two nodes.}
+\item{link_node_list}{A list of the labels of the link paths, the segments
+that some end paths share; a label holds the labels of the paths it
+links, separated by \code{link_sep}.}
 
-\item{assay_name}{Name of the Assay in sparse data from which the counts are
-used. (Default = "counts").}
+\item{assay_name}{The name of the assay of the \code{Sparse} slot that holds
+the counts of the cells.}
 
-\item{aggregate}{A character string specifying the method to aggregate counts
-within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").}
+\item{aggregate}{How the counts of the cells of a bin are combined: \code{"sum"}
+or \code{"mean"} (rounded to whole numbers).}
 
-\item{link_sep}{A character string that separates the two nodes in the
-label of a link node. It is matched as fixed text when the label contains
-it, and as a regular expression otherwise, so \code{"|"} and \code{"\\\\|"} both work.
-(Default = \code{"_links_"})}
+\item{link_sep}{The separator in the labels of the link paths, matched as
+fixed text when the label contains it and as a regular expression
+otherwise, so \code{"|"} and \code{"\\\\|"} both work.}
 
-\item{verbose}{Print detailed output in the console. (Default is TRUE)}
+\item{verbose}{Whether to print progress messages.}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}, with updated \code{Dense}
-slot.
+The object with the bins of every end path, from the root on,
+and their pseudo-bulk counts in the \code{Dense} slot.
 }
 \description{
-\code{sc.restruct()} rebuilds the binned data so that every end path starts at
-the root: the bins of each link node are added to the paths it links, the
-root bins are added to every end node, the binned pseudotime of the later
-bins is shifted to follow them, and the pseudo-bulk counts are recomputed
-with \code{\link[=pb_counts]{pb_counts()}}.
+\code{sc.restruct()} rebuilds the bins so that every end path starts at the
+root: the bins of each link path are added to the end paths it links, the
+bins of the root to every end path, the binned pseudotime of the later
+bins is shifted to follow them, and \code{\link[=pb_counts]{pb_counts()}} recomputes the
+pseudo-bulk counts.
+}
+\examples{
+data("multi.lin.sce", package = "scMaSigPro")
+scmp <- as_scmp(multi.lin.sce,
+    additional_params = list(
+        labels_exist = TRUE, exist_ptime_col = "Monocle3_Pseudotime",
+        exist_path_col = "group"
+    ),
+    verbose = FALSE
+)
+scmp <- sc.squeeze(scmp)
+# Three end paths, one link path shared by two of them, and the root
+scmp <- sc.restruct(scmp,
+    end_node_list = list("path_Y_15", "path_Y_18", "path_Y_52"),
+    root_node = "root", link_node_list = list("path_Y_18|path_Y_15"),
+    link_sep = "|", verbose = FALSE
+)
+table(cDense(scmp)$Path)
+
 }
 \seealso{
-\code{\link{estBinSize}}
+\code{\link[=assign_paths]{assign_paths()}}, which labels the root and link paths.
+
+Other workflow steps:
+\code{\link[=sc.cluster.trend]{sc.cluster.trend()}},
+\code{\link[=sc.filter]{sc.filter()}},
+\code{\link[=sc.p.vector]{sc.p.vector()}},
+\code{\link[=sc.set.poly]{sc.set.poly()}},
+\code{\link[=sc.squeeze]{sc.squeeze()}},
+\code{\link[=sc.t.fit]{sc.t.fit()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{workflow steps}

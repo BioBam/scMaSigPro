@@ -1,49 +1,43 @@
-#' @title Get the data for Sparse Slot.
+#' Cell metadata of the Sparse slot
 #'
-#' @description
-#' Get or set cell level metadata for the Sparse slot of an
-#' \code{\link{ScMaSigPro}} object.
+#' `cSparse()` returns the cell metadata (`colData`) of the `Sparse` slot of
+#' a [ScMaSigPro-class] object; `cSparse<-` replaces it.
 #'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The new value for the `colData` slot of Sparse. (When Setting)
+#' @param object A [ScMaSigPro-class] object.
+#' @param value A data frame with one row per cell, named after the cells of
+#'   the `Sparse` slot and in their order, as `cSparse()` returns it. Without
+#'   row names, the rows are taken in the order of the cells.
 #'
-#' @return `colData` for the `Sparse` Slot.
+#' @details
+#' The cells are the columns of the counts, and [sc.squeeze()] finds them by
+#' name, so a `value` with other cells or another order is an error.
+#' `cSparse(object, value)` sets `value` as `cSparse(object) <- value` does.
 #'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#' @return `cSparse(object)`: a data frame with one row per cell.
+#' `cSparse<-` and `cSparse(object, value)`: the updated object, returned
+#' invisibly by the latter.
+#'
+#' @family accessors
 #'
 #' @importFrom SummarizedExperiment assay assay<- assayNames colData<-
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' cells <- cSparse(scmp.ob)
+#' head(cells[, c("Pseudotime", "Path")])
+#'
+#' # Add a column to the cell metadata
+#' cells$early <- cells$Pseudotime < 50
+#' cSparse(scmp.ob) <- cells
 #'
 #' @export
 setGeneric("cSparse", function(object, value = "missing") standardGeneric("cSparse"))
 
-#' @title Set the data for Sparse Slot
-#'
-#' @description
-#' Set cell level metadata for the Sparse slot of an
-#' \code{\link{ScMaSigPro}} object.
-#'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The new value for the `colData` slot. (When Setting)
-#'
-#' @return  Modified `ScMaSigPro` object when setting.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname cSparse
 #' @export
 setGeneric("cSparse<-", function(object, value) standardGeneric("cSparse<-"))
 
-#' @title Set or get the Sparse Column Data of an ScMaSigPro Object
-#'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The new value for the `colData` slot. (When Setting)
-#'
-#' @return `colData` when getting, modified `ScMaSigPro` object when setting.
-#'
-#' @details
-#' When `value` is given, it is checked as by \code{\link{cSparse<-}}.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname cSparse
 #' @export
 setMethod("cSparse", "ScMaSigPro", function(object, value) {
     if (identical(value, "missing")) {
@@ -55,22 +49,7 @@ setMethod("cSparse", "ScMaSigPro", function(object, value) {
     }
 })
 
-#' @title Replacement method for cSparse
-#'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The new value for the `colData` slot. (When Setting)
-#'
-#' @return Modified `ScMaSigPro` object.
-#'
-#' @details
-#' `value` must have one row per cell, named after the cells of the `Sparse`
-#' slot and in their order, as [cSparse()] returns it; a table without
-#' rownames is taken in the order of the cells. Anything else is an error:
-#' the cells are the columns of the count matrix, and [sc.squeeze()] finds
-#' them by name.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname cSparse
 #' @export
 setReplaceMethod("cSparse", "ScMaSigPro", function(object, value) {
     object@Sparse <- .set_csparse(object@Sparse, value)
@@ -78,50 +57,47 @@ setReplaceMethod("cSparse", "ScMaSigPro", function(object, value) {
     return(object)
 })
 ###############################################################################
-#' @title Get the data for Dense Slot.
+#' Bin metadata of the Dense slot
 #'
-#' @description
-#' Get or set cell level metadata for the Dense slot of an
-#' \code{\link{ScMaSigPro}} object.
+#' `cDense()` returns the bin metadata (`colData`) of the `Dense` slot of a
+#' [ScMaSigPro-class] object, one row per pseudotime bin; `cDense<-`
+#' replaces it.
 #'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The new value for the `colData` slot of Dense. (When Setting)
+#' @param object A [ScMaSigPro-class] object.
+#' @param value A data frame of bin metadata, one row per bin.
 #'
-#' @return `colData` for the `Dense` Slot.
+#' @details
+#' The bins are the columns of the pseudo-bulk counts. A `value` with one
+#' row per bin replaces the metadata and keeps the counts; its rows may be
+#' renamed, and [pb_counts()] then recomputes the counts. A `value` with
+#' another number of rows, such as bins rebuilt by hand, cannot keep the
+#' counts: the `Dense` slot then holds the metadata without counts, a
+#' message says so, and [pb_counts()] must be run before the next step.
+#' `cDense(object, value)` sets `value` as `cDense(object) <- value` does.
 #'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#' @return `cDense(object)`: a data frame with one row per bin. `cDense<-`
+#' and `cDense(object, value)`: the updated object, returned invisibly by the
+#' latter.
+#'
+#' @family accessors
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' bins <- cDense(scmp.ob)
+#' head(bins[, c("Path", "scmp_binned_pseudotime", "scmp_bin_size")])
+#'
+#' # Add a column to the bin metadata
+#' bins$early <- bins$scmp_binned_pseudotime <= 4
+#' cDense(scmp.ob) <- bins
 #'
 #' @export
 setGeneric("cDense", function(object, value = "missing") standardGeneric("cDense"))
 
-#' @title Set the data for Dense Slot
-#'
-#' @description
-#' Set cell level metadata for the Dense slot of an
-#' \code{\link{ScMaSigPro}} object.
-#'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The new value for the `colData` slot. (When Setting)
-#'
-#' @return  Modified `ScMaSigPro` object when setting.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname cDense
 #' @export
 setGeneric("cDense<-", function(object, value) standardGeneric("cDense<-"))
 
-#' @title Set or get the Dense Column Data of an ScMaSigPro Object
-#'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The new value for the `colData` slot. (When Setting)
-#'
-#' @return `colData` when getting, modified `ScMaSigPro` object when setting.
-#'
-#' @details
-#' When `value` is given, it is set as by \code{\link{cDense<-}}.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname cDense
 #' @export
 setMethod("cDense", "ScMaSigPro", function(object, value) {
     if (identical(value, "missing")) {
@@ -133,23 +109,7 @@ setMethod("cDense", "ScMaSigPro", function(object, value) {
     }
 })
 
-#' @title Replacement method for cDense
-#'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The new value for the `colData` slot. (When Setting)
-#'
-#' @return Modified `ScMaSigPro` object.
-#'
-#' @details
-#' The bins are the columns of the pseudo-bulk counts. A table with one row
-#' per bin replaces the bin metadata; rows may be renamed, and [pb_counts()]
-#' then recomputes the counts for the new bins. A table with another number
-#' of rows, such as bins rebuilt by hand, cannot keep the old counts: the
-#' `Dense` slot then holds the new bin metadata without counts, a message
-#' says so, and [pb_counts()] must be run before the next step.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname cDense
 #' @export
 setReplaceMethod("cDense", "ScMaSigPro", function(object, value) {
     object@Dense <- .set_cdense(object@Dense, value)
@@ -157,59 +117,44 @@ setReplaceMethod("cDense", "ScMaSigPro", function(object, value) {
     return(object)
 })
 ###############################################################################
-#' @title Get Expression Counts from Sparse Slot
+#' Cell counts of the Sparse slot
 #'
-#' @description
-#' `eSparse` is a generic function for retrieving expression counts stored in the
-#' Sparse slot of an \code{\link{ScMaSigPro}} object.
+#' `eSparse()` returns an assay of the `Sparse` slot of a [ScMaSigPro-class]
+#' object, genes by cells, as a dense matrix; `eSparse<-` sets one.
 #'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param i The name of the assay to retrieve expression counts for.
-#' Default is "counts", which will return the default expression matrix.
-#' @param ... Additional arguments (not used currently).
+#' @param object A [ScMaSigPro-class] object.
+#' @param i The name of the assay. With the default, `"counts"`, `eSparse()`
+#'   returns the first assay when no assay has that name.
+#' @param ... Not used.
+#' @param value A matrix, a `dgCMatrix` or a data frame of numbers, with one
+#'   row per gene and one column per cell of the `Sparse` slot. Its row and
+#'   column names, when present, must be the gene and cell names of the slot
+#'   in the same order; missing names are filled in.
 #'
-#' @return An expression matrix for the specified assay from the Sparse slot.
+#' @details
+#' `eSparse<-` stores `value` as a `dgCMatrix`. It gives a message when it
+#' creates a new assay and a warning when it replaces one.
 #'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#' @return `eSparse()`: a numeric matrix. `eSparse<-`: the updated object.
+#'
+#' @family accessors
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' counts <- eSparse(scmp.ob)
+#' counts[1:3, 1:4]
+#'
+#' # Add a second assay
+#' eSparse(scmp.ob, "logcounts") <- log1p(counts)
 #'
 #' @export
 setGeneric("eSparse", function(object, i = "counts", ...) standardGeneric("eSparse"))
 
-#' @title Set Expression Counts in Sparse Slot
-#'
-#' @description
-#' `eSparse<-` is a generic function for setting expression counts in the Sparse slot
-#' of an \code{\link{ScMaSigPro}} object.
-#'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param i The name of the assay for which to set expression counts.
-#' Default is "counts", which targets the default expression counts slot.
-#' @param value The new expression matrix to be set for the specified assay.
-#'
-#' @return The modified \code{\link{ScMaSigPro}} object with the updated
-#' expression data in the Sparse slot.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname eSparse
 #' @export
 setGeneric("eSparse<-", function(object, i = "counts", value) standardGeneric("eSparse<-"))
 
-#' @title Retrieve Expression Counts from Sparse Slot
-#'
-#' @description
-#' Retrieves expression counts from the Sparse slot of an
-#' \code{\link{ScMaSigPro}} object.
-#'
-#' @param object An \code{\link{ScMaSigPro}} object from which to retrieve expression data.
-#' @param i The name of the assay to retrieve expression counts for. The
-#' default, "counts", returns the counts, or the first assay when the Sparse
-#' slot has no assay called "counts".
-#' @param ... Additional arguments (not used currently).
-#'
-#' @return An expression matrix for the specified assay from the Sparse slot.
-#'
-#' @seealso \code{\link{eSparse<-}} for setting expression counts in the Sparse slot.
-#'
+#' @rdname eSparse
 #' @export
 setMethod("eSparse", signature(object = "ScMaSigPro"), function(object, i = "counts", ...) {
     assays <- assayNames(object@Sparse)
@@ -226,30 +171,7 @@ setMethod("eSparse", signature(object = "ScMaSigPro"), function(object, i = "cou
     stop("Assay '", i, "' not found in the object.")
 })
 
-#' @title Set Expression Counts in Sparse Slot
-#'
-#' @description
-#' Sets or updates expression counts in the Sparse slot of an
-#' \code{\link{ScMaSigPro}} object.
-#'
-#' @param object An \code{\link{ScMaSigPro}} object to be modified.
-#' @param i The name of the assay for which to set or update expression counts.
-#' Without it, the "counts" assay is set.
-#' @param value The new expression data to set for the specified assay.
-#'
-#' @return The modified \code{\link{ScMaSigPro}} object with the updated or new expression data
-#' in the Sparse slot.
-#'
-#' @details
-#' `value` must have one row per gene and one column per cell of the
-#' `Sparse` slot. Its row and column names, when present, must be the gene
-#' and cell names of the slot in the same order; missing names are taken
-#' from the slot. It can be a matrix, a `dgCMatrix` or a data frame of
-#' numbers, and is stored as a `dgCMatrix`. Without `i`, the "counts" assay
-#' is set.
-#'
-#' @seealso \code{\link{eSparse}} for retrieving expression counts from the Sparse slot.
-#'
+#' @rdname eSparse
 #' @export
 setMethod("eSparse<-", signature(object = "ScMaSigPro", i = "character", value = "ANY"), function(object, i, value) {
     value <- .check_assay(object@Sparse, value, "Sparse", "cell")
@@ -267,7 +189,7 @@ setMethod("eSparse<-", signature(object = "ScMaSigPro", i = "character", value =
     return(object)
 })
 
-#' @rdname eSparse-set-ScMaSigPro-character-method
+#' @rdname eSparse
 #' @export
 setMethod(
     "eSparse<-",
@@ -279,62 +201,44 @@ setMethod(
 )
 
 ##############################################################################
-#' @title Retrieve Expression Counts from Dense Slot
+#' Pseudo-bulk counts of the Dense slot
 #'
-#' @description
-#' `eDense` is a generic function for retrieving expression counts stored in the Dense slot
-#' of an \code{\link{ScMaSigPro}} object.
+#' `eDense()` returns an assay of the `Dense` slot of a [ScMaSigPro-class]
+#' object, genes by bins, as a dense matrix; `eDense<-` sets one.
 #'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param i The name of the dataset to retrieve expression counts for.
-#' Default is "bulk.counts", which will return the default expression matrix.
-#' @param ... Additional arguments (not used currently).
+#' @param object A [ScMaSigPro-class] object.
+#' @param i The name of the assay. With the default, `"bulk.counts"`,
+#'   `eDense()` returns the first assay when no assay has that name.
+#' @param ... Not used.
+#' @param value A matrix, a `dgCMatrix` or a data frame of numbers, with one
+#'   row per gene and one column per bin of the `Dense` slot. Its row and
+#'   column names, when present, must be the gene and bin names of the slot
+#'   in the same order; missing names are filled in.
 #'
-#' @return An expression matrix for the specified dataset from the Dense slot.
+#' @details
+#' `eDense<-` stores `value` as a `dgCMatrix`. It gives a message when it
+#' creates a new assay and a warning when it replaces one.
 #'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#' @return `eDense()`: a numeric matrix. `eDense<-`: the updated object.
+#'
+#' @family accessors
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' bulk <- eDense(scmp.ob)
+#' bulk[1:3, 1:4]
+#'
+#' # Add a second assay
+#' eDense(scmp.ob, "logcounts") <- log1p(bulk)
 #'
 #' @export
 setGeneric("eDense", function(object, i = "bulk.counts", ...) standardGeneric("eDense"))
 
-#' @title Set Expression Counts in Dense Slot
-#'
-#' @description
-#' `eDense<-` is a generic function for updating or setting expression counts in the Dense slot
-#' of an \code{\link{ScMaSigPro}} object.
-#'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param i The name of the dataset for which to set expression counts.
-#' Default is "bulk.counts".
-#' @param value The new expression matrix to be set for the specified dataset.
-#'
-#' @return The modified \code{\link{ScMaSigPro}} object with updated expression
-#' data in the Dense slot.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname eDense
 #' @export
 setGeneric("eDense<-", function(object, i = "bulk.counts", value) standardGeneric("eDense<-"))
 
-#' @title Retrieve Expression Data from Dense Slot
-#'
-#' @description
-#' Retrieves expression data stored in the Dense slot of an
-#' \code{\link{ScMaSigPro}} object.
-#'
-#' @param object An \code{\link{ScMaSigPro}} object from which to retrieve
-#' the expression data.
-#' @param i The name of the dataset to retrieve. The default,
-#' "bulk.counts", returns the pseudo-bulk counts, or the first assay when the
-#' Dense slot has no assay called "bulk.counts".
-#' @param ... Additional arguments (not used currently).
-#'
-#' @return Returns an expression matrix for the specified dataset from the Dense slot.
-#'
-#' @seealso \code{\link{eDense<-}} for setting expression data in the Dense slot.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname eDense
 #' @export
 setMethod("eDense", signature(object = "ScMaSigPro"), function(object, i = "bulk.counts", ...) {
     assays <- assayNames(object@Dense)
@@ -351,31 +255,7 @@ setMethod("eDense", signature(object = "ScMaSigPro"), function(object, i = "bulk
     stop("Assay '", i, "' not found in the object.")
 })
 
-#' @title Set or Update Expression Data in Dense Slot
-#'
-#' @description
-#' `eDense<-` updates or sets new expression data within the Dense slot of an
-#' \code{\link{ScMaSigPro}} object.
-#'
-#' @param object An \code{\link{ScMaSigPro}} object to be modified.
-#' @param i The name of the dataset within the Dense slot to set or update.
-#' Without it, the "bulk.counts" assay is set.
-#' @param value The expression data to set for the specified dataset.
-#'
-#' @return The modified \code{\link{ScMaSigPro}} object with the updated or new expression data
-#' in the Dense slot.
-#'
-#' @details
-#' `value` must have one row per gene and one column per bin of the `Dense`
-#' slot. Its row and column names, when present, must be the gene and bin
-#' names of the slot in the same order; missing names are taken from the
-#' slot. It can be a matrix, a `dgCMatrix` or a data frame of numbers, and
-#' is stored as a `dgCMatrix`. Without `i`, the "bulk.counts" assay is set.
-#'
-#' @seealso \code{\link{eDense}} for retrieving expression data from the Dense slot.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname eDense
 #' @export
 setMethod("eDense<-", signature(object = "ScMaSigPro", i = "character", value = "ANY"), function(object, i, value) {
     value <- .check_assay(object@Dense, value, "Dense", "bin")
@@ -393,7 +273,7 @@ setMethod("eDense<-", signature(object = "ScMaSigPro", i = "character", value = 
     return(object)
 })
 
-#' @rdname eDense-set-ScMaSigPro-character-method
+#' @rdname eDense
 #' @export
 setMethod(
     "eDense<-",
@@ -405,42 +285,39 @@ setMethod(
 )
 
 ##############################################################################
-#' @title Get or set the Branch Assignment Matrix
+#' Path assignment matrix of the design
 #'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value of the branch Assignment Matrix.
+#' `pathAssign()` returns the path assignment matrix that [sc.set.poly()]
+#' stores in the `Design` slot of a [ScMaSigPro-class] object: one row per
+#' bin, with the binned pseudotime, a replicate index and a 0/1 column per
+#' path. `pathAssign<-` replaces it.
 #'
-#' @return Get the Assignment Matrix.
+#' @param object A [ScMaSigPro-class] object.
+#' @param value A matrix with the rows of the design matrix ([predictors()]),
+#'   one per bin and with the same names.
 #'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#' @details
+#' `pathAssign(object, value)` sets `value` as `pathAssign(object) <- value`
+#' does.
+#'
+#' @return `pathAssign(object)`: a numeric matrix. `pathAssign<-` and
+#' `pathAssign(object, value)`: the updated object, returned invisibly by the
+#' latter.
+#'
+#' @family accessors
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' head(pathAssign(scmp.ob))
 #'
 #' @export
 setGeneric("pathAssign", function(object, value = "missing") standardGeneric("pathAssign"))
 
-#' @title Replacement method for pathAssign.
-#'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value of the branch Assignment Matrix.
-#'
-#' @return Modified `ScMaSigPro` object with new Assignment Matrix.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname pathAssign
 #' @export
 setGeneric("pathAssign<-", function(object, value) standardGeneric("pathAssign<-"))
 
-#' @title Set or get the Assignment Matrix.
-#'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value of the branch Assignment Matrix.
-#'
-#' @return Modified `ScMaSigPro` object with new Assignment Matrix.
-#'
-#' @details
-#' When `value` is given, it is checked as by \code{\link{pathAssign<-}}.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname pathAssign
 #' @export
 setMethod("pathAssign", "ScMaSigPro", function(object, value) {
     if (identical(value, "missing")) {
@@ -452,20 +329,7 @@ setMethod("pathAssign", "ScMaSigPro", function(object, value) {
     }
 })
 
-#' @title Replacement method for pathAssign
-#'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value of the branch Assignment Matrix.
-#'
-#' @return Modified `ScMaSigPro` object.
-#'
-#' @details
-#' The new object is checked with `validObject()`: `value` must have the
-#' rows of the predictor matrix, one per bin and with the same names (see
-#' [MatrixDesign]). Anything else is an error.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname pathAssign
 #' @export
 setReplaceMethod("pathAssign", "ScMaSigPro", function(object, value) {
     object@Design@assignment_matrix <- as.matrix(value)
@@ -473,42 +337,39 @@ setReplaceMethod("pathAssign", "ScMaSigPro", function(object, value) {
     return(object)
 })
 ##############################################################################
-#' @title Get or set the Predictor Matrix
+#' Design matrix of the polynomial model
 #'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value of the Predictor Matrix.
+#' `predictors()` returns the design matrix that [sc.set.poly()] stores in
+#' the `Design` slot of a [ScMaSigPro-class] object: one row per bin and one
+#' column per term of the full model. `predictors<-` replaces it.
 #'
-#' @return Get the Predictor Matrix.
+#' @param object A [ScMaSigPro-class] object.
+#' @param value A matrix with the rows of the path assignment matrix
+#'   ([pathAssign()]), one per bin and with the same names, and one column
+#'   per term of the design.
 #'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#' @details
+#' `predictors(object, value)` sets `value` as `predictors(object) <- value`
+#' does.
+#'
+#' @return `predictors(object)`: a numeric matrix. `predictors<-` and
+#' `predictors(object, value)`: the updated object, returned invisibly by the
+#' latter.
+#'
+#' @family accessors
+#'
+#' @examples
+#' data("scmp.ob", package = "scMaSigPro")
+#' head(predictors(scmp.ob))
 #'
 #' @export
 setGeneric("predictors", function(object, value = "missing") standardGeneric("predictors"))
 
-#' @title Replacement method for predictors.
-#'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value of the Predictors Matrix.
-#'
-#' @return Modified `ScMaSigPro` object with new Predictor Matrix.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname predictors
 #' @export
 setGeneric("predictors<-", function(object, value) standardGeneric("predictors<-"))
 
-#' @title Set or get the Predictor Matrix.
-#'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value of the Predictors Matrix.
-#'
-#' @return Modified `ScMaSigPro` object with new Predictor Matrix.
-#'
-#' @details
-#' When `value` is given, it is checked as by \code{\link{predictors<-}}.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname predictors
 #' @export
 setMethod("predictors", "ScMaSigPro", function(object, value) {
     if (identical(value, "missing")) {
@@ -520,35 +381,13 @@ setMethod("predictors", "ScMaSigPro", function(object, value) {
     }
 })
 
-#' @title Replacement method for predictors
-#'
-#' @param object An object of class \code{\link{ScMaSigPro}}.
-#' @param value The value of the Predictors Matrix.
-#'
-#' @return Modified `ScMaSigPro` object.
-#'
-#' @details
-#' The new object is checked with `validObject()`: `value` must have the
-#' rows of the assignment matrix, one per bin and with the same names, and
-#' one column per term of the design (see [MatrixDesign]). Anything else is
-#' an error.
-#'
-#' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
-#'
+#' @rdname predictors
 #' @export
 setReplaceMethod("predictors", "ScMaSigPro", function(object, value) {
     object@Design@predictor_matrix <- as.matrix(value)
     validObject(object)
     return(object)
 })
-##############################################################################
-setMethod(
-    "show",
-    "ScMaSigPro",
-    function(object) {
-        .ScMaSigPro_show(object)
-    }
-)
 ##############################################################################
 #' Checks behind the setters of the Sparse and Dense slots
 #'

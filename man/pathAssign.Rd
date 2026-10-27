@@ -2,21 +2,51 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{pathAssign}
 \alias{pathAssign}
-\title{Get or set the Branch Assignment Matrix}
+\alias{pathAssign<-}
+\alias{pathAssign,ScMaSigPro-method}
+\alias{pathAssign<-,ScMaSigPro-method}
+\title{Path assignment matrix of the design}
 \usage{
 pathAssign(object, value = "missing")
+
+pathAssign(object) <- value
+
+\S4method{pathAssign}{ScMaSigPro}(object, value = "missing")
+
+\S4method{pathAssign}{ScMaSigPro}(object) <- value
 }
 \arguments{
-\item{object}{An object of class \code{\link{ScMaSigPro}}.}
+\item{object}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{value}{The value of the branch Assignment Matrix.}
+\item{value}{A matrix with the rows of the design matrix (\code{\link[=predictors]{predictors()}}),
+one per bin and with the same names.}
 }
 \value{
-Get the Assignment Matrix.
+\code{pathAssign(object)}: a numeric matrix. \verb{pathAssign<-} and
+\code{pathAssign(object, value)}: the updated object, returned invisibly by the
+latter.
 }
 \description{
-Get or set the Branch Assignment Matrix
+\code{pathAssign()} returns the path assignment matrix that \code{\link[=sc.set.poly]{sc.set.poly()}}
+stores in the \code{Design} slot of a \link[=ScMaSigPro-class]{ScMaSigPro} object: one row per
+bin, with the binned pseudotime, a replicate index and a 0/1 column per
+path. \verb{pathAssign<-} replaces it.
 }
-\author{
-Priyansh Srivastava \email{spriyansh29@gmail.com}
+\details{
+\code{pathAssign(object, value)} sets \code{value} as \code{pathAssign(object) <- value}
+does.
 }
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+head(pathAssign(scmp.ob))
+
+}
+\seealso{
+Other accessors:
+\code{\link[=cDense]{cDense()}},
+\code{\link[=cSparse]{cSparse()}},
+\code{\link[=eDense]{eDense()}},
+\code{\link[=eSparse]{eSparse()}},
+\code{\link[=predictors]{predictors()}}
+}
+\concept{accessors}

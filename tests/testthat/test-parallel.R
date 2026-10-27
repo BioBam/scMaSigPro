@@ -11,7 +11,7 @@ expect_serial_fit <- function(bpparam) {
 }
 
 # One estimated theta per gene, which the workers get as an argument
-# (decision D16); `ref` is the serial fit, splat_theta_gene()
+# (theta_estimate = "gene"); `ref` is the serial fit, splat_theta_gene()
 expect_serial_theta <- function(bpparam, ref) {
     pv <- sc.p.vector(splat_design(2),
         verbose = FALSE, theta_estimate = "gene", BPPARAM = bpparam

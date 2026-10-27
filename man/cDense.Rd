@@ -2,22 +2,59 @@
 % Please edit documentation in R/scmpGenerics.R
 \name{cDense}
 \alias{cDense}
-\title{Get the data for Dense Slot.}
+\alias{cDense<-}
+\alias{cDense,ScMaSigPro-method}
+\alias{cDense<-,ScMaSigPro-method}
+\title{Bin metadata of the Dense slot}
 \usage{
 cDense(object, value = "missing")
+
+cDense(object) <- value
+
+\S4method{cDense}{ScMaSigPro}(object, value = "missing")
+
+\S4method{cDense}{ScMaSigPro}(object) <- value
 }
 \arguments{
-\item{object}{An object of class \code{\link{ScMaSigPro}}.}
+\item{object}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{value}{The new value for the \code{colData} slot of Dense. (When Setting)}
+\item{value}{A data frame of bin metadata, one row per bin.}
 }
 \value{
-\code{colData} for the \code{Dense} Slot.
+\code{cDense(object)}: a data frame with one row per bin. \verb{cDense<-}
+and \code{cDense(object, value)}: the updated object, returned invisibly by the
+latter.
 }
 \description{
-Get or set cell level metadata for the Dense slot of an
-\code{\link{ScMaSigPro}} object.
+\code{cDense()} returns the bin metadata (\code{colData}) of the \code{Dense} slot of a
+\link[=ScMaSigPro-class]{ScMaSigPro} object, one row per pseudotime bin; \verb{cDense<-}
+replaces it.
 }
-\author{
-Priyansh Srivastava \email{spriyansh29@gmail.com}
+\details{
+The bins are the columns of the pseudo-bulk counts. A \code{value} with one
+row per bin replaces the metadata and keeps the counts; its rows may be
+renamed, and \code{\link[=pb_counts]{pb_counts()}} then recomputes the counts. A \code{value} with
+another number of rows, such as bins rebuilt by hand, cannot keep the
+counts: the \code{Dense} slot then holds the metadata without counts, a
+message says so, and \code{\link[=pb_counts]{pb_counts()}} must be run before the next step.
+\code{cDense(object, value)} sets \code{value} as \code{cDense(object) <- value} does.
 }
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+bins <- cDense(scmp.ob)
+head(bins[, c("Path", "scmp_binned_pseudotime", "scmp_bin_size")])
+
+# Add a column to the bin metadata
+bins$early <- bins$scmp_binned_pseudotime <= 4
+cDense(scmp.ob) <- bins
+
+}
+\seealso{
+Other accessors:
+\code{\link[=cSparse]{cSparse()}},
+\code{\link[=eDense]{eDense()}},
+\code{\link[=eSparse]{eSparse()}},
+\code{\link[=pathAssign]{pathAssign()}},
+\code{\link[=predictors]{predictors()}}
+}
+\concept{accessors}

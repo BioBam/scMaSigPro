@@ -1,0 +1,125 @@
+url: https://spriyansh.github.io/scMaSigPro
+
+template:
+  bootstrap: 5
+
+reference:
+- title: Input helpers
+  desc: >
+    Create a ScMaSigPro object from a SingleCellExperiment or from counts and
+    a cell table, and build the pseudotime and path labels of the cells from
+    the output of a trajectory tool.
+  contents:
+  - as_scmp
+  - create_scmp
+  - assign_paths
+  - paths_from_graph
+- title: Workflow steps
+  desc: >
+    Bin the cells along pseudotime, set up the polynomial model, test and fit
+    each gene, list the significant genes and cluster their trends.
+  contents:
+  - sc.squeeze
+  - sc.restruct
+  - sc.set.poly
+  - sc.p.vector
+  - sc.t.fit
+  - sc.filter
+  - sc.cluster.trend
+- title: Binning helpers
+  desc: Compute the pseudo-bulk counts of the bins.
+  contents:
+  - pb_counts
+- title: Plots
+  desc: Plot the bins, the trends of genes and clusters, and the gene lists.
+  contents:
+  - plotBinTile
+  - plotTrend
+  - plotTrendCluster
+  - plotIntersect
+  - plotDiagnostics
+- title: Results
+  desc: Read the results of the fits and the settings of an analysis.
+  contents:
+  - scmpResults
+  - showSol
+  - showParams
+  - queryCoeff
+- title: Accessors
+  desc: Read and replace the data of the cells, the bins and the design.
+  contents:
+  - cSparse
+  - eSparse
+  - cDense
+  - eDense
+  - predictors
+  - pathAssign
+- title: Classes
+  desc: The ScMaSigPro class, the classes of its slots and their update.
+  contents:
+  - ScMaSigPro-class
+  - MatrixDesign-class
+  - VariableProfiles-class
+  - Estimates-class
+  - Significant-class
+  - ParameterConfig-class
+  - updateObject,ScMaSigPro-method
+- title: Datasets
+  desc: Data sets bundled with the package.
+  contents:
+  - splat.sim
+  - scmp.ob
+  - multi.lin.sce
+
+articles:
+- title: Get started
+  navbar: ~
+  contents:
+  - scMaSigPro
+- title: Analyses
+  navbar: Analyses
+  contents:
+  - trajectory-input
+  - shared-root
+- title: Under the hood
+  navbar: Under the hood
+  contents:
+  - model-and-tuning
+  - masigpro-and-class
+- title: Help
+  navbar: Help
+  contents:
+  - faq
+
+news:
+  cran_dates: false
+
+redirects:
+# Articles of earlier versions
+- ["articles/Basic-Workflow.html", "articles/scMaSigPro.html"]
+- ["articles/Common-Root-Cells.html", "articles/shared-root.html"]
+- ["articles/scMaSigPro-Class.html", "articles/masigpro-and-class.html"]
+- ["articles/scMaSigPro-maSigPro.html", "articles/masigpro-and-class.html"]
+# Help pages of earlier versions, now merged into one page per topic
+- ["reference/cSparse-ScMaSigPro-method.html", "reference/cSparse.html"]
+- ["reference/cSparse-set.html", "reference/cSparse.html"]
+- ["reference/cSparse-set-ScMaSigPro-method.html", "reference/cSparse.html"]
+- ["reference/cDense-ScMaSigPro-method.html", "reference/cDense.html"]
+- ["reference/cDense-set.html", "reference/cDense.html"]
+- ["reference/cDense-set-ScMaSigPro-method.html", "reference/cDense.html"]
+- ["reference/pathAssign-ScMaSigPro-method.html", "reference/pathAssign.html"]
+- ["reference/pathAssign-set.html", "reference/pathAssign.html"]
+- ["reference/pathAssign-set-ScMaSigPro-method.html", "reference/pathAssign.html"]
+- ["reference/predictors-ScMaSigPro-method.html", "reference/predictors.html"]
+- ["reference/predictors-set.html", "reference/predictors.html"]
+- ["reference/predictors-set-ScMaSigPro-method.html", "reference/predictors.html"]
+- ["reference/eSparse-ScMaSigPro-method.html", "reference/eSparse.html"]
+- ["reference/eSparse-set.html", "reference/eSparse.html"]
+- ["reference/eSparse-set-ScMaSigPro-character-method.html", "reference/eSparse.html"]
+- ["reference/eSparse-set-ScMaSigPro-character-matrix-method.html", "reference/eSparse.html"]
+- ["reference/eDense-ScMaSigPro-method.html", "reference/eDense.html"]
+- ["reference/eDense-set.html", "reference/eDense.html"]
+- ["reference/eDense-set-ScMaSigPro-character-method.html", "reference/eDense.html"]
+- ["reference/eDense-set-ScMaSigPro-character-matrix-method.html", "reference/eDense.html"]
+- ["reference/showCoeff.html", "reference/showSol.html"]
+- ["reference/showPoly.html", "reference/showParams.html"]

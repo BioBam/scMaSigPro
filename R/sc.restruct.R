@@ -1,32 +1,48 @@
-#' @title Restructure the binned data.
+#' @title Restructure the bins of paths that share a root
 #'
 #' @description
-#' `sc.restruct()` rebuilds the binned data so that every end path starts at
-#' the root: the bins of each link node are added to the paths it links, the
-#' root bins are added to every end node, the binned pseudotime of the later
-#' bins is shifted to follow them, and the pseudo-bulk counts are recomputed
-#' with [pb_counts()].
+#' `sc.restruct()` rebuilds the bins so that every end path starts at the
+#' root: the bins of each link path are added to the end paths it links, the
+#' bins of the root to every end path, the binned pseudotime of the later
+#' bins is shifted to follow them, and [pb_counts()] recomputes the
+#' pseudo-bulk counts.
 #'
-#' @param scmpObj An object of class \code{\link{ScMaSigPro}}.
-#' @param end_node_list A list of end nodes in of the branch.
-#' @param root_node A character string specifying the root node.
-#' @param link_node_list A list of links between two nodes.
-#' @param assay_name Name of the Assay in sparse data from which the counts are
-#' used. (Default = "counts").
-#' @param link_sep A character string that separates the two nodes in the
-#' label of a link node. It is matched as fixed text when the label contains
-#' it, and as a regular expression otherwise, so `"|"` and `"\\|"` both work.
-#' (Default = `"_links_"`)
-#' @param aggregate A character string specifying the method to aggregate counts
-#' within each cluster. Available options are 'mean' or 'sum'. (Default = "sum").
-#' @param verbose  Print detailed output in the console. (Default is TRUE)
+#' @param end_node_list A list of the labels of the end paths.
+#' @param root_node The label of the root path.
+#' @param link_node_list A list of the labels of the link paths, the segments
+#'   that some end paths share; a label holds the labels of the paths it
+#'   links, separated by `link_sep`.
+#' @param link_sep The separator in the labels of the link paths, matched as
+#'   fixed text when the label contains it and as a regular expression
+#'   otherwise, so `"|"` and `"\\|"` both work.
 #'
-#' @return An object of class \code{\link{ScMaSigPro}}, with updated `Dense`
-#' slot.
+#' @return The object with the bins of every end path, from the root on,
+#' and their pseudo-bulk counts in the `Dense` slot.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
-#' @seealso \code{\link{estBinSize}}
+#' @seealso [assign_paths()], which labels the root and link paths.
+#'
+#' @family workflow steps
+#' @inheritParams scmp-params
+#'
+#' @examples
+#' data("multi.lin.sce", package = "scMaSigPro")
+#' scmp <- as_scmp(multi.lin.sce,
+#'     additional_params = list(
+#'         labels_exist = TRUE, exist_ptime_col = "Monocle3_Pseudotime",
+#'         exist_path_col = "group"
+#'     ),
+#'     verbose = FALSE
+#' )
+#' scmp <- sc.squeeze(scmp)
+#' # Three end paths, one link path shared by two of them, and the root
+#' scmp <- sc.restruct(scmp,
+#'     end_node_list = list("path_Y_15", "path_Y_18", "path_Y_52"),
+#'     root_node = "root", link_node_list = list("path_Y_18|path_Y_15"),
+#'     link_sep = "|", verbose = FALSE
+#' )
+#' table(cDense(scmp)$Path)
 #'
 #' @export
 sc.restruct <- function(scmpObj,

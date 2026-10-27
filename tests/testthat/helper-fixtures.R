@@ -51,7 +51,7 @@ splat_design <- function(degree = 2) {
 }
 
 # Two fitting variants frozen by the goldens:
-#   default   offset = TRUE (the package default, as the Quick Start fits)
+#   default   offset = TRUE (the package default)
 #   no_offset offset = FALSE
 splat_fitted <- function(variant = c("default", "no_offset")) {
     variant <- match.arg(variant)
@@ -97,7 +97,8 @@ multi_cell_data <- function() {
     cd$group <- gsub("path_", "", cd$group, fixed = TRUE)
     cd$group <- gsub("|", "_links_", cd$group, fixed = TRUE)
     # Capitalised so it sorts first in every locale and becomes the reference
-    # path (see the Common Root Cells vignette and roadmap item L1).
+    # path: paths are ordered in the C locale, where "root" would sort
+    # after "Y_15".
     cd$group[cd$group == "root"] <- "Root"
     list(
         counts = as.matrix(SingleCellExperiment::counts(sce)),
@@ -162,9 +163,9 @@ layer_snapshot <- function(p) lapply(p$layers, function(l) l$data)
 
 build_golden <- function() {
     binned <- splat_binned()
-    bounds_note <- "0.6.0, ledger S3: bounds are the numeric breaks"
-    cells_note <- "0.6.0, ledger S3: cells binned by the numeric breaks"
-    n2_note <- "0.6.0, ledger n2: bins [a, b), the last [a, b]"
+    bounds_note <- "0.6.0: bounds are the numeric breaks"
+    cells_note <- "0.6.0: cells binned by the numeric breaks"
+    n2_note <- "0.6.0: bins [a, b), the last [a, b]"
     prune_note <- "0.6.0, Section 2.2: prune below mean - sd of each path"
     log_note <- "0.6.0, Section 2.3: the offset is the log of the size factors"
     gone_note <- "0.6.0, Section 2.3: removed, the same fit as fits/default"
@@ -229,9 +230,9 @@ build_golden <- function() {
             # Changed on purpose after 0.0.4; every other leaf is still 0.0.4.
             regenerated = c(
                 "squeeze/by_method/Freedman.Diaconis" =
-                    "0.0.5.9000, ledger g: number of bins = range / width",
+                    "0.0.5.9000: number of bins = range / width",
                 "squeeze/by_method/Scott.Normal" =
-                    "0.0.5.9000, ledger g: number of bins = range / width",
+                    "0.0.5.9000: number of bins = range / width",
                 "squeeze/default/bins" = bounds_note,
                 "squeeze/by_method/Sturges/bins" = bounds_note,
                 "squeeze/by_method/Sqrt/bins" = bounds_note,
@@ -240,7 +241,7 @@ build_golden <- function() {
                 "squeeze/by_method/Freedman.Diaconis/bins" = bounds_note,
                 "squeeze/by_method/Scott.Normal/bins" = bounds_note,
                 "squeeze/options/split_bins/bins" =
-                    "0.6.0, ledger S3 and Q1: split bins cover the bin split",
+                    "0.6.0: split bins cover the bin split",
                 "squeeze/options/prune_bins/bins" = bounds_note,
                 "squeeze/options/fill_gaps/bins" = bounds_note,
                 "squeeze/options/drop_trails/bins" = bounds_note,
@@ -302,7 +303,7 @@ build_golden <- function() {
 }
 
 # sc.p.vector(theta_estimate = "gene") and sc.t.fit() on splat_design(2),
-# fitted serially: the reference of the parallel backends (decision D16)
+# fitted serially: the reference of the parallel backends
 splat_theta_gene <- function() {
     fixture("splat_theta_gene", function() {
         pv <- sc.p.vector(splat_design(2),
@@ -314,7 +315,7 @@ splat_theta_gene <- function() {
 
 # An object as scMaSigPro 0.0.5 left it after sc.p.vector(link = "identity")
 # and sc.t.fit(): fits made with the log link, recorded under the identity
-# label (ledger LK-4)
+# label
 splat_relabelled <- function() {
     fixture("splat_relabelled", function() {
         ob <- splat_fitted("no_offset")

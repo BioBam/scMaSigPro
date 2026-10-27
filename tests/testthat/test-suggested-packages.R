@@ -14,7 +14,7 @@ test_that("plotIntersect() draws an UpSetR plot", {
     expect_s3_class(plotIntersect(splat_filtered()), "upset")
 })
 
-test_that("Mclust clustering works without attaching mclust (ledger M1)", {
+test_that("Mclust clustering works without attaching mclust", {
     skip_if_not_installed("mclust")
     ob <- splat_filtered()
     run <- function() {

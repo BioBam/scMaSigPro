@@ -1,44 +1,53 @@
-#' @title Create ScMaSigPro Object
+#' @title Create a ScMaSigPro object from counts and cell metadata
 #'
 #' @description
-#' `create_scmp()` initializes a ScMaSigPro object with the given counts,
-#' cell level metadata, and other optional parameters. [assign_paths()]
-#' builds the pseudotime and path columns of the cell metadata from the
-#' lineage weights of a trajectory tool.
+#' `create_scmp()` creates a [ScMaSigPro-class] object from a count matrix and
+#' a table of cell metadata with the pseudotime and the path of each cell,
+#' such as the result of [assign_paths()]. Bins made elsewhere can be given
+#' too.
 #'
-#' @param counts A matrix containing the raw expression counts.
-#' @param cell_data A data frame containing the cell level metadata.
-#' @param feature_data Optional data frame of gene metadata, one row per gene
-#' of `counts` (named like them, or with automatic row names). It becomes the
-#' `rowData()` of the `Sparse` slot, and of the `Dense` slot when this
-#' function builds it.
-#' @param use_as_bin A logical indicating to run MaSigPro analysis without
-#' pseudotime binning. Defaults to FALSE.
+#' @param counts A matrix of raw counts, genes by cells.
+#' @param cell_data A data frame of cell metadata, one row per column of
+#'   `counts`, named like them.
+#' @param feature_data An optional data frame of gene metadata, one row per
+#'   gene of `counts`, named like them or with automatic row names. It becomes
+#'   the `rowData()` of the `Sparse` slot, and of the `Dense` slot when this
+#'   function builds it.
+#' @param use_as_bin Whether every cell is a bin of its own, without
+#'   pseudo-bulking, as for bulk time-course data.
 #' @param bin_counts Optional pseudo-bulk counts of bins made outside
-#' scMaSigPro: a matrix with the genes of `counts` as rows, in the same
-#' order, and one column per bin. Requires `bin_cell_data`; not with
-#' `use_as_bin = TRUE`.
+#'   scMaSigPro: a matrix with the genes of `counts` as rows, in the same
+#'   order, and one column per bin. Needs `bin_cell_data`; not with
+#'   `use_as_bin = TRUE`.
 #' @param bin_cell_data A data frame with one row per bin, named like the
-#' columns of `bin_counts`, holding the binned pseudotime in `ptime_col` and
-#' the path in `path_col`. A `scmp_bin_size` column gives the number of cells
-#' of each bin; without it the sizes are `NA`.
-#' @param ptime_col A character string representing the column name
-#' for inferred Pseudotime values. (Default is "Pseudotime")
-#' @param path_col A character string representing the column name for branching
-#' path assignment. (Default is `path_prefix`)
-#'
-#' @return An object of class \code{\link{ScMaSigPro}}, with aligned pseudotime.
+#'   columns of `bin_counts`, with the binned pseudotime in `ptime_col` and the
+#'   path in `path_col`. A `scmp_bin_size` column gives the number of cells of
+#'   each bin; without it the sizes are `NA`.
 #'
 #' @details
-#' The `Dense` slot holds the bins. By default it is empty and
-#' [sc.squeeze()] bins the cells. With `use_as_bin = TRUE` every cell is a
-#' bin. With `bin_counts` and `bin_cell_data` it holds bins made outside
-#' scMaSigPro, and the workflow continues with [sc.set.poly()]; such bins
-#' have no member cells, so [pb_counts()] and [sc.restruct()] do not apply.
+#' By default the `Dense` slot is empty and [sc.squeeze()] bins the cells.
+#' With `use_as_bin = TRUE` every cell is a bin. With `bin_counts` and
+#' `bin_cell_data` it holds bins made outside scMaSigPro and the workflow
+#' continues with [sc.set.poly()]; such bins have no member cells, so
+#' [pb_counts()] and [sc.restruct()] do not apply.
+#'
+#' @return A [ScMaSigPro-class] object with the cells in the `Sparse` slot
+#' and, with `use_as_bin = TRUE` or `bin_counts`, the bins in the `Dense`
+#' slot.
 #'
 #' @importFrom S4Vectors DataFrame
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
+#' @family input helpers
+#' @inheritParams scmp-params
+#'
+#' @examples
+#' data("splat.sim", package = "scMaSigPro")
+#' counts <- SummarizedExperiment::assay(splat.sim, "counts")
+#' cells <- as.data.frame(SummarizedExperiment::colData(splat.sim))
+#' scmp <- create_scmp(counts, cells, ptime_col = "Step", path_col = "Group")
+#' scmp
+#'
 #' @export
 
 # Create ScMaSigPro

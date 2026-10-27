@@ -2,7 +2,7 @@
 % Please edit documentation in R/sc.t.fit.R
 \name{sc.t.fit}
 \alias{sc.t.fit}
-\title{Perform stepwise regression fit to select for significant terms.}
+\title{Select the significant terms of each gene}
 \usage{
 sc.t.fit(
   scmpObj,
@@ -19,65 +19,93 @@ sc.t.fit(
 )
 }
 \arguments{
-\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
+\item{scmpObj}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{selection_method}{Method for step-wise regression.}
+\item{selection_method}{The stepwise method: \code{"backward"}, \code{"forward"},
+\code{"two.ways.backward"} or \code{"two.ways.forward"}.}
 
-\item{p_value}{Significance level used for variable selection in the stepwise
-regression.}
+\item{p_value}{The level at which a term enters or stays in a model; by
+default that of \code{\link[=sc.p.vector]{sc.p.vector()}}.}
 
-\item{nvar_correction}{Argument for correcting significance level. See details.}
+\item{nvar_correction}{Whether to divide \code{p_value} by the number of terms
+of the design.}
 
-\item{family}{Distribution of the error term, a \code{\link[stats]{family}}
-object. The default is the family that \code{sc.p.vector()} used, with its
-link. When \code{sc.p.vector()} estimated one theta per gene
-(\code{theta_estimate = "gene"}), each gene is fitted with its own theta.}
+\item{family}{The distribution of the error term, a \code{\link[stats:family]{stats::family()}}
+object; by default the family of \code{\link[=sc.p.vector]{sc.p.vector()}}, with its link. When
+\code{\link[=sc.p.vector]{sc.p.vector()}} estimated one theta per gene (\code{theta_estimate = "gene"}),
+each gene is fitted with its own theta.}
 
-\item{epsilon}{Model convergence tolerance.}
+\item{epsilon}{The convergence tolerance of \code{\link[stats:glm]{stats::glm()}}.}
 
-\item{offset}{A logical value specifying whether to use offset during
-fitting: the logarithm of the size factor of each bin, which needs the log
-link. The fits use the offsets that \code{sc.p.vector()} computed from
-every gene it fitted and stored in the \code{Design} slot; when it stored none
+\item{offset}{Whether to add the offset of each bin, the logarithm of its
+size factor, which needs the log link. The fits use the offsets that
+\code{\link[=sc.p.vector]{sc.p.vector()}} stored in the \code{Design} slot; when it stored none
 (\code{offset = FALSE}), they are computed here in the same way.}
 
-\item{verbose}{Print detailed output in the console. (Default is TRUE)}
+\item{verbose}{Whether to print progress messages.}
 
-\item{max_it}{Maximum number of iterations to fit the model.}
+\item{max_it}{The maximum number of iterations of \code{\link[stats:glm]{stats::glm()}}.}
 
-\item{link}{The link of \code{family}. The default is the link that
-\code{sc.p.vector()} used; when given, it must be the link of
-\code{family}. Choose the link in \code{sc.p.vector()}.}
+\item{link}{The link of \code{family}, by default that of \code{\link[=sc.p.vector]{sc.p.vector()}}; when
+given, it must be the link of \code{family}. Choose the link in
+\code{\link[=sc.p.vector]{sc.p.vector()}}.}
 
-\item{BPPARAM}{A \code{BiocParallelParam} object that runs the per-gene
-fits, such as
-\code{\link[BiocParallel:MulticoreParam-class]{MulticoreParam}(2)} (Linux
-and macOS) or \code{\link[BiocParallel:SnowParam-class]{SnowParam}(2)}
-(any system, including Windows). The default,
-\code{\link[BiocParallel:SerialParam-class]{SerialParam}()}, fits the genes
-one after another. Create it with \code{progressbar = TRUE} for a progress
-bar. The results do not depend on the backend.}
+\item{BPPARAM}{A \code{BiocParallelParam} object that runs the per-gene fits,
+such as \code{BiocParallel::MulticoreParam(2)} (Linux and macOS) or
+\code{BiocParallel::SnowParam(2)} (any system). The default,
+\code{BiocParallel::SerialParam()}, fits the genes one after another; create
+it with \code{progressbar = TRUE} for a progress bar. The results do not
+depend on the backend.}
 }
 \value{
-An object of class \code{\link{ScMaSigPro}}, with updated \code{Estimate}
-slot.
+The object with the selected model of each gene with a non-flat
+profile in the \code{Estimate} slot (class \link[=Estimates-class]{Estimates}), read by
+\code{\link[=showSol]{showSol()}} and the other result readers.
 }
 \description{
-Performs stepwise regression and selects the significant polynomial terms
-from the full polynomial model. This function is succeeded by
-\code{scMaSigPro::sc.p.vector()}.
+\code{sc.t.fit()} selects by stepwise regression, as maSigPro does, the
+significant terms of the full model of each gene with a non-flat profile
+(\code{\link[=sc.p.vector]{sc.p.vector()}}), and keeps the coefficients, p-values and t statistics
+of the selected models.
+}
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+# Keep the terms with a p-value below 0.01
+scmp <- sc.t.fit(scmp.ob, p_value = 0.01, verbose = FALSE)
+head(showSol(scmp)[, c("p-value", "R-squared")])
+
 }
 \references{
-{Conesa, A., Nueda M.J., Alberto Ferrer, A., Talon, T. 2006.
-maSigPro: a Method to Identify Significant Differential Expression Profiles
-in Time-Course Microarray Experiments. Bioinformatics 22, 1096-1102}
+Conesa A, Nueda MJ, Ferrer A, Talón M (2006). maSigPro: a method to
+identify significantly differential expression profiles in time-course
+microarray experiments. Bioinformatics 22(9), 1096-1102.
+\doi{10.1093/bioinformatics/btl056}
+
+Nueda MJ, Tarazona S, Conesa A (2014). Next maSigPro: updating maSigPro
+bioconductor package for RNA-seq time series. Bioinformatics 30(18),
+2598-2602. \doi{10.1093/bioinformatics/btu333}
+
+Srivastava P, Benegas Coll M, Götz S, Nueda MJ, Conesa A (2024).
+scMaSigPro: differential expression analysis along single-cell
+trajectories. Bioinformatics 40(7), btae443.
+\doi{10.1093/bioinformatics/btae443}
 }
 \seealso{
-\code{\link{Estimates}} Class.
+\code{\link[=showSol]{showSol()}} and the other readers of the results;
+\link[=Estimates-class]{Estimates}.
+
+Other workflow steps:
+\code{\link[=sc.cluster.trend]{sc.cluster.trend()}},
+\code{\link[=sc.filter]{sc.filter()}},
+\code{\link[=sc.p.vector]{sc.p.vector()}},
+\code{\link[=sc.restruct]{sc.restruct()}},
+\code{\link[=sc.set.poly]{sc.set.poly()}},
+\code{\link[=sc.squeeze]{sc.squeeze()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}, Ana Conesa and
 Maria Jose Nueda, \email{mj.nueda@ua.es}
 }
+\concept{workflow steps}
 \keyword{models}
 \keyword{regression}

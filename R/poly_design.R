@@ -94,6 +94,8 @@ NULL
 
 .path_coeffs <- function(coefficients, groups.vector, group) {
     coefficients <- as.numeric(coefficients)
+    # Why: the other paths are labelled <path>vs<ref>, longer than the
+    # label of the reference.
     ref <- groups.vector[nchar(groups.vector) == min(nchar(groups.vector))][1L]
     # One label per coefficient after the intercept
     labels <- groups.vector

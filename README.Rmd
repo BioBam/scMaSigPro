@@ -1,0 +1,106 @@
+---
+output:
+  github_document:
+    html_preview: false
+    pandoc_args: ["--wrap=preserve"]
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file. -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+# scMaSigPro <img src="man/figures/logo.png" align="right" height="139" alt="scMaSigPro logo" />
+
+<!-- badges: start -->
+[![Website](https://img.shields.io/badge/website-spriyansh.github.io%2FscMaSigPro-blue)](https://spriyansh.github.io/scMaSigPro/)
+[![Licence: GPL (>= 2)](https://img.shields.io/badge/licence-GPL%20%28%3E%3D%202%29-blue)](https://github.com/BioBam/scMaSigPro/blob/main/LICENSE.md)
+<!-- badges: end -->
+
+scMaSigPro finds genes whose expression changes along pseudotime and
+differs between the branching paths of a single-cell trajectory. It pools
+the cells of each path into bins along pseudotime, adds up their counts,
+and fits the polynomial generalised linear models of maSigPro to these
+pseudo-bulk counts, with a negative binomial distribution and an offset
+for the sequencing depth of each bin. The genes whose expression changes,
+and the paths in which it changes, come out as lists, plots and clusters.
+
+## Installation
+
+```{r install, eval = FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+    install.packages("BiocManager")
+}
+BiocManager::install("BioBam/scMaSigPro")
+```
+
+## Example
+
+The bundled data set `splat.sim` holds a simulated trajectory with two
+paths, with the pseudotime of each cell in its `Step` column and its path
+in `Group`:
+
+```{r example, eval = FALSE}
+library(scMaSigPro)
+data("splat.sim", package = "scMaSigPro")
+scmp_ob <- as_scmp(splat.sim, additional_params = list(
+    labels_exist = TRUE, exist_ptime_col = "Step", exist_path_col = "Group"
+))
+scmp_ob <- sc.squeeze(scmp_ob)
+scmp_ob <- sc.set.poly(scmp_ob, poly_degree = 1)
+scmp_ob <- sc.p.vector(scmp_ob)
+scmp_ob <- sc.t.fit(scmp_ob)
+scmp_ob <- sc.filter(scmp_ob, rsq = 0.7, vars = "groups")
+plotTrend(scmp_ob, "Gene10")
+head(scmpResults(scmp_ob))
+```
+
+The [Quick start](https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro.html)
+vignette explains each step.
+
+## Documentation
+
+The website, <https://spriyansh.github.io/scMaSigPro/>, holds the help
+pages, the news and the vignettes, which are also in the package
+(`browseVignettes("scMaSigPro")`):
+
+* [Quick start](https://spriyansh.github.io/scMaSigPro/articles/scMaSigPro.html):
+  the workflow from a `SingleCellExperiment` to gene lists, plots and
+  clusters.
+* [Trajectory input](https://spriyansh.github.io/scMaSigPro/articles/trajectory-input.html):
+  pseudotime and path labels from slingshot, Monocle3 or a trajectory
+  graph.
+* [Shared root](https://spriyansh.github.io/scMaSigPro/articles/shared-root.html):
+  trajectories whose paths share a root and links.
+* [Model and tuning](https://spriyansh.github.io/scMaSigPro/articles/model-and-tuning.html):
+  the model, its settings and their effect.
+* [maSigPro and the ScMaSigPro class](https://spriyansh.github.io/scMaSigPro/articles/masigpro-and-class.html):
+  the object and the equivalence with maSigPro.
+* [Frequently asked questions](https://spriyansh.github.io/scMaSigPro/articles/faq.html).
+
+## Citation
+
+If you use scMaSigPro, please cite the article that describes it, as
+`citation("scMaSigPro")` prints it:
+
+> Srivastava P, Benegas Coll M, Götz S, Nueda MJ, Conesa A (2024).
+> "scMaSigPro: differential expression analysis along single-cell
+> trajectories." *Bioinformatics*, 40(7), btae443.
+> <https://doi.org/10.1093/bioinformatics/btae443>
+
+## Contributing
+
+Bug reports, questions and suggestions are welcome on the
+[issue tracker](https://github.com/BioBam/scMaSigPro/issues).
+
+## Licence
+
+scMaSigPro is free software under the GNU General Public License, version 2
+or later; see [LICENSE.md](LICENSE.md).
+
+## Funding
+
+This project has received funding from the European Union’s Framework
+Programme for Research and Innovation Horizon 2020 (2014-2020) under the
+Marie Skłodowska-Curie Grant Agreement No 953407.

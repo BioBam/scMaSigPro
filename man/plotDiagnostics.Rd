@@ -2,26 +2,43 @@
 % Please edit documentation in R/plotDiagnostics.R
 \name{plotDiagnostics}
 \alias{plotDiagnostics}
-\title{Plot Model Diagnostics}
+\title{Plot the diagnostics of the model of a gene}
 \usage{
 plotDiagnostics(scmpObj, feature_id, model = "optimized")
 }
 \arguments{
-\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
+\item{scmpObj}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{feature_id}{Name of the gene to be plotted.}
+\item{feature_id}{The name of a gene.}
 
-\item{model}{Type of model to be used for plotting. Can be either 'optimized',
-'intercept'and 'full'. Default is 'optimized'.}
+\item{model}{The model: \code{"optimized"}, the model selected by \code{\link[=sc.t.fit]{sc.t.fit()}};
+\code{"full"}; or \code{"intercept"}, the intercept-only model.}
 }
 \value{
-A patchwork object with four ggplot2 panels. 'patchwork' must be
-installed.
+A patchwork object with four ggplot panels.
 }
 \description{
-Plots model residuals for the requested gene. Can be used for model
-diagnostics of optimized model or full model.
+\code{plotDiagnostics()} draws four diagnostic plots of a model of a gene of
+the gene lists of \code{\link[=sc.filter]{sc.filter()}}: the normal Q-Q plot of the standardised
+residuals, the standardised residuals and their square root against the
+fitted values (scale-location), and the observed against the predicted
+counts.
+}
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+if (requireNamespace("patchwork", quietly = TRUE)) {
+    plotDiagnostics(scmp.ob, "Gene10")
+}
+
+}
+\seealso{
+Other plots:
+\code{\link[=plotBinTile]{plotBinTile()}},
+\code{\link[=plotIntersect]{plotIntersect()}},
+\code{\link[=plotTrend]{plotTrend()}},
+\code{\link[=plotTrendCluster]{plotTrendCluster()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}
 }
+\concept{plots}

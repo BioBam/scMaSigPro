@@ -2,13 +2,12 @@
 % Please edit documentation in R/queryCoeff.R
 \name{queryCoeff}
 \alias{queryCoeff}
-\title{Get Features from scMaSigPro Object}
+\title{Query the coefficients of the selected models}
 \usage{
 queryCoeff(
   scmpObj,
   rsq = 0.7,
   p_value = scmpObj@Parameters@p_value,
-  includeInflu = TRUE,
   query = "pseudotime_path",
   change = NULL,
   strictly = FALSE,
@@ -16,34 +15,53 @@ queryCoeff(
 )
 }
 \arguments{
-\item{scmpObj}{An object of class \code{\link{ScMaSigPro}}.}
+\item{scmpObj}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{rsq}{Coefficient of determination or R-squared value threshold.}
+\item{rsq}{The smallest R-squared of the selected model of a gene.}
 
-\item{p_value}{Overall model significance.}
+\item{p_value}{The largest p-value of the selected model of a gene; by
+default that of \code{\link[=sc.p.vector]{sc.p.vector()}}.}
 
-\item{includeInflu}{Whether to include genes with influential observations.}
+\item{query}{The terms: \code{"pseudotime"}, the powers of pseudotime of the
+reference path; \code{"pseudotime_path"} or \code{"path_pseudotime"}, their products
+with the path dummies; \code{"path"}, the path dummies.}
 
-\item{query}{A string specifying the type of query.}
+\item{change}{\code{NULL}, or \code{"increasing"} or \code{"decreasing"}: keep the genes
+whose coefficients of the query add up to a positive (negative) number,
+or with \code{strictly = TRUE} are all positive (negative).}
 
-\item{change}{The effective change at the end of the pseudotime.
-(Default is NULL)}
+\item{strictly}{See \code{change}.}
 
-\item{strictly}{If \code{change != NULL}, selects features if all coefficients
-have similar change.}
-
-\item{verbose}{Print detailed output in the console. (Default is TRUE)}
+\item{verbose}{Whether to print progress messages.}
 }
 \value{
-A subset of matrix of coefficients.
+A data frame of coefficients: one row per gene that passes the
+thresholds and the query, one column per queried term.
 }
 \description{
-This function extracts features from an object of class \code{scMaSigPro}
-based on a specified query. The function query the coefficients matrix.
+\code{queryCoeff()} returns the coefficients of a group of terms for the genes
+whose selected model (\code{\link[=sc.t.fit]{sc.t.fit()}}) passes \code{rsq} and \code{p_value} and has a
+non-zero coefficient for every term of the group. It also prints the
+formula of the model.
+}
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+# Genes whose coefficients of pseudotime are all positive
+queryCoeff(scmp.ob,
+    query = "pseudotime", change = "increasing", strictly = TRUE,
+    verbose = FALSE
+)
+
 }
 \seealso{
-\code{scMaSigPro::sc.filter()}
+\code{\link[=showCoeff]{showCoeff()}} for the coefficients of every gene.
+
+Other results:
+\code{\link[=scmpResults]{scmpResults()}},
+\code{\link[=showCoeff]{showCoeff()}},
+\code{\link[=showPoly]{showPoly()}}
 }
 \author{
 Priyansh Srivastava \email{spriyansh29@gmail.com}.
 }
+\concept{results}

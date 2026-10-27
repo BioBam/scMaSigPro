@@ -5,45 +5,51 @@
 \alias{ScMaSigPro}
 \alias{ScMaSigPro-class}
 \title{ScMaSigPro}
+\value{
+An object of class \code{ScMaSigPro}. \code{\link[=as_scmp]{as_scmp()}} and \code{\link[=create_scmp]{create_scmp()}}
+make one with the cells in the \code{Sparse} slot; \code{\link[=sc.squeeze]{sc.squeeze()}} adds the
+bins (\code{Dense}), \code{\link[=sc.set.poly]{sc.set.poly()}} the design (\code{Design}), \code{\link[=sc.p.vector]{sc.p.vector()}}
+the test of each gene (\code{Profile}), \code{\link[=sc.t.fit]{sc.t.fit()}} the selected models
+(\code{Estimate}), \code{\link[=sc.filter]{sc.filter()}} and \code{\link[=sc.cluster.trend]{sc.cluster.trend()}} the gene lists and
+clusters (\code{Significant}), and every step its settings (\code{Parameters}).
+}
 \description{
-S4 class to store an analysis of the scMaSigPro workflow: the data at the
-level of cells and of pseudotime bins, as two \code{SingleCellExperiment}
-objects, and the results and parameters of every step.
+An analysis of the scMaSigPro workflow: the data at the level of the cells
+and of the pseudotime bins, as two \code{SingleCellExperiment} objects, and the
+results and settings of every step.
 }
 \details{
 \code{validObject()} checks every slot with the validity method of its class
 and reports each problem with the name of the slot; \code{version} must be a
-single version number. Objects are created with \code{\link[=create_scmp]{create_scmp()}} or
-\code{\link[=as_scmp]{as_scmp()}}, which stamp them with the version of the package. These
-constructors, the steps of the workflow, \code{\link[=pb_counts]{pb_counts()}} and the setters
-check the object they return with \code{validObject()}, so a step or setter
-that would return an invalid object stops with these problems instead.
-
-Objects saved by an earlier version of the package, for example with
-\code{saveRDS()}, are brought up to date with
+single version number. The constructors, the steps of the workflow,
+\code{\link[=pb_counts]{pb_counts()}} and the setters check the object they return, so a step or
+setter that would return an invalid object stops with these problems
+instead. Objects saved by an earlier version of the package, for example
+with \code{saveRDS()}, are brought up to date with
 \code{\link[=updateObject,ScMaSigPro-method]{updateObject()}}.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{Sparse}}{Object of class \code{\link[SingleCellExperiment]{SingleCellExperiment}}.
-See \pkg{SingleCellExperiment} for more details.}
+\item{\code{Sparse}}{The cells: a \code{SingleCellExperiment} with their counts and
+metadata, including the pseudotime and path columns.}
 
-\item{\code{Dense}}{Object of class \code{\link[SingleCellExperiment]{SingleCellExperiment}}.
-See \pkg{SingleCellExperiment} for more details.}
+\item{\code{Dense}}{The pseudotime bins: a \code{SingleCellExperiment} with their
+pseudo-bulk counts and metadata.}
 
-\item{\code{Design}}{Object of Class \code{\link{MatrixDesign}}.}
+\item{\code{Design}}{The design, a \link[=MatrixDesign-class]{MatrixDesign} object.}
 
-\item{\code{Profile}}{Object of Class \code{\link{VariableProfiles}}.}
+\item{\code{Profile}}{The test of each gene, a \link[=VariableProfiles-class]{VariableProfiles} object.}
 
-\item{\code{Estimate}}{Object of Class \code{\link{Estimates}}.}
+\item{\code{Estimate}}{The selected models, an \link[=Estimates-class]{Estimates} object.}
 
-\item{\code{Significant}}{Object of Class \code{\link{Significant}}.}
+\item{\code{Significant}}{The gene lists and clusters, a \link[=Significant-class]{Significant}
+object.}
 
-\item{\code{Parameters}}{Object of Class \code{\link{ParameterConfig}}.}
+\item{\code{Parameters}}{The settings, a \link[=ParameterConfig-class]{ParameterConfig} object.}
 
-\item{\code{version}}{A character string, the version of \pkg{scMaSigPro} that
-created the object or last changed its structure in
+\item{\code{version}}{The version of scMaSigPro that created the object or last
+changed its structure in
 \code{\link[=updateObject,ScMaSigPro-method]{updateObject()}}.}
 }}
 
@@ -68,4 +74,20 @@ them as a \code{DataFrame} with one row per gene, and \code{\link[=scmpToRowData
 them into the \code{rowData()} of a \code{SingleCellExperiment}.
 }
 
+\examples{
+data("scmp.ob", package = "scMaSigPro")
+scmp.ob
+validObject(scmp.ob)
+
+}
+\seealso{
+Other classes:
+\code{\link{Estimates}},
+\code{\link{MatrixDesign}},
+\code{\link{ParameterConfig}},
+\code{\link{Significant}},
+\code{\link{VariableProfiles}},
+\code{\link{updateObject,ScMaSigPro-method}}
+}
+\concept{classes}
 \keyword{classes}
