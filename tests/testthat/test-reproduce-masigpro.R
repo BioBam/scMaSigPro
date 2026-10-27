@@ -209,4 +209,27 @@ test_that("Reproduce Results of MaSigPro", {
     expect_identical(test.scmp.3@Significant@genes$HeatvsControl,
         expected = sigs.3$summary$HeatvsControl[sigs.3$summary$HeatvsControl != " "]
     )
+
+    # Step-12: Without the intercept terms, every list of every path
+    as_lists <- function(sigs) {
+        lapply(sigs$summary, function(genes) genes[genes != " "])
+    }
+    none.1 <- maSigPro::get.siggenes(tstep_1,
+        rsq = 0.6, vars = "groups", significant.intercept = "none"
+    )
+    none.3 <- maSigPro::get.siggenes(tstep_3,
+        rsq = 0.6, vars = "groups", significant.intercept = "none"
+    )
+    expect_identical(
+        sc.filter(test.scmp.1,
+            rsq = 0.6, vars = "groups", intercept = "none"
+        )@Significant@genes,
+        expected = as_lists(none.1)
+    )
+    expect_identical(
+        sc.filter(test.scmp.3,
+            rsq = 0.6, vars = "groups", intercept = "none"
+        )@Significant@genes,
+        expected = as_lists(none.3)
+    )
 })

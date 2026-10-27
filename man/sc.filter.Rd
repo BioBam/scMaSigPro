@@ -30,8 +30,7 @@ that passes it.}
 \item{intercept}{With \code{vars = "groups"}, the intercept terms that count:
 \code{"dummy"}, the dummies of the paths (the differences of their intercepts
 from the reference); \code{"all"}, these and the intercept of the reference
-path; \code{"none"}, neither (with more than two paths, only the dummy of the
-first path after the reference is left out).}
+path; \code{"none"}, neither, so that only the terms in pseudotime count.}
 
 \item{term_p_value}{The largest p-value of a term, for \code{vars = "each"} and
 \code{vars = "groups"}.}

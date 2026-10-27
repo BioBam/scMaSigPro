@@ -18,8 +18,7 @@
 #' @param intercept With `vars = "groups"`, the intercept terms that count:
 #'   `"dummy"`, the dummies of the paths (the differences of their intercepts
 #'   from the reference); `"all"`, these and the intercept of the reference
-#'   path; `"none"`, neither (with more than two paths, only the dummy of the
-#'   first path after the reference is left out).
+#'   path; `"none"`, neither, so that only the terms in pseudotime count.
 #'
 #' @return The object with the gene lists in the `Significant` slot
 #' (class [Significant-class]); earlier clusters are removed.
@@ -118,7 +117,10 @@ sc.filter <- function(scmpObj,
         } else if (intercept == "dummy") {
             select_cols <- seq(from = 2, to = ncol(sol.sub))
         } else if (intercept == "none") {
-            select_cols <- seq(from = 3, to = ncol(sol.sub))
+            # Why: the first term of each path in group_vector is the
+            # intercept of the reference or the dummy of another path (see
+            # .poly_design()); every later term has a power of pseudotime
+            select_cols <- which(duplicated(group_vector))
         }
 
         # subset groupVector and sol

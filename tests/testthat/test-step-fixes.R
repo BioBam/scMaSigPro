@@ -31,6 +31,64 @@ test_that("sc.filter(vars = 'each') gives one list per term", {
     )
 })
 
+# A fitted object with a hand-made `sol`: `path` labels the intercept and
+# each term, as sc.t.fit() stores them; NA is a term left out of the model
+toy_fit <- function(terms, path) {
+    genes <- rownames(terms)
+    sol <- cbind("p-value" = 0.001, "R-squared" = 0.9, terms)
+    coef <- matrix(0, nrow(sol), ncol(terms), dimnames = list(genes, NULL))
+    ob <- new("ScMaSigPro")
+    ob@Estimate <- new("Estimates",
+        significance_matrix = sol, coefficient_matrix = coef,
+        t_score_matrix = coef, path = path,
+        path_coefficient_matrix = coef[, 0, drop = FALSE]
+    )
+    ob
+}
+
+test_that("sc.filter(intercept = 'none') leaves out every path's intercept", {
+    lists <- function(ob, intercept) {
+        sc.filter(ob,
+            p_value = 0.05, vars = "groups", intercept = intercept
+        )@Significant@genes
+    }
+    # Three paths, degree 1: g3 has only the dummy of P3, g6 that dummy and
+    # the time term of P2
+    terms <- rbind(
+        g1 = c(0.01, NA, NA, NA, NA, NA), g2 = c(NA, 0.01, NA, NA, NA, NA),
+        g3 = c(NA, NA, 0.01, NA, NA, NA), g4 = c(NA, NA, NA, 0.01, NA, NA),
+        g5 = c(NA, NA, NA, NA, NA, 0.01), g6 = c(NA, NA, 0.01, NA, 0.01, NA)
+    )
+    colnames(terms) <- paste0(
+        "p.valor_", c("beta0", "P2vsP1", "P3vsP1", "T", "TxP2", "TxP3")
+    )
+    three <- toy_fit(terms, rep(c("P1", "P2vsP1", "P3vsP1"), 2))
+    # Only the dummy of P2 was left out before, so P3 also listed g3 and g6
+    expect_identical(
+        lists(three, "none"),
+        list(P1 = "g4", P2vsP1 = "g6", P3vsP1 = "g5")
+    )
+    expect_identical(
+        lists(three, "dummy"),
+        list(P2vsP1 = c("g2", "g6"), P3vsP1 = c("g3", "g5", "g6"), P1 = "g4")
+    )
+    expect_identical(
+        lists(three, "all"),
+        list(
+            P1 = c("g1", "g4"), P2vsP1 = c("g2", "g6"),
+            P3vsP1 = c("g3", "g5", "g6")
+        )
+    )
+    # Two paths: as before
+    two <- toy_fit(terms[, c(1, 2, 4, 5)], rep(c("P1", "P2vsP1"), 2))
+    expect_identical(lists(two, "none"), list(P1 = "g4", P2vsP1 = "g6"))
+    # One path (bins given to create_scmp()): no dummy; the time term was
+    # left out before, and with degree 1 the call failed
+    one <- toy_fit(terms[, c(1, 4)], c("P1", "P1"))
+    expect_identical(lists(one, "none"), list(P1 = "g4"))
+    expect_identical(lists(one, "none"), lists(one, "dummy"))
+})
+
 test_that("sc.t.fit() uses its p_value argument", {
     pv <- splat_fitted("default")
     strict <- sc.t.fit(pv, p_value = 1e-4, verbose = FALSE)
