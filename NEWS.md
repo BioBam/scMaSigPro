@@ -29,6 +29,7 @@
 * The offset of `sc.p.vector()` and `sc.t.fit()` is the logarithm of the size factor of each bin. With the default `log_offset = FALSE` it was the size factor itself.
 * `sc.t.fit()` uses the offset that `sc.p.vector()` computed from every gene it fitted and stored in the `Design` slot, instead of computing the size factors again from the non-flat genes. It computes the offset in the same way when the object has none.
 * With `offset = TRUE`, `sc.p.vector()` and `sc.t.fit()` fit the raw counts, and the size factors are computed from the raw counts by the median-of-ratios method, over the genes without a zero count. Both used the counts plus 1. When every gene has a zero count in some bin, `sc.p.vector()` stops with an error that suggests fewer bins or `offset = FALSE`.
+* `sc.filter(vars = "groups", intercept = "none")` leaves out the intercept of the reference path and the dummy of every other path, and lists the reference path first. It left out the first two terms of the model, which is the same with two paths; with more paths the dummies of the other paths still counted, and with a single path the first term in pseudotime was left out, or the call failed with degree 1.
 
 ## New features
 
