@@ -15,7 +15,6 @@ sc.cluster.trend(
   includeInflu = TRUE,
   mclust.k = FALSE,
   k = 9,
-  verbose = FALSE,
   fill_na = "zero",
   use_dim = "col"
 )
@@ -48,8 +47,6 @@ observations (see \code{\link[=showInflu]{showInflu()}}).}
 of taking \code{k}.}
 
 \item{k}{The number of clusters.}
-
-\item{verbose}{Not used.}
 
 \item{fill_na}{How missing values are filled before clustering: with
 \code{"zero"}, or the \code{"mean"} or \code{"median"} of their column or row

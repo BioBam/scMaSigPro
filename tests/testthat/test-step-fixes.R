@@ -1,5 +1,5 @@
-# Wrong results and crashes inside the pipeline steps (roadmap #18b), one
-# block per ledger item. Exact messages, no snapshot.
+# Wrong results and crashes inside the pipeline steps, one block per
+# fixed defect. Exact messages, no snapshot.
 
 # The design of `ob` with its columns renamed
 rename_design <- function(ob, names) {
@@ -9,7 +9,7 @@ rename_design <- function(ob, names) {
     ob
 }
 
-test_that("sc.filter(vars = 'each') gives one list per term (ledger F1)", {
+test_that("sc.filter(vars = 'each') gives one list per term", {
     ob <- splat_fitted("default")
     sol <- showSol(ob)
     terms <- sub("p.valor_", "", colnames(sol)[-(1:2)], fixed = TRUE)
@@ -31,7 +31,7 @@ test_that("sc.filter(vars = 'each') gives one list per term (ledger F1)", {
     )
 })
 
-test_that("sc.t.fit() uses its p_value argument (ledger b)", {
+test_that("sc.t.fit() uses its p_value argument", {
     pv <- splat_fitted("default")
     strict <- sc.t.fit(pv, p_value = 1e-4, verbose = FALSE)
     expect_identical(strict@Parameters@p_value, 1e-4)
@@ -48,7 +48,7 @@ test_that("sc.t.fit() uses its p_value argument (ledger b)", {
     )
 })
 
-test_that("sc.p.vector() records a run without genes (ledger B8)", {
+test_that("sc.p.vector() records a run without genes", {
     design <- splat_design(2)
     expect_message(
         none <- sc.p.vector(design, p_value = 1e-300, verbose = FALSE),
@@ -70,7 +70,7 @@ test_that("sc.p.vector() records a run without genes (ledger B8)", {
     )
 })
 
-test_that("sc.p.vector() fits one gene left by the filters (ledger Z3)", {
+test_that("sc.p.vector() fits one gene left by the filters", {
     design <- splat_design(2)
     counts <- eDense(design)
     gene <- rownames(counts)[1]
@@ -88,7 +88,7 @@ test_that("sc.p.vector() fits one gene left by the filters (ledger Z3)", {
     }
 })
 
-test_that("the fits do not depend on the design names (ledger N1)", {
+test_that("the fits do not depend on the design names", {
     design <- splat_design(2)
     p <- ncol(predictors(design))
     ref <- list(backward = splat_fitted("default"))
@@ -123,7 +123,7 @@ test_that("the fits do not depend on the design names (ledger N1)", {
     }
 })
 
-test_that("Mclust names one-component clusters by gene (ledger C1)", {
+test_that("Mclust names one-component clusters by gene", {
     skip_if_not_installed("mclust")
     ob <- splat_filtered()
     genes <- rownames(showCoeff(ob))
@@ -134,7 +134,7 @@ test_that("Mclust names one-component clusters by gene (ledger C1)", {
     expect_identical(clusters, as.list(setNames(rep(1, length(genes)), genes)))
 })
 
-test_that("hclust with another distance clusters the genes (ledger S4)", {
+test_that("hclust with another distance clusters the genes", {
     ob <- splat_filtered()
     genes <- Reduce(union, ob@Significant@genes)
     coeff <- as.matrix(showCoeff(ob))
@@ -157,7 +157,7 @@ test_that("hclust with another distance clusters the genes (ledger S4)", {
     )
 })
 
-test_that("split_bins stops when splitting makes no progress (ledger Q2)", {
+test_that("split_bins stops when splitting makes no progress", {
     # Path1 has 20 of its 60 cells at 0.3: the bin that holds them is too
     # large, and its cells have an interquartile range of 0, so
     # Freedman-Diaconis counts them as one bin and the split gives the same
@@ -188,7 +188,7 @@ test_that("split_bins stops when splitting makes no progress (ledger Q2)", {
     )
     setTimeLimit(elapsed = Inf)
     # Freedman-Diaconis and Scott once split each large bin of splat.sim into
-    # one bin (ledger g); they now make progress
+    # one bin; they now make progress
     for (method in c("Freedman.Diaconis", "Scott.Normal")) {
         split <- sc.squeeze(splat_scmp(),
             bin_method = method, split_bins = TRUE
@@ -211,7 +211,7 @@ restruct_multi <- function(ob, link, sep) {
     )
 }
 
-test_that("sc.restruct() uses the path column of the object (ledger i)", {
+test_that("sc.restruct() uses the path column of the object", {
     x <- multi_cell_data()
     names(x$cell_data)[names(x$cell_data) == "group"] <- "lineage"
     ob <- sc.squeeze(create_scmp(
@@ -226,7 +226,7 @@ test_that("sc.restruct() uses the path column of the object (ledger i)", {
     expect_identical(bins, cDense(ref))
 })
 
-test_that("sc.restruct() splits on a fixed link_sep (ledger B5)", {
+test_that("sc.restruct() splits on a fixed link_sep", {
     x <- multi_cell_data()
     x$cell_data$group <- gsub("_links_", "|", x$cell_data$group, fixed = TRUE)
     ob <- sc.squeeze(create_scmp(
@@ -239,7 +239,7 @@ test_that("sc.restruct() splits on a fixed link_sep (ledger B5)", {
     expect_identical(restruct_multi(ob, "Y_18|Y_15", "\\|"), fixed)
 })
 
-test_that("sc.t.fit() keeps the coefficients of the genes of sol (ledger T2)", {
+test_that("sc.t.fit() keeps the coefficients of the genes of sol", {
     # At this level one gene keeps no significant coefficient
     tf <- sc.t.fit(splat_fitted("default"), p_value = 1e-14, verbose = FALSE)
     genes <- rownames(showSol(tf))
@@ -249,7 +249,7 @@ test_that("sc.t.fit() keeps the coefficients of the genes of sol (ledger T2)", {
     expect_identical(rownames(showGroupCoeff(tf)), genes)
 })
 
-test_that("sc.p.vector() and sc.t.fit() fit with the link (ledger S6)", {
+test_that("sc.p.vector() and sc.t.fit() fit with the link", {
     design <- splat_design(2)
     log_fit <- sc.p.vector(design, offset = FALSE, verbose = FALSE)
     # glm() warns for genes whose identity-link mean becomes negative
@@ -285,7 +285,7 @@ test_that("sc.p.vector() and sc.t.fit() fit with the link (ledger S6)", {
     )
 })
 
-test_that("a family given to the fits keeps its own link (ledger S6)", {
+test_that("a family given to the fits keeps its own link", {
     design <- splat_design(2)
     # Recorded as "log", gaussian() needed positive counts to start; no gene
     # is non-flat with it on these counts
@@ -360,7 +360,7 @@ with_collate <- function(locale, code) {
     force(code)
 }
 
-test_that("sc.squeeze() orders the paths in C-locale order (ledger L1)", {
+test_that("sc.squeeze() orders the paths in C-locale order", {
     in_c <- with_collate("C", sc.set.poly(three_paths_binned(), 1))
     expect_identical(reference_of(in_c), "B")
     expect_identical(unique(cDense(in_c)$Path), c("B", "a", "c"))
@@ -376,13 +376,13 @@ test_that("sc.squeeze() orders the paths in C-locale order (ledger L1)", {
     expect_identical(cDense(in_en), cDense(in_c))
 })
 
-test_that("a factor path column keeps its level order (ledger L1)", {
+test_that("a factor path column keeps its level order", {
     binned <- three_paths_binned(levels = c("c", "a", "B"))
     expect_identical(unique(cDense(binned)$Path), c("c", "a", "B"))
     expect_identical(reference_of(sc.set.poly(binned, 1)), "c")
 })
 
-test_that("sc.set.poly(reference = ) names the reference path (ledger L1)", {
+test_that("sc.set.poly(reference = ) names the reference path", {
     binned <- three_paths_binned()
     ob <- sc.set.poly(binned, 1, reference = "c")
     expect_identical(reference_of(ob), "c")
@@ -412,7 +412,7 @@ test_that("sc.set.poly(reference = ) names the reference path (ledger L1)", {
     )
 })
 
-test_that("full-model p-values do not depend on the reference (ledger L1)", {
+test_that("full-model p-values do not depend on the reference", {
     binned <- three_paths_binned()
     p_of <- function(ref) {
         ob <- sc.set.poly(binned, 2, reference = ref)
@@ -423,7 +423,7 @@ test_that("full-model p-values do not depend on the reference (ledger L1)", {
     expect_equal(p_of("c"), p_b, tolerance = 1e-8)
 })
 
-test_that("the forward methods name the influential bins (ledger N2)", {
+test_that("the forward methods name the influential bins", {
     ob <- splat_fitted("default")
     for (m in c("forward", "two.ways.forward")) {
         inf <- showInflu(sc.t.fit(ob, selection_method = m, verbose = FALSE))
@@ -434,7 +434,7 @@ test_that("the forward methods name the influential bins (ledger N2)", {
     }
 })
 
-test_that("the count filter keeps every gene by default (decision D17)", {
+test_that("the count filter keeps every gene by default", {
     design <- splat_design(2)
     fitted <- splat_fitted("default")
     expect_identical(fitted@Parameters@g, nrow(eDense(design)))
@@ -448,7 +448,7 @@ test_that("the count filter keeps every gene by default (decision D17)", {
     )
 })
 
-test_that("the count filter leaves out the genes below it (decision D17)", {
+test_that("the count filter leaves out the genes below it", {
     design <- splat_design(2)
     fitted <- sc.p.vector(design, verbose = FALSE)
     counts <- eDense(design)[, rownames(predictors(design))]
@@ -487,7 +487,7 @@ test_that("the count filter leaves out the genes below it (decision D17)", {
     expect_identical(by_bins@Parameters@min_bins_expressed, as.numeric(nbins))
 })
 
-test_that("sc.p.vector() fits an object with one gene (decision D17)", {
+test_that("sc.p.vector() fits an object with one gene", {
     design <- splat_design(2)
     gene <- rownames(eDense(design))[1]
     one <- design
@@ -500,7 +500,7 @@ test_that("sc.p.vector() fits an object with one gene (decision D17)", {
     expect_identical(fit@Parameters@g, 1L)
 })
 
-test_that("sc.t.fit() refuses a family relabelled by 0.0.5 (ledger LK-4)", {
+test_that("sc.t.fit() refuses a family relabelled by 0.0.5", {
     old <- splat_relabelled()
     expect_error(sc.t.fit(old, verbose = FALSE),
         "run sc.p.vector() on it again.",
@@ -533,7 +533,7 @@ selected_means <- function(ob, gene) {
     fit$fitted.values
 }
 
-test_that("identity-link fits are drawn on the count scale (ledger LK-1)", {
+test_that("identity-link fits are drawn on the count scale", {
     design <- splat_design(2)
     # glm() warns for genes whose identity-link mean becomes negative
     pv <- suppressWarnings(sc.p.vector(design,
@@ -576,7 +576,7 @@ test_that("identity-link fits are drawn on the count scale (ledger LK-1)", {
     )
 })
 
-test_that("log-link fits are drawn on the log scale (ledger LK-1)", {
+test_that("log-link fits are drawn on the log scale", {
     cl <- splat_clustered()
     gene <- splat_sig_gene()
     default <- plotTrend(cl, gene, lines = TRUE)
@@ -597,7 +597,7 @@ test_that("log-link fits are drawn on the log scale (ledger LK-1)", {
     )
 })
 
-test_that("plotTrendCluster() resolves logs as plotTrend() (ledger LK-1)", {
+test_that("plotTrendCluster() resolves logs as plotTrend()", {
     design <- splat_design(2)
     pv <- suppressWarnings(sc.p.vector(design,
         link = "identity", offset = FALSE, verbose = FALSE
@@ -644,7 +644,7 @@ toy_bins <- function(p, ...) {
     )
 }
 
-test_that("sc.squeeze() bins the cells by the numeric breaks (ledger S3)", {
+test_that("sc.squeeze() bins the cells by the numeric breaks", {
     # 4 points, Sturges: 3 bins, breaks 0, 1/3, 2/3 and 1. The bounds were
     # read back from the cut() labels "[0,0.333]", "(0.333,0.667]" and
     # "(0.667,1]", which put 0.3332 and 0.6668 in the middle bin
@@ -675,7 +675,7 @@ test_that("sc.squeeze() bins the cells by the numeric breaks (ledger S3)", {
     )
 })
 
-test_that("split_bins keeps every cell (ledger Q1)", {
+test_that("split_bins keeps every cell", {
     # 13 points, Sturges: 5 bins of width 2. The bin from 2 to 4 holds 10
     # cells, more than the 6.82 allowed, and is split over the range of its
     # cells; the first new bin read "[2.24,2.58]" from its cut() label, so
@@ -696,7 +696,7 @@ test_that("split_bins keeps every cell (ledger Q1)", {
     expect_equal(bins$upper[2:5], seq(2.2366, 3.95, length.out = 6)[2:5])
 })
 
-test_that("the bins are closed on the left and open on the right (ledger n2)", {
+test_that("the bins are closed on the left and open on the right", {
     # Srivastava et al. (2024), Section 2.1: "bins are structured as
     # left-closed and right-open intervals, except for the last bin, which is
     # closed on both ends". A test meant to apply this rule compared a
@@ -732,7 +732,7 @@ test_that("the bins are closed on the left and open on the right (ledger n2)", {
     expect_true(all(ptime >= lower & (ptime < upper | at_end)))
 })
 
-test_that("split_bins keeps a path with a single bin (ledger D-1)", {
+test_that("split_bins keeps a path with a single bin", {
     # Path1 has 30 of its 40 cells at 0.5, an interquartile range of 0, so
     # Freedman-Diaconis gives it one bin. The sizes of one bin have no
     # standard deviation, and the split failed with "missing value where

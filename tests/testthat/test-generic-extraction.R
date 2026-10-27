@@ -166,7 +166,7 @@ test_that("eSparse<- and eDense<- fill in missing dimnames", {
 })
 
 test_that("cDense<- with another number of bins drops the counts", {
-    # As when bins are rebuilt by hand (Common Root Cells vignette): the
+    # As when bins are rebuilt by hand (the Shared root vignette): the
     # object stays valid and pb_counts() computes the counts of the new bins.
     ob <- splat_binned()
     bins <- cDense(ob)[-1, ]

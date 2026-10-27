@@ -8,12 +8,10 @@ plotTrendCluster(
   scmpObj,
   xlab = "Pooled Pseudotime",
   ylab = NULL,
-  plot = "counts",
   summary_mode = "median",
   logs = NULL,
   logType = "log",
   smoothness = 1,
-  includeInflu = TRUE,
   verbose = TRUE,
   pseudoCount = 1,
   significant = FALSE,
@@ -32,8 +30,6 @@ plotTrendCluster(
 \code{"log(Pseudobulk Expression)"} for log-link fits and when the points are
 logged, and \code{"Pseudobulk Expression"} otherwise.}
 
-\item{plot}{Not used; it must be \code{"counts"} or \code{"coeff"}.}
-
 \item{summary_mode}{How the points of each binned pseudotime and path are
 summarised for the lines: \code{"median"} or \code{"mean"}.}
 
@@ -44,8 +40,6 @@ summarised for the lines: \code{"median"} or \code{"mean"}.}
 
 \item{smoothness}{The step of the pseudotime grid of the curves: the
 smaller, the smoother.}
-
-\item{includeInflu}{Not used.}
 
 \item{verbose}{Whether to print progress messages.}
 

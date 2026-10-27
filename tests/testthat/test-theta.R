@@ -1,4 +1,4 @@
-# Estimated theta for the negative binomial family (decision D16):
+# Estimated theta for the negative binomial family:
 # sc.p.vector(theta_estimate = "none" | "gene" | "global"). The argument
 # checks are in test-input-checks.R, the parallel backends in
 # test-parallel.R.

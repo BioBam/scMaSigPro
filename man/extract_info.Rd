@@ -21,7 +21,7 @@ number of bins (\code{"num_bins"}, a table).
 }
 \description{
 \code{extract_info()} gives the mean bin size or the number of bins of each path
-for \code{.ScMaSigPro_show()}.
+for the \code{show()} method of \link[=ScMaSigPro-class]{ScMaSigPro}.
 }
 \seealso{
 \link[=ScMaSigPro-class]{ScMaSigPro}, whose \code{show()} method prints it.

@@ -30,7 +30,7 @@ Imports:
     MASS,
     ggplot2,
     BiocParallel
-Depends: R (>= 4.0)
+Depends: R (>= 4.6.0)
 Encoding: UTF-8
 Language: en-GB
 Roxygen: list(markdown = TRUE)

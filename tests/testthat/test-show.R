@@ -11,6 +11,19 @@ test_that("show() output is stable at every stage", {
     expect_snapshot(print(multi_restruct()))
 })
 
+test_that("show() ends the printed summary with a newline", {
+    printed <- function(ob) {
+        con <- rawConnection(raw(0), "w")
+        on.exit(close(con))
+        sink(con)
+        show(ob)
+        sink()
+        rawToChar(rawConnectionValue(con))
+    }
+    expect_true(endsWith(printed(splat_scmp()), "\n"))
+    expect_true(endsWith(printed(splat_clustered()), "\n"))
+})
+
 test_that("showPoly() prints the full model formula", {
     expect_snapshot(showPoly(splat_design(1)))
     expect_snapshot(showPoly(splat_design(2)))

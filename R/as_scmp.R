@@ -52,7 +52,7 @@ as_scmp <- function(object, from = "sce",
             "objects only. Monocle3 'cell_data_set' objects (from = \"cds\")",
             "are no longer converted; pass the counts and a cell table with",
             "pseudotime and path columns to create_scmp(), as shown in the",
-            "'Common Root Cells' vignette."
+            "'Trajectory input' vignette."
         )
     )
 

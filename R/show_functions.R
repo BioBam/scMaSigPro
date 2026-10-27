@@ -6,7 +6,7 @@
 # 3. showTS():
 # 4. showSol():
 # 5. showSigProf():
-# 6. .ScMaSigPro_show(): For object cat
+# 6. show(): the show() method of ScMaSigPro objects
 # 7. extract_info():
 # 8. showParams():
 # 9. showPoly():
@@ -291,8 +291,7 @@ showGroupCoeff <- function(scmpObj, includeInflu = TRUE) {
 #' @title Print a ScMaSigPro object
 #'
 #' @description
-#' `.ScMaSigPro_show()` prints a summary of a [ScMaSigPro-class] object; the
-#' `show()` method calls it.
+#' The `show()` method prints a summary of a [ScMaSigPro-class] object.
 #'
 #' @param object A [ScMaSigPro-class] object.
 #'
@@ -301,7 +300,7 @@ showGroupCoeff <- function(scmpObj, includeInflu = TRUE) {
 #' @seealso [ScMaSigPro-class]
 #'
 #' @return `NULL`, invisibly; called for what it prints.
-.ScMaSigPro_show <- function(object) {
+setMethod("show", "ScMaSigPro", function(object) {
     # Show Basic information
     cat("Class: ScMaSigProClass\n")
     cat(paste0("nCells: ", ncol(object@Sparse), "\n"))
@@ -390,14 +389,16 @@ showGroupCoeff <- function(scmpObj, includeInflu = TRUE) {
             "updateObject()."
         ))
     }
-}
+    # End the last line, so the console prompt starts on a new line
+    cat("\n")
+})
 
 ###############################################################################
 #' @title Bins per path for the printed summary
 #'
 #' @description
 #' `extract_info()` gives the mean bin size or the number of bins of each path
-#' for `.ScMaSigPro_show()`.
+#' for the `show()` method of [ScMaSigPro-class].
 #'
 #' @param data The bin metadata.
 #' @param return_type `"avg_bin_size"` or `"num_bins"`.

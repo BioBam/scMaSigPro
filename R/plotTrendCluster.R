@@ -8,10 +8,8 @@
 #' @param ylab The label of the y axis. The default, `NULL`, is
 #'   `"log(Pseudobulk Expression)"` for log-link fits and when the points are
 #'   logged, and `"Pseudobulk Expression"` otherwise.
-#' @param plot Not used; it must be `"counts"` or `"coeff"`.
 #' @param logs Whether to log the points, as in [plotTrend()]. The default,
 #'   `NULL`, logs them when the fits used the log link.
-#' @param includeInflu Not used.
 #' @param significant Whether the genes must be in a gene list of
 #'   [sc.filter()]; the others are left out with a warning.
 #' @param loess_span The span of the loess curves.
@@ -34,11 +32,9 @@
 plotTrendCluster <- function(scmpObj,
                              xlab = "Pooled Pseudotime",
                              ylab = NULL,
-                             plot = "counts",
                              summary_mode = "median",
                              logs = NULL, logType = "log",
                              smoothness = 1,
-                             includeInflu = TRUE,
                              verbose = TRUE,
                              pseudoCount = 1,
                              significant = FALSE,
@@ -70,12 +66,6 @@ plotTrendCluster <- function(scmpObj,
         msg = "At least one of 'curves', 'lines', or 'points' must be TRUE."
     )
 
-    .check(any(plot %in% c("coeff", "counts")),
-        msg = paste(
-            paste0("'", plot, "'"), "is not a valid option. Please use one of",
-            paste(c("coeff", "counts"), collapse = ", ")
-        )
-    )
     summary_mode <- .check_choice(summary_mode, c("median", "mean"),
         msg = paste(
             paste0("'", summary_mode, "'"),

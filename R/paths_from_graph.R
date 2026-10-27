@@ -124,18 +124,17 @@ paths_from_graph <- function(cell_node, edges, root, endpoints = NULL) {
     }
 
     graph <- igraph::graph_from_edgelist(edge_list, directed = FALSE)
-    # An end node that cannot be reached gets an empty path, which is
-    # reported below, and a warning from igraph, which is not needed
-    paths <- suppressWarnings(
-        igraph::shortest_paths(graph, from = root, to = endpoints)$vpath
-    )
-    unreached <- endpoints[lengths(paths) == 0L]
+    # An end node that cannot be reached is at an infinite distance from
+    # the root; such nodes are reported before the paths are searched
+    reach <- igraph::distances(graph, v = root, to = endpoints)
+    unreached <- endpoints[!is.finite(reach[1L, ])]
     .check(length(unreached) == 0L,
         msg = paste0(
             "No path from the root node '", root, "' to the end node(s) ",
             paste0("'", unreached, "'", collapse = ", "), "."
         )
     )
+    paths <- igraph::shortest_paths(graph, from = root, to = endpoints)$vpath
 
     weights <- matrix(0,
         nrow = length(cells), ncol = length(endpoints),

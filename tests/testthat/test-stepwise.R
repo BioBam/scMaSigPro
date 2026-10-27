@@ -133,7 +133,7 @@ test_that("a column that is not estimable is kept by backward only", {
     }
 })
 
-test_that("the selectors keep the row names of the design (ledger N2)", {
+test_that("the selectors keep the row names of the design", {
     y <- 1 + 0.3 * x1 + 3 * x3 + e
     expect_identical(rownames(sc.stepback(y, d)$model), rownames(d))
     # The forward methods keep them too, so influence.measures() names the
@@ -211,12 +211,12 @@ test_that("two-ways forward selection can remove every term", {
     )
 })
 
-test_that("two-ways backward selection stops when it cycles (ledger N3)", {
+test_that("two-ways backward selection stops when it cycles", {
     # x3 (p just above 0.05) leaves, then x1; both come back and the cycle
     # starts again. maSigPro's two.ways.stepback() stops with an error here.
     # At the cycle the re-entries stop and backward removals follow: x3, x1
     # and x2 leave, so every term of the result is significant. The stop
-    # used to return the four terms with x3 above 0.05 (ledger N3); it now
+    # used to return the four terms with x3 above 0.05; it now
     # gives the answer of sc.stepback().
     y <- c(6, 1, 6, 3, 4, 11, 9, 50, 3, 11, 11, 7, 38, 13, 4, 25, 41, 18, 6, 2)
     d_cyc <- data.frame(

@@ -389,14 +389,6 @@ setReplaceMethod("predictors", "ScMaSigPro", function(object, value) {
     return(object)
 })
 ##############################################################################
-setMethod(
-    "show",
-    "ScMaSigPro",
-    function(object) {
-        .ScMaSigPro_show(object)
-    }
-)
-##############################################################################
 #' Checks behind the setters of the Sparse and Dense slots
 #'
 #' `.set_csparse()` replaces the cell metadata of the `Sparse` slot. The

@@ -13,6 +13,7 @@
 * `plotTrendCluster()` loses its `parallel` argument, which had no effect; delete it from calls.
 * `ScMaSigPro` objects have a new `version` slot, the version of scMaSigPro that created them, and an `updateObject()` method brings objects saved by earlier versions up to date. An object saved with `saveRDS()` or `save()` by scMaSigPro 0.0.5 or earlier has no `version` slot: printing it says so, the steps, `pb_counts()`, the plots, `queryCoeff()` and the `show*()` helpers stop with "update it with updateObject() first", and the setters stop with "slots in class definition but not in object: "version"", until it is updated, for example with `ob <- updateObject(readRDS("ob.rds"))`. Its data and results are kept. Objects binned by 0.0.4 cannot be updated because their `Dense` slot is invalid; `updateObject()` stops with the command that bins their cells again with `sc.squeeze()`, which replaces the 0.0.5 advice to run `sc.squeeze()` on them directly. The bundled `scmp.ob` dataset is regenerated with the slot; its other slots are identical.
 * The `log_offset` argument of `sc.p.vector()` and `sc.t.fit()` and the `log_offset` parameter are removed; delete `log_offset =` from calls. Objects saved with the parameter stop the steps with "update it with updateObject() first". `updateObject()` removes it and, when it was `FALSE`, replaces the stored size factors by their logarithm and warns that the fits must be run again.
+* `plotTrendCluster()` no longer has the arguments `plot` and `includeInflu`, `plotIntersect()` no longer has `width_ratio` and `show_sets_size`, `queryCoeff()` no longer has `includeInflu`, and `sc.cluster.trend()` no longer has `verbose`. None of them had an effect; delete them from calls.
 
 ## Changes affecting results
 
@@ -86,6 +87,7 @@
 * `sc.set.poly()` stops with "'poly_degree' must be a number of at least 1" when `poly_degree` is below 1, missing or not a single number. Such values gave a degree-1 design recorded as degree 0 with several paths, and an error in `sc.t.fit()` with one path. A fractional degree still uses its whole part, now also with one path, where a value between 1 and 2 gave a quadratic design recorded as degree 1.
 * `as_scmp()` passes its input through `updateObject()`, so a `SingleCellExperiment` saved by an older version of SingleCellExperiment, such as the bundled `splat.sim` and `multi.lin.sce`, is stored up to date with `labels_exist = FALSE` as it already was with `labels_exist = TRUE`, and `updateObject()` on the new object has nothing to do. Counts and cell metadata are unchanged.
 * `sc.squeeze()` stops with "It should be at least 0.3." when `drop_fac` is below 0.3; the message said "between 0.3 and 1", although larger values are accepted.
+* Printing an `ScMaSigPro` object ends with a newline, so the console prompt no longer follows its last line.
 
 ## Documentation
 
@@ -93,6 +95,7 @@
 * The vignettes are rewritten: "Quick start" (`vignette("scMaSigPro")`) replaces "Quick Start Guide", "Shared root" replaces "Common Root Cells", "maSigPro and the ScMaSigPro class" merges "scMaSigProClass" and "Bridging maSigPro Analysis", and "Trajectory input", "Model and tuning" and "Frequently asked questions" are new. They read the data and the results through accessors. The package website, https://spriyansh.github.io/scMaSigPro/, holds them with the help pages and this news.
 * `?scMaSigPro` opens a help page for the package, and `citation("scMaSigPro")` gives the reference of the article that describes the method.
 * Every exported function and class has a Value section and a runnable example. Each accessor shares one help page with its replacement function, the readers of the results of `sc.t.fit()` share `?showSol`, and `showParams()` and `showPoly()` share `?showParams`; the old topic names open these pages. The pages link the other functions of their family, cite the methods they implement or use, document the bundled data sets column by column, and are written in British English.
+* The error of `as_scmp(from = "cds")` points to the "Trajectory input" vignette instead of the removed "Common Root Cells" vignette.
 
 ## Dependencies
 
@@ -110,6 +113,7 @@
 * `igraph` is suggested again, for `paths_from_graph()` only. Installing scMaSigPro still pulls in 44 non-base packages.
 * `slingshot` is suggested, for the test and the "Trajectory input" vignette that run a slingshot trajectory of `multi.lin.sce` through `assign_paths()` and the workflow; both skip it when slingshot is not installed.
 * `DelayedMatrixStats` is suggested: the slingshot section of the "Trajectory input" vignette needs it through slingshot's lineage inference.
+* scMaSigPro depends on R (>= 4.6.0) instead of R (>= 4.0).
 
 ## Internal
 
@@ -119,6 +123,8 @@
 * The four stepwise selection methods of `sc.t.fit()` are implemented by new internal functions written from the published maSigPro method (Conesa et al. 2006, Bioinformatics 22:1096) instead of by a modified copy of maSigPro's `stepback()`, `stepfor()`, `two.ways.stepback()` and `two.ways.stepfor()`, and the internal `extract_fitting()` no longer calls `maSigPro::position()`. Terms are handled by column position, so the internal `clean_string()` helper is removed. On every design where the copied functions returned a model, the new ones fit the same sequence of models and return an identical fit; the maSigPro oracle tests and the golden results are unchanged.
 * `sc.set.poly()` builds the polynomial design, and `sc.t.fit()` and `plotTrend()` the coefficients of each path, with new internal functions written from the published maSigPro model (Conesa et al. 2006, Bioinformatics 22:1096) instead of maSigPro's `make.design.matrix()` and `reg.coeffs()`. For every whole degree of at least 1 where maSigPro returned a design, the new function returns an identical one, and the path coefficients are identical; the maSigPro oracle tests, the golden results and the plots are unchanged. scMaSigPro no longer calls any maSigPro function.
 * The package reads and writes the `Sparse` and `Dense` slots with the `SingleCellExperiment` accessors `colData()`, `assay()`, `assayNames()` and their replacement forms instead of reaching into the internal slots of those objects, so it no longer depends on how SummarizedExperiment stores its data. Results are unchanged.
+* The `show()` method of `ScMaSigPro` objects holds the printing code instead of calling the internal `.ScMaSigPro_show()`, `paths_from_graph()` finds the end nodes it cannot reach with `igraph::distances()` instead of silencing the warning of `igraph::shortest_paths()`, and `plotTrend()` and `plotTrendCluster()` log their points without silencing warnings, so a negative `pseudoCount` that makes a point negative now warns. The output is otherwise unchanged.
+* Before it stops with "Unable to estimate bin size", `sc.squeeze()` prints "Could not estimate the number of bins:" and the reason, instead of "Error message:" and the reason.
 
 # scMaSigPro 0.0.5 (2026-10-13)
 

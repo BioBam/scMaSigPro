@@ -22,7 +22,7 @@ methods <- c("backward", "forward", "two.ways.backward", "two.ways.forward")
 
 # Every method runs with the default BPPARAM (SerialParam()). Before
 # BiocParallel, the progress-bar code of the three non-backward methods
-# errored on R >= 4.3 (ledger T1).
+# errored on R >= 4.3.
 fit_sc <- function(ob, method) {
     sc.t.fit(ob, selection_method = method, verbose = FALSE)
 }
@@ -34,7 +34,7 @@ expect_tfit_matches <- function(sc, tstep, non_flat, method = "backward") {
     expect_identical(as.data.frame(showGroupCoeff(sc))[keep, , drop = FALSE], tstep$group.coeffs)
     expect_identical(as.data.frame(showTS(sc))[keep, , drop = FALSE], tstep$t.score)
     # Genes whose selected model has no significant term have no row in any
-    # output, as in maSigPro (ledger T2)
+    # output, as in maSigPro
     expect_identical(rownames(showCoeff(sc)), keep)
     infl_sc <- sc@Estimate@influential
     infl_ma <- tstep$influ.info
@@ -47,7 +47,7 @@ expect_tfit_matches <- function(sc, tstep, non_flat, method = "backward") {
     if (ncol(infl_ma) > 0 && method %in% c("forward", "two.ways.forward")) {
         # maSigPro numbers the rows of forward fits, so its influ.info lists
         # the influential genes with every entry NA; scMaSigPro names the
-        # bins and fills them in (ledger N2). Same genes and bins.
+        # bins and fills them in. Same genes and bins.
         expect_identical(dimnames(infl_sc), dimnames(infl_ma))
         expect_true(all(is.na(infl_ma)))
     } else if (ncol(infl_ma) > 0) {
@@ -146,7 +146,7 @@ for (method in methods) {
     })
 }
 
-test_that("every selection method also runs with verbose = TRUE (ledger T1, q9)", {
+test_that("every selection method also runs with verbose = TRUE", {
     ob <- nb_case()$ob
     for (method in methods) {
         msgs <- capture_messages(fit <- sc.t.fit(ob, selection_method = method))

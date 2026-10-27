@@ -281,7 +281,7 @@ sc.squeeze <- function(scmpObj,
                 }
             },
             error = function(e) {
-                message("Error message: ", e$message)
+                message("Could not estimate the number of bins: ", e$message)
                 stop("Unable to estimate bin size")
             }
         )

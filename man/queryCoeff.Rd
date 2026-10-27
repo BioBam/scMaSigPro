@@ -8,7 +8,6 @@ queryCoeff(
   scmpObj,
   rsq = 0.7,
   p_value = scmpObj@Parameters@p_value,
-  includeInflu = TRUE,
   query = "pseudotime_path",
   change = NULL,
   strictly = FALSE,
@@ -22,8 +21,6 @@ queryCoeff(
 
 \item{p_value}{The largest p-value of the selected model of a gene; by
 default that of \code{\link[=sc.p.vector]{sc.p.vector()}}.}
-
-\item{includeInflu}{Not used.}
 
 \item{query}{The terms: \code{"pseudotime"}, the powers of pseudotime of the
 reference path; \code{"pseudotime_path"} or \code{"path_pseudotime"}, their products

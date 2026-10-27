@@ -1,5 +1,5 @@
 # The version slot and updateObject(): objects saved by an earlier version of
-# scMaSigPro are brought up to date (roadmap #17d).
+# scMaSigPro are brought up to date.
 
 current_version <- function() unname(getNamespaceVersion("scMaSigPro"))
 
@@ -90,7 +90,7 @@ test_that("as_scmp() stores an up-to-date SingleCellExperiment", {
     expect_identical(updateObject(ob), ob)
 })
 
-test_that("updateObject() adds the count filter parameters (decision D17)", {
+test_that("updateObject() adds the count filter parameters", {
     ob <- load_dataset("scmp.ob")
     old <- ob
     params <- old@Parameters
@@ -135,7 +135,7 @@ test_that("updateObject() adds the test parameter", {
     expect_identical(updateObject(without_version(old)), ob)
 })
 
-test_that("updateObject() warns about a relabelled family (ledger LK-4)", {
+test_that("updateObject() warns about a relabelled family", {
     old <- splat_relabelled()
     msg <- paste(
         "'family' is labelled with the 'identity' link but has the link",

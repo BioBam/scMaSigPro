@@ -58,9 +58,9 @@ scmp_colors <- function(n) {
     extra_pal <- extra_pal[!extra_pal %in% ten_pal]
 
     if (n <= 9) {
-        return(ten_pal[1:n])
+        return(ten_pal[seq_len(n)])
     } else {
-        return(c(ten_pal, extra_pal[1:(n - 9)]))
+        return(c(ten_pal, extra_pal[seq_len(n - 9)]))
     }
 }
 

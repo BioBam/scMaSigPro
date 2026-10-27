@@ -26,7 +26,6 @@
 #'   (`use_dim`).
 #' @param use_dim Whether `fill_na` takes the mean or median by column
 #'   (`"col"`) or by row (`"row"`).
-#' @param verbose Not used.
 #'
 #' @importFrom stats cutree hclust
 #' @importFrom stats as.dist cor kmeans
@@ -71,7 +70,6 @@ sc.cluster.trend <- function(scmpObj,
                              includeInflu = TRUE,
                              mclust.k = FALSE,
                              k = 9,
-                             verbose = FALSE,
                              fill_na = "zero",
                              use_dim = "col") {
     # Global vars

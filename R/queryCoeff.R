@@ -13,7 +13,6 @@
 #'   whose coefficients of the query add up to a positive (negative) number,
 #'   or with `strictly = TRUE` are all positive (negative).
 #' @param strictly See `change`.
-#' @param includeInflu Not used.
 #'
 #' @return A data frame of coefficients: one row per gene that passes the
 #' thresholds and the query, one column per queried term.
@@ -38,7 +37,6 @@
 queryCoeff <- function(scmpObj,
                        rsq = 0.7,
                        p_value = scmpObj@Parameters@p_value,
-                       includeInflu = TRUE,
                        query = "pseudotime_path",
                        change = NULL,
                        strictly = FALSE,

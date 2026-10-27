@@ -269,20 +269,16 @@ plotTrend <- function(scmpObj,
         points.df["pb.counts"] <- points.df["pb.counts"] / exp(offset_vector)
     }
 
-    # if log is requestion
-    suppressWarnings(
-        expr = {
-            if (logs) {
-                if (logType == "log2") {
-                    points.df$pb.counts <- log2(points.df$pb.counts + pseudoCount)
-                } else if (logType == "log") {
-                    points.df$pb.counts <- log(points.df$pb.counts + pseudoCount)
-                } else if (logType == "log10") {
-                    points.df$pb.counts <- log10(points.df$pb.counts + pseudoCount)
-                }
-            }
+    # Log the points when asked
+    if (logs) {
+        if (logType == "log2") {
+            points.df$pb.counts <- log2(points.df$pb.counts + pseudoCount)
+        } else if (logType == "log") {
+            points.df$pb.counts <- log(points.df$pb.counts + pseudoCount)
+        } else if (logType == "log10") {
+            points.df$pb.counts <- log10(points.df$pb.counts + pseudoCount)
         }
-    )
+    }
 
     # Generate line.df
     line.df <- points.df

@@ -8,8 +8,6 @@ plotIntersect(
   scmpObj,
   min_intersection_size = 1,
   keep_empty_groups = FALSE,
-  width_ratio = 0.1,
-  show_sets_size = FALSE,
   return = FALSE
 )
 }
@@ -19,10 +17,6 @@ plotIntersect(
 \item{min_intersection_size}{The smallest intersection drawn.}
 
 \item{keep_empty_groups}{Whether to draw the empty intersections.}
-
-\item{width_ratio}{Not used.}
-
-\item{show_sets_size}{Not used.}
 
 \item{return}{Whether to return the data instead of the plot.}
 }
