@@ -40,6 +40,23 @@ method of the maSigPro package for time-course experiments
     line, and the terms that make it so, tell how a gene changes along each
     path.
 
+The article that describes scMaSigPro [@srivastava2024, sec. 1] reviews
+other methods that detect differentially expressed genes along pseudotime,
+among them tradeSeq [@vandenberge2020], PseudotimeDE [@song2021] and
+Monocle3 [@cao2019], and compares scMaSigPro with tradeSeq. tradeSeq fits a
+negative binomial generalised additive model with cubic splines for each
+branching path and prioritises genes by their p-values alone, whereas
+scMaSigPro fits polynomial negative binomial generalised linear models to the
+pseudo-bulk counts of bins and also selects genes by the share of deviance
+that their model explains, R^2^ [@srivastava2024, sec. 2.6]. On simulated
+data, @srivastava2024 [sec. 3.2] report that scMaSigPro controlled the false
+positive rate better than tradeSeq, with a true positive rate only
+marginally higher, but struggled to find genes with low fold changes, in
+particular genes that change in one path and stay stable in the other,
+which the `diffEndTest()` and `patternTest()` functions of tradeSeq usually
+detected. They also report that scMaSigPro ran four to five times faster
+than tradeSeq [@srivastava2024, sec. 3.3].
+
 This vignette runs these steps on `splat.sim`, a small data set bundled with
 the package. The other vignettes go further:
 
@@ -60,15 +77,18 @@ the package. The other vignettes go further:
 
 # Installation
 
-scMaSigPro is installed from GitHub with BiocManager, which also installs
-its Bioconductor dependencies:
+scMaSigPro is installed from Bioconductor with BiocManager, which also
+installs its Bioconductor dependencies:
 
 ```{r install, eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
-BiocManager::install("BioBam/scMaSigPro")
+BiocManager::install("scMaSigPro")
 ```
+
+The development version is installed from its GitHub repository with
+`BiocManager::install("BioBam/scMaSigPro")`.
 
 # The data
 

@@ -1,7 +1,7 @@
 Package: scMaSigPro
 Type: Package
 Title: Differential Expression Analysis Along Single-Cell Trajectories
-Version: 0.6.0
+Version: 0.99.0
 Authors@R: c(
     person("Ana", "Conesa", role = "aut", email = "ana.conesa@csic.es",
            comment = c(ORCID = "0000-0001-9597-311X")),
@@ -54,9 +54,7 @@ Suggests:
 Config/testthat/edition: 3
 URL: https://github.com/BioBam/scMaSigPro/,
     https://spriyansh.github.io/scMaSigPro/
-biocViews: Clustering, Regression, TimeCourse, DifferentialExpression,
-    GeneExpression, RNASeq, Sequencing, Software, SingleCell, Transcriptomics,
-    MultipleComparison, Visualization
+biocViews: Clustering, Regression, TimeCourse, DifferentialExpression, GeneExpression, RNASeq, Sequencing, Software, SingleCell, Transcriptomics, MultipleComparison, Visualization
 BugReports: https://github.com/BioBam/scMaSigPro/issues
 VignetteBuilder: knitr
 Config/roxygen2/version: 8.1.0

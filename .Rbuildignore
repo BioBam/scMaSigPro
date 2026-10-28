@@ -10,7 +10,6 @@
 ^CONTRIBUTING\.md$
 ^LICENSE\.md$
 ^README\.Rmd$
-^renv\.lock$
 ^renv$
 ^pkgdown$
 ^_pkgdown\.yml$

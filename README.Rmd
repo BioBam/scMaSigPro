@@ -34,10 +34,18 @@ and the paths in which it changes, come out as lists, plots and clusters.
 
 ## Installation
 
+scMaSigPro is installed from Bioconductor with BiocManager:
+
 ```{r install, eval = FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
+BiocManager::install("scMaSigPro")
+```
+
+The development version is installed from GitHub:
+
+```{r install-devel, eval = FALSE}
 BiocManager::install("BioBam/scMaSigPro")
 ```
 
