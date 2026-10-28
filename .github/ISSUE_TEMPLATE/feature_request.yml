@@ -1,0 +1,20 @@
+name: Feature request
+description: A new function, argument or other improvement.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What you want to do
+      description: >
+        The analysis or task that scMaSigPro does not support yet, and why it
+        matters.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: How it could work
+      description: >
+        The function or argument you have in mind, with an example call if
+        you can.

@@ -5,8 +5,14 @@
 
 <!-- badges: start -->
 
+[![R-CMD-check](https://github.com/spriyansh/scMaSigPro/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/spriyansh/scMaSigPro/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/spriyansh/scMaSigPro/branch/main/graph/badge.svg)](https://app.codecov.io/gh/spriyansh/scMaSigPro)
 [![Website](https://img.shields.io/badge/website-spriyansh.github.io%2FscMaSigPro-blue)](https://spriyansh.github.io/scMaSigPro/)
 [![Licence: GPL (\>= 2)](https://img.shields.io/badge/licence-GPL%20%28%3E%3D%202%29-blue)](https://github.com/BioBam/scMaSigPro/blob/main/LICENSE.md)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+[![Project Status: Active](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+[![DOI](https://img.shields.io/badge/DOI-10.1093%2Fbioinformatics%2Fbtae443-blue)](https://doi.org/10.1093/bioinformatics/btae443)
+[![GitHub tag](https://img.shields.io/github/v/tag/spriyansh/scMaSigPro)](https://github.com/spriyansh/scMaSigPro/tags)
 <!-- badges: end -->
 
 scMaSigPro finds genes whose expression changes along pseudotime and
@@ -83,7 +89,9 @@ If you use scMaSigPro, please cite the article that describes it, as
 ## Contributing
 
 Bug reports, questions and suggestions are welcome on the
-[issue tracker](https://github.com/BioBam/scMaSigPro/issues).
+[issue tracker](https://github.com/BioBam/scMaSigPro/issues). The
+[contributing guide](CONTRIBUTING.md) explains how to propose a change, and
+everyone taking part follows the [code of conduct](CODE_OF_CONDUCT.md).
 
 ## Licence
 

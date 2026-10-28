@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentation
+    url: https://spriyansh.github.io/scMaSigPro/
+    about: Help pages, vignettes and answers to frequently asked questions.

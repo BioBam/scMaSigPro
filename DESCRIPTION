@@ -5,13 +5,15 @@ Version: 0.6.0
 Authors@R: c(
     person("Ana", "Conesa", role = "aut", email = "ana.conesa@csic.es",
            comment = c(ORCID = "0000-0001-9597-311X")),
-    person("Maria Jose", "Nueda", role = "aut", email = "mj.nueda@ua.es",
+    person("María José", "Nueda", role = "aut", email = "mj.nueda@ua.es",
            comment = c(ORCID = "0000-0002-1666-4771")),
     person("Priyansh", "Srivastava", role = c("aut", "cre"),
            email = "spriyansh29@gmail.com",
            comment = c(ORCID = "0000-0003-2618-5296")),
-    person("Marta", "Benegas", role = "aut", email = "martabc22@gmail.com",
-           comment = c(ORCID = "0009-0004-9886-2828")))
+    person("Marta", "Benegas Coll", role = "aut", email = "martabc22@gmail.com",
+           comment = c(ORCID = "0009-0004-9886-2828")),
+    person("European Union", role = "fnd",
+           comment = "Horizon 2020 Marie Skłodowska-Curie Grant Agreement No 953407"))
 Description: Identifies genes whose expression changes along single-cell
     pseudotime and differs between the branching paths of a trajectory. Cells
     are pseudo-bulked into pseudotime bins that preserve their ordering, and

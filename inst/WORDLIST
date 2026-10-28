@@ -2,8 +2,10 @@ AE
 AJ
 BD
 BMC
+Benegas
 Benjamini
 Berge
+BioBam
 BiocCheck
 BiocManager
 BiocParallel
@@ -22,6 +24,7 @@ DP
 DW
 Das
 DelayedMatrixStats
+Dependabot
 Doane
 Dudoit
 FJ
@@ -32,6 +35,7 @@ Hochberg
 InterJournal
 Lex
 MJ
+María
 MatrixDesign
 Mundlos
 Nepusz
@@ -83,6 +87,8 @@ errored
 für
 ggplot
 igraph
+lifecycle
+lintr
 loess
 maSigPro
 maSigPro's

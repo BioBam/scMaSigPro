@@ -92,8 +92,13 @@ Authors:
 \itemize{
   \item Priyansh Srivastava \email{spriyansh29@gmail.com} (\href{https://orcid.org/0000-0003-2618-5296}{ORCID})
   \item Ana Conesa \email{ana.conesa@csic.es} (\href{https://orcid.org/0000-0001-9597-311X}{ORCID})
-  \item Maria Jose Nueda \email{mj.nueda@ua.es} (\href{https://orcid.org/0000-0002-1666-4771}{ORCID})
-  \item Marta Benegas \email{martabc22@gmail.com} (\href{https://orcid.org/0009-0004-9886-2828}{ORCID})
+  \item María José Nueda \email{mj.nueda@ua.es} (\href{https://orcid.org/0000-0002-1666-4771}{ORCID})
+  \item Marta Benegas Coll \email{martabc22@gmail.com} (\href{https://orcid.org/0009-0004-9886-2828}{ORCID})
+}
+
+Other contributors:
+\itemize{
+  \item European Union (Horizon 2020 Marie Skłodowska-Curie Grant Agreement No 953407) [funder]
 }
 
 }

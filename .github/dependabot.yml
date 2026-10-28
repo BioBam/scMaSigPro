@@ -1,0 +1,13 @@
+# Keeps the versions of the GitHub Actions in .github/workflows current.
+# Third-party actions are pinned to a commit SHA, with the version in a
+# comment; Dependabot proposes the bumps once a week, all in one pull request.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"

@@ -4,7 +4,8 @@
 # Builds the pkgdown site on every PR (no deploy) and deploys it to the
 # gh-pages branch on pushes to main, on published releases, and on demand.
 # GitHub Pages must be enabled for the repository (Settings > Pages,
-# source: gh-pages branch).
+# source: gh-pages branch). The job is skipped on any repository other than
+# spriyansh/scMaSigPro, whose site is https://spriyansh.github.io/scMaSigPro/.
 on:
   push:
     branches: [main]
@@ -15,10 +16,17 @@ on:
 
 name: pkgdown.yaml
 
-permissions: read-all
+permissions:
+  contents: read
+
+# A new push to a pull request cancels the run of its previous commit.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   pkgdown:
+    if: github.repository == 'spriyansh/scMaSigPro'
     runs-on: ubuntu-latest
     # Only restrict concurrency for non-PR jobs
     concurrency:

@@ -6,6 +6,8 @@
 ^\.git-blame-ignore-revs$
 ^\.pre-commit-config\.yaml$
 ^CLAUDE\.md$
+^CODE_OF_CONDUCT\.md$
+^CONTRIBUTING\.md$
 ^LICENSE\.md$
 ^README\.Rmd$
 ^renv\.lock$
