@@ -29,6 +29,8 @@ slot, or \code{NULL} for the first path.}
 \value{
 The object with the design in the \code{Design} slot
 (class \link[=MatrixDesign-class]{MatrixDesign}).
+The \code{Profile}, \code{Estimate} and \code{Significant} slots, computed
+with an earlier design, are emptied.
 }
 \description{
 \code{sc.set.poly()} builds the design of the maSigPro model (Conesa et al.

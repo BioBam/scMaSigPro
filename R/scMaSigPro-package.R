@@ -21,6 +21,10 @@
 #' 7. [plotTrend()], [plotTrendCluster()], [plotIntersect()]: plots;
 #'    [scmpResults()]: the results as a table with one row per gene.
 #'
+#' A step run again empties the slots of the later steps, which were
+#' computed from what it replaces; the `Parameters` slot keeps the settings
+#' of every step.
+#'
 #' @section Input:
 #' The workflow needs one pseudotime value and one path label per cell.
 #' [assign_paths()] and [paths_from_graph()] build them from the lineage

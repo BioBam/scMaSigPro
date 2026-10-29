@@ -576,3 +576,28 @@ setClass(
         version = .scmp_version()
     )
 )
+
+###############################################################################
+# The slots computed from what a step of the workflow changes: the bins
+# (sc.squeeze(), sc.restruct()), the pseudo-bulk counts (pb_counts()), the
+# design (sc.set.poly()), the full-model tests (sc.p.vector()) and the
+# selected models (sc.t.fit()). The step empties them, so that an object
+# never holds results computed from what it no longer holds; the
+# Parameters slot keeps the settings of every step.
+.clear_after <- function(scmpObj, changed) {
+    level <- match(changed, c("bins", "counts", "design", "tests", "models"))
+    if (level <= 1L) {
+        scmpObj@Design <- new("MatrixDesign")
+    }
+    if (level <= 2L) {
+        scmpObj@Design@offset <- numeric(0)
+    }
+    if (level <= 3L) {
+        scmpObj@Profile <- new("VariableProfiles")
+    }
+    if (level <= 4L) {
+        scmpObj@Estimate <- new("Estimates")
+    }
+    scmpObj@Significant <- new("Significant")
+    scmpObj
+}

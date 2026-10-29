@@ -1,5 +1,18 @@
 # scMaSigPro 0.99.0 (2026-10-28)
 
+## Breaking changes
+
+* A step run again empties the slots that the later steps fill, which were computed from what it replaces: `sc.squeeze()` and `sc.restruct()` empty the `Design`, `Profile`, `Estimate` and `Significant` slots, `pb_counts()` the offsets of the `Design` slot and the `Profile`, `Estimate` and `Significant` slots, `sc.set.poly()` the `Profile`, `Estimate` and `Significant` slots, `sc.p.vector()` the `Estimate` and `Significant` slots, and `sc.t.fit()` the `Significant` slot. The `Parameters` slot keeps the settings of every step. These slots kept the results of the earlier bins, counts, design or fits until the later steps were run again.
+
+## Bug fixes
+
+* `sc.squeeze()` reports a path with seven or fewer time points only when `verbose = TRUE`; the message was printed by every call and said "less than 7". Its verbose messages call the number of bins of a path a number of bins, not a bin size.
+* `sc.cluster.trend()` stops with a clear message when `k` is not a single whole number of at least 1, unless `"Mclust"` chooses the number of clusters (`mclust.k = TRUE`). A fractional `k` was truncated, and other values gave the clusters of another number or failed inside `cutree()`, `kmeans()` or `Mclust()` with their own messages; `k = "3"` and `k = TRUE` are refused as well.
+* `sc.restruct()` checks its labels before it restructures the bins: `link_sep` must be a non-empty string and `root_node` a string, `end_node_list` must name at least one path, every root, end and link label must be a path of the bins, and the label of each link path must split on `link_sep` into the labels of two or more paths. A link label without `link_sep` dropped the bins of the link without a message, and the other cases failed with messages such as "invalid 'pattern' argument" or "replacement has 1 row, data has 0".
+* `plotDiagnostics()` fits its models on the design columns named by position, as `sc.p.vector()` and `sc.t.fit()` do, and on the counts of the gene in the bins of the design. A design column named `y`, such as the binned pseudotime after `sc.squeeze(bin_ptime_col = "y")`, was left out of the model with a warning, repeated column names failed, and the `"optimized"` model failed on column names that are not syntactic, such as those of a path label with a space.
+* `plotDiagnostics(model = "optimized")` fits the terms that `sc.t.fit()` selected for the gene, as its help page says. It fitted the columns of the design after the first, whatever terms were selected.
+* `plotDiagnostics()` stops on an object whose current design has no fits, such as an object saved by an earlier version after `sc.set.poly()`, on which `glm()` failed for the empty offset; the message asks to run `sc.p.vector()` first.
+
 ## Documentation
 
 * The README and the Installation section of the Quick start vignette install scMaSigPro from Bioconductor, with `BiocManager::install("scMaSigPro")`, and give the command that installs the development version from GitHub.

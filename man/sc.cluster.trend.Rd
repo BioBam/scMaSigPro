@@ -46,7 +46,7 @@ observations (see \code{\link[=showInflu]{showInflu()}}).}
 \item{mclust.k}{Whether \code{"Mclust"} chooses the number of clusters instead
 of taking \code{k}.}
 
-\item{k}{The number of clusters.}
+\item{k}{The number of clusters, a whole number of at least 1.}
 
 \item{fill_na}{How missing values are filled before clustering: with
 \code{"zero"}, or the \code{"mean"} or \code{"median"} of their column or row

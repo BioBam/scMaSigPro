@@ -80,7 +80,8 @@ distinct pseudotime values of each path instead of its cells.}
 \value{
 The object with the bins and their pseudo-bulk counts
 (\code{bulk.counts}) in the \code{Dense} slot and the binned pseudotime of each cell
-in the cell metadata.
+in the cell metadata. The \code{Design}, \code{Profile}, \code{Estimate} and
+\code{Significant} slots, computed from earlier bins, are emptied.
 }
 \description{
 \code{sc.squeeze()} divides the pseudotime range of each path into bins of

@@ -30,6 +30,10 @@ clusters them.
 \item \code{\link[=plotTrend]{plotTrend()}}, \code{\link[=plotTrendCluster]{plotTrendCluster()}}, \code{\link[=plotIntersect]{plotIntersect()}}: plots;
 \code{\link[=scmpResults]{scmpResults()}}: the results as a table with one row per gene.
 }
+
+A step run again empties the slots of the later steps, which were
+computed from what it replaces; the \code{Parameters} slot keeps the settings
+of every step.
 }
 
 \section{Input}{

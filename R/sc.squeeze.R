@@ -57,7 +57,8 @@
 #'
 #' @return The object with the bins and their pseudo-bulk counts
 #' (`bulk.counts`) in the `Dense` slot and the binned pseudotime of each cell
-#' in the cell metadata.
+#' in the cell metadata. The `Design`, `Profile`, `Estimate` and
+#' `Significant` slots, computed from earlier bins, are emptied.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
@@ -203,9 +204,9 @@ sc.squeeze <- function(scmpObj,
     )
 
     if (verbose) {
-        message("Computing optimal bin-size with ", bin_method, " method.")
+        message("Computing the number of bins with the ", bin_method, " rule.")
         message(
-            "Number of available path in the dataset: ", length(avail.paths)
+            "Number of paths in the dataset: ", length(avail.paths)
         )
         message("Paths: ", paste(avail.paths, collapse = ", "))
         message("Drop factor: ", drop_fac)
@@ -258,9 +259,10 @@ sc.squeeze <- function(scmpObj,
             }
         }
 
-        # Validation
-        if (length_n <= 7) {
-            message("Time points are already less than 7 in ", path)
+        # Few time points (cells, or distinct values with
+        # use_unique_time_points) give few bins
+        if (v && length_n <= 7) {
+            message(path, " has only ", length_n, " time points to bin.")
         }
 
         # Calculate Optimal Number of Bins
@@ -275,8 +277,9 @@ sc.squeeze <- function(scmpObj,
 
                 if (verbose) {
                     message(
-                        "Estimated Bin Sizes = ", estBins, " with ", bin_method,
-                        " binning for ", length_n, " time points for ", path
+                        "Estimated number of bins = ", estBins, " with ",
+                        bin_method, " binning for ", length_n,
+                        " time points for ", path
                     )
                 }
             },
@@ -297,7 +300,8 @@ sc.squeeze <- function(scmpObj,
         if (verbose) {
             message(
                 "For ", path, ", ", length_n,
-                " time points has been compressed to ", nrow(bin_table), " bins"
+                " time points have been compressed to ", nrow(bin_table),
+                " bins"
             )
         }
 
@@ -370,7 +374,7 @@ sc.squeeze <- function(scmpObj,
             if (verbose) {
                 message(
                     "Finally, for ", path, ", ", length_n,
-                    " time points has been compressed to ", nrow(bin_table),
+                    " time points have been compressed to ", nrow(bin_table),
                     " bins and the sum is ", sum(bin_table[[bin.size]])
                 )
             }
@@ -541,6 +545,7 @@ sc.squeeze <- function(scmpObj,
     scmpObj@Dense <- SingleCellExperiment(
         colData = DataFrame(processed_binned_cell_metadata)
     )
+    scmpObj <- .clear_after(scmpObj, "bins")
 
     # Get Counts
     scmpObj <- pb_counts(

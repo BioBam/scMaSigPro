@@ -16,7 +16,7 @@
 #' @param hclust.agglo.method The agglomeration method of [stats::hclust()].
 #' @param hclust.distance The distance of `"hclust"`: `"cor"`, one minus the
 #'   correlation of two genes, or a method of [stats::dist()].
-#' @param k The number of clusters.
+#' @param k The number of clusters, a whole number of at least 1.
 #' @param kmeans.iter.max The maximum number of iterations of
 #'   [stats::kmeans()].
 #' @param mclust.k Whether `"Mclust"` chooses the number of clusters instead
@@ -123,6 +123,16 @@ sc.cluster.trend <- function(scmpObj,
             paste(c("hclust", "kmeans", "Mclust"), collapse = ", ")
         )
     )
+    # k is the number of clusters, unless Mclust chooses it (mclust.k)
+    uses_k <- cluster_method != "Mclust" || !mclust.k
+    whole_k <- is.numeric(k) && length(k) == 1L && is.finite(k) &&
+        k >= 1 && k == round(k)
+    .check(!uses_k || whole_k,
+        msg = paste(
+            "'k', the number of clusters, must be a whole number of at",
+            "least 1."
+        )
+    )
 
     # Get gene set vector
     if (geneSet == "intersect") {
@@ -148,10 +158,8 @@ sc.cluster.trend <- function(scmpObj,
     # cluster per gene, kmeans() and Mclust() more genes than clusters (with
     # one gene, the NA filling below would return a vector)
     n_genes <- nrow(cluster_matrix_input)
-    uses_k <- cluster_method != "Mclust" || !mclust.k
-    whole_k <- is.numeric(k) && length(k) == 1L && !is.na(k) && k == round(k)
     min_genes <- 2
-    if (uses_k && whole_k) {
+    if (uses_k) {
         min_genes <- max(2, if (cluster_method == "hclust") k else k + 1)
     }
     .check(n_genes >= min_genes,

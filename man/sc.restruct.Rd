@@ -40,7 +40,9 @@ otherwise, so \code{"|"} and \code{"\\\\|"} both work.}
 }
 \value{
 The object with the bins of every end path, from the root on,
-and their pseudo-bulk counts in the \code{Dense} slot.
+and their pseudo-bulk counts in the \code{Dense} slot. The \code{Design},
+\code{Profile}, \code{Estimate} and \code{Significant} slots, computed from
+earlier bins, are emptied.
 }
 \description{
 \code{sc.restruct()} rebuilds the bins so that every end path starts at the

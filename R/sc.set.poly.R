@@ -19,6 +19,8 @@
 #'
 #' @return The object with the design in the `Design` slot
 #' (class [MatrixDesign-class]).
+#' The `Profile`, `Estimate` and `Significant` slots, computed
+#' with an earlier design, are emptied.
 #'
 #' @seealso [showPoly()], [predictors()] and [pathAssign()], which read the
 #' design; [MatrixDesign-class].
@@ -127,6 +129,7 @@ sc.set.poly <- function(scmpObj,
 
     # Update Slot
     scmpObj@Design <- designObj
+    scmpObj <- .clear_after(scmpObj, "design")
 
     # Update poly degree
     scmpObj@Parameters@poly_degree <- as.integer(poly_degree)

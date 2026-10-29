@@ -541,7 +541,10 @@ optimize_bin_max <- function(bin_table, max_allowed, verbose = TRUE,
 #' counts, and `bin_mem_col` gives their cells.
 #'
 #' @return The object whose `Dense` slot holds the pseudo-bulk counts
-#' (`bulk.counts`, genes by bins) and the bin metadata.
+#' (`bulk.counts`, genes by bins) and the bin metadata. The offsets of
+#' the `Design` slot and the `Profile`, `Estimate` and
+#' `Significant` slots, computed from earlier counts, are emptied; the
+#' design is kept.
 #'
 #' @author Priyansh Srivastava \email{spriyansh29@@gmail.com}
 #'
@@ -652,6 +655,7 @@ pb_counts <- function(scmpObj,
         assays = list(bulk.counts = as(pb.counts, "dgCMatrix")),
         colData = bin_data
     )
+    scmpObj <- .clear_after(scmpObj, "counts")
     validObject(scmpObj)
 
     # return

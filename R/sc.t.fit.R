@@ -30,6 +30,7 @@
 #' @return The object with the selected model of each gene with a non-flat
 #' profile in the `Estimate` slot (class [Estimates-class]), read by
 #' [showSol()] and the other result readers.
+#' The `Significant` slot, computed from earlier models, is emptied.
 #'
 #' @seealso [showSol()] and the other readers of the results;
 #' [Estimates-class].
@@ -317,6 +318,7 @@ sc.t.fit <- function(scmpObj,
 
     # Added Tfit
     scmpObj@Estimate <- t.fit.object
+    scmpObj <- .clear_after(scmpObj, "models")
 
     # Update Parameter Slot
     scmpObj@Parameters@p_value <- p_value
