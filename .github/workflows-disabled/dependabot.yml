@@ -1,8 +1,0 @@
-# Keep GitHub Actions versions current. Third-party actions are SHA-pinned in
-# the workflows; dependabot proposes the bumps.
-version: 2
-updates:
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"

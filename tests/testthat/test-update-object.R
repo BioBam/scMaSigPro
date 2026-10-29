@@ -9,6 +9,17 @@ without_version <- function(ob) {
     ob
 }
 
+# The object as updateObject() returns it when it has nothing of its own to
+# update: the Sparse and Dense slots passed through the updateObject() of
+# SingleCellExperiment, which stamps them with the installed version of
+# SingleCellExperiment when they were saved by an older one (as the bundled
+# scmp.ob is under a newer SingleCellExperiment)
+with_current_sce <- function(ob) {
+    ob@Sparse <- updateObject(ob@Sparse)
+    ob@Dense <- updateObject(ob@Dense)
+    ob
+}
+
 test_that("new objects carry the version of the package", {
     expect_identical(new("ScMaSigPro")@version, current_version())
     expect_identical(splat_scmp()@version, current_version())
@@ -35,7 +46,8 @@ test_that("updateObject() returns a current object unchanged", {
     ob <- readRDS(path)
     unlink(path)
     expect_true(validObject(ob, test = TRUE))
-    expect_identical(updateObject(ob), ob)
+    expect_identical(updateObject(ob), with_current_sce(ob))
+    # Objects made by the installed packages carry their versions
     expect_identical(updateObject(splat_clustered()), splat_clustered())
     expect_identical(updateObject(multi_restruct()), multi_restruct())
 })
@@ -51,8 +63,11 @@ test_that("updateObject() adds the version slot to an object saved without", {
     expect_match(msgs, "Adding the 'version' slot", fixed = TRUE, all = FALSE)
     expect_valid_scmp(up)
     expect_identical(up@version, current_version())
+    expected <- with_current_sce(ob)
     for (s in setdiff(methods::slotNames(up), "version")) {
-        expect_identical(methods::slot(up, s), methods::slot(ob, s), label = s)
+        expect_identical(methods::slot(up, s), methods::slot(expected, s),
+            label = s
+        )
     }
 })
 
@@ -61,6 +76,21 @@ test_that("updateObject() updates the SingleCellExperiment slots", {
     ob <- without_version(splat_scmp())
     ob@Sparse <- sce
     expect_identical(updateObject(ob)@Sparse, updateObject(sce))
+})
+
+test_that("updateObject() updates the stamp of older SingleCellExperiments", {
+    # As the bundled scmp.ob looks to a newer SingleCellExperiment
+    ob <- load_dataset("scmp.ob")
+    stale <- ob
+    old_version <- package_version("1.11.3")
+    SingleCellExperiment::int_metadata(stale@Sparse)$version <- old_version
+    SingleCellExperiment::int_metadata(stale@Dense)$version <- old_version
+    up <- updateObject(stale)
+    stamp <- function(sce) SingleCellExperiment::int_metadata(sce)$version
+    installed <- utils::packageVersion("SingleCellExperiment")
+    expect_identical(stamp(up@Sparse), installed)
+    expect_identical(stamp(up@Dense), installed)
+    expect_identical(up, with_current_sce(stale))
 })
 
 test_that("updateObject() refuses an object binned by 0.0.4", {
@@ -108,10 +138,10 @@ test_that("updateObject() adds the count filter parameters", {
     expect_identical(up@Parameters@min_counts, 0)
     expect_identical(up@Parameters@min_bins_expressed, 0)
     expect_identical(up@version, current_version())
-    expect_identical(up, ob)
+    expect_identical(up, with_current_sce(ob))
     # An object saved before the version slot gets both
     older <- without_version(old)
-    expect_identical(updateObject(older), ob)
+    expect_identical(updateObject(older), with_current_sce(ob))
 })
 
 test_that("updateObject() adds the test parameter", {
@@ -127,12 +157,12 @@ test_that("updateObject() adds the test parameter", {
     )
     expect_valid_scmp(up)
     expect_identical(up@Parameters@test, "chisq")
-    expect_identical(up, ob)
+    expect_identical(up, with_current_sce(ob))
     # An object saved before the count filter and the version slot
     attr(params, "min_counts") <- NULL
     attr(params, "min_bins_expressed") <- NULL
     old@Parameters <- params
-    expect_identical(updateObject(without_version(old)), ob)
+    expect_identical(updateObject(without_version(old)), with_current_sce(ob))
 })
 
 test_that("updateObject() warns about a relabelled family", {

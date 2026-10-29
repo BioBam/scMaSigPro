@@ -29,7 +29,10 @@ the counts of the cells.}
 }
 \value{
 The object whose \code{Dense} slot holds the pseudo-bulk counts
-(\code{bulk.counts}, genes by bins) and the bin metadata.
+(\code{bulk.counts}, genes by bins) and the bin metadata. The offsets of
+the \code{Design} slot and the \code{Profile}, \code{Estimate} and
+\code{Significant} slots, computed from earlier counts, are emptied; the
+design is kept.
 }
 \description{
 \code{pb_counts()} adds up, or averages, the counts of the cells of each bin

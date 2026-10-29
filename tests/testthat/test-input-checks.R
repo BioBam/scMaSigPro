@@ -584,3 +584,93 @@ test_that("arguments without effect are gone", {
         expect_false(any(gone[[fn]] %in% names(formals(fn))), label = fn)
     }
 })
+
+test_that("sc.cluster.trend() takes a whole number of clusters", {
+    # A fractional k was truncated, a vector k used its first value with
+    # hclust, and the others failed inside hclust, kmeans or Mclust
+    filtered <- splat_filtered()
+    msg <- paste(
+        "'k', the number of clusters, must be a whole number of at",
+        "least 1."
+    )
+    for (method in c("hclust", "kmeans", "Mclust")) {
+        for (bad in list(2.5, 0, -1, c(2, 3), NA, Inf, "3", TRUE)) {
+            expect_error(
+                sc.cluster.trend(filtered,
+                    geneSet = "union", cluster_method = method, k = bad
+                ),
+                msg,
+                fixed = TRUE
+            )
+        }
+    }
+    # Controls: a whole number, as a double or an integer
+    clusters <- splat_clustered()@Significant@clusters
+    for (k in list(4, 4L)) {
+        clustered <- sc.cluster.trend(filtered, geneSet = "union", k = k)
+        expect_identical(clustered@Significant@clusters, clusters)
+    }
+    # Mclust chooses the number of clusters with mclust.k = TRUE, without k
+    skip_if_not_installed("mclust")
+    expect_identical(
+        sc.cluster.trend(filtered,
+            geneSet = "union", cluster_method = "Mclust", mclust.k = TRUE,
+            k = 2.5
+        ),
+        sc.cluster.trend(filtered,
+            geneSet = "union", cluster_method = "Mclust", mclust.k = TRUE
+        )
+    )
+})
+
+test_that("sc.restruct() checks link_sep and the labels of the paths", {
+    ob <- multi_binned()
+    ends <- list("Y_15", "Y_18", "Y_52")
+    restruct <- function(link_sep = "_links_", root_node = "Root",
+                         end_node_list = ends,
+                         link_node_list = list("Y_18_links_Y_15")) {
+        sc.restruct(ob,
+            end_node_list = end_node_list, root_node = root_node,
+            link_node_list = link_node_list, link_sep = link_sep,
+            verbose = FALSE
+        )
+    }
+    for (bad in list(NULL, NA_character_, c("_links_", "|"), 1)) {
+        expect_error(restruct(link_sep = bad),
+            "'link_sep' must be a single character string.",
+            fixed = TRUE
+        )
+    }
+    expect_error(restruct(link_sep = ""),
+        "'link_sep' must not be an empty string.",
+        fixed = TRUE
+    )
+    # A separator that the label of the link path does not hold linked
+    # nothing, and the bins of the link were dropped
+    expect_error(restruct(link_sep = "|"),
+        paste0(
+            "The link path 'Y_18_links_Y_15' must hold the labels of the ",
+            "paths it links, separated by link_sep = '|'."
+        ),
+        fixed = TRUE
+    )
+    expect_error(restruct(root_node = NULL),
+        "'root_node' must be a single character string.",
+        fixed = TRUE
+    )
+    expect_error(restruct(end_node_list = list()),
+        "'end_node_list' must name at least one end path.",
+        fixed = TRUE
+    )
+    paths <- "The paths are: Root, Y_15, Y_18, Y_18_links_Y_15, Y_52."
+    expect_error(restruct(root_node = "root"),
+        paste("Not paths of the bins: root.", paths),
+        fixed = TRUE
+    )
+    expect_error(restruct(end_node_list = list("Y_15", "Y_19")),
+        paste("Not paths of the bins: Y_19.", paths),
+        fixed = TRUE
+    )
+    # Control: the default separator
+    expect_identical(restruct(), multi_restruct())
+})

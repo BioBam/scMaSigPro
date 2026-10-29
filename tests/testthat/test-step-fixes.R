@@ -181,6 +181,61 @@ test_that("the fits do not depend on the design names", {
     }
 })
 
+test_that("plotDiagnostics() does not depend on the design names", {
+    # It fitted glm(y ~ .) on the design names: a column named "y" was
+    # taken for the counts, repeated names failed, and the "optimized"
+    # model failed on names that are not syntactic, such as those that a
+    # path label with a space gives
+    skip_if(!nzchar(system.file(package = "patchwork")), "needs patchwork")
+    gene <- splat_sig_gene()
+    layers <- function(ob, model) {
+        p <- plotDiagnostics(ob, gene, model = model)
+        panels <- list(p[[1]][[1]], p[[1]][[2]], p[[2]][[1]], p[[2]][[2]])
+        lapply(panels, function(q) ggplot2::ggplot_build(q)$data)
+    }
+    design <- splat_design(2)
+    p <- ncol(predictors(design))
+    for (nm in list(
+        replace(colnames(predictors(design)), 2, "y"),
+        rep("t", p),
+        paste0("term ", seq_len(p), "|x")
+    )) {
+        ob <- sc.p.vector(rename_design(design, nm), verbose = FALSE)
+        ob <- sc.t.fit(ob, verbose = FALSE)
+        ob <- sc.filter(ob,
+            rsq = 0.7, vars = "groups", intercept = "dummy",
+            includeInflu = TRUE
+        )
+        for (model in c("optimized", "full", "intercept")) {
+            expect_identical(layers(ob, model), layers(splat_filtered(), model),
+                info = paste(nm[2], model)
+            )
+        }
+    }
+})
+
+test_that("the optimized model of plotDiagnostics() is that of sc.t.fit()", {
+    # It fitted the design columns after the first, whatever terms
+    # sc.t.fit() had selected for the gene
+    skip_if(!nzchar(system.file(package = "patchwork")), "needs patchwork")
+    ob <- splat_filtered()
+    sol <- showSol(ob)
+    # Genes with a significant intercept, whose coefficient showCoeff() keeps
+    genes <- rownames(sol)[sol[["p.valor_beta0"]] <= 0.05]
+    genes <- intersect(genes, unlist(ob@Significant@genes))
+    for (gene in genes[1:3]) {
+        p <- plotDiagnostics(ob, gene)
+        predicted <- ggplot2::ggplot_build(p[[2]][[2]])$data[[1]]$y
+        terms <- !is.na(unlist(sol[gene, -(1:3)]))
+        x <- cbind(1, predictors(ob)[, terms, drop = FALSE])
+        beta <- unlist(showCoeff(ob)[gene, c(TRUE, terms)])
+        expect_equal(predicted,
+            unname(exp(drop(x %*% beta) + ob@Design@offset)),
+            tolerance = 1e-6, info = gene
+        )
+    }
+})
+
 test_that("Mclust names one-component clusters by gene", {
     skip_if_not_installed("mclust")
     ob <- splat_filtered()
@@ -702,6 +757,36 @@ toy_bins <- function(p, ...) {
     )
 }
 
+test_that("sc.squeeze() reports few time points only when verbose", {
+    # Two paths of four cells: "Time points are already less than 7" was
+    # printed with verbose = FALSE too, and the number of bins was called
+    # "Bin Sizes"
+    cd <- data.frame(
+        Pseudotime = rep(1:4, 2), Path = rep(c("Path1", "Path2"), each = 4),
+        row.names = paste0("cell", 1:8)
+    )
+    counts <- matrix(1, 2, 8, dimnames = list(c("g1", "g2"), rownames(cd)))
+    ob <- create_scmp(
+        counts = counts, cell_data = cd, ptime_col = "Pseudotime",
+        path_col = "Path"
+    )
+    expect_silent(sc.squeeze(ob))
+    msgs <- capture_messages(sc.squeeze(ob, verbose = TRUE))
+    for (path in c("Path1", "Path2")) {
+        expect_true(
+            paste0(path, " has only 4 time points to bin.\n") %in% msgs,
+            info = path
+        )
+        expect_true(
+            paste0(
+                "Estimated number of bins = 3 with Sturges binning for 4 ",
+                "time points for ", path, "\n"
+            ) %in% msgs,
+            info = path
+        )
+    }
+})
+
 test_that("sc.squeeze() bins the cells by the numeric breaks", {
     # 4 points, Sturges: 3 bins, breaks 0, 1/3, 2/3 and 1. The bounds were
     # read back from the cut() labels "[0,0.333]", "(0.333,0.667]" and
@@ -1039,4 +1124,69 @@ test_that("the size factors need a gene without a zero count", {
     expect_s4_class(
         sc.p.vector(design, offset = FALSE, verbose = FALSE), "ScMaSigPro"
     )
+})
+
+test_that("a step empties the slots computed from what it changes", {
+    # A step run again kept the results of the bins, counts, design, tests
+    # or models it replaced, such as the estimates of an earlier design
+    clustered <- splat_clustered()
+    empty <- new("ScMaSigPro")
+    expect_emptied <- function(ob, slots) {
+        for (s in slots) {
+            expect_identical(slot(ob, s), slot(empty, s), info = s)
+        }
+    }
+    binned <- sc.squeeze(clustered)
+    expect_identical(binned@Dense, splat_binned()@Dense)
+    expect_emptied(binned, c("Design", "Profile", "Estimate", "Significant"))
+    counted <- pb_counts(clustered)
+    expect_identical(counted@Design@offset, numeric(0))
+    expect_identical(predictors(counted), predictors(clustered))
+    expect_emptied(counted, c("Profile", "Estimate", "Significant"))
+    designed <- sc.set.poly(clustered, poly_degree = 2)
+    expect_identical(designed@Design, splat_design(2)@Design)
+    expect_emptied(designed, c("Profile", "Estimate", "Significant"))
+    tested <- sc.p.vector(clustered, verbose = FALSE)
+    expect_identical(tested@Profile, splat_fitted("default")@Profile)
+    expect_emptied(tested, c("Estimate", "Significant"))
+    selected <- sc.t.fit(clustered, verbose = FALSE)
+    expect_identical(selected@Estimate, splat_fitted("default")@Estimate)
+    expect_emptied(selected, "Significant")
+    # The settings of every step stay
+    for (ob in list(binned, counted, designed)) {
+        expect_identical(ob@Parameters, clustered@Parameters)
+    }
+    # sc.restruct(), on bins given the results of another object
+    multi <- multi_binned()
+    for (s in c("Design", "Profile", "Estimate", "Significant")) {
+        slot(multi, s) <- slot(clustered, s)
+    }
+    restructured <- sc.restruct(multi,
+        end_node_list = list("Y_15", "Y_18", "Y_52"), root_node = "Root",
+        link_node_list = list("Y_18_links_Y_15"), verbose = FALSE
+    )
+    expect_identical(restructured@Dense, multi_restruct()@Dense)
+    expect_emptied(
+        restructured, c("Design", "Profile", "Estimate", "Significant")
+    )
+})
+
+test_that("plotDiagnostics() asks for sc.p.vector() on a design without fits", {
+    msg <- "The current design has not been fitted: run sc.p.vector() first."
+    gene <- splat_sig_gene()
+    expect_error(
+        plotDiagnostics(sc.set.poly(splat_clustered(), poly_degree = 2), gene),
+        msg,
+        fixed = TRUE
+    )
+    # An object saved by an earlier version after sc.set.poly() kept its
+    # fits but not their offset, and glm() failed on the empty offset
+    old <- splat_clustered()
+    old@Design@offset <- numeric(0)
+    expect_error(plotDiagnostics(old, gene), msg, fixed = TRUE)
+    # Control: fits without offset have none
+    skip_if(!nzchar(system.file(package = "patchwork")), "needs patchwork")
+    none <- sc.filter(splat_fitted("no_offset"), rsq = 0.7, vars = "groups")
+    gene <- sort(unique(unlist(none@Significant@genes)))[1]
+    expect_s3_class(plotDiagnostics(none, gene), "patchwork")
 })

@@ -99,7 +99,8 @@ depend on the backend.}
 The object with the p-values and the genes with a non-flat
 profile in the \code{Profile} slot (class \link[=VariableProfiles-class]{VariableProfiles}), the
 offsets in the \code{Design} slot and the settings of the fit in the
-\code{Parameters} slot.
+\code{Parameters} slot. The \code{Estimate} and \code{Significant} slots,
+computed from earlier tests, are emptied.
 }
 \description{
 \code{sc.p.vector()} fits the full polynomial model of each gene to its

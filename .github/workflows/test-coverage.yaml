@@ -1,0 +1,96 @@
+# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+#
+# Runs the tests under covr and prints the coverage, file by file and in
+# total, in the log and in the job summary. The report is uploaded to Codecov
+# only when the CODECOV_TOKEN secret exists (never for pull requests from
+# forks, which get no secrets); without it the upload is skipped and the job
+# still passes. codecov.yml sets the Codecov status checks. Runs on pull
+# requests to main and on pushes to main. The job is skipped on any
+# repository other than spriyansh/scMaSigPro.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+name: test-coverage.yaml
+
+permissions:
+  contents: read
+
+# A new push to a pull request cancels the run of its previous commit; runs
+# on main wait for each other instead.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test-coverage:
+    if: github.repository == 'spriyansh/scMaSigPro'
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      NOT_CRAN: true
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::covr, any::xml2
+          needs: coverage
+
+      - name: Test coverage
+        run: |
+          cov <- covr::package_coverage(
+            quiet = FALSE,
+            clean = FALSE,
+            install_path = file.path(normalizePath(Sys.getenv("RUNNER_TEMP"), winslash = "/"), "package")
+          )
+          print(cov)
+          total <- sprintf("Total coverage: %.2f %%", covr::percent_coverage(cov))
+          message(total)
+          cat(total, "\n", file = Sys.getenv("GITHUB_STEP_SUMMARY"), append = TRUE)
+          covr::to_cobertura(cov)
+        shell: Rscript {0}
+
+      - name: Look for the Codecov token
+        id: codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
+          if [ -n "$CODECOV_TOKEN" ]; then
+            echo "upload=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "upload=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Codecov::No CODECOV_TOKEN secret: the coverage report is not uploaded."
+          fi
+        shell: bash
+
+      - uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
+        if: steps.codecov.outputs.upload == 'true'
+        with:
+          fail_ci_if_error: true
+          files: ./cobertura.xml
+          plugins: noop
+          disable_search: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Show testthat output
+        if: always()
+        run: |
+          ## --------------------------------------------------------------------
+          find '${{ runner.temp }}/package' -name 'testthat.Rout*' -exec cat '{}' \; || true
+        shell: bash
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-test-failures
+          path: ${{ runner.temp }}/package

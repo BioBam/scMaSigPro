@@ -35,6 +35,15 @@ plotDiagnostics <- function(scmpObj,
     # Check Object Validity
     .check_scmp(scmpObj)
 
+    # The fits of the current design: a step that changes the bins, the
+    # counts or the design empties them, and an object saved by an earlier
+    # version after sc.set.poly() keeps fits without their offset
+    fitted <- length(scmpObj@Profile@p_values) > 0L &&
+        (!scmpObj@Parameters@offset || length(scmpObj@Design@offset) > 0L)
+    .check(fitted,
+        msg = "The current design has not been fitted: run sc.p.vector() first."
+    )
+
     # Check if the results exist
     .check(!isEmpty(scmpObj@Significant@genes),
         msg = paste("No Significant genes found, please run the workflow first")
@@ -67,15 +76,13 @@ plotDiagnostics <- function(scmpObj,
         )
     )
 
-    # Get the counts for the genes
-    .check_dense_counts(scmpObj)
+    # The counts of the gene in the bins of the design
+    dis <- scmpObj@Design@predictor_matrix
+    .check_dense_counts(scmpObj, bins = rownames(dis))
     y_mat <- as.matrix(
         assay(scmpObj@Dense, "bulk.counts", withDimnames = FALSE)
     )
-
-    # Extract gene counts
-    y_df <- as.data.frame(y_mat[feature_id, , drop = TRUE])
-    colnames(y_df) <- "y"
+    y <- y_mat[feature_id, rownames(dis)]
 
     # Set theme for the plot
     theme_set <- theme_minimal(base_size = 12) +
@@ -87,38 +94,22 @@ plotDiagnostics <- function(scmpObj,
             panel.grid.minor = element_blank()
         )
 
-    # Based on model
-    if (model == "full" || model == "intercept") {
-        # Create Model input
-        regression_matrix <- scmpObj@Design@predictor_matrix
-    } else {
-        # Get coefficients
-        coeff_matrix <- data.frame(showCoeff(scmpObj))
-
-        # Subset
-        coeff_matrix_sub <- coeff_matrix[feature_id, , drop = FALSE]
-        all_terms <- colnames(coeff_matrix_sub)[-1]
-
-        # Remove any occurance of beta
-        all_terms <- sub("beta", "", all_terms, fixed = TRUE)
-
-        # Remove intercept
-        all_terms <- all_terms[-1]
-
-        # Get the terms
-        terms <- coeff_matrix_sub[apply(coeff_matrix_sub, 2, FUN = function(i) {
-            i != 0
-        })]
-
-        # Extract the prediction
-        prediction_matrix <- scmpObj@Design@predictor_matrix
-
-        # Create Model input
-        regression_matrix <- prediction_matrix[, all_terms, drop = FALSE]
+    # The terms of the model: "full" and "intercept" use the design,
+    # "optimized" the terms that sc.t.fit() selected for the gene, those
+    # with a p-value in showSol() (its columns after the first three); a
+    # model without terms is the intercept-only model
+    if (model == "optimized") {
+        selected <- !is.na(unlist(showSol(scmpObj)[feature_id, -seq_len(3)]))
+        if (any(selected)) {
+            dis <- dis[, selected, drop = FALSE]
+        } else {
+            model <- "intercept"
+        }
     }
 
-    # Combine regression matrix with counts
-    model_df <- cbind(y_df, regression_matrix)
+    # The counts and the terms, named y and x1, x2, ... by position as in
+    # the fits (see .fit_frame()), so that any design names work
+    model_df <- data.frame(y = y, .fit_frame(dis))
 
     # Extract offsets
     if (scmpObj@Parameters@offset) {
@@ -132,7 +123,7 @@ plotDiagnostics <- function(scmpObj,
 
     if (model == "intercept") {
         glm_s3 <- glm(y ~ 1,
-            data = as.data.frame(model_df),
+            data = model_df,
             family = family,
             epsilon = scmpObj@Parameters@epsilon,
             offset = offset_data,
@@ -142,7 +133,7 @@ plotDiagnostics <- function(scmpObj,
     } else {
         # Fit Model
         glm_s3 <- glm(y ~ .,
-            data = as.data.frame(model_df),
+            data = model_df,
             family = family,
             epsilon = scmpObj@Parameters@epsilon,
             offset = offset_data,

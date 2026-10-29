@@ -1,0 +1,37 @@
+name: Bug report
+description: An error, a warning or a result of scMaSigPro that looks wrong.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Thank you for reporting a problem. Please look at the
+        [documentation](https://spriyansh.github.io/scMaSigPro/) and the open
+        issues first.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happens
+      description: >
+        What you did, what you expected and what happened instead, with the
+        full error or warning message.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: An example that reproduces it
+      description: >
+        R code that someone else can run, if possible on the bundled
+        `splat.sim` data set.
+      render: r
+    validations:
+      required: true
+  - type: textarea
+    id: session
+    attributes:
+      label: Session information
+      description: The output of `sessionInfo()`.
+      render: text
+    validations:
+      required: true

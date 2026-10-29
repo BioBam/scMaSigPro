@@ -8,8 +8,8 @@ bibentry(
     author = c(
         person("Priyansh", "Srivastava"),
         person("Marta", "Benegas Coll"),
-        person("Stefan", "Götz"),
-        person(c("María", "José"), "Nueda"),
+        person("Stefan", "G\u00f6tz"),
+        person(c("Mar\u00eda", "Jos\u00e9"), "Nueda"),
         person("Ana", "Conesa")
     ),
     journal = "Bioinformatics",

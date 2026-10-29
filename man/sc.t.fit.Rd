@@ -61,6 +61,7 @@ depend on the backend.}
 The object with the selected model of each gene with a non-flat
 profile in the \code{Estimate} slot (class \link[=Estimates-class]{Estimates}), read by
 \code{\link[=showSol]{showSol()}} and the other result readers.
+The \code{Significant} slot, computed from earlier models, is emptied.
 }
 \description{
 \code{sc.t.fit()} selects by stepwise regression, as maSigPro does, the

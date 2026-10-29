@@ -101,7 +101,8 @@
 #' @return The object with the p-values and the genes with a non-flat
 #' profile in the `Profile` slot (class [VariableProfiles-class]), the
 #' offsets in the `Design` slot and the settings of the fit in the
-#' `Parameters` slot.
+#' `Parameters` slot. The `Estimate` and `Significant` slots,
+#' computed from earlier tests, are emptied.
 #'
 #' @seealso [scmpResults()] for the p-values; [VariableProfiles-class].
 #'
@@ -365,6 +366,7 @@ sc.p.vector <- function(scmpObj, p_value = 0.05, mt_correction = "BH",
 
     # Update Slot
     scmpObj@Profile <- profile.obj
+    scmpObj <- .clear_after(scmpObj, "tests")
 
     # Update Parameter Slot
     scmpObj@Parameters@max_it <- as.integer(max_it)
