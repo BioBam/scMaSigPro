@@ -46,7 +46,7 @@ plotDiagnostics <- function(scmpObj,
 
     # Check if the results exist
     .check(!isEmpty(scmpObj@Significant@genes),
-        msg = paste("No Significant genes found, please run the workflow first")
+        msg = "The object has no significant genes: run sc.filter() first."
     )
 
     # Check model type

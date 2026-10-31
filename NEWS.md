@@ -13,6 +13,7 @@
 * `plotDiagnostics()` fits its models on the design columns named by position, as `sc.p.vector()` and `sc.t.fit()` do, and on the counts of the gene in the bins of the design. A design column named `y`, such as the binned pseudotime after `sc.squeeze(bin_ptime_col = "y")`, was left out of the model with a warning, repeated column names failed, and the `"optimized"` model failed on column names that are not syntactic, such as those of a path label with a space.
 * `plotDiagnostics(model = "optimized")` fits the terms that `sc.t.fit()` selected for the gene, as its help page says. It fitted the columns of the design after the first, whatever terms were selected.
 * `plotDiagnostics()` stops on an object whose current design has no fits, such as an object saved by an earlier version after `sc.set.poly()`, on which `glm()` failed for the empty offset; the message asks to run `sc.p.vector()` first.
+* `plotTrend()`, `plotDiagnostics()`, `plotIntersect()` and `sc.cluster.trend()` on an object without significant genes, and `plotTrendCluster()` on an object without gene clusters, stop with a message that names the step to run, `sc.filter()` or `sc.cluster.trend()`. `plotTrend()` said that the gene had not passed the threshold of `sc.filter()`, also after a step run again had emptied the gene lists, and `plotDiagnostics()` asked to run the workflow.
 
 ## Documentation
 

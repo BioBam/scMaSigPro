@@ -220,7 +220,7 @@
       eval(cases[[nm]])
     Condition
       Error:
-      ! 'Significant' slot is empty, please run 'sc.filter()' first.
+      ! The object has no significant genes: run sc.filter() first.
 
 # plotTrendCluster errors before sc.cluster.trend
 
@@ -228,7 +228,7 @@
       eval(cases[[nm]])
     Condition
       Error:
-      ! Please run 'sc.cluster.trend', before plotting cluster trends
+      ! The object has no gene clusters: run sc.cluster.trend() first.
 
 # sc.cluster.trend rejects an unknown gene set
 

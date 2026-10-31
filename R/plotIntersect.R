@@ -42,7 +42,7 @@ plotIntersect <- function(scmpObj,
 
     # Check if siggenes results exist for groups
     .check(!isEmpty(scmpObj@Significant@genes),
-        msg = "'Significant' slot is empty, please run 'sc.filter()' first."
+        msg = "The object has no significant genes: run sc.filter() first."
     )
 
     if (!keep_empty_groups) {

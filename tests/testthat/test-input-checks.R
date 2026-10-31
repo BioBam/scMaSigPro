@@ -107,8 +107,45 @@ test_that("the steps say which earlier step is missing", {
     )
     expect_error(sc.t.fit(none, verbose = FALSE), msg, fixed = TRUE)
     expect_error(sc.cluster.trend(splat_fitted("default")),
-        "'Significant' slot is empty, please run 'sc.filter()' first.",
+        "The object has no significant genes: run sc.filter() first.",
         fixed = TRUE
+    )
+})
+
+test_that("the readers of the gene lists say which step is missing", {
+    # Fitted, not filtered; a step run again empties the lists; a filter
+    # that keeps no gene
+    gene <- splat_sig_gene()
+    no_lists <- list(
+        fitted = splat_fitted("default"),
+        refitted = sc.t.fit(splat_clustered(), verbose = FALSE),
+        none_kept = suppressMessages(
+            sc.filter(splat_fitted("default"), rsq = 0.9999)
+        )
+    )
+    lists_msg <- "The object has no significant genes: run sc.filter() first."
+    for (n in names(no_lists)) {
+        ob <- no_lists[[n]]
+        expect_error(plotTrend(ob, gene),
+            paste(
+                "The object has no significant genes: run sc.filter() first,",
+                "or set 'significant' to FALSE."
+            ),
+            fixed = TRUE, info = n
+        )
+        expect_error(plotDiagnostics(ob, gene), lists_msg,
+            fixed = TRUE, info = n
+        )
+        expect_error(plotIntersect(ob), lists_msg, fixed = TRUE, info = n)
+        expect_error(sc.cluster.trend(ob), lists_msg, fixed = TRUE, info = n)
+        expect_error(plotTrendCluster(ob),
+            "The object has no gene clusters: run sc.cluster.trend() first.",
+            fixed = TRUE, info = n
+        )
+    }
+    # Control: without the lists, plotTrend() draws the fitted gene
+    expect_s3_class(
+        plotTrend(no_lists$fitted, gene, significant = FALSE), "ggplot"
     )
 })
 

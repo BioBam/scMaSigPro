@@ -58,7 +58,7 @@ plotTrendCluster <- function(scmpObj,
 
     # Check
     .check(!isEmpty(scmpObj@Significant@clusters),
-        msg = "Please run 'sc.cluster.trend', before plotting cluster trends"
+        msg = "The object has no gene clusters: run sc.cluster.trend() first."
     )
 
     # Check Assertion
