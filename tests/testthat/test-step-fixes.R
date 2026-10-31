@@ -787,6 +787,30 @@ test_that("sc.squeeze() reports few time points only when verbose", {
     }
 })
 
+test_that("sc.squeeze() names the paths in the order it bins them", {
+    # The cells of Path2 come first: "Paths:" was printed in this order,
+    # before the paths were ordered, and "Setting Path1 as reference."
+    # named a choice that sc.set.poly() makes
+    cd <- data.frame(
+        Pseudotime = rep(1:4, 2), Path = rep(c("Path2", "Path1"), each = 4),
+        row.names = paste0("cell", 1:8)
+    )
+    counts <- matrix(1, 2, 8, dimnames = list(c("g1", "g2"), rownames(cd)))
+    paths_message <- function(cell_data) {
+        ob <- create_scmp(
+            counts = counts, cell_data = cell_data, ptime_col = "Pseudotime",
+            path_col = "Path"
+        )
+        msgs <- capture_messages(sc.squeeze(ob, verbose = TRUE))
+        expect_false(any(grepl("reference", msgs, fixed = TRUE)))
+        grep("^Paths: ", msgs, value = TRUE)
+    }
+    expect_identical(paths_message(cd), "Paths: Path1, Path2\n")
+    # A factor path column is binned in the order of its levels
+    cd$Path <- factor(cd$Path, levels = c("Path2", "Path1"))
+    expect_identical(paths_message(cd), "Paths: Path2, Path1\n")
+})
+
 test_that("sc.squeeze() bins the cells by the numeric breaks", {
     # 4 points, Sturges: 3 bins, breaks 0, 1/3, 2/3 and 1. The bounds were
     # read back from the cut() labels "[0,0.333]", "(0.333,0.667]" and

@@ -208,7 +208,6 @@ sc.squeeze <- function(scmpObj,
         message(
             "Number of paths in the dataset: ", length(avail.paths)
         )
-        message("Paths: ", paste(avail.paths, collapse = ", "))
         message("Drop factor: ", drop_fac)
     }
 
@@ -222,8 +221,10 @@ sc.squeeze <- function(scmpObj,
     } else {
         avail.paths <- avail.paths[order(avail.paths, method = "radix")]
     }
+    # The paths in the order they are binned; sc.set.poly() chooses the
+    # reference
     if (verbose) {
-        message("Setting ", avail.paths[1], " as reference.")
+        message("Paths: ", paste(avail.paths, collapse = ", "))
     }
 
     # Apply transformations on data
