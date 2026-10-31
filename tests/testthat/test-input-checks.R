@@ -736,3 +736,63 @@ test_that("sc.restruct() checks link_sep and the labels of the paths", {
     # Control: the default separator
     expect_identical(restruct(), multi_restruct())
 })
+
+test_that("sc.restruct() takes each path once and names those left out", {
+    ob <- multi_binned()
+    link <- "Y_18_links_Y_15"
+    restruct <- function(end_node_list = list("Y_15", "Y_18", "Y_52"),
+                         root_node = "Root", link_node_list = list(link),
+                         verbose = FALSE) {
+        sc.restruct(ob,
+            end_node_list = end_node_list, root_node = root_node,
+            link_node_list = link_node_list, verbose = verbose
+        )
+    }
+    # The root among the end paths, an end path named twice, the root
+    # named as an end path, a link path named twice or also as an end path
+    # got their bins twice
+    twice <- list(
+        Root = list(end_node_list = list("Root", "Y_15", "Y_18", "Y_52")),
+        Y_15 = list(end_node_list = list("Y_15", "Y_15", "Y_18", "Y_52")),
+        Y_52 = list(root_node = "Y_52"),
+        list(link_node_list = list(link, link)),
+        list(end_node_list = list("Y_15", "Y_18", "Y_52", link))
+    )
+    names(twice)[4:5] <- link
+    for (i in seq_along(twice)) {
+        expect_error(do.call(restruct, twice[[i]]),
+            paste0(
+                "Each path must be named once in root_node, end_node_list ",
+                "and link_node_list; named more than once: ", names(twice)[i],
+                "."
+            ),
+            fixed = TRUE, info = i
+        )
+    }
+    # A linked path left out of end_node_list, or a link path left out of
+    # link_node_list: the bins of the paths named nowhere are left out,
+    # with a message when verbose
+    left <- "The bins of paths not named in root_node, end_node_list or"
+    full <- cDense(multi_restruct())
+    path_col <- ob@Parameters@path_col
+    out <- restruct(end_node_list = list("Y_15", "Y_52"))
+    expect_identical(
+        cDense(out), full[full[[path_col]] %in% c("Y_15", "Y_52"), ]
+    )
+    msgs <- capture_messages(
+        restruct(end_node_list = list("Y_15", "Y_52"), verbose = TRUE)
+    )
+    expect_true(
+        paste(left, "link_node_list are left out: Y_18\n") %in% msgs
+    )
+    msgs <- capture_messages(
+        restruct(link_node_list = list(), verbose = TRUE)
+    )
+    expect_true(
+        paste(left, "link_node_list are left out:", paste0(link, "\n")) %in%
+            msgs
+    )
+    # Control: every path named, no such message
+    msgs <- capture_messages(restruct(verbose = TRUE))
+    expect_false(any(startsWith(msgs, left)))
+})

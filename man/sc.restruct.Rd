@@ -18,9 +18,12 @@ sc.restruct(
 \arguments{
 \item{scmpObj}{A \link[=ScMaSigPro-class]{ScMaSigPro} object.}
 
-\item{end_node_list}{A list of the labels of the end paths.}
+\item{end_node_list}{A list of the labels of the end paths. The bins of
+a path that is not the root, an end path or a link path are left out,
+with a message when \code{verbose} is \code{TRUE}.}
 
-\item{root_node}{The label of the root path.}
+\item{root_node}{The label of the root path. Each path is named once, in
+\code{root_node}, \code{end_node_list} or \code{link_node_list}.}
 
 \item{link_node_list}{A list of the labels of the link paths, the segments
 that some end paths share; a label holds the labels of the paths it

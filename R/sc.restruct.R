@@ -7,8 +7,11 @@
 #' bins is shifted to follow them, and [pb_counts()] recomputes the
 #' pseudo-bulk counts.
 #'
-#' @param end_node_list A list of the labels of the end paths.
-#' @param root_node The label of the root path.
+#' @param end_node_list A list of the labels of the end paths. The bins of
+#'   a path that is not the root, an end path or a link path are left out,
+#'   with a message when `verbose` is `TRUE`.
+#' @param root_node The label of the root path. Each path is named once, in
+#'   `root_node`, `end_node_list` or `link_node_list`.
 #' @param link_node_list A list of the labels of the link paths, the segments
 #'   that some end paths share; a label holds the labels of the paths it
 #'   links, separated by `link_sep`.
@@ -111,6 +114,27 @@ sc.restruct <- function(scmpObj,
                 "The link path '", link, "' must hold the labels of the ",
                 "paths it links, separated by link_sep = '", link_sep, "'."
             )
+        )
+    }
+    # Each path is named once: the root among the end paths, an end path
+    # named twice or a link path also named as an end path got their bins
+    # twice
+    named <- c(root_node, ends, links)
+    twice <- unique(named[duplicated(named)])
+    .check(length(twice) == 0L,
+        msg = paste0(
+            "Each path must be named once in root_node, end_node_list and ",
+            "link_node_list; named more than once: ",
+            paste(twice, collapse = ", "), "."
+        )
+    )
+    # The bins of a path named nowhere, such as a linked path left out of
+    # end_node_list, are left out
+    left_out <- setdiff(paths, named)
+    if (verbose && length(left_out) > 0L) {
+        message(
+            "The bins of paths not named in root_node, end_node_list or ",
+            "link_node_list are left out: ", paste(left_out, collapse = ", ")
         )
     }
 
