@@ -373,6 +373,31 @@ test_that("column names and labels are single strings", {
     )
 })
 
+test_that("plotTrend() and plotDiagnostics() take one gene name", {
+    # Two genes of the lists failed inside the plots, a gene of the lists
+    # with one not in them drew both in one plot of plotTrend()
+    ob <- splat_clustered()
+    genes <- unique(unlist(ob@Significant@genes))
+    bad <- list(
+        genes[1:2], c(genes[1], splat_nonsig_gene()), rep(genes[1], 2),
+        NA_character_, NA, character(0), NULL, 10, factor(genes[1]),
+        list(genes[1])
+    )
+    msg <- "'feature_id' must be a single character string."
+    for (i in seq_along(bad)) {
+        expect_error(plotTrend(ob, bad[[i]]), msg, fixed = TRUE, info = i)
+        expect_error(plotTrend(ob, bad[[i]], significant = FALSE), msg,
+            fixed = TRUE, info = i
+        )
+        expect_error(plotDiagnostics(ob, bad[[i]]), msg,
+            fixed = TRUE, info = i
+        )
+    }
+    # Control: one gene of the lists
+    expect_s3_class(plotTrend(ob, genes[1]), "ggplot")
+    expect_s3_class(plotDiagnostics(ob, genes[1]), "patchwork")
+})
+
 test_that("additional_params can be NULL", {
     ob <- splat_scmp()
     expect_identical(sc.squeeze(ob, additional_params = NULL), splat_binned())

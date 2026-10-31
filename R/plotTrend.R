@@ -65,6 +65,7 @@ plotTrend <- function(scmpObj,
 
     # Check Object Validity
     .check_scmp(scmpObj)
+    .check_strings(feature_id = feature_id)
     logs <- .trend_logs(scmpObj, logs)
 
     # Check summary_mode

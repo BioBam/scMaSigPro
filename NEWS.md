@@ -14,6 +14,7 @@
 * `plotDiagnostics(model = "optimized")` fits the terms that `sc.t.fit()` selected for the gene, as its help page says. It fitted the columns of the design after the first, whatever terms were selected.
 * `plotDiagnostics()` stops on an object whose current design has no fits, such as an object saved by an earlier version after `sc.set.poly()`, on which `glm()` failed for the empty offset; the message asks to run `sc.p.vector()` first.
 * `plotTrend()`, `plotDiagnostics()`, `plotIntersect()` and `sc.cluster.trend()` on an object without significant genes, and `plotTrendCluster()` on an object without gene clusters, stop with a message that names the step to run, `sc.filter()` or `sc.cluster.trend()`. `plotTrend()` said that the gene had not passed the threshold of `sc.filter()`, also after a step run again had emptied the gene lists, and `plotDiagnostics()` asked to run the workflow.
+* `plotTrend()` and `plotDiagnostics()` stop with a clear message unless `feature_id` is a single character string, the name of one gene. Several genes failed inside the plots with messages such as "logical subscript too long", or gave one plot that mixed the genes; a factor, which worked, is refused as well.
 
 ## Documentation
 

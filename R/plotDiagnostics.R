@@ -34,6 +34,7 @@ plotDiagnostics <- function(scmpObj,
                             model = "optimized") {
     # Check Object Validity
     .check_scmp(scmpObj)
+    .check_strings(feature_id = feature_id)
 
     # The fits of the current design: a step that changes the bins, the
     # counts or the design empties them, and an object saved by an earlier
