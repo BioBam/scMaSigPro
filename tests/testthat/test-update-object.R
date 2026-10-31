@@ -256,3 +256,73 @@ test_that("updateObject() removes the offsets of fits without offset", {
     expect_no_warning(up <- updateObject(stale))
     expect_identical(up, fitted)
 })
+
+test_that("updateObject() warns about results computed from other slots", {
+    # Objects as earlier versions saved them after a step was run again:
+    # the slots of the later steps kept the results computed from the
+    # slots that the step replaced
+    ob <- splat_clustered()
+    sol <- showSol(ob)
+    lists <- unique(unlist(ob@Significant@genes))
+    stale <- list()
+    stale$rebinned <- ob
+    stale$rebinned@Dense <- sc.squeeze(splat_scmp(), bin_method = "Sqrt")@Dense
+    stale$redesigned <- ob
+    stale$redesigned@Design <- splat_design(3)@Design
+    stale$new_terms <- stale$redesigned
+    stale$new_terms@Design@offset <- ob@Design@offset
+    stale$retested <- ob
+    stale$retested@Profile <- sc.p.vector(splat_design(2),
+        p_value = 0.001, verbose = FALSE
+    )@Profile
+    stale$relisted <- ob
+    stale$relisted@Significant@genes$extra <- setdiff(
+        rownames(ob@Sparse), rownames(sol)
+    )[1]
+    stale$reclustered <- ob
+    stale$reclustered@Significant@clusters <- c(
+        ob@Significant@clusters,
+        stats::setNames(list(1L), setdiff(rownames(sol), lists)[1])
+    )
+    reasons <- c(
+        rebinned = "its design was built for other bins",
+        redesigned = "its tests used an offset that its design does not hold",
+        new_terms = "its models are those of other genes or of another design",
+        retested = "its models are those of other genes or of another design",
+        relisted = "its gene lists hold genes without a model",
+        reclustered = "its clusters hold genes that are not in its gene lists"
+    )
+    steps <- c(
+        rebinned = "sc.set.poly()", redesigned = "sc.p.vector()",
+        new_terms = "sc.t.fit()", retested = "sc.t.fit()",
+        relisted = "sc.filter()", reclustered = "sc.cluster.trend()"
+    )
+    for (n in names(stale)) {
+        expect_warning(up <- updateObject(stale[[n]]),
+            paste0(
+                "Some results of this object were not computed from its ",
+                "earlier slots: ", reasons[[n]], ". Earlier versions of ",
+                "scMaSigPro kept the results of the later steps when a step ",
+                "was run again: run ", steps[[n]], " and the later steps on ",
+                "the object again."
+            ),
+            fixed = TRUE, info = n
+        )
+        # The object is returned as it is
+        expect_identical(up, stale[[n]], info = n)
+    }
+    # Controls: objects of the workflow, from every step, and bins renamed
+    # after the design, which the fits accept
+    renamed <- splat_design(2)
+    bins <- cDense(renamed)
+    rownames(bins) <- paste0("bin", seq_len(nrow(bins)))
+    cDense(renamed) <- bins
+    controls <- list(
+        load_dataset("scmp.ob"), splat_scmp(), splat_binned(), splat_design(2),
+        splat_fitted("default"), splat_fitted("no_offset"), splat_filtered(),
+        splat_clustered(), multi_restruct(), renamed
+    )
+    for (i in seq_along(controls)) {
+        expect_no_warning(updateObject(controls[[i]]))
+    }
+})

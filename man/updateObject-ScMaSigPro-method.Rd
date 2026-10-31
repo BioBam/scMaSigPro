@@ -61,6 +61,19 @@ is not a valid \code{SingleCellExperiment}, and the cell metadata of their
 \code{Sparse} slot may not be in the order of the counts. \code{updateObject()}
 stops with the command that bins the cells of the \code{Sparse} slot again with
 \code{\link[=sc.squeeze]{sc.squeeze()}}; the later steps of the workflow must then be run again.
+
+Earlier versions kept the results of the later steps when a step was run
+again, so an object saved after that may hold results computed from the
+slots that the step replaced. \code{updateObject()} warns, without changing
+the object, and names the step to run again, when the design does not
+have the binned pseudotime of the bins of the \code{Dense} slot, when tests
+made with an offset find none in the design, when the models are not
+those of non-flat genes with a coefficient for each column of the
+design, when the gene lists hold genes without a model, or when the
+clusters hold genes that are not in the lists. It cannot tell every such
+result from a current one, such as tests of counts that
+\code{\link[=pb_counts]{pb_counts()}} computed again: on an object saved
+after a step was run again, run the later steps again.
 }
 \examples{
 data("scmp.ob", package = "scMaSigPro")

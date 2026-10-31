@@ -50,6 +50,19 @@
 #' stops with the command that bins the cells of the `Sparse` slot again with
 #' [sc.squeeze()]; the later steps of the workflow must then be run again.
 #'
+#' Earlier versions kept the results of the later steps when a step was run
+#' again, so an object saved after that may hold results computed from the
+#' slots that the step replaced. `updateObject()` warns, without changing
+#' the object, and names the step to run again, when the design does not
+#' have the binned pseudotime of the bins of the `Dense` slot, when tests
+#' made with an offset find none in the design, when the models are not
+#' those of non-flat genes with a coefficient for each column of the
+#' design, when the gene lists hold genes without a model, or when the
+#' clusters hold genes that are not in the lists. It cannot tell every such
+#' result from a current one, such as tests of counts that
+#' [pb_counts()] computed again: on an object saved
+#' after a step was run again, run the later steps again.
+#'
 #' @return The updated `ScMaSigPro` object.
 #'
 #' @examples
@@ -143,8 +156,67 @@ setMethod("updateObject", "ScMaSigPro", function(object, ...,
     object@Sparse <- updateObject(object@Sparse, ..., verbose = verbose)
     object@Dense <- updateObject(object@Dense, ..., verbose = verbose)
     validObject(object)
+    # Saved after a step was run again by a version that kept the slots of
+    # the later steps
+    stale <- .stale_message(object)
+    if (!is.null(stale)) {
+        warning(stale, call. = FALSE)
+    }
     object
 })
+
+# The warning of updateObject() for an object with a slot that was not
+# computed from the slots before it, or NULL. The checks follow the
+# workflow and the first that fails names the step to run again: the
+# design has the binned pseudotime of the bins of the Dense slot (its first
+# column; the bins may have been renamed or reordered since); tests made
+# with an offset have it in the design; the models are those of non-flat
+# genes, with a coefficient per column of the design; the genes of the
+# lists have a model; the genes of the clusters are in the lists.
+.stale_message <- function(object) {
+    design <- object@Design@predictor_matrix
+    other_bins <- FALSE
+    if (nrow(design) > 0L) {
+        alloc <- object@Design@assignment_matrix
+        bin_time <- colData(object@Dense)[[colnames(alloc)[1L]]]
+        other_bins <- !identical(
+            sort(as.numeric(alloc[, 1L])), sort(as.numeric(bin_time))
+        )
+    }
+    sol <- object@Estimate@significance_matrix
+    coefs <- object@Estimate@coefficient_matrix
+    genes <- unlist(object@Significant@genes, use.names = FALSE)
+    clustered <- names(object@Significant@clusters)
+    terms <- c("beta0", paste0("beta", colnames(design)))
+    other_models <- !all(rownames(sol) %in% object@Profile@non_flat) ||
+        !identical(colnames(coefs), terms)
+    stale <- c(
+        "sc.set.poly()" = other_bins,
+        "sc.p.vector()" = length(object@Profile@p_values) > 0L &&
+            isTRUE(object@Parameters@offset) &&
+            length(object@Design@offset) == 0L,
+        "sc.t.fit()" = nrow(coefs) > 0L && other_models,
+        "sc.filter()" = !all(genes %in% rownames(sol)),
+        "sc.cluster.trend()" = !all(clustered %in% genes)
+    )
+    if (!any(stale)) {
+        return(NULL)
+    }
+    reasons <- c(
+        "its design was built for other bins",
+        "its tests used an offset that its design does not hold",
+        "its models are those of other genes or of another design",
+        "its gene lists hold genes without a model",
+        "its clusters hold genes that are not in its gene lists"
+    )
+    first <- which(stale)[1L]
+    paste0(
+        "Some results of this object were not computed from its earlier ",
+        "slots: ", reasons[first], ". Earlier versions of scMaSigPro kept ",
+        "the results of the later steps when a step was run again: run ",
+        names(stale)[first], " and the later steps on the object again."
+    )
+}
 
 # The error of updateObject() for an object binned by scMaSigPro 0.0.4: the
 # command that bins its cells again, with its own column names.
